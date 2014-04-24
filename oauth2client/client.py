@@ -220,7 +220,7 @@ class Credentials(object):
       m = __import__(module)
     except ImportError:
       # In case there's an object from the old package structure, update it
-      module = module.replace('.apiclient', '')
+      module = module.replace('.googleapiclient', '')
       m = __import__(module)
 
     m = __import__(module, fromlist=module.split('.')[:-1])

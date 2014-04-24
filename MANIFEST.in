@@ -1,7 +1,1 @@
-recursive-include uritemplate *.py
-recursive-include apiclient *.json *.py
-include CHANGELOG
-include LICENSE
 include README
-include FAQ
-include setpath.sh
