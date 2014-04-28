@@ -1122,7 +1122,8 @@ def credentials_from_clientsecrets_and_code(filename, scope, code,
                                             message = None,
                                             redirect_uri='postmessage',
                                             http=None,
-                                            cache=None):
+                                            cache=None,
+                                            device_uri=None):
   """Returns OAuth2Credentials from a clientsecrets file and an auth code.
 
   Will create the right kind of Flow based on the contents of the clientsecrets
@@ -1154,7 +1155,7 @@ def credentials_from_clientsecrets_and_code(filename, scope, code,
       invalid.
   """
   flow = flow_from_clientsecrets(filename, scope, message=message, cache=cache,
-                                 redirect_uri=redirect_uri)
+                                 redirect_uri=redirect_uri, device_uri=device_uri)
   credentials = flow.step2_exchange(code, http=http)
   return credentials
 
@@ -1255,7 +1256,8 @@ class OAuth2WebServerFlow(Flow):
     self.device_code = d['device_code']
     self.user_code = d['user_code']
     self.interval = d['interval']
-    self.verification_url = d['verification_url']
+    # some providers respond with 'verification_url', others with 'verification_uri'
+    self.verification_url = d.get('verification_url') or d.get('verification_uri')
     if 'expires_in' in d:
       self.user_code_expiry = datetime.datetime.now() + datetime.timedelta(seconds=int(d['expires_in']))
     else:
@@ -1288,6 +1290,8 @@ class OAuth2WebServerFlow(Flow):
 
     resp, content = http.request(self.device_uri, method='POST', body=body,
                                  headers=headers)
+    print resp
+    print content
     if resp.status == 200:
       self._extract_codes(content)
       return self.user_code, self.verification_url
@@ -1390,7 +1394,7 @@ class OAuth2WebServerFlow(Flow):
 
 @util.positional(2)
 def flow_from_clientsecrets(filename, scope, redirect_uri=None,
-                            message=None, cache=None):
+                            message=None, cache=None, device_uri=None):
   """Create a Flow from a clientsecrets file.
 
   Will create the right kind of Flow based on the contents of the clientsecrets
@@ -1428,6 +1432,8 @@ def flow_from_clientsecrets(filename, scope, redirect_uri=None,
       revoke_uri = client_info.get('revoke_uri')
       if revoke_uri is not None:
         constructor_kwargs['revoke_uri'] = revoke_uri
+      if device_uri is not None:
+        constructor_kwargs['device_uri'] = device_uri
       return OAuth2WebServerFlow(
           client_info['client_id'], client_info['client_secret'],
           scope, **constructor_kwargs)
