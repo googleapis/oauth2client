@@ -32,6 +32,7 @@ import urllib
 import urlparse
 
 from oauth2client import GOOGLE_AUTH_URI
+from oauth2client import GOOGLE_DEVICE_URI
 from oauth2client import GOOGLE_REVOKE_URI
 from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client import util
@@ -97,6 +98,10 @@ class VerifyJwtTokenError(Error):
 
 class NonAsciiHeaderError(Error):
   """Header names and values must be ASCII strings."""
+
+
+class OAuth2DeviceCodeError(Error):
+  """Error trying to retrieve a device code."""
 
 
 def _abstract():
@@ -457,7 +462,7 @@ class OAuth2Credentials(Credentials):
       h = httplib2.Http()
       h = credentials.authorize(h)
 
-    You can't create a new OAuth subclass of httplib2.Authenication
+    You can't create a new OAuth subclass of httplib2.Authentication
     because it never gets passed the absolute URI, which is needed for
     signing. So instead we have to overload 'request' with a closure
     that adds in the Authorization header and then calls the original
@@ -1074,7 +1079,8 @@ def credentials_from_code(client_id, client_secret, scope, code,
                           redirect_uri='postmessage', http=None,
                           user_agent=None, token_uri=GOOGLE_TOKEN_URI,
                           auth_uri=GOOGLE_AUTH_URI,
-                          revoke_uri=GOOGLE_REVOKE_URI):
+                          revoke_uri=GOOGLE_REVOKE_URI,
+                          device_uri=GOOGLE_DEVICE_URI):
   """Exchanges an authorization code for an OAuth2Credentials object.
 
   Args:
@@ -1092,6 +1098,8 @@ def credentials_from_code(client_id, client_secret, scope, code,
       defaults to Google's endpoints but any OAuth 2.0 provider can be used.
     revoke_uri: string, URI for revoke endpoint. For convenience
       defaults to Google's endpoints but any OAuth 2.0 provider can be used.
+    device_uri: string, URI for device authorization endpoint. For convenience
+      defaults to Google's endpoints but any OAuth 2.0 provider can be used.
 
   Returns:
     An OAuth2Credentials object.
@@ -1103,7 +1111,7 @@ def credentials_from_code(client_id, client_secret, scope, code,
   flow = OAuth2WebServerFlow(client_id, client_secret, scope,
                              redirect_uri=redirect_uri, user_agent=user_agent,
                              auth_uri=auth_uri, token_uri=token_uri,
-                             revoke_uri=revoke_uri)
+                             revoke_uri=revoke_uri, device_uri=device_uri)
 
   credentials = flow.step2_exchange(code, http=http)
   return credentials
@@ -1164,6 +1172,7 @@ class OAuth2WebServerFlow(Flow):
                auth_uri=GOOGLE_AUTH_URI,
                token_uri=GOOGLE_TOKEN_URI,
                revoke_uri=GOOGLE_REVOKE_URI,
+               device_uri=GOOGLE_DEVICE_URI,
                **kwargs):
     """Constructor for OAuth2WebServerFlow.
 
@@ -1186,6 +1195,8 @@ class OAuth2WebServerFlow(Flow):
         defaults to Google's endpoints but any OAuth 2.0 provider can be used.
       revoke_uri: string, URI for revoke endpoint. For convenience
         defaults to Google's endpoints but any OAuth 2.0 provider can be used.
+      device_uri: string, URI for device authorization endpoint. For convenience
+        defaults to Google's endpoints but any OAuth 2.0 provider can be used.
       **kwargs: dict, The keyword arguments are all optional and required
                         parameters for the OAuth calls.
     """
@@ -1197,6 +1208,7 @@ class OAuth2WebServerFlow(Flow):
     self.auth_uri = auth_uri
     self.token_uri = token_uri
     self.revoke_uri = revoke_uri
+    self.device_uri = device_uri
     self.params = {
         'access_type': 'offline',
         'response_type': 'code',
@@ -1232,9 +1244,65 @@ class OAuth2WebServerFlow(Flow):
     }
     query_params.update(self.params)
     return _update_query_params(self.auth_uri, query_params)
+  
+  def _extract_codes(self, body):
+    """Parses the JSON response of a device and user codes request.
+
+    Args:
+      body: string, the body of a response
+    """
+    d = simplejson.loads(body)
+    self.device_code = d['device_code']
+    self.user_code = d['user_code']
+    self.interval = d['interval']
+    self.verification_url = d['verification_url']
+    if 'expires_in' in d:
+      self.user_code_expiry = datetime.datetime.now() + datetime.timedelta(seconds=int(d['expires_in']))
+    else:
+      self.user_code_expiry = None
+
+  @util.positional(1)
+  def step1_get_device_and_user_codes(self, http=None):
+    """Returns a user code and the verification URL where to enter it
+
+    Returns:
+      A user code as a string for the user to authorize the application
+      An URL as a string where the user has to enter the code
+    """
+    if self.device_uri is None:
+      raise ValueError('The value of device_uri must not be None.')
+
+    body = urllib.urlencode({
+        'client_id': self.client_id,
+        'scope': self.scope,
+    })
+    headers = {
+        'content-type': 'application/x-www-form-urlencoded',
+    }
+
+    if self.user_agent is not None:
+      headers['user-agent'] = self.user_agent
+
+    if http is None:
+      http = httplib2.Http()
+
+    resp, content = http.request(self.device_uri, method='POST', body=body,
+                                 headers=headers)
+    if resp.status == 200:
+      self._extract_codes(content)
+      return self.user_code, self.verification_url
+    else:
+      error_msg = 'Invalid response %s.' % resp.status
+      try:
+        d = simplejson.loads(content)
+        if 'error' in d:
+          error_msg = d['error']
+      except Exception:
+        pass
+      raise OAuth2DeviceCodeError(error_msg)
 
   @util.positional(2)
-  def step2_exchange(self, code, http=None):
+  def step2_exchange(self, code=None, http=None):
     """Exhanges a code for OAuth2Credentials.
 
     Args:
@@ -1250,6 +1318,12 @@ class OAuth2WebServerFlow(Flow):
       FlowExchangeError if a problem occured exchanging the code for a
       refresh_token.
     """
+    
+    if not code:
+      if self.device_code:
+        code = self.device_code
+      else:
+        raise ValueError('code can only be None when the step1_get_device_and_user_codes method has been previously successfully called')
 
     if not (isinstance(code, str) or isinstance(code, unicode)):
       if 'code' not in code:
@@ -1261,14 +1335,18 @@ class OAuth2WebServerFlow(Flow):
       else:
         code = code['code']
 
-    body = urllib.urlencode({
-        'grant_type': 'authorization_code',
+    post_data = {
         'client_id': self.client_id,
         'client_secret': self.client_secret,
         'code': code,
-        'redirect_uri': self.redirect_uri,
         'scope': self.scope,
-        })
+    }
+    if self.device_code:
+      post_data['grant_type'] = 'http://oauth.net/grant_type/device/1.0'
+    else:
+      post_data['grant_type'] = 'authorization_code'
+      post_data['redirect_uri'] = self.redirect_uri
+    body = urllib.urlencode(post_data)
     headers = {
         'content-type': 'application/x-www-form-urlencoded',
     }
