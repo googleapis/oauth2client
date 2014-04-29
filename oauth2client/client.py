@@ -596,7 +596,7 @@ class OAuth2Credentials(Credentials):
     """Set the Storage for the credential.
 
     Args:
-      store: Storage, an implementation of Stroage object.
+      store: Storage, an implementation of Storage object.
         This is needed to store the latest access_token if it
         has expired and been refreshed. This implementation uses
         locking to check for updates before updating the
@@ -1290,8 +1290,6 @@ class OAuth2WebServerFlow(Flow):
 
     resp, content = http.request(self.device_uri, method='POST', body=body,
                                  headers=headers)
-    print resp
-    print content
     if resp.status == 200:
       self._extract_codes(content)
       return self.user_code, self.verification_url
