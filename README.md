@@ -7,7 +7,7 @@ Installation
 
 To install, simply say
 
-   $ easy_install --upgrade oauth2client
+    $ easy_install --upgrade oauth2client
 
 
 Third Party Libraries
