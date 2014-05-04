@@ -1,6 +1,6 @@
 This is a client library for accessing resources protected by OAuth 2.0.
 
-http://google.github.io/oauth2client/
+[Full documentation](http://google.github.io/oauth2client/)
 
 Installation
 ============
@@ -15,11 +15,8 @@ Third Party Libraries
 
 These libraries will be installed when you install the client library:
 
-http://code.google.com/p/httplib2
-
-Depending on your version of Python, these libraries may also be installed:
-
-http://pypi.python.org/pypi/simplejson/
+* http://code.google.com/p/httplib2
+* http://pypi.python.org/pypi/simplejson/ (python version < 2.7 only)
 
 Contributing
 ============
