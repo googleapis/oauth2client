@@ -24,13 +24,12 @@ __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 import base64
 import datetime
-import httplib2
 import os
 import unittest
 import urlparse
 
-from googleapiclient.http import HttpMock
-from googleapiclient.http import HttpMockSequence
+from http_mock import HttpMock
+from http_mock import HttpMockSequence
 from oauth2client import GOOGLE_REVOKE_URI
 from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client.anyjson import simplejson
@@ -55,10 +54,27 @@ from oauth2client.client import credentials_from_clientsecrets_and_code
 from oauth2client.client import credentials_from_code
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.clientsecrets import _loadfile
-from test_discovery import assertUrisEqual
-
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
+
+
+# TODO(craigcitro): This is duplicated from
+# googleapiclient.test_discovery; consolidate these definitions.
+def assertUrisEqual(testcase, expected, actual):
+  """Test that URIs are the same, up to reordering of query parameters."""
+  expected = urlparse.urlparse(expected)
+  actual = urlparse.urlparse(actual)
+  testcase.assertEqual(expected.scheme, actual.scheme)
+  testcase.assertEqual(expected.netloc, actual.netloc)
+  testcase.assertEqual(expected.path, actual.path)
+  testcase.assertEqual(expected.params, actual.params)
+  testcase.assertEqual(expected.fragment, actual.fragment)
+  expected_query = urlparse.parse_qs(expected.query)
+  actual_query = urlparse.parse_qs(actual.query)
+  for name in expected_query.keys():
+    testcase.assertEqual(expected_query[name], actual_query[name])
+  for name in actual_query.keys():
+    testcase.assertEqual(expected_query[name], actual_query[name])
 
 
 def datafile(filename):

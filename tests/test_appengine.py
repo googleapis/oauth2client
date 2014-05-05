@@ -40,7 +40,6 @@ import dev_appserver
 dev_appserver.fix_sys_path()
 import webapp2
 
-from googleapiclient.http import HttpMockSequence
 from google.appengine.api import apiproxy_stub
 from google.appengine.api import apiproxy_stub_map
 from google.appengine.api import app_identity
@@ -51,6 +50,7 @@ from google.appengine.ext import db
 from google.appengine.ext import ndb
 from google.appengine.ext import testbed
 from google.appengine.runtime import apiproxy_errors
+from http_mock import HttpMockSequence
 from oauth2client import appengine
 from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client.anyjson import simplejson
