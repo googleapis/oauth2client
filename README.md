@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/google/oauth2client.svg?branch=master)](https://travis-ci.org/google/oauth2client)
+
 This is a client library for accessing resources protected by OAuth 2.0.
 
 [Full documentation](http://google.github.io/oauth2client/)
