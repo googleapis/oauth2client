@@ -121,14 +121,16 @@ class Storage(BaseStorage):
 
     Args:
       credentials: Credentials, the credentials to store.
+      overwrite: Boolean, indicates whether you would like these credentials to
+                          overwrite any existing stored credentials.
     """
     args = {self.key_name: self.key_value}
-    
-    if overwrite: 
-      entity, is_new = self.model_class.objects.get_or_create(**args)
-    else: 
+
+    if overwrite:
+      entity, unused_is_new = self.model_class.objects.get_or_create(**args)
+    else:
       entity = self.model_class(**args)
-    
+
     setattr(entity, self.property_name, credentials)
     entity.save()
 
