@@ -526,7 +526,7 @@ class OAuth2WebServerFlowTest(unittest.TestCase):
     self.assertRaises(VerifyJwtTokenError, self.flow.step2_exchange,
       'some random code', http=http)
 
-  def test_exchange_id_token_fail(self):
+  def test_exchange_id_token(self):
     body = {'foo': 'bar'}
     payload = base64.urlsafe_b64encode(simplejson.dumps(body)).strip('=')
     jwt = (base64.urlsafe_b64encode('stuff')+ '.' + payload + '.' +
