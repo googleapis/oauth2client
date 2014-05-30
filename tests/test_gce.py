@@ -20,8 +20,9 @@ Unit tests for oauth2client.gce.
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
-import unittest
+import httplib2
 import mox
+import unittest
 
 from oauth2client.client import AccessTokenRefreshError
 from oauth2client.client import Credentials
@@ -54,7 +55,6 @@ class AssertionCredentialsTests(unittest.TestCase):
 
     m.UnsetStubs()
     m.VerifyAll()
-
 
   def test_fail_refresh(self):
     m = mox.Mox()
@@ -90,3 +90,44 @@ class AssertionCredentialsTests(unittest.TestCase):
     c2 = Credentials.new_from_json(json)
 
     self.assertEqual(c.access_token, c2.access_token)
+
+  def test_create_scoped_required_without_scopes(self):
+    credentials = AppAssertionCredentials([])
+    self.assertTrue(credentials.create_scoped_required())
+
+  def test_create_scoped_required_with_scopes(self):
+    credentials = AppAssertionCredentials(['dummy_scope'])
+    self.assertFalse(credentials.create_scoped_required())
+
+  def test_create_scoped(self):
+    credentials = AppAssertionCredentials([])
+    new_credentials = credentials.create_scoped(['dummy_scope'])
+    self.assertNotEqual(credentials, new_credentials)
+    self.assertTrue(isinstance(new_credentials, AppAssertionCredentials))
+    self.assertEqual('dummy_scope', new_credentials.scope)
+
+  def test_get_access_token(self):
+    m = mox.Mox()
+
+    httplib2_response = m.CreateMock(object)
+    httplib2_response.status = 200
+
+    httplib2_request = m.CreateMock(object)
+    httplib2_request.__call__(
+        ('http://metadata.google.internal/0.1/meta-data/service-accounts/'
+         'default/acquire?scope=dummy_scope'
+        )).AndReturn((httplib2_response, '{"accessToken": "this-is-a-token"}'))
+
+    m.ReplayAll()
+
+    credentials = AppAssertionCredentials(['dummy_scope'])
+
+    http = httplib2.Http()
+    http.request = httplib2_request
+
+    self.assertEquals('this-is-a-token',
+                      credentials.get_access_token(http=http))
+
+    m.UnsetStubs()
+    m.VerifyAll()
+    
