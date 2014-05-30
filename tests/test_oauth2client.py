@@ -24,7 +24,9 @@ __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 import base64
 import datetime
+import mox
 import os
+import time
 import unittest
 import urlparse
 
@@ -37,23 +39,36 @@ from oauth2client.client import AccessTokenCredentials
 from oauth2client.client import AccessTokenCredentialsError
 from oauth2client.client import AccessTokenRefreshError
 from oauth2client.client import AssertionCredentials
+from oauth2client.client import AUTHORIZED_USER
 from oauth2client.client import Credentials
+from oauth2client.client import DefaultCredentialsError
 from oauth2client.client import FlowExchangeError
+from oauth2client.client import GoogleCredentials
+from oauth2client.client import GOOGLE_CREDENTIALS_DEFAULT
 from oauth2client.client import MemoryCache
 from oauth2client.client import NonAsciiHeaderError
 from oauth2client.client import OAuth2Credentials
 from oauth2client.client import OAuth2WebServerFlow
 from oauth2client.client import OOB_CALLBACK_URN
 from oauth2client.client import REFRESH_STATUS_CODES
+from oauth2client.client import SERVICE_ACCOUNT
 from oauth2client.client import Storage
 from oauth2client.client import TokenRevokeError
 from oauth2client.client import VerifyJwtTokenError
+from oauth2client.client import _env_name
 from oauth2client.client import _extract_id_token
+from oauth2client.client import _get_default_credential_from_file
+from oauth2client.client import _get_environment
+from oauth2client.client import _get_environment_variable_file
+from oauth2client.client import _get_well_known_file
+from oauth2client.client import _raise_exception_for_missing_fields
+from oauth2client.client import _raise_exception_for_reading_json
 from oauth2client.client import _update_query_params
 from oauth2client.client import credentials_from_clientsecrets_and_code
 from oauth2client.client import credentials_from_code
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.clientsecrets import _loadfile
+from oauth2client.service_account import _ServiceAccountCredentials
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 
@@ -105,6 +120,328 @@ class CredentialsTests(unittest.TestCase):
     credentials = Credentials()
     json = credentials.to_json()
     restored = Credentials.new_from_json(json)
+
+
+class MockResponse(object):
+  """Mock the response of urllib2.urlopen() call."""
+  
+  def __init__(self, headers):
+    self._headers = headers
+
+  def info(self):
+    class Info:
+      def __init__(self, headers):
+        self.headers = headers
+
+    return Info(self._headers)
+
+
+class GoogleCredentialsTests(unittest.TestCase):
+
+  def setUp(self):
+    self.env_server_software = os.environ.get('SERVER_SOFTWARE', None)
+    self.env_google_credentials_default = (
+        os.environ.get(GOOGLE_CREDENTIALS_DEFAULT, None))
+    self.env_appdata = os.environ.get('APPDATA', None)
+    self.os_name = os.name
+    from oauth2client import client
+    setattr(client, '_env_name', None)
+
+  def tearDown(self):
+    self.reset_env('SERVER_SOFTWARE', self.env_server_software)
+    self.reset_env(GOOGLE_CREDENTIALS_DEFAULT,
+                   self.env_google_credentials_default)
+    self.reset_env('APPDATA', self.env_appdata)
+    os.name = self.os_name
+
+  def reset_env(self, env, value):
+    """Set the environment variable 'env' to 'value'."""
+    if value is not None:
+      os.environ[env] = value
+    else:
+      os.environ.pop(env, '')
+
+  def validate_service_account_credentials(self, credentials):
+    self.assertTrue(isinstance(credentials, _ServiceAccountCredentials))
+    self.assertEqual('123', credentials._service_account_id)
+    self.assertEqual('dummy@google.com', credentials._service_account_email)
+    self.assertEqual('ABCDEF', credentials._private_key_id)
+    self.assertEqual('', credentials._scopes)
+
+  def validate_google_credentials(self, credentials):
+    self.assertTrue(isinstance(credentials, GoogleCredentials))
+    self.assertEqual(None, credentials.access_token)
+    self.assertEqual('123', credentials.client_id)
+    self.assertEqual('secret', credentials.client_secret)
+    self.assertEqual('alabalaportocala', credentials.refresh_token)
+    self.assertEqual(None, credentials.token_expiry)
+    self.assertEqual(GOOGLE_TOKEN_URI, credentials.token_uri)
+    self.assertEqual('Python client library', credentials.user_agent)
+
+  def get_a_google_credentials_object(self):
+    return GoogleCredentials(None, None, None, None, None, None, None, None)
+
+  def test_create_scoped_required(self):
+    self.assertFalse(
+        self.get_a_google_credentials_object().create_scoped_required())
+
+  def test_create_scoped(self):
+    credentials = self.get_a_google_credentials_object() 
+    self.assertEqual(credentials, credentials.create_scoped(None))
+    self.assertEqual(credentials,
+                     credentials.create_scoped(['dummy_scope']))
+
+  def test_get_environment_gae_production(self):
+    os.environ['SERVER_SOFTWARE'] = 'Google App Engine/XYZ'
+    self.assertEqual('GAE_PRODUCTION', _get_environment())
+
+  def test_get_environment_gae_local(self):
+    os.environ['SERVER_SOFTWARE'] = 'Development/XYZ'
+    self.assertEqual('GAE_LOCAL', _get_environment())
+
+  def test_get_environment_gce_production(self):
+    os.environ['SERVER_SOFTWARE'] = ''
+    mockResponse = MockResponse(['Metadata-Flavor: Google\r\n'])
+
+    m = mox.Mox()
+
+    urllib2_urlopen = m.CreateMock(object)
+    urllib2_urlopen.__call__(('http://metadata.google.internal'
+                             )).AndReturn(mockResponse)
+
+    m.ReplayAll()
+
+    self.assertEqual('GCE_PRODUCTION', _get_environment(urllib2_urlopen))
+
+    m.UnsetStubs()
+    m.VerifyAll()
+
+  def test_get_environment_unknown(self):
+    os.environ['SERVER_SOFTWARE'] = ''
+    mockResponse = MockResponse([])
+
+    m = mox.Mox()
+
+    urllib2_urlopen = m.CreateMock(object)
+    urllib2_urlopen.__call__(('http://metadata.google.internal'
+                             )).AndReturn(mockResponse)
+
+    m.ReplayAll()
+
+    self.assertEqual('UNKNOWN', _get_environment(urllib2_urlopen))
+
+    m.UnsetStubs()
+    m.VerifyAll()
+
+  def test_get_environment_variable_file(self):
+    environment_variable_file = datafile(
+        os.path.join('gcloud', 'credentials_default.json'))
+    os.environ[GOOGLE_CREDENTIALS_DEFAULT] = environment_variable_file
+    self.assertEqual(environment_variable_file,
+                     _get_environment_variable_file())
+
+  def test_get_environment_variable_file_error(self):
+    nonexistent_file = datafile('nonexistent')
+    os.environ[GOOGLE_CREDENTIALS_DEFAULT] = nonexistent_file
+    # we can't use self.assertRaisesRegexp() because it is only in Python 2.7+
+    try:
+      _get_environment_variable_file()
+      self.fail(nonexistent_file + ' should not exist.')
+    except DefaultCredentialsError as error:
+      self.assertEqual('File ' + nonexistent_file +
+                       ' (pointed by ' + GOOGLE_CREDENTIALS_DEFAULT +
+                       ' environment variable) does not exist!',
+                       str(error))
+
+  def test_get_well_known_file_on_windows(self):
+    well_known_file = datafile(
+        os.path.join('gcloud', 'credentials_default.json'))
+    os.name = 'nt'
+    os.environ['APPDATA'] = DATA_DIR
+    self.assertEqual(well_known_file, _get_well_known_file())
+
+  def test_get_well_known_file_on_windows_no_file(self):
+    os.name = 'nt'
+    os.environ['APPDATA'] = os.path.join(DATA_DIR, 'nonexistentpath')
+    self.assertEqual(None, _get_well_known_file())
+
+  def test_get_default_credential_from_file_service_account(self):
+    credentials_file = datafile(
+        os.path.join('gcloud', 'credentials_default.json'))
+    credentials = _get_default_credential_from_file(credentials_file)
+    self.validate_service_account_credentials(credentials)
+
+  def test_get_default_credential_from_file_authorized_user(self):
+    credentials_file = datafile(
+        os.path.join('gcloud', 'credentials_default_authorized_user.json'))
+    credentials = _get_default_credential_from_file(credentials_file)
+    self.validate_google_credentials(credentials)
+
+  def test_get_default_credential_from_malformed_file_1(self):
+    credentials_file = datafile(
+        os.path.join('gcloud', 'credentials_default_malformed_1.json'))
+    # we can't use self.assertRaisesRegexp() because it is only in Python 2.7+
+    try:
+      _get_default_credential_from_file(credentials_file)
+      self.fail('An exception was expected!')
+    except DefaultCredentialsError as error:
+      self.assertEqual("'type' field should be defined "
+                       "(and have one of the '" + AUTHORIZED_USER +
+                       "' or '" + SERVICE_ACCOUNT + "' values)",
+                       str(error))
+
+  def test_get_default_credential_from_malformed_file_2(self):
+    credentials_file = datafile(
+        os.path.join('gcloud', 'credentials_default_malformed_2.json'))
+    # we can't use self.assertRaisesRegexp() because it is only in Python 2.7+
+    try:
+      _get_default_credential_from_file(credentials_file)
+      self.fail('An exception was expected!')
+    except DefaultCredentialsError as error:
+      self.assertEqual('The following field(s): '
+                       'private_key_id must be defined.',
+                       str(error))
+
+  def test_get_default_credential_from_malformed_file_3(self):
+    credentials_file = datafile(
+        os.path.join('gcloud', 'credentials_default_malformed_3.json'))
+    self.assertRaises(ValueError, _get_default_credential_from_file,
+                      credentials_file)
+
+  def test_raise_exception_for_missing_fields(self):
+    missing_fields = ['first', 'second', 'third']
+    # we can't use self.assertRaisesRegexp() because it is only in Python 2.7+
+    try:
+      _raise_exception_for_missing_fields(missing_fields)
+      self.fail('An exception was expected!')
+    except DefaultCredentialsError as error:
+      self.assertEqual('The following field(s): ' +
+                       ', '.join(missing_fields) + ' must be defined.',
+                       str(error))
+
+  def test_raise_exception_for_reading_json(self):
+    credential_file = 'any_file'
+    extra_help = ' be good'
+    error = DefaultCredentialsError('stuff happens')
+    # we can't use self.assertRaisesRegexp() because it is only in Python 2.7+
+    try:
+      _raise_exception_for_reading_json(credential_file, extra_help, error)
+      self.fail('An exception was expected!')
+    except DefaultCredentialsError as ex:
+      self.assertEqual('An error was encountered while reading '
+                       'json file: '+ credential_file +
+                       extra_help + ': ' + str(error),
+                       str(ex))
+
+  def test_get_default_from_environment_variable_service_account(self):
+    os.environ['SERVER_SOFTWARE'] = ''
+    environment_variable_file = datafile(
+        os.path.join('gcloud', 'credentials_default.json'))
+    os.environ[GOOGLE_CREDENTIALS_DEFAULT] = environment_variable_file
+    self.validate_service_account_credentials(GoogleCredentials.get_default())
+
+  def test_env_name(self):
+    from oauth2client import client
+    self.assertEqual(None, getattr(client, '_env_name'))
+    self.test_get_default_from_environment_variable_service_account()
+    self.assertEqual('UNKNOWN', getattr(client, '_env_name'))    
+
+  def test_get_default_from_environment_variable_authorized_user(self):
+    os.environ['SERVER_SOFTWARE'] = ''
+    environment_variable_file = datafile(
+        os.path.join('gcloud', 'credentials_default_authorized_user.json'))
+    os.environ[GOOGLE_CREDENTIALS_DEFAULT] = environment_variable_file
+    self.validate_google_credentials(GoogleCredentials.get_default())
+
+  def test_get_default_from_environment_variable_malformed_file(self):
+    os.environ['SERVER_SOFTWARE'] = ''
+    environment_variable_file = datafile(
+        os.path.join('gcloud', 'credentials_default_malformed_3.json'))
+    os.environ[GOOGLE_CREDENTIALS_DEFAULT] = environment_variable_file
+    # we can't use self.assertRaisesRegexp() because it is only in Python 2.7+
+    try:
+      GoogleCredentials.get_default()
+      self.fail('An exception was expected!')
+    except DefaultCredentialsError as error:
+      self.assertTrue(str(error).startswith(
+          'An error was encountered while reading json file: ' +
+          environment_variable_file + ' (pointed to by ' +
+          GOOGLE_CREDENTIALS_DEFAULT + ' environment variable):'))
+
+  def test_get_default_environment_not_set_up(self):
+    # It is normal for this test to fail if run inside
+    # a Google Compute Engine VM or after 'gcloud auth login' command
+    # has been executed on a non Windows machine.
+    os.environ['SERVER_SOFTWARE'] = ''
+    os.environ[GOOGLE_CREDENTIALS_DEFAULT] = ''
+    os.environ['APPDATA'] = ''
+    # we can't use self.assertRaisesRegexp() because it is only in Python 2.7+
+    try:
+      GoogleCredentials.get_default()
+      self.fail('An exception was expected!')
+    except DefaultCredentialsError as error:
+      self.assertEqual("The Default Credentials are not available. They are "
+                       "available if running in Google App Engine or Google "
+                       "Compute Engine. They are also available if using the "
+                       "Google Cloud SDK and running 'gcloud auth login'. "
+                       "Otherwise, the environment variable " +
+                       GOOGLE_CREDENTIALS_DEFAULT + " must be defined pointing "
+                       "to a file defining the credentials. See "
+                       "https://developers.google.com/accounts/docs/default-"
+                       "credentials for details.",
+                        str(error))
+
+  def test_from_stream_service_account(self):
+    credentials_file = datafile(
+        os.path.join('gcloud', 'credentials_default.json'))
+    credentials = (
+        self.get_a_google_credentials_object().from_stream(credentials_file))
+    self.validate_service_account_credentials(credentials)
+
+  def test_from_stream_authorized_user(self):
+    credentials_file = datafile(
+        os.path.join('gcloud', 'credentials_default_authorized_user.json'))
+    credentials = (
+        self.get_a_google_credentials_object().from_stream(credentials_file))
+    self.validate_google_credentials(credentials)
+
+  def test_from_stream_malformed_file_1(self):
+    credentials_file = datafile(
+        os.path.join('gcloud', 'credentials_default_malformed_1.json'))
+    # we can't use self.assertRaisesRegexp() because it is only in Python 2.7+
+    try:
+      self.get_a_google_credentials_object().from_stream(credentials_file)
+      self.fail('An exception was expected!')
+    except DefaultCredentialsError as error:
+      self.assertEqual("An error was encountered while reading json file: " +
+                       credentials_file +
+                       " (provided as parameter to the from_stream() method): "
+                       "'type' field should be defined (and have one of the '" +
+                       AUTHORIZED_USER + "' or '" + SERVICE_ACCOUNT +
+                       "' values)",
+                       str(error))
+
+  def test_from_stream_malformed_file_2(self):
+    credentials_file = datafile(
+        os.path.join('gcloud', 'credentials_default_malformed_2.json'))
+    # we can't use self.assertRaisesRegexp() because it is only in Python 2.7+
+    try:
+      self.get_a_google_credentials_object().from_stream(credentials_file)
+      self.fail('An exception was expected!')
+    except DefaultCredentialsError as error:
+      self.assertEqual('An error was encountered while reading json file: ' +
+                       credentials_file +
+                       ' (provided as parameter to the from_stream() method): '
+                       'The following field(s): private_key_id must be '
+                       'defined.',
+                       str(error))
+
+  def test_from_stream_malformed_file_3(self):
+    credentials_file = datafile(
+        os.path.join('gcloud', 'credentials_default_malformed_3.json'))
+    self.assertRaises(
+        DefaultCredentialsError,
+        self.get_a_google_credentials_object().from_stream, credentials_file)
 
 
 class DummyDeleteStorage(Storage):
@@ -244,6 +581,32 @@ class BasicCredentialsTests(unittest.TestCase):
     self.credentials.token_response = 'foobar'
     instance = OAuth2Credentials.from_json(self.credentials.to_json())
     self.assertEqual('foobar', instance.token_response)
+
+  def test_get_access_token(self):
+    token_response_first = {'access_token': 'first_token', 'expires_in': 1}
+    token_response_second = {'access_token': 'second_token', 'expires_in': 1}
+    http = HttpMockSequence([
+        ({'status': '200'}, simplejson.dumps(token_response_first)),
+        ({'status': '200'}, simplejson.dumps(token_response_second)),
+    ])
+
+    self.assertEqual('first_token',
+                     self.credentials.get_access_token(http=http))
+    self.assertFalse(self.credentials.access_token_expired)
+    self.assertEqual(token_response_first, self.credentials.token_response)
+
+    self.assertEqual('first_token',
+                     self.credentials.get_access_token(http=http))
+    self.assertFalse(self.credentials.access_token_expired)
+    self.assertEqual(token_response_first, self.credentials.token_response)
+
+    time.sleep(1)
+    self.assertTrue(self.credentials.access_token_expired)
+
+    self.assertEqual('second_token',
+                     self.credentials.get_access_token(http=http))
+    self.assertFalse(self.credentials.access_token_expired)
+    self.assertEqual(token_response_second, self.credentials.token_response)
 
 
 class AccessTokenCredentialsTests(unittest.TestCase):

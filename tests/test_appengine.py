@@ -220,6 +220,33 @@ class TestAppAssertionCredentials(unittest.TestCase):
     self.assertEqual('a_token_456', credentials.access_token)
     self.assertEqual(scope, credentials.scope)
 
+  def test_create_scoped_required_without_scopes(self):
+    credentials = AppAssertionCredentials([])
+    self.assertTrue(credentials.create_scoped_required())
+
+  def test_create_scoped_required_with_scopes(self):
+    credentials = AppAssertionCredentials(['dummy_scope'])
+    self.assertFalse(credentials.create_scoped_required())
+
+  def test_create_scoped(self):
+    credentials = AppAssertionCredentials([])
+    new_credentials = credentials.create_scoped(['dummy_scope'])
+    self.assertNotEqual(credentials, new_credentials)
+    self.assertTrue(isinstance(new_credentials, AppAssertionCredentials))
+    self.assertEqual('dummy_scope', new_credentials.scope)
+
+  def test_get_access_token(self):
+    app_identity_stub = self.AppIdentityStubImpl()
+    apiproxy_stub_map.apiproxy = apiproxy_stub_map.APIProxyStubMap()
+    apiproxy_stub_map.apiproxy.RegisterStub("app_identity_service",
+                                            app_identity_stub)
+    apiproxy_stub_map.apiproxy.RegisterStub(
+        'memcache', memcache_stub.MemcacheServiceStub())
+
+    credentials = AppAssertionCredentials(['dummy_scope'])
+    token = credentials.get_access_token()
+    self.assertEqual('a_token_123', token)
+
 
 class TestFlowModel(db.Model):
   flow = FlowProperty()
