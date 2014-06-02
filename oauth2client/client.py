@@ -600,18 +600,16 @@ class OAuth2Credentials(Credentials):
     return False
 
   def get_access_token(self, http=None):
-    """Return the access token.
+    """Return the access token and its expiration information.
 
     If the token does not exist, get one.
     If the token expired, refresh it.
     """
-    if self.access_token and not self.access_token_expired:
-      return self.access_token
-    else:
+    if not self.access_token or self.access_token_expired:
       if not http:
         http = httplib2.Http()
       self.refresh(http)
-      return self.access_token
+    return {'access_token': self.access_token, 'expires_in': self._expires_in()}
 
   def set_store(self, store):
     """Set the Storage for the credential.
@@ -624,6 +622,16 @@ class OAuth2Credentials(Credentials):
         access_token.
     """
     self.store = store
+
+  def _expires_in(self):
+    """Get in how many seconds does the token expire."""
+    if self.token_expiry:
+      now = datetime.datetime.utcnow()
+      if self.token_expiry > now:
+        time_delta = self.token_expiry - now
+        return int(round(time_delta.days * 86400.0 +
+                         time_delta.seconds +
+                         time_delta.microseconds * 0.000001))
 
   def _updateFromCredential(self, other):
     """Update this Credential from another instance."""

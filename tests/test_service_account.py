@@ -100,21 +100,24 @@ class ServiceAccountCredentialsTests(unittest.TestCase):
         ({'status': '200'}, simplejson.dumps(token_response_first)),
         ({'status': '200'}, simplejson.dumps(token_response_second)),
     ])
-  
-    self.assertEqual('first_token',
-                     self.credentials.get_access_token(http=http))
+
+    token = self.credentials.get_access_token(http=http)
+    self.assertEqual('first_token', token['access_token'])
+    self.assertEqual(1, token['expires_in'])  
     self.assertFalse(self.credentials.access_token_expired)
     self.assertEqual(token_response_first, self.credentials.token_response)
 
-    self.assertEqual('first_token',
-                     self.credentials.get_access_token(http=http))
+    token = self.credentials.get_access_token(http=http)
+    self.assertEqual('first_token', token['access_token'])
+    self.assertEqual(1, token['expires_in'])
     self.assertFalse(self.credentials.access_token_expired)
     self.assertEqual(token_response_first, self.credentials.token_response)
 
     time.sleep(1)
     self.assertTrue(self.credentials.access_token_expired)
 
-    self.assertEqual('second_token',
-                     self.credentials.get_access_token(http=http))
+    token = self.credentials.get_access_token(http=http)
+    self.assertEqual('second_token', token['access_token'])
+    self.assertEqual(1, token['expires_in'])
     self.assertFalse(self.credentials.access_token_expired)
     self.assertEqual(token_response_second, self.credentials.token_response)
