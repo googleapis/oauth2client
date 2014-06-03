@@ -629,7 +629,7 @@ class OAuth2Credentials(Credentials):
     self.store = store
 
   def _expires_in(self):
-    """Get in how many seconds does the token expire."""
+    """Return the number of seconds until this token expires."""
     if self.token_expiry:
       now = datetime.datetime.utcnow()
       if self.token_expiry > now:
@@ -637,6 +637,8 @@ class OAuth2Credentials(Credentials):
         return int(round(time_delta.days * 86400.0 +
                          time_delta.seconds +
                          time_delta.microseconds * 0.000001))
+      else:
+        return 0
 
   def _updateFromCredential(self, other):
     """Update this Credential from another instance."""
