@@ -94,8 +94,9 @@ class ServiceAccountCredentialsTests(unittest.TestCase):
     self.assertEqual('dummy_scope', new_credentials._scopes)
 
   def test_access_token(self):
-    token_response_first = {'access_token': 'first_token', 'expires_in': 1}
-    token_response_second = {'access_token': 'second_token', 'expires_in': 1}
+    S = 2  # number of seconds in which the token expires
+    token_response_first = {'access_token': 'first_token', 'expires_in': S}
+    token_response_second = {'access_token': 'second_token', 'expires_in': S}
     http = HttpMockSequence([
         ({'status': '200'}, simplejson.dumps(token_response_first)),
         ({'status': '200'}, simplejson.dumps(token_response_second)),
@@ -103,21 +104,21 @@ class ServiceAccountCredentialsTests(unittest.TestCase):
 
     token = self.credentials.get_access_token(http=http)
     self.assertEqual('first_token', token.access_token)
-    self.assertEqual(1, token.expires_in)  
+    self.assertEqual(S - 1, token.expires_in)  
     self.assertFalse(self.credentials.access_token_expired)
     self.assertEqual(token_response_first, self.credentials.token_response)
 
     token = self.credentials.get_access_token(http=http)
     self.assertEqual('first_token', token.access_token)
-    self.assertEqual(1, token.expires_in)
+    self.assertEqual(S - 1, token.expires_in)
     self.assertFalse(self.credentials.access_token_expired)
     self.assertEqual(token_response_first, self.credentials.token_response)
 
-    time.sleep(1)
+    time.sleep(S)
     self.assertTrue(self.credentials.access_token_expired)
 
     token = self.credentials.get_access_token(http=http)
     self.assertEqual('second_token', token.access_token)
-    self.assertEqual(1, token.expires_in)
+    self.assertEqual(S - 1, token.expires_in)
     self.assertFalse(self.credentials.access_token_expired)
     self.assertEqual(token_response_second, self.credentials.token_response)

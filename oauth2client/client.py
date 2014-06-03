@@ -634,9 +634,9 @@ class OAuth2Credentials(Credentials):
       now = datetime.datetime.utcnow()
       if self.token_expiry > now:
         time_delta = self.token_expiry - now
-        return int(round(time_delta.days * 86400.0 +
-                         time_delta.seconds +
-                         time_delta.microseconds * 0.000001))
+        # TODO(orestica): return time_delta.total_seconds()
+        # once dropping support for Python 2.6
+        return time_delta.days * 86400 + time_delta.seconds
       else:
         return 0
 
