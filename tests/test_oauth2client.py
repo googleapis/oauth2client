@@ -591,14 +591,14 @@ class BasicCredentialsTests(unittest.TestCase):
     ])
 
     token = self.credentials.get_access_token(http=http)
-    self.assertEqual('first_token', token['access_token'])
-    self.assertEqual(1, token['expires_in'])
+    self.assertEqual('first_token', token.access_token)
+    self.assertEqual(1, token.expires_in)
     self.assertFalse(self.credentials.access_token_expired)
     self.assertEqual(token_response_first, self.credentials.token_response)
 
     token = self.credentials.get_access_token(http=http)
-    self.assertEqual('first_token', token['access_token'])
-    self.assertEqual(1, token['expires_in'])
+    self.assertEqual('first_token', token.access_token)
+    self.assertEqual(1, token.expires_in)
     self.assertFalse(self.credentials.access_token_expired)
     self.assertEqual(token_response_first, self.credentials.token_response)
 
@@ -606,8 +606,8 @@ class BasicCredentialsTests(unittest.TestCase):
     self.assertTrue(self.credentials.access_token_expired)
 
     token = self.credentials.get_access_token(http=http)
-    self.assertEqual('second_token', token['access_token'])
-    self.assertEqual(1, token['expires_in'])
+    self.assertEqual('second_token', token.access_token)
+    self.assertEqual(1, token.expires_in)
     self.assertFalse(self.credentials.access_token_expired)
     self.assertEqual(token_response_second, self.credentials.token_response)
 

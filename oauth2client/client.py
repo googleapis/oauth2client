@@ -31,6 +31,7 @@ import time
 import urllib
 import urlparse
 
+from collections import namedtuple
 from oauth2client import GOOGLE_AUTH_URI
 from oauth2client import GOOGLE_REVOKE_URI
 from oauth2client import GOOGLE_TOKEN_URI
@@ -74,6 +75,9 @@ SERVICE_ACCOUNT = 'service_account'
 
 # The environment variable pointing the file with local Default Credentials.
 GOOGLE_CREDENTIALS_DEFAULT = 'GOOGLE_CREDENTIALS_DEFAULT'
+
+# The access token along with the seconds in which it expires.
+AccessTokenInfo = namedtuple('AccessTokenInfo', ['access_token', 'expires_in'])
 
 class Error(Exception):
   """Base error for this module."""
@@ -609,7 +613,8 @@ class OAuth2Credentials(Credentials):
       if not http:
         http = httplib2.Http()
       self.refresh(http)
-    return {'access_token': self.access_token, 'expires_in': self._expires_in()}
+    return AccessTokenInfo(access_token=self.access_token,
+                           expires_in=self._expires_in())
 
   def set_store(self, store):
     """Set the Storage for the credential.
