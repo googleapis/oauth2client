@@ -1504,6 +1504,7 @@ class OAuth2WebServerFlow(Flow):
   @util.positional(4)
   def __init__(self, client_id, client_secret, scope,
                redirect_uri=None,
+               login_hint=None,
                user_agent=None,
                auth_uri=GOOGLE_AUTH_URI,
                token_uri=GOOGLE_TOKEN_URI,
@@ -1537,6 +1538,7 @@ class OAuth2WebServerFlow(Flow):
     self.client_secret = client_secret
     self.scope = util.scopes_to_string(scope)
     self.redirect_uri = redirect_uri
+    self.login_hint = login_hint
     self.user_agent = user_agent
     self.auth_uri = auth_uri
     self.token_uri = token_uri
@@ -1574,6 +1576,8 @@ class OAuth2WebServerFlow(Flow):
         'redirect_uri': self.redirect_uri,
         'scope': self.scope,
     }
+    if self.login_hint is not None:
+      query_params['login_hint'] = self.login_hint
     query_params.update(self.params)
     return _update_query_params(self.auth_uri, query_params)
 
@@ -1656,7 +1660,7 @@ class OAuth2WebServerFlow(Flow):
 
 @util.positional(2)
 def flow_from_clientsecrets(filename, scope, redirect_uri=None,
-                            message=None, cache=None):
+                            login_hint=None, message=None, cache=None):
   """Create a Flow from a clientsecrets file.
 
   Will create the right kind of Flow based on the contents of the clientsecrets
@@ -1668,6 +1672,9 @@ def flow_from_clientsecrets(filename, scope, redirect_uri=None,
     redirect_uri: string, Either the string 'urn:ietf:wg:oauth:2.0:oob' for
       a non-web-based application, or a URI that handles the callback from
       the authorization server.
+    login_hint: string, Either an email address or domain. Passing this hint
+      will either pre-fill the email box on the sign-in form or select the
+      proper multi-login session, thereby simplifying the login flow.
     message: string, A friendly string to display to the user if the
       clientsecrets file is missing or invalid. If message is provided then
       sys.exit will be called in the case of an error. If message in not
@@ -1690,6 +1697,7 @@ def flow_from_clientsecrets(filename, scope, redirect_uri=None,
           'redirect_uri': redirect_uri,
           'auth_uri': client_info['auth_uri'],
           'token_uri': client_info['token_uri'],
+          'login_hint': login_hint,
       }
       revoke_uri = client_info.get('revoke_uri')
       if revoke_uri is not None:
