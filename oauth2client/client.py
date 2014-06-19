@@ -1504,11 +1504,11 @@ class OAuth2WebServerFlow(Flow):
   @util.positional(4)
   def __init__(self, client_id, client_secret, scope,
                redirect_uri=None,
-               login_hint=None,
                user_agent=None,
                auth_uri=GOOGLE_AUTH_URI,
                token_uri=GOOGLE_TOKEN_URI,
                revoke_uri=GOOGLE_REVOKE_URI,
+               login_hint=None,
                **kwargs):
     """Constructor for OAuth2WebServerFlow.
 
@@ -1531,6 +1531,9 @@ class OAuth2WebServerFlow(Flow):
         defaults to Google's endpoints but any OAuth 2.0 provider can be used.
       revoke_uri: string, URI for revoke endpoint. For convenience
         defaults to Google's endpoints but any OAuth 2.0 provider can be used.
+      login_hint: string, Either an email address or domain. Passing this hint
+        will either pre-fill the email box on the sign-in form or select the
+        proper multi-login session, thereby simplifying the login flow.
       **kwargs: dict, The keyword arguments are all optional and required
                         parameters for the OAuth calls.
     """
@@ -1660,7 +1663,7 @@ class OAuth2WebServerFlow(Flow):
 
 @util.positional(2)
 def flow_from_clientsecrets(filename, scope, redirect_uri=None,
-                            login_hint=None, message=None, cache=None):
+                            message=None, cache=None, login_hint=None):
   """Create a Flow from a clientsecrets file.
 
   Will create the right kind of Flow based on the contents of the clientsecrets
@@ -1672,15 +1675,15 @@ def flow_from_clientsecrets(filename, scope, redirect_uri=None,
     redirect_uri: string, Either the string 'urn:ietf:wg:oauth:2.0:oob' for
       a non-web-based application, or a URI that handles the callback from
       the authorization server.
-    login_hint: string, Either an email address or domain. Passing this hint
-      will either pre-fill the email box on the sign-in form or select the
-      proper multi-login session, thereby simplifying the login flow.
     message: string, A friendly string to display to the user if the
       clientsecrets file is missing or invalid. If message is provided then
       sys.exit will be called in the case of an error. If message in not
       provided then clientsecrets.InvalidClientSecretsError will be raised.
     cache: An optional cache service client that implements get() and set()
       methods. See clientsecrets.loadfile() for details.
+    login_hint: string, Either an email address or domain. Passing this hint
+      will either pre-fill the email box on the sign-in form or select the
+      proper multi-login session, thereby simplifying the login flow.
 
   Returns:
     A Flow object.
