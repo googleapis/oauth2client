@@ -490,10 +490,12 @@ class OAuth2Credentials(Credentials):
         logger.info('Attempting refresh to obtain initial access_token')
         self._refresh(request_orig)
 
-      # Modify the request headers to add the appropriate
+      # Clone and modify the request headers to add the appropriate
       # Authorization header.
       if headers is None:
         headers = {}
+      else:
+        headers = dict(headers)
       self.apply(headers)
 
       if self.user_agent is not None:
