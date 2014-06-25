@@ -665,8 +665,9 @@ class OAuth2Decorator(object):
         provided to this constructor. A string indicating the name of the field
         on the _credentials_class where a Credentials object will be stored.
         Defaults to 'credentials'.
-      **kwargs: dict, Keyword arguments are be passed along as kwargs to the
-        OAuth2WebServerFlow constructor.
+      **kwargs: dict, Keyword arguments are passed along as kwargs to
+        the OAuth2WebServerFlow constructor.
+
     """
     self._tls = threading.local()
     self.flow = None
@@ -923,7 +924,7 @@ class OAuth2DecoratorFromClientSecrets(OAuth2Decorator):
   """
 
   @util.positional(3)
-  def __init__(self, filename, scope, message=None, cache=None):
+  def __init__(self, filename, scope, message=None, cache=None, **kwargs):
     """Constructor
 
     Args:
@@ -936,17 +937,20 @@ class OAuth2DecoratorFromClientSecrets(OAuth2Decorator):
         decorator.
       cache: An optional cache service client that implements get() and set()
         methods. See clientsecrets.loadfile() for details.
+      **kwargs: dict, Keyword arguments are passed along as kwargs to
+        the OAuth2WebServerFlow constructor.
     """
     client_type, client_info = clientsecrets.loadfile(filename, cache=cache)
     if client_type not in [
         clientsecrets.TYPE_WEB, clientsecrets.TYPE_INSTALLED]:
       raise InvalidClientSecretsError(
-          'OAuth2Decorator doesn\'t support this OAuth 2.0 flow.')
-    constructor_kwargs = {
+          "OAuth2Decorator doesn't support this OAuth 2.0 flow.")
+    constructor_kwargs = dict(kwargs)
+    constructor_kwargs.update({
       'auth_uri': client_info['auth_uri'],
       'token_uri': client_info['token_uri'],
       'message': message,
-    }
+    })
     revoke_uri = client_info.get('revoke_uri')
     if revoke_uri is not None:
       constructor_kwargs['revoke_uri'] = revoke_uri
