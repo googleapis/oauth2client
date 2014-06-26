@@ -62,8 +62,8 @@ from oauth2client.appengine import CredentialsNDBModel
 from oauth2client.appengine import FlowNDBProperty
 from oauth2client.appengine import FlowProperty
 from oauth2client.appengine import OAuth2Decorator
+from oauth2client.appengine import OAuth2DecoratorFromClientSecrets
 from oauth2client.appengine import StorageByKeyName
-from oauth2client.appengine import oauth2decorator_from_clientsecrets
 from oauth2client.client import AccessTokenRefreshError
 from oauth2client.client import Credentials
 from oauth2client.client import FlowExchangeError
@@ -748,7 +748,7 @@ class DecoratorTests(unittest.TestCase):
     self.test_required()
 
   def test_decorator_from_client_secrets(self):
-    decorator = oauth2decorator_from_clientsecrets(
+    decorator = OAuth2DecoratorFromClientSecrets(
         datafile('client_secrets.json'),
         scope=['foo_scope', 'bar_scope'])
     self._finish_setup(decorator, user_mock=UserMock)
@@ -765,16 +765,24 @@ class DecoratorTests(unittest.TestCase):
     self.assertEqual(self.decorator._revoke_uri,
                      self.decorator.credentials.revoke_uri)
 
+  def test_decorator_from_client_secrets_kwargs(self):
+    decorator = OAuth2DecoratorFromClientSecrets(
+        datafile('client_secrets.json'),
+        scope=['foo_scope', 'bar_scope'],
+        approval_prompt='force')
+    self.assertTrue('approval_prompt' in decorator._kwargs)
+
+
   def test_decorator_from_cached_client_secrets(self):
     cache_mock = CacheMock()
     load_and_cache('client_secrets.json', 'secret', cache_mock)
-    decorator = oauth2decorator_from_clientsecrets(
+    decorator = OAuth2DecoratorFromClientSecrets(
       # filename, scope, message=None, cache=None
       'secret', '', cache=cache_mock)
     self.assertFalse(decorator._in_error)
 
   def test_decorator_from_client_secrets_not_logged_in_required(self):
-    decorator = oauth2decorator_from_clientsecrets(
+    decorator = OAuth2DecoratorFromClientSecrets(
         datafile('client_secrets.json'),
         scope=['foo_scope', 'bar_scope'], message='NotLoggedInMessage')
     self.decorator = decorator
@@ -789,7 +797,7 @@ class DecoratorTests(unittest.TestCase):
     self.assertTrue('Login' in str(response))
 
   def test_decorator_from_client_secrets_not_logged_in_aware(self):
-    decorator = oauth2decorator_from_clientsecrets(
+    decorator = OAuth2DecoratorFromClientSecrets(
         datafile('client_secrets.json'),
         scope=['foo_scope', 'bar_scope'], message='NotLoggedInMessage')
     self.decorator = decorator
@@ -804,7 +812,7 @@ class DecoratorTests(unittest.TestCase):
   def test_decorator_from_unfilled_client_secrets_required(self):
     MESSAGE = 'File is missing'
     try:
-      decorator = oauth2decorator_from_clientsecrets(
+      decorator = OAuth2DecoratorFromClientSecrets(
           datafile('unfilled_client_secrets.json'),
           scope=['foo_scope', 'bar_scope'], message=MESSAGE)
     except InvalidClientSecretsError:
@@ -813,7 +821,7 @@ class DecoratorTests(unittest.TestCase):
   def test_decorator_from_unfilled_client_secrets_aware(self):
     MESSAGE = 'File is missing'
     try:
-      decorator = oauth2decorator_from_clientsecrets(
+      decorator = OAuth2DecoratorFromClientSecrets(
           datafile('unfilled_client_secrets.json'),
           scope=['foo_scope', 'bar_scope'], message=MESSAGE)
     except InvalidClientSecretsError:
