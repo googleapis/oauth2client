@@ -632,12 +632,12 @@ class OAuth2Credentials(Credentials):
 
   def _expires_in(self):
     """Return the number of seconds until this token expires.
-    
+
     If token_expiry is in the past, this method will return 0, meaning the
     token has already expired.
     If token_expiry is None, this method will return None. Note that returning
     0 in such a case would not be fair: the token may still be valid;
-    we just don't know anything about it. 
+    we just don't know anything about it.
     """
     if self.token_expiry:
       now = datetime.datetime.utcnow()
@@ -877,7 +877,7 @@ def _get_environment(urllib2_urlopen=None):
   """Detect the environment the code is being run on."""
 
   global _env_name
-  
+
   if _env_name:
     return _env_name
 
@@ -904,7 +904,7 @@ def _get_environment(urllib2_urlopen=None):
 
 class GoogleCredentials(OAuth2Credentials):
   """Default credentials for use in calling Google APIs.
-  
+
   The Default Credentials are being constructed as a function of the environment
   where the code is being run. More details can be found on this page:
   https://developers.google.com/accounts/docs/default-credentials
@@ -965,20 +965,20 @@ class GoogleCredentials(OAuth2Credentials):
     super(GoogleCredentials, self).__init__(
         access_token, client_id, client_secret, refresh_token, token_expiry,
         token_uri, user_agent, revoke_uri=revoke_uri)
-    
+
   def create_scoped_required(self):
     """Whether this Credentials object is scopeless.
-    
+
     create_scoped(scopes) method needs to be called in order to create
     a Credentials object for API calls.
     """
     return False
-  
+
   def create_scoped(self, scopes):
     """Create a Credentials object for the given scopes.
-    
+
     The Credentials type is preserved.
-    """ 
+    """
     return self
 
   @staticmethod
@@ -1033,9 +1033,9 @@ class GoogleCredentials(OAuth2Credentials):
   @staticmethod
   def from_stream(credential_filename):
     """Create a Credentials object by reading the information from a given file.
-    
+
     It returns an object of type GoogleCredentials.
-    
+
     Args:
       credential_filename: the path to the file from where the credentials
         are to be read
@@ -1119,7 +1119,7 @@ def _get_default_credential_from_file(default_credential_filename):
                                   "' or '" + SERVICE_ACCOUNT + "' values)")
 
   missing_fields = required_fields.difference(client_credentials.keys())
-  
+
   if missing_fields:
     _raise_exception_for_missing_fields(missing_fields)
 
@@ -1588,7 +1588,7 @@ class OAuth2WebServerFlow(Flow):
 
   @util.positional(2)
   def step2_exchange(self, code, http=None):
-    """Exhanges a code for OAuth2Credentials.
+    """Exchanges a code for OAuth2Credentials.
 
     Args:
       code: string or dict, either the code as a string, or a dictionary
@@ -1604,7 +1604,7 @@ class OAuth2WebServerFlow(Flow):
       refresh_token.
     """
 
-    if not (isinstance(code, str) or isinstance(code, unicode)):
+    if not isinstance(code, basestring):
       if 'code' not in code:
         if 'error' in code:
           error_msg = code['error']
@@ -1638,6 +1638,10 @@ class OAuth2WebServerFlow(Flow):
     if resp.status == 200 and 'access_token' in d:
       access_token = d['access_token']
       refresh_token = d.get('refresh_token', None)
+      if not refresh_token:
+        logger.info(
+          'Received token response with no refresh_token. Consider '
+          "reauthenticating with approval_prompt='force'.")
       token_expiry = None
       if 'expires_in' in d:
         token_expiry = datetime.datetime.utcnow() + datetime.timedelta(
