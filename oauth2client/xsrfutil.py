@@ -37,6 +37,8 @@ from oauth2client import util
 # Delimiter character
 DELIMITER = ':'
 
+ENCODING = 'utf-8'
+
 # 1 hour in seconds
 DEFAULT_TIMEOUT_SECS = 1*60*60
 
@@ -60,16 +62,17 @@ def generate_token(key, user_id, action_id="", when=None):
                                                                        user_id=user_id,
                                                                        action_id=action_id,
                                                                        delim=DELIMITER,
-                                                                       time=when).encode('utf-8')
+                                                                       time=when).encode(ENCODING)
 
   digester = hmac.new(decoded_key)
   digest = digester.digest()
 
-  decoded = '{digest}{delim}{time}'.format(digest=digest, delim=DELIMITER, time=when)
+  decoded_token = '{digest}{delim}{time}'.format(digest=digest, delim=DELIMITER, time=when)
 
-  token = base64.urlsafe_b64encode('{digest}{delim}{time}'.format(digest=digest,
-                                                                        delim=DELIMITER,
-                                                                        time=when).encode('utf-8'))
+  try:
+    token = base64.urlsafe_b64encode(decoded_token.encode(ENCODING))
+  except UnicodeDecodeError:
+    token = base64.urlsafe_b64encode(decoded_token)
   return token
 
 
@@ -95,9 +98,17 @@ def validate_token(key, token, user_id, action_id="", current_time=None):
     return False
   try:
     decoded = base64.urlsafe_b64decode(token)
-    token_time = long(decoded.decode('utf-8').split(DELIMITER)[-1])
+    # Decode is needed for Python3
+    # It will fail for Python2
+    token_time = long(decoded.decode(ENCODING).split(DELIMITER)[-1])
   except (TypeError, ValueError):
-    return False
+    try:
+      # Try again, in case it fails here
+      decoded = base64.urlsafe_b64decode(token)
+      # Decode is not needed for Python2
+      token_time = long(decoded.split(DELIMITER)[-1])
+    except (TypeError, ValueError):
+      return False
   if current_time is None:
     current_time = time.time()
   # If the token is too old it's not valid.
@@ -112,8 +123,14 @@ def validate_token(key, token, user_id, action_id="", current_time=None):
 
   # Perform constant time comparison to avoid timing attacks
   different = 0
-  for x, y in zip(token, expected_token):
-    different |= ord(chr(x)) ^ ord(chr(y))
+  try:
+    # Python3
+    for x, y in zip(token, expected_token):
+      different |= ord(chr(x)) ^ ord(chr(y))
+  except (TypeError, ValueError):
+    # Python2
+    for x, y in zip(token.encode(ENCODING), expected_token.encode(ENCODING)):
+      different |= ord(x) ^ ord(y)
   if different:
     return False
 
