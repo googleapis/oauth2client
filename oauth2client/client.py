@@ -755,7 +755,7 @@ class OAuth2Credentials(Credentials):
           self.invalid = True
           if self.store:
             self.store.locked_put(self)
-      except StandardError:
+      except (TypeError, ValueError):
         pass
       raise AccessTokenRefreshError(error_msg)
 
@@ -792,7 +792,7 @@ class OAuth2Credentials(Credentials):
         d = simplejson.loads(content)
         if 'error' in d:
           error_msg = d['error']
-      except StandardError:
+      except (TypeError, ValueError):
         pass
       raise TokenRevokeError(error_msg)
 
@@ -1403,7 +1403,7 @@ def _parse_exchange_token_response(content):
   resp = {}
   try:
     resp = simplejson.loads(content)
-  except StandardError:
+  except (TypeError, ValueError):
     # different JSON libs raise different exceptions,
     # so we just do a catch-all here
     resp = dict(parse_qsl(content))
