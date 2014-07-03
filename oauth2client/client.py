@@ -924,7 +924,7 @@ class GoogleCredentials(OAuth2Credentials):
   request = service.instances().list(project=PROJECT, zone=ZONE)
   response = request.execute()
 
-  print response
+  print(response)
   </code>
 
   A service that does not require authentication does not need credentials
@@ -938,7 +938,7 @@ class GoogleCredentials(OAuth2Credentials):
   request = service.apis().list()
   response = request.execute()
 
-  print response
+  print(response)
   </code>
   """
 

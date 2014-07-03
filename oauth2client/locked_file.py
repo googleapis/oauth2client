@@ -21,10 +21,10 @@ Usage:
     f = LockedFile('filename', 'r+b', 'rb')
     f.open_and_lock()
     if f.is_locked():
-      print 'Acquired filename with r+b mode'
+      print('Acquired filename with r+b mode')
       f.file_handle().write('locked data')
     else:
-      print 'Aquired filename with rb mode'
+      print('Aquired filename with rb mode')
     f.unlock_and_close()
 """
 
