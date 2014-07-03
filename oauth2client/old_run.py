@@ -25,8 +25,8 @@ import gflags
 
 from oauth2client import client
 from oauth2client import util
-from tools import ClientRedirectHandler
-from tools import ClientRedirectServer
+from oauth2client.tools import ClientRedirectHandler
+from oauth2client.tools import ClientRedirectServer
 
 
 FLAGS = gflags.FLAGS

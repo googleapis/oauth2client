@@ -20,7 +20,7 @@ import hashlib
 import logging
 import time
 
-from anyjson import simplejson
+from oauth2client.anyjson import simplejson
 
 
 CLOCK_SKEW_SECS = 300  # 5 minutes in seconds
