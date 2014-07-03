@@ -37,9 +37,12 @@ from oauth2client import file
 from oauth2client import util
 
 try:
-  from urlparse import parse_qsl
+  from urllib.parse import parse_qsl
 except ImportError:
-  from cgi import parse_qsl
+  try:
+    from urlparse import parse_qsl
+  except ImportError:
+    from cgi import parse_qsl
 
 _CLIENT_SECRETS_MESSAGE = """WARNING: Please configure OAuth 2.0
 

@@ -30,13 +30,15 @@ __all__ = [
 import inspect
 import logging
 import types
-import urllib
-import urlparse
-
 try:
-  from urlparse import parse_qsl
+  from urllib.parse import urlparse, urlunparse, urlencode, parse_qsl
 except ImportError:
-  from cgi import parse_qsl
+  from urlparse import urlparse, urlunparse
+  from urllib import urlencode
+  try:
+    from urlparse import parse_qsl
+  except ImportError:
+    from cgi import parse_qsl
 
 logger = logging.getLogger(__name__)
 
@@ -189,8 +191,8 @@ def _add_query_parameter(url, name, value):
   if value is None:
     return url
   else:
-    parsed = list(urlparse.urlparse(url))
+    parsed = list(urlparse(url))
     q = dict(parse_qsl(parsed[4]))
     q[name] = value
-    parsed[4] = urllib.urlencode(q)
-    return urlparse.urlunparse(parsed)
+    parsed[4] = urlencode(q)
+    return urlunparse(parsed)

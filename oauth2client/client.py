@@ -28,8 +28,16 @@ import logging
 import os
 import sys
 import time
-import urllib
-import urlparse
+try:
+  from urllib.parse import urlparse, urlunparse, urlencode, parse_qsl
+except ImportError:
+  from urlparse import urlparse, urlunparse
+  from urllib import urlencode
+  try:
+    from urlparse import parse_qsl
+  except ImportError:
+    from cgi import parse_qsl
+
 
 from collections import namedtuple
 from oauth2client import GOOGLE_AUTH_URI
@@ -47,11 +55,6 @@ try:
     HAS_OPENSSL = True
 except ImportError:
   pass
-
-try:
-  from urlparse import parse_qsl
-except ImportError:
-  from cgi import parse_qsl
 
 logger = logging.getLogger(__name__)
 
@@ -390,11 +393,11 @@ def _update_query_params(uri, params):
   Returns:
     The same URI but with the new query parameters added.
   """
-  parts = list(urlparse.urlparse(uri))
+  parts = list(urlparse(uri))
   query_params = dict(parse_qsl(parts[4]))  # 4 is the index of the query part
   query_params.update(params)
-  parts[4] = urllib.urlencode(query_params)
-  return urlparse.urlunparse(parts)
+  parts[4] = urlencode(query_params)
+  return urlunparse(parts)
 
 
 class OAuth2Credentials(Credentials):
@@ -666,7 +669,7 @@ class OAuth2Credentials(Credentials):
 
   def _generate_refresh_request_body(self):
     """Generate the body that will be used in the refresh request."""
-    body = urllib.urlencode({
+    body = urlencode({
         'grant_type': 'refresh_token',
         'client_id': self.client_id,
         'client_secret': self.client_secret,
@@ -1206,7 +1209,7 @@ class AssertionCredentials(GoogleCredentials):
   def _generate_refresh_request_body(self):
     assertion = self._generate_assertion()
 
-    body = urllib.urlencode({
+    body = urlencode({
         'assertion': assertion,
         'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
         })
@@ -1614,7 +1617,7 @@ class OAuth2WebServerFlow(Flow):
       else:
         code = code['code']
 
-    body = urllib.urlencode({
+    body = urlencode({
         'grant_type': 'authorization_code',
         'client_id': self.client_id,
         'client_secret': self.client_secret,
