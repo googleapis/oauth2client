@@ -98,7 +98,7 @@ def loads(s):
 
 def _loadfile(filename):
   try:
-    fp = file(filename, 'r')
+    fp = open(filename, 'r')
     try:
       obj = simplejson.load(fp)
     finally:
