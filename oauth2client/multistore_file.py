@@ -271,7 +271,7 @@ class _MultiStore(object):
     simple version of "touch" to ensure the file has been created.
     """
     if not os.path.exists(self._file.filename()):
-      old_umask = os.umask(0177)
+      old_umask = os.umask(0o177)
       try:
         open(self._file.filename(), 'a+b').close()
       finally:
