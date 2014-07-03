@@ -27,6 +27,10 @@ import hmac
 import os  # for urandom
 import time
 
+import sys
+if sys.version > '3':
+  long = int
+
 from oauth2client import util
 
 

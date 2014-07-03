@@ -22,6 +22,10 @@ import rsa
 import time
 import types
 
+import sys
+if sys.version > '3':
+  long = int
+
 from oauth2client import GOOGLE_REVOKE_URI
 from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client import util

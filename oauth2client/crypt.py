@@ -20,6 +20,10 @@ import hashlib
 import logging
 import time
 
+import sys
+if sys.version > '3':
+  long = int
+
 from oauth2client.anyjson import simplejson
 
 

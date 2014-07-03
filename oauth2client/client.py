@@ -38,6 +38,8 @@ except ImportError:
   except ImportError:
     from cgi import parse_qsl
 
+if sys.version > '3':
+  long = int
 
 from collections import namedtuple
 from oauth2client import GOOGLE_AUTH_URI

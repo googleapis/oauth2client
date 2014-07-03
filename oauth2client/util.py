@@ -40,6 +40,10 @@ except ImportError:
   except ImportError:
     from cgi import parse_qsl
 
+import sys
+if sys.version > '3':
+  long = int
+
 logger = logging.getLogger(__name__)
 
 POSITIONAL_WARNING = 'WARNING'
