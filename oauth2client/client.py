@@ -20,7 +20,7 @@ Tools for interacting with OAuth 2.0 protected resources.
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 import base64
-import clientsecrets
+from oauth2client import clientsecrets
 import copy
 import datetime
 import httplib2
@@ -28,11 +28,15 @@ import logging
 import os
 import sys
 import time
+import six
 try:
   from urllib.parse import urlparse, urlunparse, urlencode, parse_qsl
+  from urllib.request import urlopen
+  from urllib.error import URLError
 except ImportError:
   from urlparse import urlparse, urlunparse
   from urllib import urlencode
+  from urllib2 import urlopen, URLError
   try:
     from urlparse import parse_qsl
   except ImportError:
@@ -378,7 +382,7 @@ def clean_headers(headers):
   """
   clean = {}
   try:
-    for k, v in headers.iteritems():
+    for k, v in six.iteritems(headers):
       clean[str(k)] = str(v)
   except UnicodeEncodeError:
     raise NonAsciiHeaderError(k + ': ' + v)
@@ -892,16 +896,15 @@ def _get_environment(urllib2_urlopen=None):
   elif server_software.startswith('Development/'):
     _env_name = 'GAE_LOCAL'
   else:
-    import urllib2
     try:
       if urllib2_urlopen is None:
-        urllib2_urlopen = urllib2.urlopen
+        urllib2_urlopen = urlopen
       response = urllib2_urlopen('http://metadata.google.internal')
       if any('Metadata-Flavor: Google' in h for h in response.info().headers):
         _env_name = 'GCE_PRODUCTION'
       else:
         _env_name = 'UNKNOWN'
-    except urllib2.URLError:
+    except URLError:
       _env_name = 'UNKNOWN'
 
   return _env_name
@@ -1106,7 +1109,7 @@ def _get_well_known_file():
 def _get_default_credential_from_file(default_credential_filename):
   """Build the Default Credentials from file."""
 
-  import service_account
+  from oauth2client import service_account
 
   # read the credentials from the file
   with open(default_credential_filename) as default_credential:
@@ -1609,7 +1612,13 @@ class OAuth2WebServerFlow(Flow):
       refresh_token.
     """
 
-    if not isinstance(code, basestring):
+    try:
+      # Python2
+      is_string = isinstance(code, basestring)
+    except NameError:
+      # Python3
+      is_string = isinstance(code, str)
+    if not is_string:
       if 'code' not in code:
         if 'error' in code:
           error_msg = code['error']
@@ -1666,7 +1675,7 @@ class OAuth2WebServerFlow(Flow):
       logger.info('Failed to retrieve access token: %s' % content)
       if 'error' in d:
         # you never know what those providers got to say
-        error_msg = unicode(d['error'])
+        error_msg = str(d['error'])
       else:
         error_msg = 'Invalid response: %s.' % str(resp.status)
       raise FlowExchangeError(error_msg)
