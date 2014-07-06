@@ -126,7 +126,7 @@ def validate_token(key, token, user_id, action_id="", current_time=None):
   try:
     # Python3
     for x, y in zip(token, expected_token):
-      different |= ord(chr(x)) ^ ord(chr(y))
+      different |= x ^ y
   except (TypeError, ValueError):
     # Python2
     for x, y in zip(token.encode(ENCODING), expected_token.encode(ENCODING)):
