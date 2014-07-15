@@ -153,4 +153,8 @@ def loadfile(filename, cache=None):
     obj = {client_type: client_info}
     cache.set(filename, obj, namespace=_SECRET_NAMESPACE)
 
-  return obj.iteritems().next()
+  try:
+    items = obj.iteritems().next()
+  except AttributeError:
+    items = next(iter(obj.items()))
+  return items

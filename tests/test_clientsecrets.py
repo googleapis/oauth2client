@@ -19,7 +19,10 @@ __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 import os
 import unittest
-import StringIO
+try:
+    from io import StringIO
+except ImportError:
+    from StringIO import StringIO
 
 import httplib2
 
@@ -57,26 +60,28 @@ class OAuth2CredentialsTests(unittest.TestCase):
        """, 'Property'),
       ]
     for src, match in ERRORS:
+      # Ensure that it is unicode
+      src = u'%s'%src
       # Test load(s)
       try:
         clientsecrets.loads(src)
         self.fail(src + ' should not be a valid client_secrets file.')
-      except clientsecrets.InvalidClientSecretsError, e:
+      except clientsecrets.InvalidClientSecretsError as e:
         self.assertTrue(str(e).startswith(match))
 
       # Test loads(fp)
       try:
-        fp = StringIO.StringIO(src)
+        fp = StringIO(src)
         clientsecrets.load(fp)
         self.fail(src + ' should not be a valid client_secrets file.')
-      except clientsecrets.InvalidClientSecretsError, e:
+      except clientsecrets.InvalidClientSecretsError as e:
         self.assertTrue(str(e).startswith(match))
 
   def test_load_by_filename(self):
     try:
       clientsecrets._loadfile(NONEXISTENT_FILE)
       self.fail('should fail to load a missing client_secrets file.')
-    except clientsecrets.InvalidClientSecretsError, e:
+    except clientsecrets.InvalidClientSecretsError as e:
       self.assertTrue(str(e).startswith('File'))
 
 
@@ -104,25 +109,25 @@ class CachedClientsecretsTests(unittest.TestCase):
   def test_cache_miss(self):
     client_type, client_info = clientsecrets.loadfile(
       VALID_FILE, cache=self.cache_mock)
-    self.assertEquals('web', client_type)
-    self.assertEquals('foo_client_secret', client_info['client_secret'])
+    self.assertEqual('web', client_type)
+    self.assertEqual('foo_client_secret', client_info['client_secret'])
 
     cached = self.cache_mock.cache[VALID_FILE]
-    self.assertEquals({client_type: client_info}, cached)
+    self.assertEqual({client_type: client_info}, cached)
 
     # make sure we're using non-empty namespace
     ns = self.cache_mock.last_set_ns
     self.assertTrue(bool(ns))
     # make sure they're equal
-    self.assertEquals(ns, self.cache_mock.last_get_ns)
+    self.assertEqual(ns, self.cache_mock.last_get_ns)
 
   def test_cache_hit(self):
     self.cache_mock.cache[NONEXISTENT_FILE] = { 'web': 'secret info' }
 
     client_type, client_info = clientsecrets.loadfile(
       NONEXISTENT_FILE, cache=self.cache_mock)
-    self.assertEquals('web', client_type)
-    self.assertEquals('secret info', client_info)
+    self.assertEqual('web', client_type)
+    self.assertEqual('secret info', client_info)
     # make sure we didn't do any set() RPCs
     self.assertEqual(None, self.cache_mock.last_set_ns)
 
@@ -137,8 +142,8 @@ class CachedClientsecretsTests(unittest.TestCase):
   def test_without_cache(self):
     # this also ensures loadfile() is backward compatible
     client_type, client_info = clientsecrets.loadfile(VALID_FILE)
-    self.assertEquals('web', client_type)
-    self.assertEquals('foo_client_secret', client_info['client_secret'])
+    self.assertEqual('web', client_type)
+    self.assertEqual('foo_client_secret', client_info['client_secret'])
 
 
 if __name__ == '__main__':
