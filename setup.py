@@ -29,6 +29,7 @@ install_requires = [
     'pyasn1==0.1.7',
     'pyasn1_modules==0.0.5',
     'rsa==3.1.4',
+    'keyring>=3.0',     # Not completely sure the minimum version, but 3.0 (Sept 2013) should be sufficient
 ]
 
 needs_json = False
