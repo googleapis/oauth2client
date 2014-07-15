@@ -1,5 +1,6 @@
 # To be used to test GoogleCredentials.get_application_default()
 # from local machine and GCE.
+# The GCE virtual machine needs to have the Compute API enabled.
 
 from googleapiclient.discovery import build
 from oauth2client.client import GoogleCredentials
