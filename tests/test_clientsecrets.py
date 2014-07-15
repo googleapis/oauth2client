@@ -61,7 +61,10 @@ class OAuth2CredentialsTests(unittest.TestCase):
       ]
     for src, match in ERRORS:
       # Ensure that it is unicode
-      src = u'%s'%src
+      try:
+        src = src.decode('utf-8')
+      except AttributeError:
+        pass
       # Test load(s)
       try:
         clientsecrets.loads(src)
