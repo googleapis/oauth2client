@@ -21,7 +21,10 @@ Unit tests for oauth2client.gce.
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 import httplib2
-import mox
+try:
+  from mox3 import mox
+except ImportError:
+  import mox
 import unittest
 
 from oauth2client.client import AccessTokenRefreshError
