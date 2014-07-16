@@ -1307,6 +1307,11 @@ if HAS_CRYPTO:
 
       # Keep base64 encoded so it can be stored in JSON.
       self.private_key = base64.b64encode(private_key)
+      try:
+        # Ensure it's a str
+        self.private_key = bytes.decode(self.private_key)
+      except TypeError:
+        pass
 
       self.private_key_password = private_key_password
       self.service_account_name = service_account_name
@@ -1314,6 +1319,11 @@ if HAS_CRYPTO:
 
     @classmethod
     def from_json(cls, s):
+      try:
+        # Ensure it's a str
+        s = bytes.decode(s)
+      except TypeError:
+        pass
       data = simplejson.loads(s)
       retval = SignedJwtAssertionCredentials(
           data['service_account_name'],
@@ -1377,6 +1387,7 @@ if HAS_CRYPTO:
     resp, content = http.request(cert_uri)
 
     if resp.status == 200:
+      content = bytes.decode(content)
       certs = simplejson.loads(content)
       return crypt.verify_signed_jwt_with_certs(id_token, certs, audience)
     else:

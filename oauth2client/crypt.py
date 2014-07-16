@@ -222,6 +222,10 @@ try:
       Returns:
         string, The signature of the message for the given key.
       """
+      try:
+        message = str.encode(message)
+      except TypeError:
+        pass
       return PKCS1_v1_5.new(self._key).sign(SHA256.new(message))
 
     @staticmethod
@@ -354,12 +358,17 @@ def verify_signed_jwt_with_certs(jwt, certs, audience):
     raise AppIdentityError(
       'Wrong number of segments in token: %s' % jwt)
   signed = '%s.%s' % (segments[0], segments[1])
+  try:
+    signed = str.encode(signed)
+  except TypeError:
+    pass
 
   signature = _urlsafe_b64decode(segments[2])
 
   # Parse token.
   json_body = _urlsafe_b64decode(segments[1])
   try:
+    json_body = bytes.decode(json_body)
     parsed = simplejson.loads(json_body)
   except:
     raise AppIdentityError('Can\'t parse token: %s' % json_body)
