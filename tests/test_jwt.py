@@ -28,14 +28,16 @@ import sys
 import tempfile
 import time
 import unittest
-import urlparse
 
 try:
-    from urlparse import parse_qs
+  from urllib.parse import parse_qs
 except ImportError:
+  try:
+    from urlparse import parse_qs
+  except ImportError:
     from cgi import parse_qs
 
-from http_mock import HttpMockSequence
+from .http_mock import HttpMockSequence
 from oauth2client import crypt
 from oauth2client.anyjson import simplejson
 from oauth2client.client import Credentials
@@ -46,9 +48,11 @@ from oauth2client.client import HAS_OPENSSL
 from oauth2client.client import HAS_CRYPTO
 from oauth2client.file import Storage
 
+if sys.version > '3':
+  long = int
 
 def datafile(filename):
-  f = open(os.path.join(os.path.dirname(__file__), 'data', filename), 'r')
+  f = open(os.path.join(os.path.dirname(__file__), 'data', filename), 'rb')
   data = f.read()
   f.close()
   return data
@@ -76,11 +80,10 @@ class CryptTests(unittest.TestCase):
     signature = signer.sign('foo')
 
     verifier = self.verifier.from_string(public_key, True)
+    self.assertTrue(verifier.verify(b'foo', signature))
 
-    self.assertTrue(verifier.verify('foo', signature))
-
-    self.assertFalse(verifier.verify('bar', signature))
-    self.assertFalse(verifier.verify('foo', 'bad signagure'))
+    self.assertFalse(verifier.verify(b'bar', signature))
+    self.assertFalse(verifier.verify(b'foo', 'bad signagure'))
 
   def _check_jwt_failure(self, jwt, expected_error):
       try:
