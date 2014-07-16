@@ -31,7 +31,7 @@ import stat
 import tempfile
 import unittest
 
-from http_mock import HttpMockSequence
+from .http_mock import HttpMockSequence
 from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client import file
 from oauth2client import locked_file
@@ -41,7 +41,11 @@ from oauth2client.anyjson import simplejson
 from oauth2client.client import AccessTokenCredentials
 from oauth2client.client import AssertionCredentials
 from oauth2client.client import OAuth2Credentials
-from future_builtins import oct
+try:
+  # Python2
+  from future_builtins import oct
+except:
+  pass
 
 
 FILENAME = tempfile.mktemp('oauth2client_test.data')
@@ -97,7 +101,7 @@ class OAuth2ClientFileTests(unittest.TestCase):
     # Write a file with a pickled OAuth2Credentials.
     credentials = self.create_test_credentials()
 
-    f = open(FILENAME, 'w')
+    f = open(FILENAME, 'wb')
     pickle.dump(credentials, f)
     f.close()
 

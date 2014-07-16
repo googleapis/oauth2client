@@ -34,8 +34,8 @@ try:
 except ImportError:
   from urlparse import urlparse, parse_qs
 
-from http_mock import HttpMock
-from http_mock import HttpMockSequence
+from .http_mock import HttpMock
+from .http_mock import HttpMockSequence
 from oauth2client import GOOGLE_REVOKE_URI
 from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client.anyjson import simplejson
