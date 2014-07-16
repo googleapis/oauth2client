@@ -112,7 +112,11 @@ try:
       Returns:
         string, The signature of the message for the given key.
       """
-      return crypto.sign(self._key, str.encode(message), 'sha256')
+      try:
+          message = str.encode(message)
+      except TypeError:
+          pass
+      return crypto.sign(self._key, message, 'sha256')
 
     @staticmethod
     def from_string(key, password='notasecret'):
@@ -283,7 +287,7 @@ def _urlsafe_b64encode(raw_bytes):
   # Make sure our bytes are actually bytes
   try:
     raw_bytes = str.encode(raw_bytes)
-  except TypeError:
+  except (TypeError, UnicodeDecodeError):
     pass
   return bytes.decode(base64.urlsafe_b64encode(raw_bytes)).rstrip('=')
 
@@ -292,7 +296,7 @@ def _urlsafe_b64decode(b64string):
   # Guard against unicode strings, which base64 can't handle.
   b64string = b64string.encode('ascii')
   padded = b64string + b'=' * (4 - len(b64string) % 4)
-  return bytes.decode(base64.urlsafe_b64decode(padded))
+  return base64.urlsafe_b64decode(padded)
 
 
 def _json_encode(data):
