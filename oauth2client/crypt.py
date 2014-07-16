@@ -112,7 +112,7 @@ try:
       Returns:
         string, The signature of the message for the given key.
       """
-      return crypto.sign(self._key, message, 'sha256')
+      return crypto.sign(self._key, str.encode(message), 'sha256')
 
     @staticmethod
     def from_string(key, password='notasecret'):
@@ -273,21 +273,26 @@ def _parse_pem_key(raw_key_input):
   Returns:
     string, The actual key if the contents are from a PEM file, or else None.
   """
-  offset = raw_key_input.find('-----BEGIN ')
+  offset = raw_key_input.find(b'-----BEGIN ')
   if offset != -1:
     return raw_key_input[offset:]
   else:
     return None
 
 def _urlsafe_b64encode(raw_bytes):
-  return base64.urlsafe_b64encode(raw_bytes).rstrip('=')
+  # Make sure our bytes are actually bytes
+  try:
+    raw_bytes = str.encode(raw_bytes)
+  except TypeError:
+    pass
+  return bytes.decode(base64.urlsafe_b64encode(raw_bytes)).rstrip('=')
 
 
 def _urlsafe_b64decode(b64string):
   # Guard against unicode strings, which base64 can't handle.
   b64string = b64string.encode('ascii')
-  padded = b64string + '=' * (4 - len(b64string) % 4)
-  return base64.urlsafe_b64decode(padded)
+  padded = b64string + b'=' * (4 - len(b64string) % 4)
+  return bytes.decode(base64.urlsafe_b64decode(padded))
 
 
 def _json_encode(data):

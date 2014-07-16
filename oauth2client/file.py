@@ -110,7 +110,7 @@ class Storage(BaseStorage):
 
     self._create_file_if_needed()
     self._validate_file()
-    f = open(self._filename, 'wb')
+    f = open(self._filename, 'w')
     f.write(credentials.to_json())
     f.close()
 

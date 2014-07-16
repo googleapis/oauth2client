@@ -193,7 +193,7 @@ class _MultiStore(object):
 
     This will create the file if necessary.
     """
-    self._file = LockedFile(filename, 'r+b', 'rb')
+    self._file = LockedFile(filename, 'r+', 'r')
     self._thread_lock = threading.Lock()
     self._read_only = False
     self._warn_on_readonly = warn_on_readonly

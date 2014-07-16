@@ -238,7 +238,12 @@ class Credentials(object):
       An instance of the subclass of Credentials that was serialized with
       to_json().
     """
-    data = simplejson.loads(s)
+    try:
+        # s: bytes -> str
+        data = simplejson.loads(bytes.decode(s))
+    except TypeError:
+        # s: already str
+        data = simplejson.loads(s)
     # Find and call the right classmethod from_json() to restore the object.
     module = data['_module']
     try:
@@ -573,7 +578,12 @@ class OAuth2Credentials(Credentials):
     Returns:
       An instance of a Credentials subclass.
     """
-    data = simplejson.loads(s)
+    try:
+        # s: bytes -> str
+        data = simplejson.loads(bytes.decode(s))
+    except TypeError:
+        # s: already str
+        data = simplejson.loads(s)
     if 'token_expiry' in data and not isinstance(data['token_expiry'],
         datetime.datetime):
       try:
@@ -859,7 +869,12 @@ class AccessTokenCredentials(OAuth2Credentials):
 
   @classmethod
   def from_json(cls, s):
-    data = simplejson.loads(s)
+    try:
+        # s: bytes -> str
+        data = simplejson.loads(bytes.decode(s))
+    except TypeError:
+        # s: already str
+        data = simplejson.loads(s)
     retval = AccessTokenCredentials(
         data['access_token'],
         data['user_agent'])
