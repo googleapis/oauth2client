@@ -32,7 +32,7 @@ import unittest
 # Ensure that if app engine is available, we use the correct django from it
 try:
   from google.appengine.dist import use_library
-  use_library('django', '1.2')
+  use_library('django', '1.5')
 except ImportError:
   pass
 
@@ -40,6 +40,8 @@ from oauth2client.client import Credentials
 from oauth2client.client import Flow
 
 # Mock a Django environment
+from django.conf import global_settings
+global_settings.SECRET_KEY = 'NotASecret'
 os.environ['DJANGO_SETTINGS_MODULE'] = 'django_settings'
 sys.modules['django_settings'] = imp.new_module('django_settings')
 
