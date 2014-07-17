@@ -67,6 +67,7 @@ from oauth2client.client import _update_query_params
 from oauth2client.client import credentials_from_clientsecrets_and_code
 from oauth2client.client import credentials_from_code
 from oauth2client.client import flow_from_clientsecrets
+from oauth2client.client import save_to_well_known_file
 from oauth2client.clientsecrets import _loadfile
 from oauth2client.service_account import _ServiceAccountCredentials
 
@@ -260,17 +261,28 @@ class GoogleCredentialsTests(unittest.TestCase):
     os.environ['APPDATA'] = DATA_DIR
     self.assertEqual(well_known_file, _get_well_known_file())
 
-  def test_get_well_known_file_on_windows_no_file(self):
-    os.name = 'nt'
-    os.environ['APPDATA'] = os.path.join(DATA_DIR, 'nonexistentpath')
-    self.assertEqual(None, _get_well_known_file())
-
   def test_get_application_default_credential_from_file_service_account(self):
     credentials_file = datafile(
         os.path.join('gcloud', 'application_default_credentials.json'))
     credentials = _get_application_default_credential_from_file(
         credentials_file)
     self.validate_service_account_credentials(credentials)
+
+  def test_save_to_well_known_file_service_account(self):
+    credential_file = datafile(
+        os.path.join('gcloud', 'application_default_credentials.json'))
+    credentials = _get_application_default_credential_from_file(
+        credential_file)
+    temp_credential_file = datafile(
+        os.path.join('gcloud', 'temp_well_known_file_service_account.json'))
+    save_to_well_known_file(credentials, temp_credential_file)
+    with open(temp_credential_file) as f:
+      d = simplejson.load(f)
+    self.assertEqual('service_account', d['type'])
+    self.assertEqual('123', d['client_id'])
+    self.assertEqual('dummy@google.com', d['client_email'])
+    self.assertEqual('ABCDEF', d['private_key_id'])
+    os.remove(temp_credential_file)
 
   def test_get_application_default_credential_from_file_authorized_user(self):
     credentials_file = datafile(
@@ -279,6 +291,23 @@ class GoogleCredentialsTests(unittest.TestCase):
     credentials = _get_application_default_credential_from_file(
         credentials_file)
     self.validate_google_credentials(credentials)
+
+  def test_save_to_well_known_file_authorized_user(self):
+    credentials_file = datafile(
+        os.path.join('gcloud',
+                     'application_default_credentials_authorized_user.json'))
+    credentials = _get_application_default_credential_from_file(
+        credentials_file)
+    temp_credential_file = datafile(
+        os.path.join('gcloud', 'temp_well_known_file_authorized_user.json'))
+    save_to_well_known_file(credentials, temp_credential_file)
+    with open(temp_credential_file) as f:
+      d = simplejson.load(f)
+    self.assertEqual('authorized_user', d['type'])
+    self.assertEqual('123', d['client_id'])
+    self.assertEqual('secret', d['client_secret'])
+    self.assertEqual('alabalaportocala', d['refresh_token'])
+    os.remove(temp_credential_file)
 
   def test_get_application_default_credential_from_malformed_file_1(self):
     credentials_file = datafile(

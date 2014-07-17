@@ -985,6 +985,16 @@ class GoogleCredentials(OAuth2Credentials):
     """
     return self
 
+  @property
+  def serialization_data(self):
+    """Get the fields and their values identifying the current credentials."""
+    return {
+        'type': 'authorized_user',
+        'client_id': self.client_id,
+        'client_secret': self.client_secret,
+        'refresh_token': self.refresh_token
+    }
+
   @staticmethod
   def get_application_default():
     """Get the Application Default Credentials for the current environment.
@@ -1004,6 +1014,8 @@ class GoogleCredentials(OAuth2Credentials):
     else:
       application_default_credential_filename = _get_environment_variable_file()
       well_known_file = _get_well_known_file()
+      if not os.path.isfile(well_known_file):
+        well_known_file = None
 
     if application_default_credential_filename:
       try:
@@ -1064,6 +1076,26 @@ class GoogleCredentials(OAuth2Credentials):
           'method should point to a file.')
 
 
+def save_to_well_known_file(credentials, well_known_file=None):
+  """Save the provided GoogleCredentials to the well known file.
+
+  Args:
+    credentials:
+      the credentials to be saved to the well known file;
+      it should be an instance of GoogleCredentials
+    well_known_file:
+      the name of the file where the credentials are to be saved;
+      this parameter is supposed to be used for testing only
+  """
+  if well_known_file is None:
+    well_known_file = _get_well_known_file()
+
+  credentials_data = credentials.serialization_data
+
+  with open(well_known_file, 'w') as f:
+    simplejson.dump(credentials_data, f, sort_keys=True, indent=2)
+
+
 def _get_environment_variable_file():
   application_default_credential_filename = (
       os.environ.get(GOOGLE_APPLICATION_CREDENTIALS,
@@ -1103,8 +1135,7 @@ def _get_well_known_file():
   default_config_path = os.path.join(default_config_path,
                                      WELL_KNOWN_CREDENTIALS_FILE)
 
-  if os.path.isfile(default_config_path):
-    return default_config_path
+  return default_config_path
 
 
 def _get_application_default_credential_from_file(
