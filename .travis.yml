@@ -1,16 +1,15 @@
 language: python
-matrix:
-  include:
-    - python: "2.6"
-      env: TOX_ENV=py26
-    - python: "2.7"
-      env: TOX_ENV=py27
-    - python: "3.2"
-      env: TOX_ENV=py32
-    - python: "3.3"
-      env: TOX_ENV=py33
-    - python: "pypy"
-      env: TOX_ENV=pypy
+python: 2.7
+env:
+  - TOX_ENV=py26openssl13
+  - TOX_ENV=py26openssl14
+  - TOX_ENV=py27openssl13
+  - TOX_ENV=py27openssl14
+  - TOX_ENV=py32openssl13
+  - TOX_ENV=py32openssl14
+  - TOX_ENV=py33openssl13
+  - TOX_ENV=py33openssl14
+  - TOX_ENV=pypy
 install:
   - pip install tox
   - pip install .
