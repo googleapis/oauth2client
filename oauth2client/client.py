@@ -215,6 +215,9 @@ class Credentials(object):
     # Add in information we will need later to reconsistitue this instance.
     d['_class'] = t.__name__
     d['_module'] = t.__module__
+    for key in d.keys():
+      if isinstance(d[key], bytes):
+          d[key] = bytes.decode(d[key])
     return simplejson.dumps(d)
 
   def to_json(self):
@@ -1308,8 +1311,8 @@ if HAS_CRYPTO:
       # Keep base64 encoded so it can be stored in JSON.
       self.private_key = base64.b64encode(private_key)
       try:
-        # Ensure it's a str
-        self.private_key = bytes.decode(self.private_key)
+        # Ensure it's bytes
+        self.private_key = str.encode(self.private_key)
       except TypeError:
         pass
 
