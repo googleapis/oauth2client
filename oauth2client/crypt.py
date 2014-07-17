@@ -136,6 +136,9 @@ try:
       if parsed_pem_key:
         pkey = crypto.load_privatekey(crypto.FILETYPE_PEM, parsed_pem_key)
       else:
+        # Ensure password is str
+        if isinstance(password, bytes):
+          password = bytes.decode(password)
         pkey = crypto.load_pkcs12(key, password).get_privatekey()
       return OpenSSLSigner(pkey)
 
