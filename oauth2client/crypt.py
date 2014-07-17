@@ -136,10 +136,17 @@ try:
       if parsed_pem_key:
         pkey = crypto.load_privatekey(crypto.FILETYPE_PEM, parsed_pem_key)
       else:
+        # OpenSSL 0.13 needs password to be str
+        # OpenSSL 0.14 needs password to be bytes
         # Ensure password is str
         if isinstance(password, bytes):
           password = bytes.decode(password)
-        pkey = crypto.load_pkcs12(key, password).get_privatekey()
+        try:
+          pkey = crypto.load_pkcs12(key, password).get_privatekey()
+        except TypeError:
+          # Failed as str, so let's try with bytes (probably 0.14+)
+          password = str.encode(password)
+          pkey = crypto.load_pkcs12(key, password).get_privatekey()
       return OpenSSLSigner(pkey)
 
 except ImportError:
