@@ -9,6 +9,8 @@ env:
   - TOX_ENV=py32openssl14
   - TOX_ENV=py33openssl13
   - TOX_ENV=py33openssl14
+  - TOX_ENV=py34openssl13
+  - TOX_ENV=py34openssl14
   - TOX_ENV=pypyopenssl13
   - TOX_ENV=pypyopenssl14
 install:
