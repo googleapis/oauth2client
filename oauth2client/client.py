@@ -1328,6 +1328,11 @@ if HAS_CRYPTO:
       except TypeError:
         pass
       data = simplejson.loads(s)
+      try:
+        # Ensure it's bytes
+        data['private_key'] = str.encode(data['private_key'])
+      except TypeError:
+        pass
       retval = SignedJwtAssertionCredentials(
           data['service_account_name'],
           base64.b64decode(data['private_key']),
