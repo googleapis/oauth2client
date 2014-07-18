@@ -24,7 +24,10 @@ __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 import base64
 import datetime
-import mox
+try:
+  from mox3 import mox
+except ImportError:
+  import mox
 import os
 import time
 import unittest
