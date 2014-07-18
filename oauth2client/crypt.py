@@ -117,7 +117,7 @@ try:
           signed_message = crypto.sign(self._key, message, 'sha256')
       except TypeError:
           # Failed as str, so let's try with bytes (probably 0.14+)
-          message = bytes.decode(message)
+          message = str.encode(message)
           signed_message = crypto.sign(self._key, message, 'sha256')
       return signed_message
 
@@ -146,7 +146,7 @@ try:
           pkey = crypto.load_pkcs12(key, password).get_privatekey()
         except TypeError:
           # Failed as str, so let's try with bytes (probably 0.14+)
-          password = bytes.decode(password)
+          message = str.encode(password)
           pkey = crypto.load_pkcs12(key, password).get_privatekey()
       return OpenSSLSigner(pkey)
 
