@@ -197,6 +197,10 @@ class AppAssertionCredentials(AssertionCredentials):
       raise AccessTokenRefreshError(str(e))
     self.access_token = token
 
+  @property
+  def serialization_data(self):
+    raise NotImplementedError('Cannot serialize credentials for AppEngine.')
+
   def create_scoped_required(self):
     return not self.scope
 
