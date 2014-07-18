@@ -146,7 +146,7 @@ try:
           pkey = crypto.load_pkcs12(key, password).get_privatekey()
         except TypeError:
           # Failed as str, so let's try with bytes (probably 0.14+)
-          message = str.encode(password)
+          password = str.encode(password)
           pkey = crypto.load_pkcs12(key, password).get_privatekey()
       return OpenSSLSigner(pkey)
 
@@ -368,7 +368,15 @@ def verify_signed_jwt_with_certs(jwt, certs, audience):
   if (len(segments) != 3):
     raise AppIdentityError(
       'Wrong number of segments in token: %s' % jwt)
-  signed = str('%s.%s' % (segments[0], segments[1]))
+  signed = '%s.%s' % (segments[0], segments[1])
+  try:
+      signed_bytes = str.encode(signed)
+  except TypeError:
+      signed_bytes = None
+  try:
+      signed_str = str(signed)
+  except TypeError:
+      signed_str = None
 
   signature = _urlsafe_b64decode(segments[2])
 
@@ -384,7 +392,12 @@ def verify_signed_jwt_with_certs(jwt, certs, audience):
   verified = False
   for (keyname, pem) in certs.items():
     verifier = Verifier.from_string(pem, True)
-    if (verifier.verify(signed, signature)):
+    # Python2
+    if (verifier.verify(signed_str, signature)):
+      verified = True
+      break
+    # Python3
+    if (verifier.verify(signed_bytes, signature)):
       verified = True
       break
   if not verified:
