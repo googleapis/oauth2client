@@ -1087,6 +1087,9 @@ def save_to_well_known_file(credentials, well_known_file=None):
       the name of the file where the credentials are to be saved;
       this parameter is supposed to be used for testing only
   """
+  # TODO(orestica): move this method to tools.py
+  # once the argparse import gets fixed (it is not present in Python 2.6)
+
   if well_known_file is None:
     well_known_file = _get_well_known_file()
 
