@@ -105,7 +105,7 @@ class AccessTokenCredentialsError(Error):
 
 
 class VerifyJwtTokenError(Error):
-  """Could on retrieve certificates for validation."""
+  """Could not retrieve certificates for validation."""
 
 
 class NonAsciiHeaderError(Error):
