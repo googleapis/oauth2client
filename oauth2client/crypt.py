@@ -128,7 +128,7 @@ try:
       if parsed_pem_key:
         pkey = crypto.load_privatekey(crypto.FILETYPE_PEM, parsed_pem_key)
       else:
-        pkey = crypto.load_pkcs12(key, password).get_privatekey()
+        pkey = crypto.load_pkcs12(key, password.encode('utf8')).get_privatekey()
       return OpenSSLSigner(pkey)
 
 except ImportError:
