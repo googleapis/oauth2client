@@ -40,7 +40,6 @@ import dev_appserver
 dev_appserver.fix_sys_path()
 import webapp2
 
-from googleapiclient.http import HttpMockSequence
 from google.appengine.api import apiproxy_stub
 from google.appengine.api import apiproxy_stub_map
 from google.appengine.api import app_identity
@@ -51,6 +50,7 @@ from google.appengine.ext import db
 from google.appengine.ext import ndb
 from google.appengine.ext import testbed
 from google.appengine.runtime import apiproxy_errors
+from http_mock import HttpMockSequence
 from oauth2client import appengine
 from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client.anyjson import simplejson
@@ -62,13 +62,14 @@ from oauth2client.appengine import CredentialsNDBModel
 from oauth2client.appengine import FlowNDBProperty
 from oauth2client.appengine import FlowProperty
 from oauth2client.appengine import OAuth2Decorator
+from oauth2client.appengine import OAuth2DecoratorFromClientSecrets
 from oauth2client.appengine import StorageByKeyName
-from oauth2client.appengine import oauth2decorator_from_clientsecrets
 from oauth2client.client import AccessTokenRefreshError
 from oauth2client.client import Credentials
 from oauth2client.client import FlowExchangeError
 from oauth2client.client import OAuth2Credentials
 from oauth2client.client import flow_from_clientsecrets
+from oauth2client.client import save_to_well_known_file
 from webtest import TestApp
 
 
@@ -219,6 +220,38 @@ class TestAppAssertionCredentials(unittest.TestCase):
     m.UnsetStubs()
     self.assertEqual('a_token_456', credentials.access_token)
     self.assertEqual(scope, credentials.scope)
+
+  def test_create_scoped_required_without_scopes(self):
+    credentials = AppAssertionCredentials([])
+    self.assertTrue(credentials.create_scoped_required())
+
+  def test_create_scoped_required_with_scopes(self):
+    credentials = AppAssertionCredentials(['dummy_scope'])
+    self.assertFalse(credentials.create_scoped_required())
+
+  def test_create_scoped(self):
+    credentials = AppAssertionCredentials([])
+    new_credentials = credentials.create_scoped(['dummy_scope'])
+    self.assertNotEqual(credentials, new_credentials)
+    self.assertTrue(isinstance(new_credentials, AppAssertionCredentials))
+    self.assertEqual('dummy_scope', new_credentials.scope)
+
+  def test_get_access_token(self):
+    app_identity_stub = self.AppIdentityStubImpl()
+    apiproxy_stub_map.apiproxy = apiproxy_stub_map.APIProxyStubMap()
+    apiproxy_stub_map.apiproxy.RegisterStub("app_identity_service",
+                                            app_identity_stub)
+    apiproxy_stub_map.apiproxy.RegisterStub(
+        'memcache', memcache_stub.MemcacheServiceStub())
+
+    credentials = AppAssertionCredentials(['dummy_scope'])
+    token = credentials.get_access_token()
+    self.assertEqual('a_token_123', token.access_token)
+    self.assertEqual(None, token.expires_in)
+
+  def test_save_to_well_known_file(self):
+    credentials = AppAssertionCredentials([])
+    self.assertRaises(NotImplementedError, save_to_well_known_file, credentials)
 
 
 class TestFlowModel(db.Model):
@@ -720,7 +753,7 @@ class DecoratorTests(unittest.TestCase):
     self.test_required()
 
   def test_decorator_from_client_secrets(self):
-    decorator = oauth2decorator_from_clientsecrets(
+    decorator = OAuth2DecoratorFromClientSecrets(
         datafile('client_secrets.json'),
         scope=['foo_scope', 'bar_scope'])
     self._finish_setup(decorator, user_mock=UserMock)
@@ -737,16 +770,24 @@ class DecoratorTests(unittest.TestCase):
     self.assertEqual(self.decorator._revoke_uri,
                      self.decorator.credentials.revoke_uri)
 
+  def test_decorator_from_client_secrets_kwargs(self):
+    decorator = OAuth2DecoratorFromClientSecrets(
+        datafile('client_secrets.json'),
+        scope=['foo_scope', 'bar_scope'],
+        approval_prompt='force')
+    self.assertTrue('approval_prompt' in decorator._kwargs)
+
+
   def test_decorator_from_cached_client_secrets(self):
     cache_mock = CacheMock()
     load_and_cache('client_secrets.json', 'secret', cache_mock)
-    decorator = oauth2decorator_from_clientsecrets(
+    decorator = OAuth2DecoratorFromClientSecrets(
       # filename, scope, message=None, cache=None
       'secret', '', cache=cache_mock)
     self.assertFalse(decorator._in_error)
 
   def test_decorator_from_client_secrets_not_logged_in_required(self):
-    decorator = oauth2decorator_from_clientsecrets(
+    decorator = OAuth2DecoratorFromClientSecrets(
         datafile('client_secrets.json'),
         scope=['foo_scope', 'bar_scope'], message='NotLoggedInMessage')
     self.decorator = decorator
@@ -761,7 +802,7 @@ class DecoratorTests(unittest.TestCase):
     self.assertTrue('Login' in str(response))
 
   def test_decorator_from_client_secrets_not_logged_in_aware(self):
-    decorator = oauth2decorator_from_clientsecrets(
+    decorator = OAuth2DecoratorFromClientSecrets(
         datafile('client_secrets.json'),
         scope=['foo_scope', 'bar_scope'], message='NotLoggedInMessage')
     self.decorator = decorator
@@ -776,7 +817,7 @@ class DecoratorTests(unittest.TestCase):
   def test_decorator_from_unfilled_client_secrets_required(self):
     MESSAGE = 'File is missing'
     try:
-      decorator = oauth2decorator_from_clientsecrets(
+      decorator = OAuth2DecoratorFromClientSecrets(
           datafile('unfilled_client_secrets.json'),
           scope=['foo_scope', 'bar_scope'], message=MESSAGE)
     except InvalidClientSecretsError:
@@ -785,7 +826,7 @@ class DecoratorTests(unittest.TestCase):
   def test_decorator_from_unfilled_client_secrets_aware(self):
     MESSAGE = 'File is missing'
     try:
-      decorator = oauth2decorator_from_clientsecrets(
+      decorator = OAuth2DecoratorFromClientSecrets(
           datafile('unfilled_client_secrets.json'),
           scope=['foo_scope', 'bar_scope'], message=MESSAGE)
     except InvalidClientSecretsError:

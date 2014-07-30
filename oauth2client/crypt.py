@@ -128,7 +128,7 @@ try:
       if parsed_pem_key:
         pkey = crypto.load_privatekey(crypto.FILETYPE_PEM, parsed_pem_key)
       else:
-        pkey = crypto.load_pkcs12(key, password).get_privatekey()
+        pkey = crypto.load_pkcs12(key, password.encode('utf8')).get_privatekey()
       return OpenSSLSigner(pkey)
 
 except ImportError:
@@ -235,7 +235,7 @@ try:
         pkey = RSA.importKey(parsed_pem_key)
       else:
         raise NotImplementedError(
-            'PKCS12 format is not supported by the PyCrpto library. '
+            'PKCS12 format is not supported by the PyCrypto library. '
             'Try converting to a "PEM" '
             '(openssl pkcs12 -in xxxxx.p12 -nodes -nocerts > privatekey.pem) '
             'or using PyOpenSSL if native code is an option.')
@@ -259,13 +259,13 @@ else:
 
 def _parse_pem_key(raw_key_input):
   """Identify and extract PEM keys.
-  
+
   Determines whether the given key is in the format of PEM key, and extracts
   the relevant part of the key if it is.
-  
+
   Args:
     raw_key_input: The contents of a private key file (either PEM or PKCS12).
-  
+
   Returns:
     string, The actual key if the contents are from a PEM file, or else None.
   """

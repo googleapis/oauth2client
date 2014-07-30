@@ -52,7 +52,7 @@ with information from the APIs Console <https://code.google.com/apis/console>.
 
 """
 
-# run_parser is an ArgumentParser that contains command-line options expected
+# argparser is an ArgumentParser that contains command-line options expected
 # by tools.run(). Pass it in as part of the 'parents' argument to your own
 # ArgumentParser.
 argparser = argparse.ArgumentParser(add_help=False)
@@ -141,7 +141,7 @@ def run_flow(flow, storage, flags, http=None):
 
     parser = argparse.ArgumentParser(description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        parents=[tools.run_parser])
+        parents=[tools.argparser])
     flags = parser.parse_args(argv)
 
   Args:
