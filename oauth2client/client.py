@@ -1143,6 +1143,7 @@ def credentials_from_clientsecrets_and_code(filename, scope, code,
     http: httplib2.Http, optional http instance to use to do the fetch
     cache: An optional cache service client that implements get() and set()
       methods. See clientsecrets.loadfile() for details.
+    device_uri: string, OAuth 2.0 device authorization endpoint
 
   Returns:
     An OAuth2Credentials object.
@@ -1308,9 +1309,9 @@ class OAuth2WebServerFlow(Flow):
     """Exhanges a code for OAuth2Credentials.
 
     Args:
-      code: string or dict, either the code as a string, or a dictionary
-        of the query parameters to the redirect_uri, which contains
-        the code.
+      code: string or dict or None, either the code as a string, None in case
+        of OAuth2 fir devices, or a dictionary of the query parameters to the
+        redirect_uri, which contains the code.
       http: httplib2.Http, optional http instance to use to do the fetch
 
     Returns:
@@ -1325,7 +1326,7 @@ class OAuth2WebServerFlow(Flow):
       if self.device_code:
         code = self.device_code
       else:
-        raise ValueError('code can only be None when the step1_get_device_and_user_codes method has been previously successfully called')
+        raise ValueError('code can only be None when the step1_get_device_and_user_codes method has been successfully called before')
 
     if not (isinstance(code, str) or isinstance(code, unicode)):
       if 'code' not in code:
@@ -1410,6 +1411,8 @@ def flow_from_clientsecrets(filename, scope, redirect_uri=None,
       provided then clientsecrets.InvalidClientSecretsError will be raised.
     cache: An optional cache service client that implements get() and set()
       methods. See clientsecrets.loadfile() for details.
+    device_uri: string, URI for device authorization endpoint. For convenience
+      defaults to Google's endpoints but any OAuth 2.0 provider can be used.
 
   Returns:
     A Flow object.
