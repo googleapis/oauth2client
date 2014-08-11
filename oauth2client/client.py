@@ -105,7 +105,7 @@ class AccessTokenCredentialsError(Error):
 
 
 class VerifyJwtTokenError(Error):
-  """Could on retrieve certificates for validation."""
+  """Could not retrieve certificates for validation."""
 
 
 class NonAsciiHeaderError(Error):
@@ -742,6 +742,9 @@ class OAuth2Credentials(Credentials):
             seconds=int(d['expires_in'])) + datetime.datetime.utcnow()
       else:
         self.token_expiry = None
+      # On temporary refresh errors, the user does not actually have to
+      # re-authorize, so we unflag here.
+      self.invalid = False
       if self.store:
         self.store.locked_put(self)
     else:
