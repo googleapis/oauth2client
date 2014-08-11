@@ -43,7 +43,8 @@ from oauth2client.client import Flow
 from django.conf import global_settings
 global_settings.SECRET_KEY = 'NotASecret'
 os.environ['DJANGO_SETTINGS_MODULE'] = 'django_settings'
-sys.modules['django_settings'] = imp.new_module('django_settings')
+sys.modules['django_settings'] = django_settings = imp.new_module('django_settings')
+django_settings.SECRET_KEY = 'xyzzy'
 
 from oauth2client.django_orm import CredentialsField
 from oauth2client.django_orm import FlowField

@@ -82,8 +82,9 @@ AUTHORIZED_USER = 'authorized_user'
 # The value representing service account credentials.
 SERVICE_ACCOUNT = 'service_account'
 
-# The environment variable pointing the file with local Default Credentials.
-GOOGLE_CREDENTIALS_DEFAULT = 'GOOGLE_CREDENTIALS_DEFAULT'
+# The environment variable pointing the file with local
+# Application Default Credentials.
+GOOGLE_APPLICATION_CREDENTIALS = 'GOOGLE_APPLICATION_CREDENTIALS'
 
 # The access token along with the seconds in which it expires.
 AccessTokenInfo = namedtuple('AccessTokenInfo', ['access_token', 'expires_in'])
@@ -113,15 +114,15 @@ class AccessTokenCredentialsError(Error):
 
 
 class VerifyJwtTokenError(Error):
-  """Could on retrieve certificates for validation."""
+  """Could not retrieve certificates for validation."""
 
 
 class NonAsciiHeaderError(Error):
   """Header names and values must be ASCII strings."""
 
 
-class DefaultCredentialsError(Error):
-  """Error retrieving the Default Credentials."""
+class ApplicationDefaultCredentialsError(Error):
+  """Error retrieving the Application Default Credentials."""
 
 
 def _abstract():
@@ -763,6 +764,9 @@ class OAuth2Credentials(Credentials):
             seconds=int(d['expires_in'])) + datetime.datetime.utcnow()
       else:
         self.token_expiry = None
+      # On temporary refresh errors, the user does not actually have to
+      # re-authorize, so we unflag here.
+      self.invalid = False
       if self.store:
         self.store.locked_put(self)
     else:
@@ -929,14 +933,15 @@ def _get_environment(urllib2_urlopen=None):
 
 
 class GoogleCredentials(OAuth2Credentials):
-  """Default credentials for use in calling Google APIs.
+  """Application Default Credentials for use in calling Google APIs.
 
-  The Default Credentials are being constructed as a function of the environment
-  where the code is being run. More details can be found on this page:
-  https://developers.google.com/accounts/docs/default-credentials
+  The Application Default Credentials are being constructed as a function of
+  the environment where the code is being run.
+  More details can be found on this page:
+  https://developers.google.com/accounts/docs/application-default-credentials
 
-  Here is an example of how to use the Default Credentials for a service that
-  requires authentication:
+  Here is an example of how to use the Application Default Credentials for a
+  service that requires authentication:
 
   <code>
   from googleapiclient.discovery import build
@@ -945,7 +950,8 @@ class GoogleCredentials(OAuth2Credentials):
   PROJECT = 'bamboo-machine-422'  # replace this with one of your projects
   ZONE = 'us-central1-a'          # replace this with the zone you care about
 
-  service = build('compute', 'v1', credentials=GoogleCredentials.get_default())
+  credentials = GoogleCredentials.get_application_default()
+  service = build('compute', 'v1', credentials=credentials)
 
   request = service.instances().list(project=PROJECT, zone=ZONE)
   response = request.execute()
@@ -975,7 +981,8 @@ class GoogleCredentials(OAuth2Credentials):
 
     This constructor is not usually called by the user, instead
     GoogleCredentials objects are instantiated by
-    GoogleCredentials.from_stream() or GoogleCredentials.get_default().
+    GoogleCredentials.from_stream() or
+    GoogleCredentials.get_application_default().
 
     Args:
       access_token: string, access token.
@@ -1007,12 +1014,23 @@ class GoogleCredentials(OAuth2Credentials):
     """
     return self
 
+  @property
+  def serialization_data(self):
+    """Get the fields and their values identifying the current credentials."""
+    return {
+        'type': 'authorized_user',
+        'client_id': self.client_id,
+        'client_secret': self.client_secret,
+        'refresh_token': self.refresh_token
+    }
+
   @staticmethod
-  def get_default():
-    """Get the Default Credentials for the current environment.
+  def get_application_default():
+    """Get the Application Default Credentials for the current environment.
 
     Exceptions:
-      DefaultCredentialsError: raised when the credentials fail to be retrieved.
+      ApplicationDefaultCredentialsError: raised when the credentials fail
+                                          to be retrieved.
     """
 
     _env_name = _get_environment()
@@ -1020,41 +1038,42 @@ class GoogleCredentials(OAuth2Credentials):
     if _env_name in ('GAE_PRODUCTION', 'GAE_LOCAL'):
       # if we are running inside Google App Engine
       # there is no need to look for credentials in local files
-      default_credential_filename = None
+      application_default_credential_filename = None
       well_known_file = None
     else:
-      default_credential_filename = _get_environment_variable_file()
+      application_default_credential_filename = _get_environment_variable_file()
       well_known_file = _get_well_known_file()
+      if not os.path.isfile(well_known_file):
+        well_known_file = None
 
-    if default_credential_filename:
+    if application_default_credential_filename:
       try:
-        return _get_default_credential_from_file(default_credential_filename)
-      except (DefaultCredentialsError, ValueError) as error:
-        extra_help = (' (pointed to by ' + GOOGLE_CREDENTIALS_DEFAULT +
+        return _get_application_default_credential_from_file(
+            application_default_credential_filename)
+      except (ApplicationDefaultCredentialsError, ValueError) as error:
+        extra_help = (' (pointed to by ' + GOOGLE_APPLICATION_CREDENTIALS +
                       ' environment variable)')
-        _raise_exception_for_reading_json(default_credential_filename,
-                                          extra_help, error)
+        _raise_exception_for_reading_json(
+            application_default_credential_filename, extra_help, error)
     elif well_known_file:
       try:
-        return _get_default_credential_from_file(well_known_file)
-      except (DefaultCredentialsError, ValueError) as error:
+        return _get_application_default_credential_from_file(well_known_file)
+      except (ApplicationDefaultCredentialsError, ValueError) as error:
         extra_help = (' (produced automatically when running'
                       ' "gcloud auth login" command)')
         _raise_exception_for_reading_json(well_known_file, extra_help, error)
     elif _env_name in ('GAE_PRODUCTION', 'GAE_LOCAL'):
-      return _get_default_credential_GAE()
+      return _get_application_default_credential_GAE()
     elif _env_name == 'GCE_PRODUCTION':
-      return _get_default_credential_GCE()
+      return _get_application_default_credential_GCE()
     else:
-      raise DefaultCredentialsError(
-          "The Default Credentials are not available. They are available if "
-          "running in Google App Engine or Google Compute Engine. They are "
-          "also available if using the Google Cloud SDK and running 'gcloud "
-          "auth login'. Otherwise, the environment variable " +
-          GOOGLE_CREDENTIALS_DEFAULT + " must be defined pointing to a file "
-          "defining the credentials. "
-          "See https://developers.google.com/accounts/docs/default-credentials "
-          "for details.")
+      raise ApplicationDefaultCredentialsError(
+          "The Application Default Credentials are not available. They are "
+          "available if running in Google Compute Engine.  Otherwise, the "
+          " environment variable " + GOOGLE_APPLICATION_CREDENTIALS +
+          " must be defined pointing to a file defining the credentials. "
+          "See https://developers.google.com/accounts/docs/application-default-"
+          "credentials for more information.")
 
   @staticmethod
   def from_stream(credential_filename):
@@ -1067,33 +1086,61 @@ class GoogleCredentials(OAuth2Credentials):
         are to be read
 
     Exceptions:
-      DefaultCredentialsError: raised when the credentials fail to be retrieved.
+      ApplicationDefaultCredentialsError: raised when the credentials fail
+                                          to be retrieved.
     """
 
     if credential_filename and os.path.isfile(credential_filename):
       try:
-        return _get_default_credential_from_file(credential_filename)
-      except (DefaultCredentialsError, ValueError) as error:
+        return _get_application_default_credential_from_file(
+            credential_filename)
+      except (ApplicationDefaultCredentialsError, ValueError) as error:
         extra_help = ' (provided as parameter to the from_stream() method)'
         _raise_exception_for_reading_json(credential_filename,
                                           extra_help,
                                           error)
     else:
-      raise DefaultCredentialsError('The parameter passed to the from_stream()'
-                                    ' method should point to a file.')
+      raise ApplicationDefaultCredentialsError(
+          'The parameter passed to the from_stream() '
+          'method should point to a file.')
+
+
+def save_to_well_known_file(credentials, well_known_file=None):
+  """Save the provided GoogleCredentials to the well known file.
+
+  Args:
+    credentials:
+      the credentials to be saved to the well known file;
+      it should be an instance of GoogleCredentials
+    well_known_file:
+      the name of the file where the credentials are to be saved;
+      this parameter is supposed to be used for testing only
+  """
+  # TODO(orestica): move this method to tools.py
+  # once the argparse import gets fixed (it is not present in Python 2.6)
+
+  if well_known_file is None:
+    well_known_file = _get_well_known_file()
+
+  credentials_data = credentials.serialization_data
+
+  with open(well_known_file, 'w') as f:
+    simplejson.dump(credentials_data, f, sort_keys=True, indent=2)
 
 
 def _get_environment_variable_file():
-  default_credential_filename = os.environ.get(GOOGLE_CREDENTIALS_DEFAULT,
-                                               None)
+  application_default_credential_filename = (
+      os.environ.get(GOOGLE_APPLICATION_CREDENTIALS,
+                     None))
 
-  if default_credential_filename:
-    if os.path.isfile(default_credential_filename):
-      return default_credential_filename
+  if application_default_credential_filename:
+    if os.path.isfile(application_default_credential_filename):
+      return application_default_credential_filename
     else:
-      raise DefaultCredentialsError(
-          'File ' + default_credential_filename + ' (pointed by ' +
-          GOOGLE_CREDENTIALS_DEFAULT + ' environment variable) does not exist!')
+      raise ApplicationDefaultCredentialsError(
+          'File ' + application_default_credential_filename + ' (pointed by ' +
+          GOOGLE_APPLICATION_CREDENTIALS +
+          ' environment variable) does not exist!')
 
 
 def _get_well_known_file():
@@ -1101,7 +1148,7 @@ def _get_well_known_file():
   # TODO(orestica): Revisit this method once gcloud provides a better way
   # of pinpointing the exact location of the file.
 
-  WELL_KNOWN_CREDENTIALS_FILE = 'credentials_default.json'
+  WELL_KNOWN_CREDENTIALS_FILE = 'application_default_credentials.json'
   CLOUDSDK_CONFIG_DIRECTORY = 'gcloud'
 
   if os.name == 'nt':
@@ -1120,18 +1167,20 @@ def _get_well_known_file():
   default_config_path = os.path.join(default_config_path,
                                      WELL_KNOWN_CREDENTIALS_FILE)
 
-  if os.path.isfile(default_config_path):
-    return default_config_path
+  return default_config_path
 
 
-def _get_default_credential_from_file(default_credential_filename):
-  """Build the Default Credentials from file."""
+def _get_application_default_credential_from_file(
+    application_default_credential_filename):
+  """Build the Application Default Credentials from file."""
 
   from oauth2client import service_account
 
   # read the credentials from the file
-  with open(default_credential_filename) as default_credential:
-    client_credentials = service_account.simplejson.load(default_credential)
+  with open(application_default_credential_filename) as (
+      application_default_credential):
+    client_credentials = service_account.simplejson.load(
+        application_default_credential)
 
   credentials_type = client_credentials.get('type')
   if credentials_type == AUTHORIZED_USER:
@@ -1140,9 +1189,9 @@ def _get_default_credential_from_file(default_credential_filename):
     required_fields = set(['client_id', 'client_email', 'private_key_id',
                            'private_key'])
   else:
-    raise DefaultCredentialsError("'type' field should be defined "
-                                  "(and have one of the '" + AUTHORIZED_USER +
-                                  "' or '" + SERVICE_ACCOUNT + "' values)")
+    raise ApplicationDefaultCredentialsError(
+        "'type' field should be defined (and have one of the '" +
+        AUTHORIZED_USER + "' or '" + SERVICE_ACCOUNT + "' values)")
 
   missing_fields = required_fields.difference(client_credentials.keys())
 
@@ -1168,25 +1217,25 @@ def _get_default_credential_from_file(default_credential_filename):
 
 
 def _raise_exception_for_missing_fields(missing_fields):
-  raise DefaultCredentialsError('The following field(s): ' +
-                                ', '.join(missing_fields) + ' must be defined.')
+  raise ApplicationDefaultCredentialsError(
+      'The following field(s) must be defined: ' + ', '.join(missing_fields))
 
 
 def _raise_exception_for_reading_json(credential_file,
                                       extra_help,
                                       error):
-  raise DefaultCredentialsError('An error was encountered while reading '
-                                'json file: '+ credential_file + extra_help +
-                                ': ' + str(error))
+  raise ApplicationDefaultCredentialsError(
+      'An error was encountered while reading json file: '+
+      credential_file + extra_help + ': ' + str(error))
 
 
-def _get_default_credential_GAE():
+def _get_application_default_credential_GAE():
   from oauth2client.appengine import AppAssertionCredentials
 
   return AppAssertionCredentials([])
 
 
-def _get_default_credential_GCE():
+def _get_application_default_credential_GCE():
   from oauth2client.gce import AppAssertionCredentials
 
   return AppAssertionCredentials([])

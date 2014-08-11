@@ -69,6 +69,7 @@ from oauth2client.client import Credentials
 from oauth2client.client import FlowExchangeError
 from oauth2client.client import OAuth2Credentials
 from oauth2client.client import flow_from_clientsecrets
+from oauth2client.client import save_to_well_known_file
 from webtest import TestApp
 
 
@@ -247,6 +248,10 @@ class TestAppAssertionCredentials(unittest.TestCase):
     token = credentials.get_access_token()
     self.assertEqual('a_token_123', token.access_token)
     self.assertEqual(None, token.expires_in)
+
+  def test_save_to_well_known_file(self):
+    credentials = AppAssertionCredentials([])
+    self.assertRaises(NotImplementedError, save_to_well_known_file, credentials)
 
 
 class TestFlowModel(db.Model):

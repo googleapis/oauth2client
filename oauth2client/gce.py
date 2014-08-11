@@ -93,6 +93,11 @@ class AppAssertionCredentials(AssertionCredentials):
             ' with no service account or scopes.')
       raise AccessTokenRefreshError(content)
 
+  @property
+  def serialization_data(self):
+    raise NotImplementedError(
+        'Cannot serialize credentials for GCE service accounts.')
+
   def create_scoped_required(self):
     return not self.scope
 

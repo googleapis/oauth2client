@@ -29,6 +29,7 @@ import unittest
 
 from oauth2client.client import AccessTokenRefreshError
 from oauth2client.client import Credentials
+from oauth2client.client import save_to_well_known_file
 from oauth2client.gce import AppAssertionCredentials
 
 
@@ -134,4 +135,7 @@ class AssertionCredentialsTests(unittest.TestCase):
 
     m.UnsetStubs()
     m.VerifyAll()
-    
+
+  def test_save_to_well_known_file(self):
+    credentials = AppAssertionCredentials([])
+    self.assertRaises(NotImplementedError, save_to_well_known_file, credentials)
