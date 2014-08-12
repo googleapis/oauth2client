@@ -194,7 +194,7 @@ try:
         self._fh = open(self._filename, self._mode)
       except IOError, e:
         # If we can't access with _mode, try _fallback_mode and don't lock.
-        if e.errno == errno.EACCES:
+        if e.errno in ( errno.EPERM, errno.EACCES ):
           self._fh = open(self._filename, self._fallback_mode)
           return
 
