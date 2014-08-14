@@ -33,6 +33,7 @@ import urlparse
 
 from collections import namedtuple
 from oauth2client import GOOGLE_AUTH_URI
+from oauth2client import GOOGLE_DEVICE_URI
 from oauth2client import GOOGLE_REVOKE_URI
 from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client import util
@@ -114,6 +115,10 @@ class NonAsciiHeaderError(Error):
 
 class ApplicationDefaultCredentialsError(Error):
   """Error retrieving the Application Default Credentials."""
+
+
+class OAuth2DeviceCodeError(Error):
+  """Error trying to retrieve a device code."""
 
 
 def _abstract():
@@ -474,7 +479,7 @@ class OAuth2Credentials(Credentials):
       h = httplib2.Http()
       h = credentials.authorize(h)
 
-    You can't create a new OAuth subclass of httplib2.Authenication
+    You can't create a new OAuth subclass of httplib2.Authentication
     because it never gets passed the absolute URI, which is needed for
     signing. So instead we have to overload 'request' with a closure
     that adds in the Authorization header and then calls the original
@@ -623,7 +628,7 @@ class OAuth2Credentials(Credentials):
     """Set the Storage for the credential.
 
     Args:
-      store: Storage, an implementation of Stroage object.
+      store: Storage, an implementation of Storage object.
         This is needed to store the latest access_token if it
         has expired and been refreshed. This implementation uses
         locking to check for updates before updating the
@@ -1469,7 +1474,8 @@ def credentials_from_code(client_id, client_secret, scope, code,
                           redirect_uri='postmessage', http=None,
                           user_agent=None, token_uri=GOOGLE_TOKEN_URI,
                           auth_uri=GOOGLE_AUTH_URI,
-                          revoke_uri=GOOGLE_REVOKE_URI):
+                          revoke_uri=GOOGLE_REVOKE_URI,
+                          device_uri=GOOGLE_DEVICE_URI):
   """Exchanges an authorization code for an OAuth2Credentials object.
 
   Args:
@@ -1487,6 +1493,8 @@ def credentials_from_code(client_id, client_secret, scope, code,
       defaults to Google's endpoints but any OAuth 2.0 provider can be used.
     revoke_uri: string, URI for revoke endpoint. For convenience
       defaults to Google's endpoints but any OAuth 2.0 provider can be used.
+    device_uri: string, URI for device authorization endpoint. For convenience
+      defaults to Google's endpoints but any OAuth 2.0 provider can be used.
 
   Returns:
     An OAuth2Credentials object.
@@ -1498,7 +1506,7 @@ def credentials_from_code(client_id, client_secret, scope, code,
   flow = OAuth2WebServerFlow(client_id, client_secret, scope,
                              redirect_uri=redirect_uri, user_agent=user_agent,
                              auth_uri=auth_uri, token_uri=token_uri,
-                             revoke_uri=revoke_uri)
+                             revoke_uri=revoke_uri, device_uri=device_uri)
 
   credentials = flow.step2_exchange(code, http=http)
   return credentials
@@ -1509,7 +1517,8 @@ def credentials_from_clientsecrets_and_code(filename, scope, code,
                                             message = None,
                                             redirect_uri='postmessage',
                                             http=None,
-                                            cache=None):
+                                            cache=None,
+                                            device_uri=None):
   """Returns OAuth2Credentials from a clientsecrets file and an auth code.
 
   Will create the right kind of Flow based on the contents of the clientsecrets
@@ -1529,6 +1538,7 @@ def credentials_from_clientsecrets_and_code(filename, scope, code,
     http: httplib2.Http, optional http instance to use to do the fetch
     cache: An optional cache service client that implements get() and set()
       methods. See clientsecrets.loadfile() for details.
+    device_uri: string, OAuth 2.0 device authorization endpoint
 
   Returns:
     An OAuth2Credentials object.
@@ -1541,7 +1551,7 @@ def credentials_from_clientsecrets_and_code(filename, scope, code,
       invalid.
   """
   flow = flow_from_clientsecrets(filename, scope, message=message, cache=cache,
-                                 redirect_uri=redirect_uri)
+                                 redirect_uri=redirect_uri, device_uri=device_uri)
   credentials = flow.step2_exchange(code, http=http)
   return credentials
 
@@ -1560,6 +1570,7 @@ class OAuth2WebServerFlow(Flow):
                token_uri=GOOGLE_TOKEN_URI,
                revoke_uri=GOOGLE_REVOKE_URI,
                login_hint=None,
+               device_uri=GOOGLE_DEVICE_URI,
                **kwargs):
     """Constructor for OAuth2WebServerFlow.
 
@@ -1585,6 +1596,8 @@ class OAuth2WebServerFlow(Flow):
       login_hint: string, Either an email address or domain. Passing this hint
         will either pre-fill the email box on the sign-in form or select the
         proper multi-login session, thereby simplifying the login flow.
+      device_uri: string, URI for device authorization endpoint. For convenience
+        defaults to Google's endpoints but any OAuth 2.0 provider can be used.
       **kwargs: dict, The keyword arguments are all optional and required
                         parameters for the OAuth calls.
     """
@@ -1597,6 +1610,7 @@ class OAuth2WebServerFlow(Flow):
     self.auth_uri = auth_uri
     self.token_uri = token_uri
     self.revoke_uri = revoke_uri
+    self.device_uri = device_uri
     self.params = {
         'access_type': 'offline',
         'response_type': 'code',
@@ -1635,14 +1649,71 @@ class OAuth2WebServerFlow(Flow):
     query_params.update(self.params)
     return _update_query_params(self.auth_uri, query_params)
 
+  def _extract_codes(self, body):
+    """Parses the JSON response of a device and user codes request.
+
+    Args:
+      body: string, the body of a response
+    """
+    d = simplejson.loads(body)
+    self.device_code = d['device_code']
+    self.user_code = d['user_code']
+    self.interval = d['interval']
+    # some providers respond with 'verification_url', others with 'verification_uri'
+    self.verification_url = d.get('verification_url') or d.get('verification_uri')
+    if 'expires_in' in d:
+      self.user_code_expiry = datetime.datetime.now() + datetime.timedelta(seconds=int(d['expires_in']))
+    else:
+      self.user_code_expiry = None
+
+  @util.positional(1)
+  def step1_get_device_and_user_codes(self, http=None):
+    """Returns a user code and the verification URL where to enter it
+
+    Returns:
+      A user code as a string for the user to authorize the application
+      An URL as a string where the user has to enter the code
+    """
+    if self.device_uri is None:
+      raise ValueError('The value of device_uri must not be None.')
+
+    body = urllib.urlencode({
+        'client_id': self.client_id,
+        'scope': self.scope,
+    })
+    headers = {
+        'content-type': 'application/x-www-form-urlencoded',
+    }
+
+    if self.user_agent is not None:
+      headers['user-agent'] = self.user_agent
+
+    if http is None:
+      http = httplib2.Http()
+
+    resp, content = http.request(self.device_uri, method='POST', body=body,
+                                 headers=headers)
+    if resp.status == 200:
+      self._extract_codes(content)
+      return self.user_code, self.verification_url
+    else:
+      error_msg = 'Invalid response %s.' % resp.status
+      try:
+        d = simplejson.loads(content)
+        if 'error' in d:
+          error_msg = d['error']
+      except Exception:
+        pass
+      raise OAuth2DeviceCodeError(error_msg)
+
   @util.positional(2)
-  def step2_exchange(self, code, http=None):
+  def step2_exchange(self, code=None, http=None):
     """Exchanges a code for OAuth2Credentials.
 
     Args:
-      code: string or dict, either the code as a string, or a dictionary
-        of the query parameters to the redirect_uri, which contains
-        the code.
+      code: string or dict or None, either the code as a string, None in case
+        of OAuth2 fir devices, or a dictionary of the query parameters to the
+        redirect_uri, which contains the code.
       http: httplib2.Http, optional http instance to use to do the fetch
 
     Returns:
@@ -1652,6 +1723,12 @@ class OAuth2WebServerFlow(Flow):
       FlowExchangeError if a problem occured exchanging the code for a
       refresh_token.
     """
+
+    if not code:
+      if self.device_code:
+        code = self.device_code
+      else:
+        raise ValueError('code can only be None when the step1_get_device_and_user_codes method has been successfully called before')
 
     if not isinstance(code, basestring):
       if 'code' not in code:
@@ -1663,14 +1740,18 @@ class OAuth2WebServerFlow(Flow):
       else:
         code = code['code']
 
-    body = urllib.urlencode({
-        'grant_type': 'authorization_code',
+    post_data = {
         'client_id': self.client_id,
         'client_secret': self.client_secret,
         'code': code,
-        'redirect_uri': self.redirect_uri,
         'scope': self.scope,
-        })
+    }
+    if self.device_code:
+      post_data['grant_type'] = 'http://oauth.net/grant_type/device/1.0'
+    else:
+      post_data['grant_type'] = 'authorization_code'
+      post_data['redirect_uri'] = self.redirect_uri
+    body = urllib.urlencode(post_data)
     headers = {
         'content-type': 'application/x-www-form-urlencoded',
     }
@@ -1718,7 +1799,8 @@ class OAuth2WebServerFlow(Flow):
 
 @util.positional(2)
 def flow_from_clientsecrets(filename, scope, redirect_uri=None,
-                            message=None, cache=None, login_hint=None):
+                            message=None, cache=None, login_hint=None,
+                            device_uri=None):
   """Create a Flow from a clientsecrets file.
 
   Will create the right kind of Flow based on the contents of the clientsecrets
@@ -1739,6 +1821,8 @@ def flow_from_clientsecrets(filename, scope, redirect_uri=None,
     login_hint: string, Either an email address or domain. Passing this hint
       will either pre-fill the email box on the sign-in form or select the
       proper multi-login session, thereby simplifying the login flow.
+    device_uri: string, URI for device authorization endpoint. For convenience
+      defaults to Google's endpoints but any OAuth 2.0 provider can be used.
 
   Returns:
     A Flow object.
@@ -1760,6 +1844,8 @@ def flow_from_clientsecrets(filename, scope, redirect_uri=None,
       revoke_uri = client_info.get('revoke_uri')
       if revoke_uri is not None:
         constructor_kwargs['revoke_uri'] = revoke_uri
+      if device_uri is not None:
+        constructor_kwargs['device_uri'] = device_uri
       return OAuth2WebServerFlow(
           client_info['client_id'], client_info['client_secret'],
           scope, **constructor_kwargs)

@@ -1,6 +1,7 @@
 oauth2client	oauth2client-module.html
 oauth2client.GOOGLE_REVOKE_URI	oauth2client-module.html#GOOGLE_REVOKE_URI
 oauth2client.GOOGLE_TOKEN_URI	oauth2client-module.html#GOOGLE_TOKEN_URI
+oauth2client.GOOGLE_DEVICE_URI	oauth2client-module.html#GOOGLE_DEVICE_URI
 oauth2client.GOOGLE_AUTH_URI	oauth2client-module.html#GOOGLE_AUTH_URI
 oauth2client.anyjson	oauth2client.anyjson-module.html
 oauth2client.appengine	oauth2client.appengine-module.html
@@ -358,7 +359,10 @@ oauth2client.client.OAuth2Credentials._do_refresh_request	oauth2client.client.OA
 oauth2client.client.OAuth2Credentials.refresh	oauth2client.client.OAuth2Credentials-class.html#refresh
 oauth2client.client.OAuth2Credentials.get_access_token	oauth2client.client.OAuth2Credentials-class.html#get_access_token
 oauth2client.client.OAuth2Credentials.access_token_expired	oauth2client.client.OAuth2Credentials-class.html#access_token_expired
+oauth2client.client.OAuth2DeviceCodeError	oauth2client.client.OAuth2DeviceCodeError-class.html
 oauth2client.client.OAuth2WebServerFlow	oauth2client.client.OAuth2WebServerFlow-class.html
+oauth2client.client.OAuth2WebServerFlow._extract_codes	oauth2client.client.OAuth2WebServerFlow-class.html#_extract_codes
+oauth2client.client.OAuth2WebServerFlow.step1_get_device_and_user_codes	oauth2client.client.OAuth2WebServerFlow-class.html#step1_get_device_and_user_codes
 oauth2client.client.OAuth2WebServerFlow.step2_exchange	oauth2client.client.OAuth2WebServerFlow-class.html#step2_exchange
 oauth2client.client.OAuth2WebServerFlow.step1_get_authorize_url	oauth2client.client.OAuth2WebServerFlow-class.html#step1_get_authorize_url
 oauth2client.client.OAuth2WebServerFlow.__init__	oauth2client.client.OAuth2WebServerFlow-class.html#__init__

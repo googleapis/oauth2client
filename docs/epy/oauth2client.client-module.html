@@ -160,6 +160,14 @@ Tools for interacting with OAuth 2.0 protected resources.
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
+        <a href="oauth2client.client.OAuth2DeviceCodeError-class.html" class="summary-name">OAuth2DeviceCodeError</a><br />
+      Error trying to retrieve a device code.
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
         <a href="oauth2client.client.MemoryCache-class.html" class="summary-name">MemoryCache</a><br />
       httplib2 Cache implementation which only caches locally.
     </td>
@@ -541,7 +549,8 @@ Tools for interacting with OAuth 2.0 protected resources.
         <span class="summary-sig-arg">user_agent</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">token_uri</span>=<span class="summary-sig-default">GOOGLE_TOKEN_URI</span>,
         <span class="summary-sig-arg">auth_uri</span>=<span class="summary-sig-default">GOOGLE_AUTH_URI</span>,
-        <span class="summary-sig-arg">revoke_uri</span>=<span class="summary-sig-default">GOOGLE_REVOKE_URI</span>)</span><br />
+        <span class="summary-sig-arg">revoke_uri</span>=<span class="summary-sig-default">GOOGLE_REVOKE_URI</span>,
+        <span class="summary-sig-arg">device_uri</span>=<span class="summary-sig-default">GOOGLE_DEVICE_URI</span>)</span><br />
       Exchanges an authorization code for an OAuth2Credentials object.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="oauth2client.client-pysrc.html#credentials_from_code">source&nbsp;code</a></span>
@@ -564,7 +573,8 @@ Tools for interacting with OAuth 2.0 protected resources.
         <span class="summary-sig-arg">message</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">redirect_uri</span>=<span class="summary-sig-default">'postmessage'</span>,
         <span class="summary-sig-arg">http</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">cache</span>=<span class="summary-sig-default">None</span>)</span><br />
+        <span class="summary-sig-arg">cache</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">device_uri</span>=<span class="summary-sig-default">None</span>)</span><br />
       Returns OAuth2Credentials from a clientsecrets file and an auth code.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="oauth2client.client-pysrc.html#credentials_from_clientsecrets_and_code">source&nbsp;code</a></span>
@@ -586,7 +596,8 @@ Tools for interacting with OAuth 2.0 protected resources.
         <span class="summary-sig-arg">redirect_uri</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">message</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">cache</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">login_hint</span>=<span class="summary-sig-default">None</span>)</span><br />
+        <span class="summary-sig-arg">login_hint</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">device_uri</span>=<span class="summary-sig-default">None</span>)</span><br />
       Create a Flow from a clientsecrets file.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="oauth2client.client-pysrc.html#flow_from_clientsecrets">source&nbsp;code</a></span>
@@ -942,7 +953,8 @@ Returns:
         <span class="sig-arg">user_agent</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">token_uri</span>=<span class="sig-default">GOOGLE_TOKEN_URI</span>,
         <span class="sig-arg">auth_uri</span>=<span class="sig-default">GOOGLE_AUTH_URI</span>,
-        <span class="sig-arg">revoke_uri</span>=<span class="sig-default">GOOGLE_REVOKE_URI</span>)</span>
+        <span class="sig-arg">revoke_uri</span>=<span class="sig-default">GOOGLE_REVOKE_URI</span>,
+        <span class="sig-arg">device_uri</span>=<span class="sig-default">GOOGLE_DEVICE_URI</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="oauth2client.client-pysrc.html#credentials_from_code">source&nbsp;code</a></span>&nbsp;
@@ -966,6 +978,8 @@ Args:
   auth_uri: string, URI for authorization endpoint. For convenience
     defaults to Google's endpoints but any OAuth 2.0 provider can be used.
   revoke_uri: string, URI for revoke endpoint. For convenience
+    defaults to Google's endpoints but any OAuth 2.0 provider can be used.
+  device_uri: string, URI for device authorization endpoint. For convenience
     defaults to Google's endpoints but any OAuth 2.0 provider can be used.
 
 Returns:
@@ -997,7 +1011,8 @@ Raises:
         <span class="sig-arg">message</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">redirect_uri</span>=<span class="sig-default">'postmessage'</span>,
         <span class="sig-arg">http</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">cache</span>=<span class="sig-default">None</span>)</span>
+        <span class="sig-arg">cache</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">device_uri</span>=<span class="sig-default">None</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="oauth2client.client-pysrc.html#credentials_from_clientsecrets_and_code">source&nbsp;code</a></span>&nbsp;
@@ -1024,6 +1039,7 @@ Args:
   http: httplib2.Http, optional http instance to use to do the fetch
   cache: An optional cache service client that implements get() and set()
     methods. See clientsecrets.loadfile() for details.
+  device_uri: string, OAuth 2.0 device authorization endpoint
 
 Returns:
   An OAuth2Credentials object.
@@ -1056,7 +1072,8 @@ Raises:
         <span class="sig-arg">redirect_uri</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">message</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">cache</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">login_hint</span>=<span class="sig-default">None</span>)</span>
+        <span class="sig-arg">login_hint</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">device_uri</span>=<span class="sig-default">None</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="oauth2client.client-pysrc.html#flow_from_clientsecrets">source&nbsp;code</a></span>&nbsp;
@@ -1084,6 +1101,8 @@ Args:
   login_hint: string, Either an email address or domain. Passing this hint
     will either pre-fill the email box on the sign-in form or select the
     proper multi-login session, thereby simplifying the login flow.
+  device_uri: string, URI for device authorization endpoint. For convenience
+    defaults to Google's endpoints but any OAuth 2.0 provider can be used.
 
 Returns:
   A Flow object.
@@ -1184,7 +1203,7 @@ namedtuple('AccessTokenInfo', ['access_token', 'expires_in'])
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Sun Aug 10 14:40:28 2014
+    Generated by Epydoc 3.0.1 on Thu Aug 14 12:00:37 2014
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"
