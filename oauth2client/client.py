@@ -1556,6 +1556,43 @@ def credentials_from_clientsecrets_and_code(filename, scope, code,
   return credentials
 
 
+class DeviceFlowInfo(namedtuple('DeviceFlowInfo', (
+    'device_code', 'user_code', 'interval', 'verification_url',
+    'user_code_expiry'))):
+  """Intermediate information the OAuth2 for devices flow."""
+
+  @classmethod
+  def FromResponse(cls, response):
+    """Create a DeviceFlowInfo from a server response.
+
+    The response should be a dict containing entries as described
+    here:
+      http://tools.ietf.org/html/draft-ietf-oauth-v2-05#section-3.7.1
+    """
+    # device_code, user_code, and verification_url are required.
+    kwargs = {
+        'device_code': response['device_code'],
+        'user_code': response['user_code'],
+    }
+    # The response may list the verification address as either
+    # verification_url or verification_uri, so we check for both.
+    verification_url = response.get(
+        'verification_url', response.get('verification_uri'))
+    if verification_url is None:
+      raise OAuth2DeviceCodeError(
+          'No verification_url provided in server response')
+    kwargs['verification_url'] = verification_url
+    # expires_in and interval are optional.
+    kwargs.update({
+        'interval': response.get('interval'),
+        'user_code_expiry': None,
+    })
+    if 'expires_in' in response:
+      kwargs['user_code_expiry'] = datetime.datetime.now() + datetime.timedelta(
+          seconds=int(response['expires_in']))
+
+    return cls(**kwargs)
+
 class OAuth2WebServerFlow(Flow):
   """Does the Web Server Flow for OAuth 2.0.
 
@@ -1631,8 +1668,8 @@ class OAuth2WebServerFlow(Flow):
       A URI as a string to redirect the user to begin the authorization flow.
     """
     if redirect_uri is not None:
-      logger.warning(('The redirect_uri parameter for'
-          'OAuth2WebServerFlow.step1_get_authorize_url is deprecated. Please'
+      logger.warning(('The redirect_uri parameter for '
+          'OAuth2WebServerFlow.step1_get_authorize_url is deprecated. Please '
           'move to passing the redirect_uri in via the constructor.'))
       self.redirect_uri = redirect_uri
 
@@ -1648,23 +1685,6 @@ class OAuth2WebServerFlow(Flow):
       query_params['login_hint'] = self.login_hint
     query_params.update(self.params)
     return _update_query_params(self.auth_uri, query_params)
-
-  def _extract_codes(self, body):
-    """Parses the JSON response of a device and user codes request.
-
-    Args:
-      body: string, the body of a response
-    """
-    d = simplejson.loads(body)
-    self.device_code = d['device_code']
-    self.user_code = d['user_code']
-    self.interval = d['interval']
-    # some providers respond with 'verification_url', others with 'verification_uri'
-    self.verification_url = d.get('verification_url') or d.get('verification_uri')
-    if 'expires_in' in d:
-      self.user_code_expiry = datetime.datetime.now() + datetime.timedelta(seconds=int(d['expires_in']))
-    else:
-      self.user_code_expiry = None
 
   @util.positional(1)
   def step1_get_device_and_user_codes(self, http=None):
@@ -1694,51 +1714,61 @@ class OAuth2WebServerFlow(Flow):
     resp, content = http.request(self.device_uri, method='POST', body=body,
                                  headers=headers)
     if resp.status == 200:
-      self._extract_codes(content)
-      return self.user_code, self.verification_url
+      try:
+        flow_info = simplejson.loads(content)
+      except ValueError as e:
+        raise OAuth2DeviceCodeError(
+            'Could not parse server response as JSON: "%s", error: "%s"' % (
+                content, e))
+      return DeviceFlowInfo.FromResponse(flow_info)
     else:
       error_msg = 'Invalid response %s.' % resp.status
       try:
         d = simplejson.loads(content)
         if 'error' in d:
-          error_msg = d['error']
-      except Exception:
+          error_msg += ' Error: %s' % d['error']
+      except ValueError:
+        # Couldn't decode a JSON response, stick with the default message.
         pass
       raise OAuth2DeviceCodeError(error_msg)
 
   @util.positional(2)
-  def step2_exchange(self, code=None, http=None):
+  def step2_exchange(self, code=None, http=None, device_flow_info=None):
     """Exchanges a code for OAuth2Credentials.
 
     Args:
-      code: string or dict or None, either the code as a string, None in case
-        of OAuth2 fir devices, or a dictionary of the query parameters to the
-        redirect_uri, which contains the code.
-      http: httplib2.Http, optional http instance to use to do the fetch
+
+      code: string, dict or None. For a non-device flow, this is
+          either the response code as a string, or a dictionary of
+          query parameters to the redirect_uri. For a device flow,
+          this should be None.
+      http: httplib2.Http, optional http instance to use when fetching
+          credentials.
+      device_flow_info: DeviceFlowInfo, return value from step1 in the
+          case of a device flow.
 
     Returns:
       An OAuth2Credentials object that can be used to authorize requests.
 
     Raises:
-      FlowExchangeError if a problem occured exchanging the code for a
-      refresh_token.
+      FlowExchangeError: if a problem occured exchanging the code for a
+          refresh_token.
+      ValueError: if code and device_flow_info are both provided or both
+          missing.
+
     """
+    if code is None and device_flow_info is None:
+      raise ValueError('No code or device_flow_info provided.')
+    if code is not None and device_flow_info is not None:
+      raise ValueError('Cannot provide both code and device_flow_info.')
 
-    if not code:
-      if self.device_code:
-        code = self.device_code
-      else:
-        raise ValueError('code can only be None when the step1_get_device_and_user_codes method has been successfully called before')
-
-    if not isinstance(code, basestring):
+    if code is None:
+      code = device_flow_info.device_code
+    elif isinstance(code, dict):
       if 'code' not in code:
-        if 'error' in code:
-          error_msg = code['error']
-        else:
-          error_msg = 'No code was supplied in the query parameters.'
-        raise FlowExchangeError(error_msg)
-      else:
-        code = code['code']
+        raise FlowExchangeError(code.get(
+            'error', 'No code was supplied in the query parameters.'))
+      code = code['code']
 
     post_data = {
         'client_id': self.client_id,
@@ -1746,7 +1776,7 @@ class OAuth2WebServerFlow(Flow):
         'code': code,
         'scope': self.scope,
     }
-    if self.device_code:
+    if device_flow_info is not None:
       post_data['grant_type'] = 'http://oauth.net/grant_type/device/1.0'
     else:
       post_data['grant_type'] = 'authorization_code'
@@ -1770,8 +1800,8 @@ class OAuth2WebServerFlow(Flow):
       refresh_token = d.get('refresh_token', None)
       if not refresh_token:
         logger.info(
-          'Received token response with no refresh_token. Consider '
-          "reauthenticating with approval_prompt='force'.")
+            'Received token response with no refresh_token. Consider '
+            "reauthenticating with approval_prompt='force'.")
       token_expiry = None
       if 'expires_in' in d:
         token_expiry = datetime.datetime.utcnow() + datetime.timedelta(
