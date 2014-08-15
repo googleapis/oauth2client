@@ -17,10 +17,9 @@
 
 import base64
 import hashlib
+import json
 import logging
 import time
-
-from anyjson import simplejson
 
 
 CLOCK_SKEW_SECS = 300  # 5 minutes in seconds
@@ -287,7 +286,7 @@ def _urlsafe_b64decode(b64string):
 
 
 def _json_encode(data):
-  return simplejson.dumps(data, separators = (',', ':'))
+  return json.dumps(data, separators = (',', ':'))
 
 
 def make_signed_jwt(signer, payload):
@@ -347,7 +346,7 @@ def verify_signed_jwt_with_certs(jwt, certs, audience):
   # Parse token.
   json_body = _urlsafe_b64decode(segments[1])
   try:
-    parsed = simplejson.loads(json_body)
+    parsed = json.loads(json_body)
   except:
     raise AppIdentityError('Can\'t parse token: %s' % json_body)
 

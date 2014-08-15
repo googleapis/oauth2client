@@ -25,6 +25,7 @@ __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 import base64
 import datetime
 import httplib2
+import json
 import mox
 import os
 import time
@@ -53,7 +54,6 @@ from google.appengine.runtime import apiproxy_errors
 from http_mock import HttpMockSequence
 from oauth2client import appengine
 from oauth2client import GOOGLE_TOKEN_URI
-from oauth2client.anyjson import simplejson
 from oauth2client.clientsecrets import _loadfile
 from oauth2client.clientsecrets import InvalidClientSecretsError
 from oauth2client.appengine import AppAssertionCredentials
@@ -128,7 +128,7 @@ class Http2Mock(object):
   def request(self, token_uri, method, body, headers, *args, **kwargs):
     self.body = body
     self.headers = headers
-    return (self, simplejson.dumps(self.content))
+    return (self, json.dumps(self.content))
 
 
 class TestAppAssertionCredentials(unittest.TestCase):
@@ -309,7 +309,7 @@ class FlowNDBPropertyTest(unittest.TestCase):
 
 def _http_request(*args, **kwargs):
   resp = httplib2.Response({'status': '200'})
-  content = simplejson.dumps({'access_token': 'bar'})
+  content = json.dumps({'access_token': 'bar'})
 
   return resp, content
 
@@ -584,8 +584,7 @@ class DecoratorTests(unittest.TestCase):
     self.assertEqual(None, self.decorator.credentials)
     if self.decorator._token_response_param:
       response = parse_qs(parts[1])[self.decorator._token_response_param][0]
-      self.assertEqual(Http2Mock.content,
-                       simplejson.loads(urllib.unquote(response)))
+      self.assertEqual(Http2Mock.content, json.loads(urllib.unquote(response)))
     self.assertEqual(self.decorator.flow, self.decorator._tls.flow)
     self.assertEqual(self.decorator.credentials,
                      self.decorator._tls.credentials)
