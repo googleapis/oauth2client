@@ -59,7 +59,10 @@ logger = logging.getLogger(__name__)
 EXPIRY_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 
 # Which certs to use to validate id_tokens received.
-ID_TOKEN_VERIFICATON_CERTS = 'https://www.googleapis.com/oauth2/v1/certs'
+ID_TOKEN_VERIFICATION_CERTS = 'https://www.googleapis.com/oauth2/v1/certs'
+# This symbol previously had a typo in the name; we keep the old name
+# around for now, but will remove it in the future.
+ID_TOKEN_VERIFICATON_CERTS = ID_TOKEN_VERIFICATION_CERTS
 
 # Constant to use for the out of band OAuth 2.0 flow.
 OOB_CALLBACK_URN = 'urn:ietf:wg:oauth:2.0:oob'
@@ -1377,7 +1380,7 @@ if HAS_CRYPTO:
 
   @util.positional(2)
   def verify_id_token(id_token, audience, http=None,
-      cert_uri=ID_TOKEN_VERIFICATON_CERTS):
+                      cert_uri=ID_TOKEN_VERIFICATION_CERTS):
     """Verifies a signed JWT id_token.
 
     This function requires PyOpenSSL and because of that it does not work on
