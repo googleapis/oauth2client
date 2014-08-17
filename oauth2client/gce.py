@@ -84,7 +84,7 @@ class AppAssertionCredentials(AssertionCredentials):
     if response.status == 200:
       try:
         d = simplejson.loads(content)
-      except StandardError, e:
+      except StandardError as e:
         raise AccessTokenRefreshError(str(e))
       self.access_token = d['accessToken']
     else:

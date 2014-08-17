@@ -61,7 +61,7 @@ class OAuth2CredentialsTests(unittest.TestCase):
       try:
         clientsecrets.loads(src)
         self.fail(src + ' should not be a valid client_secrets file.')
-      except clientsecrets.InvalidClientSecretsError, e:
+      except clientsecrets.InvalidClientSecretsError as e:
         self.assertTrue(str(e).startswith(match))
 
       # Test loads(fp)
@@ -69,14 +69,14 @@ class OAuth2CredentialsTests(unittest.TestCase):
         fp = StringIO.StringIO(src)
         clientsecrets.load(fp)
         self.fail(src + ' should not be a valid client_secrets file.')
-      except clientsecrets.InvalidClientSecretsError, e:
+      except clientsecrets.InvalidClientSecretsError as e:
         self.assertTrue(str(e).startswith(match))
 
   def test_load_by_filename(self):
     try:
       clientsecrets._loadfile(NONEXISTENT_FILE)
       self.fail('should fail to load a missing client_secrets file.')
-    except clientsecrets.InvalidClientSecretsError, e:
+    except clientsecrets.InvalidClientSecretsError as e:
       self.assertTrue(str(e).startswith('File'))
 
 

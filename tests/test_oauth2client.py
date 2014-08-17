@@ -125,7 +125,7 @@ class CredentialsTests(unittest.TestCase):
 
 class MockResponse(object):
   """Mock the response of urllib2.urlopen() call."""
-  
+
   def __init__(self, headers):
     self._headers = headers
 
@@ -187,7 +187,7 @@ class GoogleCredentialsTests(unittest.TestCase):
         self.get_a_google_credentials_object().create_scoped_required())
 
   def test_create_scoped(self):
-    credentials = self.get_a_google_credentials_object() 
+    credentials = self.get_a_google_credentials_object()
     self.assertEqual(credentials, credentials.create_scoped(None))
     self.assertEqual(credentials,
                      credentials.create_scoped(['dummy_scope']))
@@ -380,7 +380,7 @@ class GoogleCredentialsTests(unittest.TestCase):
     from oauth2client import client
     self.assertEqual(None, getattr(client, '_env_name'))
     self.test_get_application_default_from_environment_variable_service_account()
-    self.assertEqual('UNKNOWN', getattr(client, '_env_name'))    
+    self.assertEqual('UNKNOWN', getattr(client, '_env_name'))
 
   def test_get_application_default_from_environment_variable_authorized_user(
       self):
@@ -840,7 +840,7 @@ class OAuth2WebServerFlowTest(unittest.TestCase):
     try:
       credentials = self.flow.step2_exchange('some random code', http=http)
       self.fail('should raise exception if exchange doesn\'t get 200')
-    except FlowExchangeError, e:
+    except FlowExchangeError as e:
       self.assertEquals('invalid_request', str(e))
 
   def test_exchange_failure_with_json_error(self):
@@ -858,7 +858,7 @@ class OAuth2WebServerFlowTest(unittest.TestCase):
     try:
       credentials = self.flow.step2_exchange('some random code', http=http)
       self.fail('should raise exception if exchange doesn\'t get 200')
-    except FlowExchangeError, e:
+    except FlowExchangeError as e:
       pass
 
   def test_exchange_success(self):
@@ -923,7 +923,7 @@ class OAuth2WebServerFlowTest(unittest.TestCase):
     try:
       credentials = self.flow.step2_exchange(code, http=http)
       self.fail('should raise exception if no code in dictionary.')
-    except FlowExchangeError, e:
+    except FlowExchangeError as e:
       self.assertTrue('shall not pass' in str(e))
 
   def test_exchange_id_token_fail(self):
