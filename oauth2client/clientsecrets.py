@@ -21,7 +21,7 @@ an OAuth 2.0 protected service.
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 
-from anyjson import simplejson
+from oauth2client.anyjson import simplejson
 
 # Properties that make a client_secrets.json file valid.
 TYPE_WEB = 'web'
@@ -70,7 +70,10 @@ class InvalidClientSecretsError(Error):
 def _validate_clientsecrets(obj):
   if obj is None or len(obj) != 1:
     raise InvalidClientSecretsError('Invalid file format.')
-  client_type = obj.keys()[0]
+  try:
+    client_type = obj.keys()[0]
+  except TypeError:
+    client_type = list(obj.keys())[0]
   if client_type not in VALID_CLIENT.keys():
     raise InvalidClientSecretsError('Unknown client type: %s.' % client_type)
   client_info = obj[client_type]
@@ -98,7 +101,7 @@ def loads(s):
 
 def _loadfile(filename):
   try:
-    fp = file(filename, 'r')
+    fp = open(filename, 'r')
     try:
       obj = simplejson.load(fp)
     finally:
@@ -150,4 +153,8 @@ def loadfile(filename, cache=None):
     obj = {client_type: client_info}
     cache.set(filename, obj, namespace=_SECRET_NAMESPACE)
 
-  return obj.iteritems().next()
+  try:
+    items = obj.iteritems().next()
+  except AttributeError:
+    items = next(iter(obj.items()))
+  return items

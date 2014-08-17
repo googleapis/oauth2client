@@ -20,7 +20,7 @@ Tools for interacting with OAuth 2.0 protected resources.
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 import base64
-import clientsecrets
+from oauth2client import clientsecrets
 import copy
 import datetime
 import httplib2
@@ -28,8 +28,22 @@ import logging
 import os
 import sys
 import time
-import urllib
-import urlparse
+import six
+try:
+  from urllib.parse import urlparse, urlunparse, urlencode, parse_qsl
+  from urllib.request import urlopen
+  from urllib.error import URLError
+except ImportError:
+  from urlparse import urlparse, urlunparse
+  from urllib import urlencode
+  from urllib2 import urlopen, URLError
+  try:
+    from urlparse import parse_qsl
+  except ImportError:
+    from cgi import parse_qsl
+
+if sys.version > '3':
+  long = int
 
 from collections import namedtuple
 from oauth2client import GOOGLE_AUTH_URI
@@ -47,11 +61,6 @@ try:
     HAS_OPENSSL = True
 except ImportError:
   pass
-
-try:
-  from urlparse import parse_qsl
-except ImportError:
-  from cgi import parse_qsl
 
 logger = logging.getLogger(__name__)
 
@@ -210,6 +219,9 @@ class Credentials(object):
     # Add in information we will need later to reconsistitue this instance.
     d['_class'] = t.__name__
     d['_module'] = t.__module__
+    for key in d.keys():
+      if isinstance(d[key], bytes):
+          d[key] = bytes.decode(d[key])
     return simplejson.dumps(d)
 
   def to_json(self):
@@ -233,7 +245,12 @@ class Credentials(object):
       An instance of the subclass of Credentials that was serialized with
       to_json().
     """
-    data = simplejson.loads(s)
+    try:
+        # s: already str
+        data = simplejson.loads(s)
+    except TypeError:
+        # s: bytes -> str
+        data = simplejson.loads(bytes.decode(s))
     # Find and call the right classmethod from_json() to restore the object.
     module = data['_module']
     try:
@@ -377,7 +394,7 @@ def clean_headers(headers):
   """
   clean = {}
   try:
-    for k, v in headers.iteritems():
+    for k, v in six.iteritems(headers):
       clean[str(k)] = str(v)
   except UnicodeEncodeError:
     raise NonAsciiHeaderError(k + ': ' + v)
@@ -394,11 +411,11 @@ def _update_query_params(uri, params):
   Returns:
     The same URI but with the new query parameters added.
   """
-  parts = list(urlparse.urlparse(uri))
+  parts = list(urlparse(uri))
   query_params = dict(parse_qsl(parts[4]))  # 4 is the index of the query part
   query_params.update(params)
-  parts[4] = urllib.urlencode(query_params)
-  return urlparse.urlunparse(parts)
+  parts[4] = urlencode(query_params)
+  return urlunparse(parts)
 
 
 class OAuth2Credentials(Credentials):
@@ -568,7 +585,12 @@ class OAuth2Credentials(Credentials):
     Returns:
       An instance of a Credentials subclass.
     """
-    data = simplejson.loads(s)
+    try:
+        # s: already str
+        data = simplejson.loads(s)
+    except TypeError:
+        # s: bytes -> str
+        data = simplejson.loads(bytes.decode(s))
     if 'token_expiry' in data and not isinstance(data['token_expiry'],
         datetime.datetime):
       try:
@@ -670,7 +692,7 @@ class OAuth2Credentials(Credentials):
 
   def _generate_refresh_request_body(self):
     """Generate the body that will be used in the refresh request."""
-    body = urllib.urlencode({
+    body = urlencode({
         'grant_type': 'refresh_token',
         'client_id': self.client_id,
         'client_secret': self.client_secret,
@@ -762,7 +784,7 @@ class OAuth2Credentials(Credentials):
           self.invalid = True
           if self.store:
             self.store.locked_put(self)
-      except StandardError:
+      except (TypeError, ValueError):
         pass
       raise AccessTokenRefreshError(error_msg)
 
@@ -799,7 +821,7 @@ class OAuth2Credentials(Credentials):
         d = simplejson.loads(content)
         if 'error' in d:
           error_msg = d['error']
-      except StandardError:
+      except (TypeError, ValueError):
         pass
       raise TokenRevokeError(error_msg)
 
@@ -857,7 +879,12 @@ class AccessTokenCredentials(OAuth2Credentials):
 
   @classmethod
   def from_json(cls, s):
-    data = simplejson.loads(s)
+    try:
+        # s: already str
+        data = simplejson.loads(s)
+    except TypeError:
+        # s: bytes -> str
+        data = simplejson.loads(bytes.decode(s))
     retval = AccessTokenCredentials(
         data['access_token'],
         data['user_agent'])
@@ -894,16 +921,15 @@ def _get_environment(urllib2_urlopen=None):
   elif server_software.startswith('Development/'):
     _env_name = 'GAE_LOCAL'
   else:
-    import urllib2
     try:
       if urllib2_urlopen is None:
-        urllib2_urlopen = urllib2.urlopen
+        urllib2_urlopen = urlopen
       response = urllib2_urlopen('http://metadata.google.internal')
       if any('Metadata-Flavor: Google' in h for h in response.info().headers):
         _env_name = 'GCE_PRODUCTION'
       else:
         _env_name = 'UNKNOWN'
-    except urllib2.URLError:
+    except URLError:
       _env_name = 'UNKNOWN'
 
   return _env_name
@@ -933,7 +959,7 @@ class GoogleCredentials(OAuth2Credentials):
   request = service.instances().list(project=PROJECT, zone=ZONE)
   response = request.execute()
 
-  print response
+  print(response)
   </code>
 
   A service that does not require authentication does not need credentials
@@ -947,7 +973,7 @@ class GoogleCredentials(OAuth2Credentials):
   request = service.apis().list()
   response = request.execute()
 
-  print response
+  print(response)
   </code>
   """
 
@@ -1151,7 +1177,7 @@ def _get_application_default_credential_from_file(
     application_default_credential_filename):
   """Build the Application Default Credentials from file."""
 
-  import service_account
+  from oauth2client import service_account
 
   # read the credentials from the file
   with open(application_default_credential_filename) as (
@@ -1258,7 +1284,7 @@ class AssertionCredentials(GoogleCredentials):
   def _generate_refresh_request_body(self):
     assertion = self._generate_assertion()
 
-    body = urllib.urlencode({
+    body = urlencode({
         'assertion': assertion,
         'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
         })
@@ -1336,6 +1362,11 @@ if HAS_CRYPTO:
 
       # Keep base64 encoded so it can be stored in JSON.
       self.private_key = base64.b64encode(private_key)
+      try:
+        # Ensure it's bytes
+        self.private_key = str.encode(self.private_key)
+      except TypeError:
+        pass
 
       self.private_key_password = private_key_password
       self.service_account_name = service_account_name
@@ -1343,7 +1374,17 @@ if HAS_CRYPTO:
 
     @classmethod
     def from_json(cls, s):
+      try:
+        # Ensure it's a str
+        s = bytes.decode(s)
+      except TypeError:
+        pass
       data = simplejson.loads(s)
+      try:
+        # Ensure it's bytes
+        data['private_key'] = str.encode(data['private_key'])
+      except TypeError:
+        pass
       retval = SignedJwtAssertionCredentials(
           data['service_account_name'],
           base64.b64decode(data['private_key']),
@@ -1406,6 +1447,7 @@ if HAS_CRYPTO:
     resp, content = http.request(cert_uri)
 
     if resp.status == 200:
+      content = bytes.decode(content)
       certs = simplejson.loads(content)
       return crypt.verify_signed_jwt_with_certs(id_token, certs, audience)
     else:
@@ -1455,7 +1497,7 @@ def _parse_exchange_token_response(content):
   resp = {}
   try:
     resp = simplejson.loads(content)
-  except StandardError:
+  except (TypeError, ValueError):
     # different JSON libs raise different exceptions,
     # so we just do a catch-all here
     resp = dict(parse_qsl(content))
@@ -1656,7 +1698,13 @@ class OAuth2WebServerFlow(Flow):
       refresh_token.
     """
 
-    if not isinstance(code, basestring):
+    try:
+      # Python2
+      is_string = isinstance(code, basestring)
+    except NameError:
+      # Python3
+      is_string = isinstance(code, str)
+    if not is_string:
       if 'code' not in code:
         if 'error' in code:
           error_msg = code['error']
@@ -1666,7 +1714,7 @@ class OAuth2WebServerFlow(Flow):
       else:
         code = code['code']
 
-    body = urllib.urlencode({
+    body = urlencode({
         'grant_type': 'authorization_code',
         'client_id': self.client_id,
         'client_secret': self.client_secret,
@@ -1713,7 +1761,7 @@ class OAuth2WebServerFlow(Flow):
       logger.info('Failed to retrieve access token: %s' % content)
       if 'error' in d:
         # you never know what those providers got to say
-        error_msg = unicode(d['error'])
+        error_msg = str(d['error'])
       else:
         error_msg = 'Invalid response: %s.' % str(resp.status)
       raise FlowExchangeError(error_msg)

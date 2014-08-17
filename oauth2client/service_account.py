@@ -22,6 +22,10 @@ import rsa
 import time
 import types
 
+import sys
+if sys.version > '3':
+  long = int
+
 from oauth2client import GOOGLE_REVOKE_URI
 from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client import util
@@ -77,14 +81,20 @@ class _ServiceAccountCredentials(AssertionCredentials):
     assertion_input = '%s.%s' % (
         _urlsafe_b64encode(header),
         _urlsafe_b64encode(payload))
+    assertion_input = assertion_input.encode('utf-8')
 
     # Sign the assertion.
-    signature = base64.urlsafe_b64encode(rsa.pkcs1.sign(
-        assertion_input, self._private_key, 'SHA-256')).rstrip('=')
+    signature = bytes.decode(base64.urlsafe_b64encode(rsa.pkcs1.sign(
+        assertion_input, self._private_key, 'SHA-256'))).rstrip('=')
 
     return '%s.%s' % (assertion_input, signature)
 
   def sign_blob(self, blob):
+    # Ensure that it is bytes
+    try:
+      blob = blob.encode('utf-8')
+    except AttributeError:
+      pass
     return (self._private_key_id,
             rsa.pkcs1.sign(blob, self._private_key, 'SHA-256'))
 
@@ -119,7 +129,7 @@ class _ServiceAccountCredentials(AssertionCredentials):
 def _urlsafe_b64encode(data):
   return base64.urlsafe_b64encode(
       simplejson.dumps(data, separators = (',', ':'))\
-          .encode('UTF-8')).rstrip('=')
+          .rstrip('=').encode('UTF-8'))
 
 def _get_private_key(private_key_pkcs8_text):
   """Get an RSA private key object from a pkcs8 representation."""

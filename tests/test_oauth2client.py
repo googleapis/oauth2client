@@ -24,14 +24,21 @@ __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 import base64
 import datetime
-import mox
+try:
+  from mox3 import mox
+except ImportError:
+  import mox
 import os
 import time
 import unittest
-import urlparse
+import six
+try:
+  from urllib.parse import urlparse, parse_qs
+except ImportError:
+  from urlparse import urlparse, parse_qs
 
-from http_mock import HttpMock
-from http_mock import HttpMockSequence
+from .http_mock import HttpMock
+from .http_mock import HttpMockSequence
 from oauth2client import GOOGLE_REVOKE_URI
 from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client.anyjson import simplejson
@@ -78,15 +85,15 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 # googleapiclient.test_discovery; consolidate these definitions.
 def assertUrisEqual(testcase, expected, actual):
   """Test that URIs are the same, up to reordering of query parameters."""
-  expected = urlparse.urlparse(expected)
-  actual = urlparse.urlparse(actual)
+  expected = urlparse(expected)
+  actual = urlparse(actual)
   testcase.assertEqual(expected.scheme, actual.scheme)
   testcase.assertEqual(expected.netloc, actual.netloc)
   testcase.assertEqual(expected.path, actual.path)
   testcase.assertEqual(expected.params, actual.params)
   testcase.assertEqual(expected.fragment, actual.fragment)
-  expected_query = urlparse.parse_qs(expected.query)
-  actual_query = urlparse.parse_qs(actual.query)
+  expected_query = parse_qs(expected.query)
+  actual_query = parse_qs(actual.query)
   for name in expected_query.keys():
     testcase.assertEqual(expected_query[name], actual_query[name])
   for name in actual_query.keys():
@@ -598,9 +605,9 @@ class BasicCredentialsTests(unittest.TestCase):
     client_id = u'some_client_id'
     client_secret = u'cOuDdkfjxxnv+'
     refresh_token = u'1/0/a.df219fjls0'
-    token_expiry = unicode(datetime.datetime.utcnow())
-    token_uri = unicode(GOOGLE_TOKEN_URI)
-    revoke_uri = unicode(GOOGLE_REVOKE_URI)
+    token_expiry = str(datetime.datetime.utcnow())
+    token_uri = str(GOOGLE_TOKEN_URI)
+    revoke_uri = str(GOOGLE_REVOKE_URI)
     user_agent = u'refresh_checker/1.0'
     credentials = OAuth2Credentials(access_token, client_id, client_secret,
                                     refresh_token, token_expiry, token_uri,
@@ -609,7 +616,7 @@ class BasicCredentialsTests(unittest.TestCase):
     http = HttpMock(headers={'status': '200'})
     http = credentials.authorize(http)
     http.request(u'http://example.com', method=u'GET', headers={u'foo': u'bar'})
-    for k, v in http.headers.iteritems():
+    for k, v in six.iteritems(http.headers):
       self.assertEqual(str, type(k))
       self.assertEqual(str, type(v))
 
@@ -720,7 +727,7 @@ class TestAssertionCredentials(unittest.TestCase):
         user_agent=user_agent)
 
   def test_assertion_body(self):
-    body = urlparse.parse_qs(self.credentials._generate_refresh_request_body())
+    body = parse_qs(self.credentials._generate_refresh_request_body())
     self.assertEqual(self.assertion_text, body['assertion'][0])
     self.assertEqual('urn:ietf:params:oauth:grant-type:jwt-bearer',
                      body['grant_type'][0])
@@ -792,8 +799,8 @@ class OAuth2WebServerFlowTest(unittest.TestCase):
   def test_construct_authorize_url(self):
     authorize_url = self.flow.step1_get_authorize_url()
 
-    parsed = urlparse.urlparse(authorize_url)
-    q = urlparse.parse_qs(parsed[4])
+    parsed = urlparse(authorize_url)
+    q = parse_qs(parsed[4])
     self.assertEqual('client_id+1', q['client_id'][0])
     self.assertEqual('code', q['response_type'][0])
     self.assertEqual('foo', q['scope'][0])
@@ -813,8 +820,8 @@ class OAuth2WebServerFlowTest(unittest.TestCase):
         )
     authorize_url = flow.step1_get_authorize_url()
 
-    parsed = urlparse.urlparse(authorize_url)
-    q = urlparse.parse_qs(parsed[4])
+    parsed = urlparse(authorize_url)
+    q = parse_qs(parsed[4])
     self.assertEqual('client_id+1', q['client_id'][0])
     self.assertEqual('token', q['response_type'][0])
     self.assertEqual('foo', q['scope'][0])
@@ -840,7 +847,7 @@ class OAuth2WebServerFlowTest(unittest.TestCase):
     try:
       credentials = self.flow.step2_exchange('some random code', http=http)
       self.fail('should raise exception if exchange doesn\'t get 200')
-    except FlowExchangeError, e:
+    except FlowExchangeError as e:
       self.assertEquals('invalid_request', str(e))
 
   def test_exchange_failure_with_json_error(self):
@@ -858,7 +865,7 @@ class OAuth2WebServerFlowTest(unittest.TestCase):
     try:
       credentials = self.flow.step2_exchange('some random code', http=http)
       self.fail('should raise exception if exchange doesn\'t get 200')
-    except FlowExchangeError, e:
+    except FlowExchangeError as e:
       pass
 
   def test_exchange_success(self):
@@ -923,7 +930,7 @@ class OAuth2WebServerFlowTest(unittest.TestCase):
     try:
       credentials = self.flow.step2_exchange(code, http=http)
       self.fail('should raise exception if no code in dictionary.')
-    except FlowExchangeError, e:
+    except FlowExchangeError as e:
       self.assertTrue('shall not pass' in str(e))
 
   def test_exchange_id_token_fail(self):

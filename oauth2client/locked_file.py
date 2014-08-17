@@ -1,6 +1,6 @@
 # Copyright 2011 Google Inc.
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
+# Licensed under the Ap ache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
@@ -21,10 +21,10 @@ Usage:
     f = LockedFile('filename', 'r+b', 'rb')
     f.open_and_lock()
     if f.is_locked():
-      print 'Acquired filename with r+b mode'
+      print('Acquired filename with r+b mode')
       f.file_handle().write('locked data')
     else:
-      print 'Aquired filename with rb mode'
+      print('Aquired filename with rb mode')
     f.unlock_and_close()
 """
 
@@ -122,7 +122,7 @@ class _PosixOpener(_Opener):
     validate_file(self._filename)
     try:
       self._fh = open(self._filename, self._mode)
-    except IOError, e:
+    except IOError as e:
       # If we can't access with _mode, try _fallback_mode and don't lock.
       if e.errno == errno.EACCES:
         self._fh = open(self._filename, self._fallback_mode)
@@ -137,7 +137,7 @@ class _PosixOpener(_Opener):
         self._locked = True
         break
 
-      except OSError, e:
+      except OSError as e:
         if e.errno != errno.EEXIST:
           raise
         if (time.time() - start_time) >= timeout:
@@ -192,7 +192,7 @@ try:
       validate_file(self._filename)
       try:
         self._fh = open(self._filename, self._mode)
-      except IOError, e:
+      except IOError as e:
         # If we can't access with _mode, try _fallback_mode and don't lock.
         if e.errno in ( errno.EPERM, errno.EACCES ):
           self._fh = open(self._filename, self._fallback_mode)
@@ -204,7 +204,7 @@ try:
           fcntl.lockf(self._fh.fileno(), fcntl.LOCK_EX)
           self._locked = True
           return
-        except IOError, e:
+        except IOError as e:
           # If not retrying, then just pass on the error.
           if timeout == 0:
             raise e
@@ -267,7 +267,7 @@ try:
       validate_file(self._filename)
       try:
         self._fh = open(self._filename, self._mode)
-      except IOError, e:
+      except IOError as e:
         # If we can't access with _mode, try _fallback_mode and don't lock.
         if e.errno == errno.EACCES:
           self._fh = open(self._filename, self._fallback_mode)
@@ -284,7 +284,7 @@ try:
               pywintypes.OVERLAPPED())
           self._locked = True
           return
-        except pywintypes.error, e:
+        except pywintypes.error as e:
           if timeout == 0:
             raise e
 
@@ -308,7 +308,7 @@ try:
         try:
           hfile = win32file._get_osfhandle(self._fh.fileno())
           win32file.UnlockFileEx(hfile, 0, -0x10000, pywintypes.OVERLAPPED())
-        except pywintypes.error, e:
+        except pywintypes.error as e:
           if e[0] != _Win32Opener.FILE_ALREADY_UNLOCKED_ERROR:
             raise
       self._locked = False

@@ -24,9 +24,9 @@ import os
 import stat
 import threading
 
-from anyjson import simplejson
-from client import Storage as BaseStorage
-from client import Credentials
+from oauth2client.anyjson import simplejson
+from oauth2client.client import Storage as BaseStorage
+from oauth2client.client import Credentials
 
 
 class CredentialsFileSymbolicLinkError(Exception):
@@ -92,7 +92,7 @@ class Storage(BaseStorage):
     simple version of "touch" to ensure the file has been created.
     """
     if not os.path.exists(self._filename):
-      old_umask = os.umask(0177)
+      old_umask = os.umask(0o177)
       try:
         open(self._filename, 'a+b').close()
       finally:
@@ -110,7 +110,7 @@ class Storage(BaseStorage):
 
     self._create_file_if_needed()
     self._validate_file()
-    f = open(self._filename, 'wb')
+    f = open(self._filename, 'w')
     f.write(credentials.to_json())
     f.close()
 

@@ -193,7 +193,7 @@ class AppAssertionCredentials(AssertionCredentials):
       scopes = self.scope.split()
       (token, _) = app_identity.get_access_token(
           scopes, service_account_id=self.service_account_id)
-    except app_identity.Error, e:
+    except app_identity.Error as e:
       raise AccessTokenRefreshError(str(e))
     self.access_token = token
 

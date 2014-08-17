@@ -20,7 +20,11 @@ import hashlib
 import logging
 import time
 
-from anyjson import simplejson
+import sys
+if sys.version > '3':
+  long = int
+
+from oauth2client.anyjson import simplejson
 
 
 CLOCK_SKEW_SECS = 300  # 5 minutes in seconds
@@ -108,7 +112,14 @@ try:
       Returns:
         string, The signature of the message for the given key.
       """
-      return crypto.sign(self._key, message, 'sha256')
+      message = str(message)
+      try:
+          signed_message = crypto.sign(self._key, message, 'sha256')
+      except TypeError:
+          # Failed as str, so let's try with bytes (probably 0.14+)
+          message = str.encode(message)
+          signed_message = crypto.sign(self._key, message, 'sha256')
+      return signed_message
 
     @staticmethod
     def from_string(key, password='notasecret'):
@@ -128,7 +139,15 @@ try:
       if parsed_pem_key:
         pkey = crypto.load_privatekey(crypto.FILETYPE_PEM, parsed_pem_key)
       else:
-        pkey = crypto.load_pkcs12(key, password.encode('utf8')).get_privatekey()
+        # OpenSSL 0.13 needs password to be str
+        # OpenSSL 0.14 needs password to be bytes
+        password = str(password)
+        try:
+          pkey = crypto.load_pkcs12(key, password).get_privatekey()
+        except TypeError:
+          # Failed as str, so let's try with bytes (probably 0.14+)
+          password = str.encode(password)
+          pkey = crypto.load_pkcs12(key, password).get_privatekey()
       return OpenSSLSigner(pkey)
 
 except ImportError:
@@ -214,6 +233,10 @@ try:
       Returns:
         string, The signature of the message for the given key.
       """
+      try:
+        message = str.encode(message)
+      except TypeError:
+        pass
       return PKCS1_v1_5.new(self._key).sign(SHA256.new(message))
 
     @staticmethod
@@ -269,20 +292,25 @@ def _parse_pem_key(raw_key_input):
   Returns:
     string, The actual key if the contents are from a PEM file, or else None.
   """
-  offset = raw_key_input.find('-----BEGIN ')
+  offset = raw_key_input.find(b'-----BEGIN ')
   if offset != -1:
     return raw_key_input[offset:]
   else:
     return None
 
 def _urlsafe_b64encode(raw_bytes):
-  return base64.urlsafe_b64encode(raw_bytes).rstrip('=')
+  # Make sure our bytes are actually bytes
+  try:
+    raw_bytes = str.encode(raw_bytes)
+  except (TypeError, UnicodeDecodeError):
+    pass
+  return bytes.decode(base64.urlsafe_b64encode(raw_bytes)).rstrip('=')
 
 
 def _urlsafe_b64decode(b64string):
   # Guard against unicode strings, which base64 can't handle.
   b64string = b64string.encode('ascii')
-  padded = b64string + '=' * (4 - len(b64string) % 4)
+  padded = b64string + b'=' * (4 - len(b64string) % 4)
   return base64.urlsafe_b64decode(padded)
 
 
@@ -341,12 +369,21 @@ def verify_signed_jwt_with_certs(jwt, certs, audience):
     raise AppIdentityError(
       'Wrong number of segments in token: %s' % jwt)
   signed = '%s.%s' % (segments[0], segments[1])
+  try:
+      signed_bytes = str.encode(signed)
+  except TypeError:
+      signed_bytes = None
+  try:
+      signed_str = str(signed)
+  except TypeError:
+      signed_str = None
 
   signature = _urlsafe_b64decode(segments[2])
 
   # Parse token.
   json_body = _urlsafe_b64decode(segments[1])
   try:
+    json_body = bytes.decode(json_body)
     parsed = simplejson.loads(json_body)
   except:
     raise AppIdentityError('Can\'t parse token: %s' % json_body)
@@ -355,7 +392,12 @@ def verify_signed_jwt_with_certs(jwt, certs, audience):
   verified = False
   for (keyname, pem) in certs.items():
     verifier = Verifier.from_string(pem, True)
-    if (verifier.verify(signed, signature)):
+    # Python2
+    if (verifier.verify(signed_str, signature)):
+      verified = True
+      break
+    # Python3
+    if (verifier.verify(signed_bytes, signature)):
       verified = True
       break
   if not verified:
