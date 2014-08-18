@@ -18,6 +18,7 @@ This credentials class is implemented on top of rsa library.
 """
 
 import base64
+import json
 import rsa
 import time
 import types
@@ -25,7 +26,6 @@ import types
 from oauth2client import GOOGLE_REVOKE_URI
 from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client import util
-from oauth2client.anyjson import simplejson
 from oauth2client.client import AssertionCredentials
 
 from pyasn1.codec.ber import decoder
@@ -43,7 +43,7 @@ class _ServiceAccountCredentials(AssertionCredentials):
 
     super(_ServiceAccountCredentials, self).__init__(
         None, user_agent=user_agent, token_uri=token_uri, revoke_uri=revoke_uri)
-    
+
     self._service_account_id = service_account_id
     self._service_account_email = service_account_email
     self._private_key_id = private_key_id
@@ -118,8 +118,7 @@ class _ServiceAccountCredentials(AssertionCredentials):
 
 def _urlsafe_b64encode(data):
   return base64.urlsafe_b64encode(
-      simplejson.dumps(data, separators = (',', ':'))\
-          .encode('UTF-8')).rstrip('=')
+      json.dumps(data, separators=(',', ':')).encode('UTF-8')).rstrip('=')
 
 def _get_private_key(private_key_pkcs8_text):
   """Get an RSA private key object from a pkcs8 representation."""

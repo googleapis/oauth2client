@@ -20,11 +20,11 @@ Utilities for making it easier to use OAuth 2.0 on Google Compute Engine.
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 import httplib2
+import json
 import logging
 import uritemplate
 
 from oauth2client import util
-from oauth2client.anyjson import simplejson
 from oauth2client.client import AccessTokenRefreshError
 from oauth2client.client import AssertionCredentials
 
@@ -63,8 +63,8 @@ class AppAssertionCredentials(AssertionCredentials):
     super(AppAssertionCredentials, self).__init__(None)
 
   @classmethod
-  def from_json(cls, json):
-    data = simplejson.loads(json)
+  def from_json(cls, json_data):
+    data = json.loads(json_data)
     return AppAssertionCredentials(data['scope'])
 
   def _refresh(self, http_request):
@@ -83,7 +83,7 @@ class AppAssertionCredentials(AssertionCredentials):
     response, content = http_request(uri)
     if response.status == 200:
       try:
-        d = simplejson.loads(content)
+        d = json.loads(content)
       except StandardError as e:
         raise AccessTokenRefreshError(str(e))
       self.access_token = d['accessToken']

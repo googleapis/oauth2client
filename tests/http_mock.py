@@ -14,9 +14,9 @@
 
 """Copy of googleapiclient.http's mock functionality."""
 
-import httplib2
+import json
 
-from oauth2client.anyjson import simplejson
+import httplib2
 
 # TODO(craigcitro): Find a cleaner way to share this code with googleapiclient.
 
@@ -101,7 +101,7 @@ class HttpMockSequence(object):
     if content == 'echo_request_headers':
       content = headers
     elif content == 'echo_request_headers_as_json':
-      content = simplejson.dumps(headers)
+      content = json.dumps(headers)
     elif content == 'echo_request_body':
       if hasattr(body, 'read'):
         content = body.read()

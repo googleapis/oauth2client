@@ -24,6 +24,7 @@ import clientsecrets
 import copy
 import datetime
 import httplib2
+import json
 import logging
 import os
 import sys
@@ -36,7 +37,6 @@ from oauth2client import GOOGLE_AUTH_URI
 from oauth2client import GOOGLE_REVOKE_URI
 from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client import util
-from oauth2client.anyjson import simplejson
 
 HAS_OPENSSL = False
 HAS_CRYPTO = False
@@ -210,7 +210,7 @@ class Credentials(object):
     # Add in information we will need later to reconsistitue this instance.
     d['_class'] = t.__name__
     d['_module'] = t.__module__
-    return simplejson.dumps(d)
+    return json.dumps(d)
 
   def to_json(self):
     """Creating a JSON representation of an instance of Credentials.
@@ -233,7 +233,7 @@ class Credentials(object):
       An instance of the subclass of Credentials that was serialized with
       to_json().
     """
-    data = simplejson.loads(s)
+    data = json.loads(s)
     # Find and call the right classmethod from_json() to restore the object.
     module = data['_module']
     try:
@@ -568,7 +568,7 @@ class OAuth2Credentials(Credentials):
     Returns:
       An instance of a Credentials subclass.
     """
-    data = simplejson.loads(s)
+    data = json.loads(s)
     if 'token_expiry' in data and not isinstance(data['token_expiry'],
         datetime.datetime):
       try:
@@ -736,7 +736,7 @@ class OAuth2Credentials(Credentials):
         self.token_uri, method='POST', body=body, headers=headers)
     if resp.status == 200:
       # TODO(jcgregorio) Raise an error if loads fails?
-      d = simplejson.loads(content)
+      d = json.loads(content)
       self.token_response = d
       self.access_token = d['access_token']
       self.refresh_token = d.get('refresh_token', self.refresh_token)
@@ -756,7 +756,7 @@ class OAuth2Credentials(Credentials):
       logger.info('Failed to retrieve access token: %s' % content)
       error_msg = 'Invalid response %s.' % resp['status']
       try:
-        d = simplejson.loads(content)
+        d = json.loads(content)
         if 'error' in d:
           error_msg = d['error']
           self.invalid = True
@@ -796,7 +796,7 @@ class OAuth2Credentials(Credentials):
     else:
       error_msg = 'Invalid response %s.' % resp.status
       try:
-        d = simplejson.loads(content)
+        d = json.loads(content)
         if 'error' in d:
           error_msg = d['error']
       except StandardError:
@@ -857,7 +857,7 @@ class AccessTokenCredentials(OAuth2Credentials):
 
   @classmethod
   def from_json(cls, s):
-    data = simplejson.loads(s)
+    data = json.loads(s)
     retval = AccessTokenCredentials(
         data['access_token'],
         data['user_agent'])
@@ -1102,7 +1102,7 @@ def save_to_well_known_file(credentials, well_known_file=None):
   credentials_data = credentials.serialization_data
 
   with open(well_known_file, 'w') as f:
-    simplejson.dump(credentials_data, f, sort_keys=True, indent=2)
+    json.dump(credentials_data, f, sort_keys=True, indent=2)
 
 
 def _get_environment_variable_file():
@@ -1156,8 +1156,7 @@ def _get_application_default_credential_from_file(
   # read the credentials from the file
   with open(application_default_credential_filename) as (
       application_default_credential):
-    client_credentials = service_account.simplejson.load(
-        application_default_credential)
+    client_credentials = json.load(application_default_credential)
 
   credentials_type = client_credentials.get('type')
   if credentials_type == AUTHORIZED_USER:
@@ -1343,7 +1342,7 @@ if HAS_CRYPTO:
 
     @classmethod
     def from_json(cls, s):
-      data = simplejson.loads(s)
+      data = json.loads(s)
       retval = SignedJwtAssertionCredentials(
           data['service_account_name'],
           base64.b64decode(data['private_key']),
@@ -1406,7 +1405,7 @@ if HAS_CRYPTO:
     resp, content = http.request(cert_uri)
 
     if resp.status == 200:
-      certs = simplejson.loads(content)
+      certs = json.loads(content)
       return crypt.verify_signed_jwt_with_certs(id_token, certs, audience)
     else:
       raise VerifyJwtTokenError('Status code: %d' % resp.status)
@@ -1436,7 +1435,7 @@ def _extract_id_token(id_token):
     raise VerifyJwtTokenError(
       'Wrong number of segments in token: %s' % id_token)
 
-  return simplejson.loads(_urlsafe_b64decode(segments[1]))
+  return json.loads(_urlsafe_b64decode(segments[1]))
 
 
 def _parse_exchange_token_response(content):
@@ -1454,7 +1453,7 @@ def _parse_exchange_token_response(content):
   """
   resp = {}
   try:
-    resp = simplejson.loads(content)
+    resp = json.loads(content)
   except StandardError:
     # different JSON libs raise different exceptions,
     # so we just do a catch-all here

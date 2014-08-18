@@ -37,7 +37,6 @@ except ImportError:
 
 from http_mock import HttpMockSequence
 from oauth2client import crypt
-from oauth2client.anyjson import simplejson
 from oauth2client.client import Credentials
 from oauth2client.client import SignedJwtAssertionCredentials
 from oauth2client.client import VerifyJwtTokenError

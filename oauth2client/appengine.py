@@ -22,6 +22,7 @@ __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 import base64
 import cgi
 import httplib2
+import json
 import logging
 import os
 import pickle
@@ -41,7 +42,6 @@ from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client import clientsecrets
 from oauth2client import util
 from oauth2client import xsrfutil
-from oauth2client.anyjson import simplejson
 from oauth2client.client import AccessTokenRefreshError
 from oauth2client.client import AssertionCredentials
 from oauth2client.client import Credentials
@@ -172,7 +172,7 @@ class AppAssertionCredentials(AssertionCredentials):
 
   @classmethod
   def from_json(cls, json):
-    data = simplejson.loads(json)
+    data = json.loads(json)
     return AppAssertionCredentials(data['scope'])
 
   def _refresh(self, http_request):
@@ -882,7 +882,7 @@ class OAuth2Decorator(object):
                                             user)
 
           if decorator._token_response_param and credentials.token_response:
-            resp_json = simplejson.dumps(credentials.token_response)
+            resp_json = json.dumps(credentials.token_response)
             redirect_uri = util._add_query_parameter(
                 redirect_uri, decorator._token_response_param, resp_json)
 

@@ -45,11 +45,11 @@ __author__ = 'jbeda@google.com (Joe Beda)'
 
 import base64
 import errno
+import json
 import logging
 import os
 import threading
 
-from anyjson import simplejson
 from oauth2client.client import Storage as BaseStorage
 from oauth2client.client import Credentials
 from oauth2client import util
@@ -315,7 +315,7 @@ class _MultiStore(object):
     """
     assert self._thread_lock.locked()
     self._file.file_handle().seek(0)
-    return simplejson.load(self._file.file_handle())
+    return json.load(self._file.file_handle())
 
   def _locked_json_write(self, data):
     """Write a JSON serializable data structure to the multistore.
@@ -329,7 +329,7 @@ class _MultiStore(object):
     if self._read_only:
       return
     self._file.file_handle().seek(0)
-    simplejson.dump(data, self._file.file_handle(), sort_keys=True, indent=2)
+    json.dump(data, self._file.file_handle(), sort_keys=True, indent=2)
     self._file.file_handle().truncate()
 
   def _refresh_data_cache(self):
@@ -387,7 +387,7 @@ class _MultiStore(object):
     raw_key = cred_entry['key']
     key = util.dict_to_tuple_key(raw_key)
     credential = None
-    credential = Credentials.new_from_json(simplejson.dumps(cred_entry['credential']))
+    credential = Credentials.new_from_json(json.dumps(cred_entry['credential']))
     return (key, credential)
 
   def _write(self):
@@ -400,7 +400,7 @@ class _MultiStore(object):
     raw_data['data'] = raw_creds
     for (cred_key, cred) in self._data.items():
       raw_key = dict(cred_key)
-      raw_cred = simplejson.loads(cred.to_json())
+      raw_cred = json.loads(cred.to_json())
       raw_creds.append({'key': raw_key, 'credential': raw_cred})
     self._locked_json_write(raw_data)
 

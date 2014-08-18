@@ -17,6 +17,14 @@
 Also installs included versions of third party libraries, if those libraries
 are not already installed.
 """
+from __future__ import print_function
+
+import sys
+
+if sys.version_info <= (2, 6):
+  print('oauth2client requires python version >= 2.6.', file=sys.stderr)
+  sys.exit(1)
+
 from setuptools import setup
 
 packages = [
@@ -30,18 +38,6 @@ install_requires = [
     'pyasn1_modules==0.0.5',
     'rsa==3.1.4',
 ]
-
-needs_json = False
-try:
-  import json
-except ImportError:
-  try:
-    import simplejson
-  except ImportError:
-    needs_json = True
-
-if needs_json:
-  install_requires.append('simplejson')
 
 long_desc = """The oauth2client is a client library for OAuth 2.0."""
 
