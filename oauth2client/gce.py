@@ -21,7 +21,7 @@ __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 import json
 import logging
-import uritemplate
+import urllib
 
 from oauth2client import util
 from oauth2client.client import AccessTokenRefreshError
@@ -78,7 +78,8 @@ class AppAssertionCredentials(AssertionCredentials):
     Raises:
       AccessTokenRefreshError: When the refresh fails.
     """
-    uri = uritemplate.expand(META, {'scope': self.scope})
+    query = '?scope=%s' % urllib.quote(self.scope, '')
+    uri = META.replace('{?scope}', query)
     response, content = http_request(uri)
     if response.status == 200:
       try:
@@ -101,5 +102,4 @@ class AppAssertionCredentials(AssertionCredentials):
     return not self.scope
 
   def create_scoped(self, scopes):
-    return AppAssertionCredentials(scopes,
-                                   **self.kwargs)
+    return AppAssertionCredentials(scopes, **self.kwargs)
