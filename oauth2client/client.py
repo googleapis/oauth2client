@@ -20,10 +20,9 @@ Tools for interacting with OAuth 2.0 protected resources.
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 import base64
-import clientsecrets
+import collections
 import copy
 import datetime
-import httplib2
 import json
 import logging
 import os
@@ -32,10 +31,11 @@ import time
 import urllib
 import urlparse
 
-from collections import namedtuple
+import httplib2
 from oauth2client import GOOGLE_AUTH_URI
 from oauth2client import GOOGLE_REVOKE_URI
 from oauth2client import GOOGLE_TOKEN_URI
+from oauth2client import clientsecrets
 from oauth2client import util
 
 HAS_OPENSSL = False
@@ -47,11 +47,6 @@ try:
     HAS_OPENSSL = True
 except ImportError:
   pass
-
-try:
-  from urlparse import parse_qsl
-except ImportError:
-  from cgi import parse_qsl
 
 logger = logging.getLogger(__name__)
 
@@ -81,7 +76,8 @@ SERVICE_ACCOUNT = 'service_account'
 GOOGLE_APPLICATION_CREDENTIALS = 'GOOGLE_APPLICATION_CREDENTIALS'
 
 # The access token along with the seconds in which it expires.
-AccessTokenInfo = namedtuple('AccessTokenInfo', ['access_token', 'expires_in'])
+AccessTokenInfo = collections.namedtuple(
+    'AccessTokenInfo', ['access_token', 'expires_in'])
 
 class Error(Exception):
   """Base error for this module."""
@@ -394,11 +390,11 @@ def _update_query_params(uri, params):
   Returns:
     The same URI but with the new query parameters added.
   """
-  parts = list(urlparse.urlparse(uri))
-  query_params = dict(parse_qsl(parts[4]))  # 4 is the index of the query part
+  parts = urlparse.urlparse(uri)
+  query_params = dict(urlparse.parse_qsl(parts.query))
   query_params.update(params)
-  parts[4] = urllib.urlencode(query_params)
-  return urlparse.urlunparse(parts)
+  new_parts = parts._replace(query=urllib.urlencode(query_params))
+  return urlparse.urlunparse(new_parts)
 
 
 class OAuth2Credentials(Credentials):
@@ -1457,7 +1453,7 @@ def _parse_exchange_token_response(content):
   except StandardError:
     # different JSON libs raise different exceptions,
     # so we just do a catch-all here
-    resp = dict(parse_qsl(content))
+    resp = dict(urlparse.parse_qsl(content))
 
   # some providers respond with 'expires', others with 'expires_in'
   if resp and 'expires' in resp:

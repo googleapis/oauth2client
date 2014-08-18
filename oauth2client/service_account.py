@@ -19,9 +19,7 @@ This credentials class is implemented on top of rsa library.
 
 import base64
 import json
-import rsa
 import time
-import types
 
 from oauth2client import GOOGLE_REVOKE_URI
 from oauth2client import GOOGLE_TOKEN_URI
@@ -30,6 +28,7 @@ from oauth2client.client import AssertionCredentials
 
 from pyasn1.codec.ber import decoder
 from pyasn1_modules.rfc5208 import PrivateKeyInfo
+import rsa
 
 
 class _ServiceAccountCredentials(AssertionCredentials):
@@ -38,8 +37,9 @@ class _ServiceAccountCredentials(AssertionCredentials):
   MAX_TOKEN_LIFETIME_SECS = 3600 # 1 hour in seconds
 
   def __init__(self, service_account_id, service_account_email, private_key_id,
-      private_key_pkcs8_text, scopes, user_agent=None,
-      token_uri=GOOGLE_TOKEN_URI, revoke_uri=GOOGLE_REVOKE_URI, **kwargs):
+               private_key_pkcs8_text, scopes, user_agent=None,
+               token_uri=GOOGLE_TOKEN_URI, revoke_uri=GOOGLE_REVOKE_URI,
+               **kwargs):
 
     super(_ServiceAccountCredentials, self).__init__(
         None, user_agent=user_agent, token_uri=token_uri, revoke_uri=revoke_uri)

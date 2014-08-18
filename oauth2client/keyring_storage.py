@@ -22,8 +22,8 @@ __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 import keyring
 import threading
 
-from client import Storage as BaseStorage
-from client import Credentials
+from oauth2client.client import Storage as BaseStorage
+from oauth2client.client import Credentials
 
 
 class Storage(BaseStorage):
