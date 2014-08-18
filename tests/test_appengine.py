@@ -22,23 +22,18 @@ Unit tests for objects created from discovery documents.
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
-import base64
 import datetime
 import httplib2
 import json
-import mox
 import os
 import time
 import unittest
 import urllib
-
-try:
-  from urlparse import parse_qs
-except ImportError:
-  from cgi import parse_qs
+import urlparse
 
 import dev_appserver
 dev_appserver.fix_sys_path()
+import mox
 import webapp2
 
 from google.appengine.api import apiproxy_stub
@@ -559,7 +554,7 @@ class DecoratorTests(unittest.TestCase):
     self.assertEqual(self.decorator.credentials, None)
     response = self.app.get('http://localhost/foo_path')
     self.assertTrue(response.status.startswith('302'))
-    q = parse_qs(response.headers['Location'].split('?', 1)[1])
+    q = urlparse.parse_qs(response.headers['Location'].split('?', 1)[1])
     self.assertEqual('http://localhost/oauth2callback', q['redirect_uri'][0])
     self.assertEqual('foo_client_id', q['client_id'][0])
     self.assertEqual('foo_scope bar_scope', q['scope'][0])
@@ -583,7 +578,8 @@ class DecoratorTests(unittest.TestCase):
     self.assertEqual('http://localhost/foo_path', parts[0])
     self.assertEqual(None, self.decorator.credentials)
     if self.decorator._token_response_param:
-      response = parse_qs(parts[1])[self.decorator._token_response_param][0]
+      response = urlparse.parse_qs(
+          parts[1])[self.decorator._token_response_param][0]
       self.assertEqual(Http2Mock.content, json.loads(urllib.unquote(response)))
     self.assertEqual(self.decorator.flow, self.decorator._tls.flow)
     self.assertEqual(self.decorator.credentials,
@@ -619,7 +615,7 @@ class DecoratorTests(unittest.TestCase):
     # Invalid Credentials should start the OAuth dance again.
     response = self.app.get('/foo_path')
     self.assertTrue(response.status.startswith('302'))
-    q = parse_qs(response.headers['Location'].split('?', 1)[1])
+    q = urlparse.parse_qs(response.headers['Location'].split('?', 1)[1])
     self.assertEqual('http://localhost/oauth2callback', q['redirect_uri'][0])
 
   def test_storage_delete(self):
@@ -667,7 +663,7 @@ class DecoratorTests(unittest.TestCase):
     self.assertEqual('200 OK', response.status)
     self.assertEqual(False, self.decorator.has_credentials())
     url = self.decorator.authorize_url()
-    q = parse_qs(url.split('?', 1)[1])
+    q = urlparse.parse_qs(url.split('?', 1)[1])
     self.assertEqual('http://localhost/oauth2callback', q['redirect_uri'][0])
     self.assertEqual('foo_client_id', q['client_id'][0])
     self.assertEqual('foo_scope bar_scope', q['scope'][0])

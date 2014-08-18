@@ -43,8 +43,6 @@ The format of the stored data is like so:
 
 __author__ = 'jbeda@google.com (Joe Beda)'
 
-import base64
-import errno
 import json
 import logging
 import os
@@ -53,7 +51,7 @@ import threading
 from oauth2client.client import Storage as BaseStorage
 from oauth2client.client import Credentials
 from oauth2client import util
-from locked_file import LockedFile
+from oauth2client.locked_file import LockedFile
 
 logger = logging.getLogger(__name__)
 
@@ -286,7 +284,7 @@ class _MultiStore(object):
       if self._warn_on_readonly:
         logger.warn('The credentials file (%s) is not writable. Opening in '
                     'read-only mode. Any refreshed credentials will only be '
-                    'valid for this run.' % self._file.filename())
+                    'valid for this run.', self._file.filename())
     if os.path.getsize(self._file.filename()) == 0:
       logger.debug('Initializing empty multistore file')
       # The multistore is empty so write out an empty file.

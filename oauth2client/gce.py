@@ -19,7 +19,6 @@ Utilities for making it easier to use OAuth 2.0 on Google Compute Engine.
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
-import httplib2
 import json
 import logging
 import uritemplate
@@ -90,7 +89,7 @@ class AppAssertionCredentials(AssertionCredentials):
     else:
       if response.status == 404:
         content = content + (' This can occur if a VM was created'
-            ' with no service account or scopes.')
+                             ' with no service account or scopes.')
       raise AccessTokenRefreshError(content)
 
   @property
