@@ -114,11 +114,11 @@ try:
       """
       message = str(message)
       try:
-          signed_message = crypto.sign(self._key, message, 'sha256')
+        signed_message = crypto.sign(self._key, message, 'sha256')
       except TypeError:
-          # Failed as str, so let's try with bytes (probably 0.14+)
-          message = str.encode(message)
-          signed_message = crypto.sign(self._key, message, 'sha256')
+        # Failed as str, so let's try with bytes (probably 0.14+)
+        message = str.encode(message)
+        signed_message = crypto.sign(self._key, message, 'sha256')
       return signed_message
 
     @staticmethod
@@ -370,13 +370,13 @@ def verify_signed_jwt_with_certs(jwt, certs, audience):
       'Wrong number of segments in token: %s' % jwt)
   signed = '%s.%s' % (segments[0], segments[1])
   try:
-      signed_bytes = str.encode(signed)
+    signed_bytes = str.encode(signed)
   except TypeError:
-      signed_bytes = None
+    signed_bytes = None
   try:
-      signed_str = str(signed)
+    signed_str = str(signed)
   except TypeError:
-      signed_str = None
+    signed_str = None
 
   signature = _urlsafe_b64decode(segments[2])
 

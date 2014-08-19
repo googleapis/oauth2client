@@ -221,7 +221,7 @@ class Credentials(object):
     d['_module'] = t.__module__
     for key in d.keys():
       if isinstance(d[key], bytes):
-          d[key] = bytes.decode(d[key])
+        d[key] = bytes.decode(d[key])
     return simplejson.dumps(d)
 
   def to_json(self):
@@ -246,11 +246,11 @@ class Credentials(object):
       to_json().
     """
     try:
-        # s: already str
-        data = simplejson.loads(s)
+      # s: already str
+      data = simplejson.loads(s)
     except TypeError:
-        # s: bytes -> str
-        data = simplejson.loads(bytes.decode(s))
+      # s: bytes -> str
+      data = simplejson.loads(bytes.decode(s))
     # Find and call the right classmethod from_json() to restore the object.
     module = data['_module']
     try:
@@ -586,11 +586,11 @@ class OAuth2Credentials(Credentials):
       An instance of a Credentials subclass.
     """
     try:
-        # s: already str
-        data = simplejson.loads(s)
+      # s: already str
+      data = simplejson.loads(s)
     except TypeError:
-        # s: bytes -> str
-        data = simplejson.loads(bytes.decode(s))
+      # s: bytes -> str
+      data = simplejson.loads(bytes.decode(s))
     if 'token_expiry' in data and not isinstance(data['token_expiry'],
         datetime.datetime):
       try:
@@ -880,14 +880,14 @@ class AccessTokenCredentials(OAuth2Credentials):
   @classmethod
   def from_json(cls, s):
     try:
-        # s: already str
-        data = simplejson.loads(s)
+      # s: already str
+      data = simplejson.loads(s)
     except TypeError:
-        # s: bytes -> str
-        data = simplejson.loads(bytes.decode(s))
+      # s: bytes -> str
+      data = simplejson.loads(bytes.decode(s))
     retval = AccessTokenCredentials(
-        data['access_token'],
-        data['user_agent'])
+      data['access_token'],
+      data['user_agent'])
     return retval
 
   def _refresh(self, http_request):
