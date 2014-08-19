@@ -19,12 +19,11 @@ Utilities for making it easier to use OAuth 2.0 on Google Compute Engine.
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
-import httplib2
+import json
 import logging
-import uritemplate
+import urllib
 
 from oauth2client import util
-from oauth2client.anyjson import simplejson
 from oauth2client.client import AccessTokenRefreshError
 from oauth2client.client import AssertionCredentials
 
@@ -63,8 +62,8 @@ class AppAssertionCredentials(AssertionCredentials):
     super(AppAssertionCredentials, self).__init__(None)
 
   @classmethod
-  def from_json(cls, json):
-    data = simplejson.loads(json)
+  def from_json(cls, json_data):
+    data = json.loads(json_data)
     return AppAssertionCredentials(data['scope'])
 
   def _refresh(self, http_request):
@@ -79,18 +78,19 @@ class AppAssertionCredentials(AssertionCredentials):
     Raises:
       AccessTokenRefreshError: When the refresh fails.
     """
-    uri = uritemplate.expand(META, {'scope': self.scope})
+    query = '?scope=%s' % urllib.quote(self.scope, '')
+    uri = META.replace('{?scope}', query)
     response, content = http_request(uri)
     if response.status == 200:
       try:
-        d = simplejson.loads(content)
-      except StandardError, e:
+        d = json.loads(content)
+      except StandardError as e:
         raise AccessTokenRefreshError(str(e))
       self.access_token = d['accessToken']
     else:
       if response.status == 404:
         content = content + (' This can occur if a VM was created'
-            ' with no service account or scopes.')
+                             ' with no service account or scopes.')
       raise AccessTokenRefreshError(content)
 
   @property
@@ -102,5 +102,4 @@ class AppAssertionCredentials(AssertionCredentials):
     return not self.scope
 
   def create_scoped(self, scopes):
-    return AppAssertionCredentials(scopes,
-                                   **self.kwargs)
+    return AppAssertionCredentials(scopes, **self.kwargs)

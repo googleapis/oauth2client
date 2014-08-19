@@ -20,10 +20,10 @@ Tools for interacting with OAuth 2.0 protected resources.
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 import base64
-import clientsecrets
+import collections
 import copy
 import datetime
-import httplib2
+import json
 import logging
 import os
 import sys
@@ -31,13 +31,13 @@ import time
 import urllib
 import urlparse
 
-from collections import namedtuple
+import httplib2
 from oauth2client import GOOGLE_AUTH_URI
 from oauth2client import GOOGLE_DEVICE_URI
 from oauth2client import GOOGLE_REVOKE_URI
 from oauth2client import GOOGLE_TOKEN_URI
+from oauth2client import clientsecrets
 from oauth2client import util
-from oauth2client.anyjson import simplejson
 
 HAS_OPENSSL = False
 HAS_CRYPTO = False
@@ -49,18 +49,16 @@ try:
 except ImportError:
   pass
 
-try:
-  from urlparse import parse_qsl
-except ImportError:
-  from cgi import parse_qsl
-
 logger = logging.getLogger(__name__)
 
 # Expiry is stored in RFC3339 UTC format
 EXPIRY_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 
 # Which certs to use to validate id_tokens received.
-ID_TOKEN_VERIFICATON_CERTS = 'https://www.googleapis.com/oauth2/v1/certs'
+ID_TOKEN_VERIFICATION_CERTS = 'https://www.googleapis.com/oauth2/v1/certs'
+# This symbol previously had a typo in the name; we keep the old name
+# around for now, but will remove it in the future.
+ID_TOKEN_VERIFICATON_CERTS = ID_TOKEN_VERIFICATION_CERTS
 
 # Constant to use for the out of band OAuth 2.0 flow.
 OOB_CALLBACK_URN = 'urn:ietf:wg:oauth:2.0:oob'
@@ -79,7 +77,8 @@ SERVICE_ACCOUNT = 'service_account'
 GOOGLE_APPLICATION_CREDENTIALS = 'GOOGLE_APPLICATION_CREDENTIALS'
 
 # The access token along with the seconds in which it expires.
-AccessTokenInfo = namedtuple('AccessTokenInfo', ['access_token', 'expires_in'])
+AccessTokenInfo = collections.namedtuple(
+    'AccessTokenInfo', ['access_token', 'expires_in'])
 
 class Error(Exception):
   """Base error for this module."""
@@ -212,7 +211,7 @@ class Credentials(object):
     # Add in information we will need later to reconsistitue this instance.
     d['_class'] = t.__name__
     d['_module'] = t.__module__
-    return simplejson.dumps(d)
+    return json.dumps(d)
 
   def to_json(self):
     """Creating a JSON representation of an instance of Credentials.
@@ -235,7 +234,7 @@ class Credentials(object):
       An instance of the subclass of Credentials that was serialized with
       to_json().
     """
-    data = simplejson.loads(s)
+    data = json.loads(s)
     # Find and call the right classmethod from_json() to restore the object.
     module = data['_module']
     try:
@@ -396,11 +395,11 @@ def _update_query_params(uri, params):
   Returns:
     The same URI but with the new query parameters added.
   """
-  parts = list(urlparse.urlparse(uri))
-  query_params = dict(parse_qsl(parts[4]))  # 4 is the index of the query part
+  parts = urlparse.urlparse(uri)
+  query_params = dict(urlparse.parse_qsl(parts.query))
   query_params.update(params)
-  parts[4] = urllib.urlencode(query_params)
-  return urlparse.urlunparse(parts)
+  new_parts = parts._replace(query=urllib.urlencode(query_params))
+  return urlparse.urlunparse(new_parts)
 
 
 class OAuth2Credentials(Credentials):
@@ -570,7 +569,7 @@ class OAuth2Credentials(Credentials):
     Returns:
       An instance of a Credentials subclass.
     """
-    data = simplejson.loads(s)
+    data = json.loads(s)
     if 'token_expiry' in data and not isinstance(data['token_expiry'],
         datetime.datetime):
       try:
@@ -738,7 +737,7 @@ class OAuth2Credentials(Credentials):
         self.token_uri, method='POST', body=body, headers=headers)
     if resp.status == 200:
       # TODO(jcgregorio) Raise an error if loads fails?
-      d = simplejson.loads(content)
+      d = json.loads(content)
       self.token_response = d
       self.access_token = d['access_token']
       self.refresh_token = d.get('refresh_token', self.refresh_token)
@@ -758,7 +757,7 @@ class OAuth2Credentials(Credentials):
       logger.info('Failed to retrieve access token: %s' % content)
       error_msg = 'Invalid response %s.' % resp['status']
       try:
-        d = simplejson.loads(content)
+        d = json.loads(content)
         if 'error' in d:
           error_msg = d['error']
           self.invalid = True
@@ -798,7 +797,7 @@ class OAuth2Credentials(Credentials):
     else:
       error_msg = 'Invalid response %s.' % resp.status
       try:
-        d = simplejson.loads(content)
+        d = json.loads(content)
         if 'error' in d:
           error_msg = d['error']
       except StandardError:
@@ -859,7 +858,7 @@ class AccessTokenCredentials(OAuth2Credentials):
 
   @classmethod
   def from_json(cls, s):
-    data = simplejson.loads(s)
+    data = json.loads(s)
     retval = AccessTokenCredentials(
         data['access_token'],
         data['user_agent'])
@@ -1104,7 +1103,7 @@ def save_to_well_known_file(credentials, well_known_file=None):
   credentials_data = credentials.serialization_data
 
   with open(well_known_file, 'w') as f:
-    simplejson.dump(credentials_data, f, sort_keys=True, indent=2)
+    json.dump(credentials_data, f, sort_keys=True, indent=2)
 
 
 def _get_environment_variable_file():
@@ -1158,8 +1157,7 @@ def _get_application_default_credential_from_file(
   # read the credentials from the file
   with open(application_default_credential_filename) as (
       application_default_credential):
-    client_credentials = service_account.simplejson.load(
-        application_default_credential)
+    client_credentials = json.load(application_default_credential)
 
   credentials_type = client_credentials.get('type')
   if credentials_type == AUTHORIZED_USER:
@@ -1345,7 +1343,7 @@ if HAS_CRYPTO:
 
     @classmethod
     def from_json(cls, s):
-      data = simplejson.loads(s)
+      data = json.loads(s)
       retval = SignedJwtAssertionCredentials(
           data['service_account_name'],
           base64.b64decode(data['private_key']),
@@ -1382,7 +1380,7 @@ if HAS_CRYPTO:
 
   @util.positional(2)
   def verify_id_token(id_token, audience, http=None,
-      cert_uri=ID_TOKEN_VERIFICATON_CERTS):
+                      cert_uri=ID_TOKEN_VERIFICATION_CERTS):
     """Verifies a signed JWT id_token.
 
     This function requires PyOpenSSL and because of that it does not work on
@@ -1408,7 +1406,7 @@ if HAS_CRYPTO:
     resp, content = http.request(cert_uri)
 
     if resp.status == 200:
-      certs = simplejson.loads(content)
+      certs = json.loads(content)
       return crypt.verify_signed_jwt_with_certs(id_token, certs, audience)
     else:
       raise VerifyJwtTokenError('Status code: %d' % resp.status)
@@ -1438,7 +1436,7 @@ def _extract_id_token(id_token):
     raise VerifyJwtTokenError(
       'Wrong number of segments in token: %s' % id_token)
 
-  return simplejson.loads(_urlsafe_b64decode(segments[1]))
+  return json.loads(_urlsafe_b64decode(segments[1]))
 
 
 def _parse_exchange_token_response(content):
@@ -1456,11 +1454,11 @@ def _parse_exchange_token_response(content):
   """
   resp = {}
   try:
-    resp = simplejson.loads(content)
+    resp = json.loads(content)
   except StandardError:
     # different JSON libs raise different exceptions,
     # so we just do a catch-all here
-    resp = dict(parse_qsl(content))
+    resp = dict(urlparse.parse_qsl(content))
 
   # some providers respond with 'expires', others with 'expires_in'
   if resp and 'expires' in resp:
