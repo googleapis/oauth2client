@@ -23,6 +23,7 @@ Unit tests for oauth2client.
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 import os
+import sys
 import tempfile
 import time
 import unittest

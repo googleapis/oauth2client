@@ -26,7 +26,7 @@ import rsa
 import time
 import unittest
 
-from http_mock import HttpMockSequence
+from .http_mock import HttpMockSequence
 from oauth2client.service_account import _ServiceAccountCredentials
 
 

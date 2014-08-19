@@ -128,7 +128,7 @@ class _ServiceAccountCredentials(AssertionCredentials):
 
 def _urlsafe_b64encode(data):
   return base64.urlsafe_b64encode(
-      json.dumps(data, separators=(',', ':')).encode('UTF-8')).rstrip('=')
+      json.dumps(data, separators=(',', ':')).encode('UTF-8')).rstrip(b'=')
 
 def _get_private_key(private_key_pkcs8_text):
   """Get an RSA private key object from a pkcs8 representation."""
