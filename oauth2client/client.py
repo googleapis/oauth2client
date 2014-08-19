@@ -206,9 +206,9 @@ class Credentials(object):
     # Add in information we will need later to reconsistitue this instance.
     d['_class'] = t.__name__
     d['_module'] = t.__module__
-    for key in d.keys():
-      if isinstance(d[key], bytes):
-        d[key] = bytes.decode(d[key])
+    for key, val in d.items():
+      if isinstance(val, bytes):
+        d[key] = val.decode('utf-8')
     return json.dumps(d)
 
   def to_json(self):
@@ -232,12 +232,9 @@ class Credentials(object):
       An instance of the subclass of Credentials that was serialized with
       to_json().
     """
-    try:
-      # s: already str
-      data = json.loads(s)
-    except TypeError:
-      # s: bytes -> str
-      data = json.loads(bytes.decode(s))
+    if six.PY3 and isinstance(s, bytes):
+      s = s.decode('utf-8')
+    data = json.loads(s)
     # Find and call the right classmethod from_json() to restore the object.
     module = data['_module']
     try:
@@ -572,12 +569,9 @@ class OAuth2Credentials(Credentials):
     Returns:
       An instance of a Credentials subclass.
     """
-    try:
-      # s: already str
-      data = json.loads(s)
-    except TypeError:
-      # s: bytes -> str
-      data = json.loads(bytes.decode(s))
+    if six.PY3 and isinstance(s, bytes):
+      s = s.decode('utf-8')
+    data = json.loads(s)
     if 'token_expiry' in data and not isinstance(data['token_expiry'],
         datetime.datetime):
       try:
@@ -866,12 +860,9 @@ class AccessTokenCredentials(OAuth2Credentials):
 
   @classmethod
   def from_json(cls, s):
-    try:
-      # s: already str
-      data = json.loads(s)
-    except TypeError:
-      # s: bytes -> str
-      data = json.loads(bytes.decode(s))
+    if six.PY3 and isinstance(s, bytes):
+      s = s.decode('utf-8')
+    data = json.loads(s)
     retval = AccessTokenCredentials(
       data['access_token'],
       data['user_agent'])
@@ -1348,11 +1339,8 @@ if HAS_CRYPTO:
 
       # Keep base64 encoded so it can be stored in JSON.
       self.private_key = base64.b64encode(private_key)
-      try:
-        # Ensure it's bytes
-        self.private_key = str.encode(self.private_key)
-      except TypeError:
-        pass
+      if isinstance(self.private_key, six.text_type):
+        self.private_key = self.private_key.encode('utf-8')
 
       self.private_key_password = private_key_password
       self.service_account_name = service_account_name
@@ -1360,17 +1348,9 @@ if HAS_CRYPTO:
 
     @classmethod
     def from_json(cls, s):
-      try:
-        # Ensure it's a str
-        s = bytes.decode(s)
-      except TypeError:
-        pass
+      if six.PY3 and isinstance(s, bytes):
+        s = s.decode('utf-8')
       data = json.loads(s)
-      try:
-        # Ensure it's bytes
-        data['private_key'] = str.encode(data['private_key'])
-      except TypeError:
-        pass
       retval = SignedJwtAssertionCredentials(
           data['service_account_name'],
           base64.b64decode(data['private_key']),
@@ -1433,8 +1413,7 @@ if HAS_CRYPTO:
     resp, content = http.request(cert_uri)
 
     if resp.status == 200:
-      content = bytes.decode(content)
-      certs = json.loads(content)
+      certs = json.loads(content.decode('utf-8'))
       return crypt.verify_signed_jwt_with_certs(id_token, certs, audience)
     else:
       raise VerifyJwtTokenError('Status code: %d' % resp.status)
