@@ -29,21 +29,7 @@ import os
 import sys
 import time
 import six
-try:
-  from urllib.parse import urlparse, urlunparse, urlencode, parse_qsl
-  from urllib.request import urlopen
-  from urllib.error import URLError
-except ImportError:
-  from urlparse import urlparse, urlunparse
-  from urllib import urlencode
-  from urllib2 import urlopen, URLError
-  try:
-    from urlparse import parse_qsl
-  except ImportError:
-    from cgi import parse_qsl
-
-if sys.version > '3':
-  long = int
+from six.moves import urllib
 
 import httplib2
 from oauth2client import GOOGLE_AUTH_URI
@@ -412,11 +398,11 @@ def _update_query_params(uri, params):
   Returns:
     The same URI but with the new query parameters added.
   """
-  parts = urlparse.urlparse(uri)
-  query_params = dict(urlparse.parse_qsl(parts.query))
+  parts = urllib.parse.urlparse(uri)
+  query_params = dict(urllib.parse.parse_qsl(parts.query))
   query_params.update(params)
-  new_parts = parts._replace(query=urllib.urlencode(query_params))
-  return urlparse.urlunparse(new_parts)
+  new_parts = parts._replace(query=urllib.parse.urlencode(query_params))
+  return urllib.parse.urlunparse(new_parts)
 
 
 class OAuth2Credentials(Credentials):
@@ -693,7 +679,7 @@ class OAuth2Credentials(Credentials):
 
   def _generate_refresh_request_body(self):
     """Generate the body that will be used in the refresh request."""
-    body = urlencode({
+    body = urllib.parse.urlencode({
         'grant_type': 'refresh_token',
         'client_id': self.client_id,
         'client_secret': self.client_secret,
@@ -908,7 +894,7 @@ class AccessTokenCredentials(OAuth2Credentials):
 _env_name = None
 
 
-def _get_environment(urllib2_urlopen=None):
+def _get_environment(urlopen=None):
   """Detect the environment the code is being run on."""
 
   global _env_name
@@ -923,14 +909,14 @@ def _get_environment(urllib2_urlopen=None):
     _env_name = 'GAE_LOCAL'
   else:
     try:
-      if urllib2_urlopen is None:
-        urllib2_urlopen = urlopen
-      response = urllib2_urlopen('http://metadata.google.internal')
+      if urlopen is None:
+        urlopen = urllib.request.urlopen
+      response = urlopen('http://metadata.google.internal')
       if any('Metadata-Flavor: Google' in h for h in response.info().headers):
         _env_name = 'GCE_PRODUCTION'
       else:
         _env_name = 'UNKNOWN'
-    except URLError:
+    except urllib.error.URLError:
       _env_name = 'UNKNOWN'
 
   return _env_name
@@ -1284,7 +1270,7 @@ class AssertionCredentials(GoogleCredentials):
   def _generate_refresh_request_body(self):
     assertion = self._generate_assertion()
 
-    body = urlencode({
+    body = urllib.parse.urlencode({
         'assertion': assertion,
         'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
         })
@@ -1400,7 +1386,7 @@ if HAS_CRYPTO:
 
     def _generate_assertion(self):
       """Generate the assertion that will be used in the request."""
-      now = long(time.time())
+      now = int(time.time())
       payload = {
           'aud': self.token_uri,
           'scope': self.scope,
@@ -1500,7 +1486,7 @@ def _parse_exchange_token_response(content):
   except Exception:
     # different JSON libs raise different exceptions,
     # so we just do a catch-all here
-    resp = dict(urlparse.parse_qsl(content))
+    resp = dict(urllib.parse.parse_qsl(content))
 
   # some providers respond with 'expires', others with 'expires_in'
   if resp and 'expires' in resp:
@@ -1714,7 +1700,7 @@ class OAuth2WebServerFlow(Flow):
       else:
         code = code['code']
 
-    body = urlencode({
+    body = urllib.parse.urlencode({
         'grant_type': 'authorization_code',
         'client_id': self.client_id,
         'client_secret': self.client_secret,
