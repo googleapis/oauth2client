@@ -757,8 +757,10 @@ class OAuth2Credentials(Credentials):
     resp, content = http_request(
         self.token_uri, method='POST', body=body, headers=headers)
     if resp.status == 200:
-      # TODO(jcgregorio) Raise an error if loads fails?
-      d = simplejson.loads(content)
+      try:
+        d = simplejson.loads(content)
+      except TypeError:
+        d = simplejson.loads(content.decode('utf-8'))
       self.token_response = d
       self.access_token = d['access_token']
       self.refresh_token = d.get('refresh_token', self.refresh_token)
