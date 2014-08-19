@@ -38,8 +38,6 @@ from oauth2client.client import HAS_OPENSSL
 from oauth2client.client import HAS_CRYPTO
 from oauth2client.file import Storage
 
-if sys.version > '3':
-  long = int
 
 def datafile(filename):
   f = open(os.path.join(os.path.dirname(__file__), 'data', filename), 'rb')
@@ -90,7 +88,7 @@ class CryptTests(unittest.TestCase):
     private_key = datafile('privatekey.%s' % self.format)
     signer = self.signer.from_string(private_key)
     audience = 'some_audience_address@testing.gserviceaccount.com'
-    now = long(time.time())
+    now = int(time.time())
 
     return crypt.make_signed_jwt(signer, {
         'aud': audience,

@@ -21,10 +21,6 @@ import base64
 import json
 import time
 
-import sys
-if sys.version > '3':
-  long = int
-
 from oauth2client import GOOGLE_REVOKE_URI
 from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client import util
@@ -68,7 +64,7 @@ class _ServiceAccountCredentials(AssertionCredentials):
         'kid': self._private_key_id
     }
 
-    now = long(time.time())
+    now = int(time.time())
     payload = {
         'aud': self._token_uri,
         'scope': self._scopes,

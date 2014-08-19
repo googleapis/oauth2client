@@ -25,10 +25,6 @@ import base64
 import hmac
 import time
 
-import sys
-if sys.version > '3':
-  long = int
-
 from oauth2client import util
 
 
@@ -98,13 +94,13 @@ def validate_token(key, token, user_id, action_id="", current_time=None):
     decoded = base64.urlsafe_b64decode(token)
     # Decode is needed for Python3
     # It will fail for Python2
-    token_time = long(decoded.decode(ENCODING).split(DELIMITER)[-1])
+    token_time = int(decoded.decode(ENCODING).split(DELIMITER)[-1])
   except (TypeError, ValueError):
     try:
       # Try again, in case it fails here
       decoded = base64.urlsafe_b64decode(token)
       # Decode is not needed for Python2
-      token_time = long(decoded.split(DELIMITER)[-1])
+      token_time = int(decoded.split(DELIMITER)[-1])
     except (TypeError, ValueError):
       return False
   if current_time is None:
