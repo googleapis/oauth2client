@@ -30,10 +30,7 @@ import socket
 import sys
 import webbrowser
 
-try:
-  from urllib.parse import parse_qsl
-except ImportError:
-  from urlparse import parse_qsl
+from six.moves import urllib
 
 from oauth2client import client
 from oauth2client import util
@@ -93,7 +90,7 @@ class ClientRedirectHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     self.send_header("Content-type", "text/html")
     self.end_headers()
     query = self.path.split('?', 1)[-1]
-    query = dict(parse_qsl(query))
+    query = dict(urllib.parse.parse_qsl(query))
     self.server.query_params = query
     self.wfile.write("<html><head><title>Authentication Status</title></head>")
     self.wfile.write("<body><p>The authentication flow has completed.</p>")

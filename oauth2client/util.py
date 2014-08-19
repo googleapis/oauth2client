@@ -34,14 +34,9 @@ import logging
 import sys
 import types
 
-try:
-  from urllib.parse import urlparse, urlunparse, urlencode, parse_qsl
-except ImportError:
-  from urlparse import urlparse, urlunparse, parse_qsl
-  from urllib import urlencode
+import six
+from six.moves import urllib
 
-if sys.version > '3':
-  long = int
 
 logger = logging.getLogger(__name__)
 
@@ -137,7 +132,7 @@ def positional(max_positional_args):
       return wrapped(*args, **kwargs)
     return positional_wrapper
 
-  if isinstance(max_positional_args, (int, long)):
+  if isinstance(max_positional_args, six.integer_types):
     return positional_decorator
   else:
     args, _, _, defaults = inspect.getargspec(max_positional_args)
@@ -198,8 +193,8 @@ def _add_query_parameter(url, name, value):
   if value is None:
     return url
   else:
-    parsed = list(urlparse(url))
-    q = dict(parse_qsl(parsed[4]))
+    parsed = list(urllib.parse.urlparse(url))
+    q = dict(urllib.parse.parse_qsl(parsed[4]))
     q[name] = value
-    parsed[4] = urlencode(q)
-    return urlunparse(parsed)
+    parsed[4] = urllib.parse.urlencode(q)
+    return urllib.parse.urlunparse(parsed)

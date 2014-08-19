@@ -21,9 +21,6 @@ import logging
 import sys
 import time
 
-if sys.version_info[0] >= 3:
-  long = int
-
 
 CLOCK_SKEW_SECS = 300  # 5 minutes in seconds
 AUTH_TOKEN_LIFETIME_SECS = 300  # 5 minutes in seconds
@@ -407,7 +404,7 @@ def verify_signed_jwt_with_certs(jwt, certs, audience):
   earliest = iat - CLOCK_SKEW_SECS
 
   # Check expiration timestamp.
-  now = long(time.time())
+  now = int(time.time())
   exp = parsed.get('exp')
   if exp is None:
     raise AppIdentityError('No exp field in token: %s' % json_body)
