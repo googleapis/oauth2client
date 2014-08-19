@@ -240,6 +240,14 @@ Tools for interacting with OAuth 2.0 protected resources.
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
+        <a href="oauth2client.client.DeviceFlowInfo-class.html" class="summary-name">DeviceFlowInfo</a><br />
+      Intermediate information the OAuth2 for devices flow.
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
         <a href="oauth2client.client.OAuth2WebServerFlow-class.html" class="summary-name">OAuth2WebServerFlow</a><br />
       Does the Web Server Flow for OAuth 2.0.
     </td>
@@ -473,7 +481,7 @@ Tools for interacting with OAuth 2.0 protected resources.
           <td><span class="summary-sig"><a href="oauth2client.client-module.html#verify_id_token" class="summary-sig-name">verify_id_token</a>(<span class="summary-sig-arg">id_token</span>,
         <span class="summary-sig-arg">audience</span>,
         <span class="summary-sig-arg">http</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">cert_uri</span>=<span class="summary-sig-default">ID_TOKEN_VERIFICATON_CERTS</span>)</span><br />
+        <span class="summary-sig-arg">cert_uri</span>=<span class="summary-sig-default">ID_TOKEN_VERIFICATION_CERTS</span>)</span><br />
       Verifies a signed JWT id_token.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="oauth2client.client-pysrc.html#verify_id_token">source&nbsp;code</a></span>
@@ -658,6 +666,13 @@ Tools for interacting with OAuth 2.0 protected resources.
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
+        <a href="oauth2client.client-module.html#ID_TOKEN_VERIFICATION_CERTS" class="summary-name">ID_TOKEN_VERIFICATION_CERTS</a> = <code title="'https://www.googleapis.com/oauth2/v1/certs'">'https://www.googleapis.com/oaut<code class="variable-ellipsis">...</code></code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
         <a href="oauth2client.client-module.html#ID_TOKEN_VERIFICATON_CERTS" class="summary-name">ID_TOKEN_VERIFICATON_CERTS</a> = <code title="'https://www.googleapis.com/oauth2/v1/certs'">'https://www.googleapis.com/oauth<code class="variable-ellipsis">...</code></code>
     </td>
   </tr>
@@ -700,7 +715,8 @@ Tools for interacting with OAuth 2.0 protected resources.
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a href="oauth2client.client-module.html#AccessTokenInfo" class="summary-name">AccessTokenInfo</a> = <code title="namedtuple('AccessTokenInfo', ['access_token', 'expires_in'])">namedtuple('AccessTokenInfo', ['access_token<code class="variable-ellipsis">...</code></code>
+        <a href="oauth2client.client-module.html#AccessTokenInfo" class="summary-name">AccessTokenInfo</a> = <code title="collections.namedtuple('AccessTokenInfo', ['access_token', 'expires_in\
+'])">collections.namedtuple('AccessTokenInfo', ['<code class="variable-ellipsis">...</code></code>
     </td>
   </tr>
 <tr class="private">
@@ -839,7 +855,7 @@ Args:
   <h3 class="epydoc"><span class="sig"><span class="sig-name">verify_id_token</span>(<span class="sig-arg">id_token</span>,
         <span class="sig-arg">audience</span>,
         <span class="sig-arg">http</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">cert_uri</span>=<span class="sig-default">ID_TOKEN_VERIFICATON_CERTS</span>)</span>
+        <span class="sig-arg">cert_uri</span>=<span class="sig-default">ID_TOKEN_VERIFICATION_CERTS</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="oauth2client.client-pysrc.html#verify_id_token">source&nbsp;code</a></span>&nbsp;
@@ -1140,6 +1156,24 @@ Raises:
   </td>
 </tr>
 </table>
+<a name="ID_TOKEN_VERIFICATION_CERTS"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <h3 class="epydoc">ID_TOKEN_VERIFICATION_CERTS</h3>
+  
+  <dl class="fields">
+  </dl>
+  <dl class="fields">
+    <dt>Value:</dt>
+      <dd><table><tr><td><pre class="variable">
+'https://www.googleapis.com/oauth2/v1/certs'
+</pre></td></tr></table>
+</dd>
+  </dl>
+</td></tr></table>
+</div>
 <a name="ID_TOKEN_VERIFICATON_CERTS"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
@@ -1170,7 +1204,8 @@ Raises:
   <dl class="fields">
     <dt>Value:</dt>
       <dd><table><tr><td><pre class="variable">
-namedtuple('AccessTokenInfo', ['access_token', 'expires_in'])
+collections.namedtuple('AccessTokenInfo', ['access_token', 'expires_in<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+'])
 </pre></td></tr></table>
 </dd>
   </dl>
@@ -1203,7 +1238,7 @@ namedtuple('AccessTokenInfo', ['access_token', 'expires_in'])
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Thu Aug 14 12:00:37 2014
+    Generated by Epydoc 3.0.1 on Tue Aug 19 11:34:23 2014
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

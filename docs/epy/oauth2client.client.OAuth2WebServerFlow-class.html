@@ -140,24 +140,6 @@ OAuth2WebServerFlow objects may be safely pickled and unpickled.
       
     </td>
   </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a href="oauth2client.client.OAuth2WebServerFlow-class.html#_extract_codes" class="summary-sig-name" onclick="show_private();">_extract_codes</a>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">body</span>)</span><br />
-      Parses the JSON response of a device and user codes request.</td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="oauth2client.client-pysrc.html#OAuth2WebServerFlow._extract_codes">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
@@ -184,7 +166,8 @@ OAuth2WebServerFlow objects may be safely pickled and unpickled.
         <tr>
           <td><span class="summary-sig"><a href="oauth2client.client.OAuth2WebServerFlow-class.html#step2_exchange" class="summary-sig-name">step2_exchange</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">code</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">http</span>=<span class="summary-sig-default">None</span>)</span><br />
+        <span class="summary-sig-arg">http</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">device_flow_info</span>=<span class="summary-sig-default">None</span>)</span><br />
       Exchanges a code for OAuth2Credentials.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="oauth2client.client-pysrc.html#OAuth2WebServerFlow.step2_exchange">source&nbsp;code</a></span>
@@ -361,32 +344,6 @@ Returns:
   </dl>
 </td></tr></table>
 </div>
-<a name="_extract_codes"></a>
-<div class="private">
-<table class="details" border="1" cellpadding="3"
-       cellspacing="0" width="100%" bgcolor="white">
-<tr><td>
-  <table width="100%" cellpadding="0" cellspacing="0" border="0">
-  <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">_extract_codes</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">body</span>)</span>
-  </h3>
-  </td><td align="right" valign="top"
-    ><span class="codelink"><a href="oauth2client.client-pysrc.html#OAuth2WebServerFlow._extract_codes">source&nbsp;code</a></span>&nbsp;
-    </td>
-  </tr></table>
-  
-  <pre class="literalblock">
-Parses the JSON response of a device and user codes request.
-
-Args:
-  body: string, the body of a response
-
-</pre>
-  <dl class="fields">
-  </dl>
-</td></tr></table>
-</div>
 <a name="step1_get_device_and_user_codes"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
@@ -427,7 +384,8 @@ Returns:
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">step2_exchange</span>(<span class="sig-arg">self</span>,
         <span class="sig-arg">code</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">http</span>=<span class="sig-default">None</span>)</span>
+        <span class="sig-arg">http</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">device_flow_info</span>=<span class="sig-default">None</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="oauth2client.client-pysrc.html#OAuth2WebServerFlow.step2_exchange">source&nbsp;code</a></span>&nbsp;
@@ -438,17 +396,24 @@ Returns:
 Exchanges a code for OAuth2Credentials.
 
 Args:
-  code: string or dict or None, either the code as a string, None in case
-    of OAuth2 fir devices, or a dictionary of the query parameters to the
-    redirect_uri, which contains the code.
-  http: httplib2.Http, optional http instance to use to do the fetch
+
+  code: string, dict or None. For a non-device flow, this is
+      either the response code as a string, or a dictionary of
+      query parameters to the redirect_uri. For a device flow,
+      this should be None.
+  http: httplib2.Http, optional http instance to use when fetching
+      credentials.
+  device_flow_info: DeviceFlowInfo, return value from step1 in the
+      case of a device flow.
 
 Returns:
   An OAuth2Credentials object that can be used to authorize requests.
 
 Raises:
-  FlowExchangeError if a problem occured exchanging the code for a
-  refresh_token.
+  FlowExchangeError: if a problem occured exchanging the code for a
+      refresh_token.
+  ValueError: if code and device_flow_info are both provided or both
+      missing.
 
 </pre>
   <dl class="fields">
@@ -486,7 +451,7 @@ Raises:
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Thu Aug 14 12:00:38 2014
+    Generated by Epydoc 3.0.1 on Tue Aug 19 11:34:24 2014
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"
