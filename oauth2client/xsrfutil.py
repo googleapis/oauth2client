@@ -1,4 +1,3 @@
-#!/usr/bin/python2.5
 #
 # Copyright 2010 the Melange authors.
 #
