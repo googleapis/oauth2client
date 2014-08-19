@@ -22,24 +22,13 @@ Unit tests for oauth2client.
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
-import httplib2
 import os
-import sys
 import tempfile
 import time
 import unittest
 
-try:
-  from urllib.parse import parse_qs
-except ImportError:
-  try:
-    from urlparse import parse_qs
-  except ImportError:
-    from cgi import parse_qs
-
-from .http_mock import HttpMockSequence
+from tests.http_mock import HttpMockSequence
 from oauth2client import crypt
-from oauth2client.anyjson import simplejson
 from oauth2client.client import Credentials
 from oauth2client.client import SignedJwtAssertionCredentials
 from oauth2client.client import VerifyJwtTokenError
@@ -86,17 +75,15 @@ class CryptTests(unittest.TestCase):
     self.assertFalse(verifier.verify(b'foo', 'bad signagure'))
 
   def _check_jwt_failure(self, jwt, expected_error):
-      try:
-          public_key = datafile('publickey.pem')
-          certs = {'foo': public_key}
-          audience = 'https://www.googleapis.com/auth/id?client_id=' + \
-              'external_public_key@testing.gserviceaccount.com'
-          contents = crypt.verify_signed_jwt_with_certs(jwt, certs, audience)
-          self.fail('Should have thrown for %s' % jwt)
-      except:
-          e = sys.exc_info()[1]
-          msg = e.args[0]
-          self.assertTrue(expected_error in msg)
+    public_key = datafile('publickey.pem')
+    certs = {'foo': public_key}
+    audience = ('https://www.googleapis.com/auth/id?client_id='
+                'external_public_key@testing.gserviceaccount.com')
+    try:
+      crypt.verify_signed_jwt_with_certs(jwt, certs, audience)
+      self.fail()
+    except crypt.AppIdentityError as e:
+      self.assertTrue(expected_error in str(e))
 
   def _create_signed_jwt(self):
     private_key = datafile('privatekey.%s' % self.format)
@@ -104,20 +91,18 @@ class CryptTests(unittest.TestCase):
     audience = 'some_audience_address@testing.gserviceaccount.com'
     now = long(time.time())
 
-    return crypt.make_signed_jwt(
-        signer,
-        {
+    return crypt.make_signed_jwt(signer, {
         'aud': audience,
         'iat': now,
         'exp': now + 300,
         'user': 'billy bob',
         'metadata': {'meta': 'data'},
-        })
+    })
 
   def test_verify_id_token(self):
     jwt = self._create_signed_jwt()
     public_key = datafile('publickey.pem')
-    certs = {'foo': public_key }
+    certs = {'foo': public_key}
     audience = 'some_audience_address@testing.gserviceaccount.com'
     contents = crypt.verify_signed_jwt_with_certs(jwt, certs, audience)
     self.assertEqual('billy bob', contents['user'])
@@ -127,11 +112,11 @@ class CryptTests(unittest.TestCase):
     jwt = self._create_signed_jwt()
 
     http = HttpMockSequence([
-      ({'status': '200'}, datafile('certs.json')),
-      ])
+        ({'status': '200'}, datafile('certs.json')),
+    ])
 
-    contents = verify_id_token(jwt,
-        'some_audience_address@testing.gserviceaccount.com', http=http)
+    contents = verify_id_token(
+        jwt, 'some_audience_address@testing.gserviceaccount.com', http=http)
     self.assertEqual('billy bob', contents['user'])
     self.assertEqual('data', contents['metadata']['meta'])
 
@@ -139,11 +124,12 @@ class CryptTests(unittest.TestCase):
     jwt = self._create_signed_jwt()
 
     http = HttpMockSequence([
-      ({'status': '404'}, datafile('certs.json')),
-      ])
+        ({'status': '404'}, datafile('certs.json')),
+    ])
 
     self.assertRaises(VerifyJwtTokenError, verify_id_token, jwt,
-        'some_audience_address@testing.gserviceaccount.com', http=http)
+                      'some_audience_address@testing.gserviceaccount.com',
+                      http=http)
 
   def test_verify_id_token_bad_tokens(self):
     private_key = datafile('privatekey.%s' % self.format)
@@ -152,8 +138,7 @@ class CryptTests(unittest.TestCase):
     self._check_jwt_failure('foo', 'Wrong number of segments')
 
     # Not json
-    self._check_jwt_failure('foo.bar.baz',
-        'Can\'t parse token')
+    self._check_jwt_failure('foo.bar.baz', 'Can\'t parse token')
 
     # Bad signature
     jwt = 'foo.%s.baz' % crypt._urlsafe_b64encode('{"a":"b"}')
@@ -161,21 +146,19 @@ class CryptTests(unittest.TestCase):
 
     # No expiration
     signer = self.signer.from_string(private_key)
-    audience = 'https:#www.googleapis.com/auth/id?client_id=' + \
-        'external_public_key@testing.gserviceaccount.com'
+    audience = ('https:#www.googleapis.com/auth/id?client_id='
+                'external_public_key@testing.gserviceaccount.com')
     jwt = crypt.make_signed_jwt(signer, {
-          'aud': 'audience',
-          'iat': time.time(),
-          }
-        )
+        'aud': audience,
+        'iat': time.time(),
+    })
     self._check_jwt_failure(jwt, 'No exp field in token')
 
     # No issued at
     jwt = crypt.make_signed_jwt(signer, {
-          'aud': 'audience',
-          'exp': time.time() + 400,
-        }
-      )
+        'aud': 'audience',
+        'exp': time.time() + 400,
+    })
     self._check_jwt_failure(jwt, 'No iat field in token')
 
     # Too early
@@ -230,11 +213,11 @@ class SignedJwtAssertionCredentialsTests(unittest.TestCase):
         scope='read+write',
         sub='joe@example.org')
     http = HttpMockSequence([
-      ({'status': '200'}, '{"access_token":"1/3w","expires_in":3600}'),
-      ({'status': '200'}, 'echo_request_headers'),
-      ])
+        ({'status': '200'}, '{"access_token":"1/3w","expires_in":3600}'),
+        ({'status': '200'}, 'echo_request_headers'),
+    ])
     http = credentials.authorize(http)
-    resp, content = http.request('http://example.org')
+    _, content = http.request('http://example.org')
     self.assertEqual('Bearer 1/3w', content['Authorization'])
 
   def test_credentials_to_from_json(self):
@@ -253,13 +236,13 @@ class SignedJwtAssertionCredentialsTests(unittest.TestCase):
 
   def _credentials_refresh(self, credentials):
     http = HttpMockSequence([
-      ({'status': '200'}, '{"access_token":"1/3w","expires_in":3600}'),
-      ({'status': '401'}, ''),
-      ({'status': '200'}, '{"access_token":"3/3w","expires_in":3600}'),
-      ({'status': '200'}, 'echo_request_headers'),
-      ])
+        ({'status': '200'}, '{"access_token":"1/3w","expires_in":3600}'),
+        ({'status': '401'}, ''),
+        ({'status': '200'}, '{"access_token":"3/3w","expires_in":3600}'),
+        ({'status': '200'}, 'echo_request_headers'),
+    ])
     http = credentials.authorize(http)
-    resp, content = http.request('http://example.org')
+    _, content = http.request('http://example.org')
     return content
 
   def test_credentials_refresh_without_storage(self):
@@ -322,6 +305,7 @@ class PKCSSignedJwtAssertionCredentialsPyCryptoTests(unittest.TestCase):
       self.fail()
     except NotImplementedError:
       pass
+
 
 class TestHasOpenSSLFlag(unittest.TestCase):
   def test_true(self):

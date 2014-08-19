@@ -24,6 +24,7 @@ __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 import base64
 import datetime
+import json
 try:
   from mox3 import mox
 except ImportError:
@@ -41,7 +42,6 @@ from .http_mock import HttpMock
 from .http_mock import HttpMockSequence
 from oauth2client import GOOGLE_REVOKE_URI
 from oauth2client import GOOGLE_TOKEN_URI
-from oauth2client.anyjson import simplejson
 from oauth2client.client import AccessTokenCredentials
 from oauth2client.client import AccessTokenCredentialsError
 from oauth2client.client import AccessTokenRefreshError
@@ -132,7 +132,7 @@ class CredentialsTests(unittest.TestCase):
 
 class MockResponse(object):
   """Mock the response of urllib2.urlopen() call."""
-  
+
   def __init__(self, headers):
     self._headers = headers
 
@@ -194,7 +194,7 @@ class GoogleCredentialsTests(unittest.TestCase):
         self.get_a_google_credentials_object().create_scoped_required())
 
   def test_create_scoped(self):
-    credentials = self.get_a_google_credentials_object() 
+    credentials = self.get_a_google_credentials_object()
     self.assertEqual(credentials, credentials.create_scoped(None))
     self.assertEqual(credentials,
                      credentials.create_scoped(['dummy_scope']))
@@ -284,7 +284,7 @@ class GoogleCredentialsTests(unittest.TestCase):
         os.path.join('gcloud', 'temp_well_known_file_service_account.json'))
     save_to_well_known_file(credentials, temp_credential_file)
     with open(temp_credential_file) as f:
-      d = simplejson.load(f)
+      d = json.load(f)
     self.assertEqual('service_account', d['type'])
     self.assertEqual('123', d['client_id'])
     self.assertEqual('dummy@google.com', d['client_email'])
@@ -309,7 +309,7 @@ class GoogleCredentialsTests(unittest.TestCase):
         os.path.join('gcloud', 'temp_well_known_file_authorized_user.json'))
     save_to_well_known_file(credentials, temp_credential_file)
     with open(temp_credential_file) as f:
-      d = simplejson.load(f)
+      d = json.load(f)
     self.assertEqual('authorized_user', d['type'])
     self.assertEqual('123', d['client_id'])
     self.assertEqual('secret', d['client_secret'])
@@ -387,7 +387,7 @@ class GoogleCredentialsTests(unittest.TestCase):
     from oauth2client import client
     self.assertEqual(None, getattr(client, '_env_name'))
     self.test_get_application_default_from_environment_variable_service_account()
-    self.assertEqual('UNKNOWN', getattr(client, '_env_name'))    
+    self.assertEqual('UNKNOWN', getattr(client, '_env_name'))
 
   def test_get_application_default_from_environment_variable_authorized_user(
       self):
@@ -548,7 +548,7 @@ class BasicCredentialsTests(unittest.TestCase):
       token_response = {'access_token': '1/3w', 'expires_in': 3600}
       http = HttpMockSequence([
           ({'status': status_code}, ''),
-          ({'status': '200'}, simplejson.dumps(token_response)),
+          ({'status': '200'}, json.dumps(token_response)),
           ({'status': '200'}, 'echo_request_headers'),
       ])
       http = self.credentials.authorize(http)
@@ -637,8 +637,8 @@ class BasicCredentialsTests(unittest.TestCase):
     token_response_first = {'access_token': 'first_token', 'expires_in': S}
     token_response_second = {'access_token': 'second_token', 'expires_in': S}
     http = HttpMockSequence([
-        ({'status': '200'}, simplejson.dumps(token_response_first)),
-        ({'status': '200'}, simplejson.dumps(token_response_second)),
+        ({'status': '200'}, json.dumps(token_response_first)),
+        ({'status': '200'}, json.dumps(token_response_second)),
     ])
 
     token = self.credentials.get_access_token(http=http)
@@ -770,7 +770,7 @@ class ExtractIdTokenTest(unittest.TestCase):
 
   def test_extract_success(self):
     body = {'foo': 'bar'}
-    payload = base64.urlsafe_b64encode(simplejson.dumps(body)).strip('=')
+    payload = base64.urlsafe_b64encode(json.dumps(body)).strip('=')
     jwt = 'stuff.' + payload + '.signature'
 
     extracted = _extract_id_token(jwt)
@@ -778,7 +778,7 @@ class ExtractIdTokenTest(unittest.TestCase):
 
   def test_extract_failure(self):
     body = {'foo': 'bar'}
-    payload = base64.urlsafe_b64encode(simplejson.dumps(body)).strip('=')
+    payload = base64.urlsafe_b64encode(json.dumps(body)).strip('=')
     jwt = 'stuff.' + payload
 
     self.assertRaises(VerifyJwtTokenError, _extract_id_token, jwt)
@@ -945,7 +945,7 @@ class OAuth2WebServerFlowTest(unittest.TestCase):
 
   def test_exchange_id_token(self):
     body = {'foo': 'bar'}
-    payload = base64.urlsafe_b64encode(simplejson.dumps(body)).strip('=')
+    payload = base64.urlsafe_b64encode(json.dumps(body)).strip('=')
     jwt = (base64.urlsafe_b64encode('stuff')+ '.' + payload + '.' +
            base64.urlsafe_b64encode('signature'))
 
@@ -980,7 +980,7 @@ class CredentialsFromCodeTests(unittest.TestCase):
 
   def test_exchange_code_for_token(self):
     token = 'asdfghjkl'
-    payload =simplejson.dumps({'access_token': token, 'expires_in': 3600})
+    payload = json.dumps({'access_token': token, 'expires_in': 3600})
     http = HttpMockSequence([
       ({'status': '200'}, payload),
     ])

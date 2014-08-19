@@ -17,30 +17,29 @@
 
 """Common utility library."""
 
-__author__ = ['rafek@google.com (Rafe Kaplan)',
-              'guido@google.com (Guido van Rossum)',
+__author__ = [
+    'rafek@google.com (Rafe Kaplan)',
+    'guido@google.com (Guido van Rossum)',
 ]
+
 __all__ = [
-  'positional',
-  'POSITIONAL_WARNING',
-  'POSITIONAL_EXCEPTION',
-  'POSITIONAL_IGNORE',
+    'positional',
+    'POSITIONAL_WARNING',
+    'POSITIONAL_EXCEPTION',
+    'POSITIONAL_IGNORE',
 ]
 
 import inspect
 import logging
+import sys
 import types
+
 try:
   from urllib.parse import urlparse, urlunparse, urlencode, parse_qsl
 except ImportError:
-  from urlparse import urlparse, urlunparse
+  from urlparse import urlparse, urlunparse, parse_qsl
   from urllib import urlencode
-  try:
-    from urlparse import parse_qsl
-  except ImportError:
-    from cgi import parse_qsl
 
-import sys
 if sys.version > '3':
   long = int
 

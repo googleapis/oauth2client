@@ -70,6 +70,7 @@ class _Opener(object):
     self._mode = mode
     self._fallback_mode = fallback_mode
     self._fh = None
+    self._lock_fd = None
 
   def is_locked(self):
     """Was the file locked."""
@@ -141,8 +142,8 @@ class _PosixOpener(_Opener):
         if e.errno != errno.EEXIST:
           raise
         if (time.time() - start_time) >= timeout:
-          logger.warn('Could not acquire lock %s in %s seconds' % (
-              lock_filename, timeout))
+          logger.warn('Could not acquire lock %s in %s seconds',
+                      lock_filename, timeout)
           # Close the file and open in fallback_mode.
           if self._fh:
             self._fh.close()
@@ -194,7 +195,7 @@ try:
         self._fh = open(self._filename, self._mode)
       except IOError as e:
         # If we can't access with _mode, try _fallback_mode and don't lock.
-        if e.errno in ( errno.EPERM, errno.EACCES ):
+        if e.errno in (errno.EPERM, errno.EACCES):
           self._fh = open(self._filename, self._fallback_mode)
           return
 
@@ -212,8 +213,8 @@ try:
             raise e
           # We could not acquire the lock. Try again.
           if (time.time() - start_time) >= timeout:
-            logger.warn('Could not lock %s in %s seconds' % (
-                self._filename, timeout))
+            logger.warn('Could not lock %s in %s seconds',
+                        self._filename, timeout)
             if self._fh:
               self._fh.close()
             self._fh = open(self._filename, self._fallback_mode)

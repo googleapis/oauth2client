@@ -25,24 +25,19 @@ __all__ = ['argparser', 'run_flow', 'run', 'message_if_missing']
 
 import BaseHTTPServer
 import argparse
-import httplib2
 import logging
-import os
 import socket
 import sys
 import webbrowser
 
-from oauth2client import client
-from oauth2client import file
-from oauth2client import util
-
 try:
   from urllib.parse import parse_qsl
 except ImportError:
-  try:
-    from urlparse import parse_qsl
-  except ImportError:
-    from cgi import parse_qsl
+  from urlparse import parse_qsl
+
+from oauth2client import client
+from oauth2client import util
+
 
 _CLIENT_SECRETS_MESSAGE = """WARNING: Please configure OAuth 2.0
 
@@ -60,15 +55,15 @@ with information from the APIs Console <https://code.google.com/apis/console>.
 # ArgumentParser.
 argparser = argparse.ArgumentParser(add_help=False)
 argparser.add_argument('--auth_host_name', default='localhost',
-                        help='Hostname when running a local web server.')
+                       help='Hostname when running a local web server.')
 argparser.add_argument('--noauth_local_webserver', action='store_true',
-                        default=False, help='Do not run a local web server.')
+                       default=False, help='Do not run a local web server.')
 argparser.add_argument('--auth_host_port', default=[8080, 8090], type=int,
-                        nargs='*', help='Port web server should listen on.')
+                       nargs='*', help='Port web server should listen on.')
 argparser.add_argument('--logging_level', default='ERROR',
-                        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR',
-                                 'CRITICAL'],
-                        help='Set the logging level of detail.')
+                       choices=['DEBUG', 'INFO', 'WARNING', 'ERROR',
+                                'CRITICAL'],
+                       help='Set the logging level of detail.')
 
 
 class ClientRedirectServer(BaseHTTPServer.HTTPServer):
@@ -87,26 +82,25 @@ class ClientRedirectHandler(BaseHTTPServer.BaseHTTPRequestHandler):
   into the servers query_params and then stops serving.
   """
 
-  def do_GET(s):
+  def do_GET(self):
     """Handle a GET request.
 
     Parses the query parameters and prints a message
     if the flow has completed. Note that we can't detect
     if an error occurred.
     """
-    s.send_response(200)
-    s.send_header("Content-type", "text/html")
-    s.end_headers()
-    query = s.path.split('?', 1)[-1]
+    self.send_response(200)
+    self.send_header("Content-type", "text/html")
+    self.end_headers()
+    query = self.path.split('?', 1)[-1]
     query = dict(parse_qsl(query))
-    s.server.query_params = query
-    s.wfile.write("<html><head><title>Authentication Status</title></head>")
-    s.wfile.write("<body><p>The authentication flow has completed.</p>")
-    s.wfile.write("</body></html>")
+    self.server.query_params = query
+    self.wfile.write("<html><head><title>Authentication Status</title></head>")
+    self.wfile.write("<body><p>The authentication flow has completed.</p>")
+    self.wfile.write("</body></html>")
 
   def log_message(self, format, *args):
     """Do not log messages to stdout while running as command line program."""
-    pass
 
 
 @util.positional(3)
@@ -236,8 +230,8 @@ def message_if_missing(filename):
   return _CLIENT_SECRETS_MESSAGE % filename
 
 try:
-  from old_run import run
-  from old_run import FLAGS
+  from oauth2client.old_run import run
+  from oauth2client.old_run import FLAGS
 except ImportError:
   def run(*args, **kwargs):
     raise NotImplementedError(

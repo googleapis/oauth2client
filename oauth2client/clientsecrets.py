@@ -20,8 +20,8 @@ an OAuth 2.0 protected service.
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
+import json
 
-from oauth2client.anyjson import simplejson
 
 # Properties that make a client_secrets.json file valid.
 TYPE_WEB = 'web'
@@ -90,12 +90,12 @@ def _validate_clientsecrets(obj):
 
 
 def load(fp):
-  obj = simplejson.load(fp)
+  obj = json.load(fp)
   return _validate_clientsecrets(obj)
 
 
 def loads(s):
-  obj = simplejson.loads(s)
+  obj = json.loads(s)
   return _validate_clientsecrets(obj)
 
 
@@ -103,7 +103,7 @@ def _loadfile(filename):
   try:
     fp = open(filename, 'r')
     try:
-      obj = simplejson.load(fp)
+      obj = json.load(fp)
     finally:
       fp.close()
   except IOError:
