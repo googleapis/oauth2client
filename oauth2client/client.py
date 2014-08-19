@@ -1554,7 +1554,7 @@ def credentials_from_clientsecrets_and_code(filename, scope, code,
   return credentials
 
 
-class DeviceFlowInfo(namedtuple('DeviceFlowInfo', (
+class DeviceFlowInfo(collections.namedtuple('DeviceFlowInfo', (
     'device_code', 'user_code', 'interval', 'verification_url',
     'user_code_expiry'))):
   """Intermediate information the OAuth2 for devices flow."""
