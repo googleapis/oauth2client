@@ -737,8 +737,9 @@ class OAuth2Credentials(Credentials):
     logger.info('Refreshing access_token')
     resp, content = http_request(
         self.token_uri, method='POST', body=body, headers=headers)
+    if six.PY3:
+      content = content.decode('utf-8')
     if resp.status == 200:
-      # TODO(jcgregorio) Raise an error if loads fails?
       d = json.loads(content)
       self.token_response = d
       self.access_token = d['access_token']
