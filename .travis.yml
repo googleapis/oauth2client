@@ -5,8 +5,6 @@ env:
   - TOX_ENV=py26openssl14
   - TOX_ENV=py27openssl13
   - TOX_ENV=py27openssl14
-  - TOX_ENV=py32openssl13
-  - TOX_ENV=py32openssl14
   - TOX_ENV=py33openssl13
   - TOX_ENV=py33openssl14
   - TOX_ENV=py34openssl13
@@ -15,8 +13,7 @@ env:
   - TOX_ENV=pypyopenssl14
 install:
   - pip install tox
-  - pip install .
 script:
   - tox -e $TOX_ENV
 notifications:
-  email: false
+  - email: false
