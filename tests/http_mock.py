@@ -69,7 +69,7 @@ class HttpMockSequence(object):
     http = HttpMockSequence([
       ({'status': '401'}, b''),
       ({'status': '200'}, b'{"access_token":"1/3w","expires_in":3600}'),
-      ({'status': '200'}, b'echo_request_headers'),
+      ({'status': '200'}, 'echo_request_headers'),
       ])
     resp, content = http.request("http://examples.com")
 
@@ -98,8 +98,6 @@ class HttpMockSequence(object):
               redirections=1,
               connection_type=None):
     resp, content = self._iterable.pop(0)
-    if not isinstance(content, bytes):
-      raise TypeError("http content should be bytes: %r" % (content,))
     if content == 'echo_request_headers':
       content = headers
     elif content == 'echo_request_headers_as_json':
@@ -111,4 +109,6 @@ class HttpMockSequence(object):
         content = body
     elif content == 'echo_request_uri':
       content = uri
+    elif not isinstance(content, bytes):
+      raise TypeError("http content should be bytes: %r" % (content,))
     return httplib2.Response(resp), content

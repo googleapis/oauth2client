@@ -213,10 +213,10 @@ class SignedJwtAssertionCredentialsTests(unittest.TestCase):
         sub='joe@example.org')
     http = HttpMockSequence([
         ({'status': '200'}, b'{"access_token":"1/3w","expires_in":3600}'),
-        ({'status': '200'}, b'echo_request_headers'),
+        ({'status': '200'}, 'echo_request_headers'),
     ])
     http = credentials.authorize(http)
-    _, content = http.request('http://example.org')
+    resp, content = http.request('http://example.org')
     self.assertEqual('Bearer 1/3w', content['Authorization'])
 
   def test_credentials_to_from_json(self):
@@ -238,7 +238,7 @@ class SignedJwtAssertionCredentialsTests(unittest.TestCase):
         ({'status': '200'}, b'{"access_token":"1/3w","expires_in":3600}'),
         ({'status': '401'}, b''),
         ({'status': '200'}, b'{"access_token":"3/3w","expires_in":3600}'),
-        ({'status': '200'}, b'echo_request_headers'),
+        ({'status': '200'}, 'echo_request_headers'),
     ])
     http = credentials.authorize(http)
     _, content = http.request('http://example.org')

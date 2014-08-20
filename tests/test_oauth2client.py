@@ -546,7 +546,7 @@ class BasicCredentialsTests(unittest.TestCase):
       http = HttpMockSequence([
           ({'status': status_code}, b''),
           ({'status': '200'}, json.dumps(token_response).encode('utf-8')),
-          ({'status': '200'}, b'echo_request_headers'),
+          ({'status': '200'}, 'echo_request_headers'),
       ])
       http = self.credentials.authorize(http)
       resp, content = http.request('http://example.com')
@@ -702,7 +702,7 @@ class AccessTokenCredentialsTests(unittest.TestCase):
 
   def test_auth_header_sent(self):
     http = HttpMockSequence([
-      ({'status': '200'}, b'echo_request_headers'),
+      ({'status': '200'}, 'echo_request_headers'),
       ])
     http = self.credentials.authorize(http)
     resp, content = http.request('http://example.com')
@@ -733,7 +733,7 @@ class TestAssertionCredentials(unittest.TestCase):
   def test_assertion_refresh(self):
     http = HttpMockSequence([
       ({'status': '200'}, b'{"access_token":"1/3w"}'),
-      ({'status': '200'}, b'echo_request_headers'),
+      ({'status': '200'}, 'echo_request_headers'),
       ])
     http = self.credentials.authorize(http)
     resp, content = http.request('http://example.com')
