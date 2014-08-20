@@ -212,8 +212,8 @@ class SignedJwtAssertionCredentialsTests(unittest.TestCase):
         scope='read+write',
         sub='joe@example.org')
     http = HttpMockSequence([
-        ({'status': '200'}, '{"access_token":"1/3w","expires_in":3600}'),
-        ({'status': '200'}, 'echo_request_headers'),
+        ({'status': '200'}, b'{"access_token":"1/3w","expires_in":3600}'),
+        ({'status': '200'}, b'echo_request_headers'),
     ])
     http = credentials.authorize(http)
     _, content = http.request('http://example.org')
@@ -235,10 +235,10 @@ class SignedJwtAssertionCredentialsTests(unittest.TestCase):
 
   def _credentials_refresh(self, credentials):
     http = HttpMockSequence([
-        ({'status': '200'}, '{"access_token":"1/3w","expires_in":3600}'),
-        ({'status': '401'}, ''),
-        ({'status': '200'}, '{"access_token":"3/3w","expires_in":3600}'),
-        ({'status': '200'}, 'echo_request_headers'),
+        ({'status': '200'}, b'{"access_token":"1/3w","expires_in":3600}'),
+        ({'status': '401'}, b''),
+        ({'status': '200'}, b'{"access_token":"3/3w","expires_in":3600}'),
+        ({'status': '200'}, b'echo_request_headers'),
     ])
     http = credentials.authorize(http)
     _, content = http.request('http://example.org')

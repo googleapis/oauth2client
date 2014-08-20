@@ -46,7 +46,6 @@ from google.appengine.ext import db
 from google.appengine.ext import ndb
 from google.appengine.ext import testbed
 from google.appengine.runtime import apiproxy_errors
-from http_mock import HttpMockSequence
 from oauth2client import appengine
 from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client.clientsecrets import _loadfile

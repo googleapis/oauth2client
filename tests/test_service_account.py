@@ -98,8 +98,8 @@ class ServiceAccountCredentialsTests(unittest.TestCase):
     token_response_first = {'access_token': 'first_token', 'expires_in': S}
     token_response_second = {'access_token': 'second_token', 'expires_in': S}
     http = HttpMockSequence([
-        ({'status': '200'}, json.dumps(token_response_first)),
-        ({'status': '200'}, json.dumps(token_response_second)),
+      ({'status': '200'}, json.dumps(token_response_first).encode('utf-8')),
+      ({'status': '200'}, json.dumps(token_response_second).encode('utf-8')),
     ])
 
     token = self.credentials.get_access_token(http=http)
