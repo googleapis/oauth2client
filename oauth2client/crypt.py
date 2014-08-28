@@ -1,4 +1,3 @@
-#!/usr/bin/python2.4
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2011 Google Inc.
@@ -17,14 +16,10 @@
 
 import base64
 import hashlib
+import json
 import logging
-import time
-
 import sys
-if sys.version > '3':
-  long = int
-
-from oauth2client.anyjson import simplejson
+import time
 
 
 CLOCK_SKEW_SECS = 300  # 5 minutes in seconds
@@ -315,7 +310,7 @@ def _urlsafe_b64decode(b64string):
 
 
 def _json_encode(data):
-  return simplejson.dumps(data, separators = (',', ':'))
+  return json.dumps(data, separators = (',', ':'))
 
 
 def make_signed_jwt(signer, payload):
@@ -365,9 +360,8 @@ def verify_signed_jwt_with_certs(jwt, certs, audience):
   """
   segments = jwt.split('.')
 
-  if (len(segments) != 3):
-    raise AppIdentityError(
-      'Wrong number of segments in token: %s' % jwt)
+  if len(segments) != 3:
+    raise AppIdentityError('Wrong number of segments in token: %s' % jwt)
   signed = '%s.%s' % (segments[0], segments[1])
   try:
     signed_bytes = str.encode(signed)
@@ -384,20 +378,20 @@ def verify_signed_jwt_with_certs(jwt, certs, audience):
   json_body = _urlsafe_b64decode(segments[1])
   try:
     json_body = bytes.decode(json_body)
-    parsed = simplejson.loads(json_body)
+    parsed = json.loads(json_body)
   except:
     raise AppIdentityError('Can\'t parse token: %s' % json_body)
 
   # Check signature.
   verified = False
-  for (keyname, pem) in certs.items():
+  for _, pem in certs.items():
     verifier = Verifier.from_string(pem, True)
     # Python2
-    if (verifier.verify(signed_str, signature)):
+    if verifier.verify(signed_str, signature):
       verified = True
       break
     # Python3
-    if (verifier.verify(signed_bytes, signature)):
+    if verifier.verify(signed_bytes, signature):
       verified = True
       break
   if not verified:
@@ -410,21 +404,20 @@ def verify_signed_jwt_with_certs(jwt, certs, audience):
   earliest = iat - CLOCK_SKEW_SECS
 
   # Check expiration timestamp.
-  now = long(time.time())
+  now = int(time.time())
   exp = parsed.get('exp')
   if exp is None:
     raise AppIdentityError('No exp field in token: %s' % json_body)
   if exp >= now + MAX_TOKEN_LIFETIME_SECS:
-    raise AppIdentityError(
-      'exp field too far in future: %s' % json_body)
+    raise AppIdentityError('exp field too far in future: %s' % json_body)
   latest = exp + CLOCK_SKEW_SECS
 
   if now < earliest:
     raise AppIdentityError('Token used too early, %d < %d: %s' %
-      (now, earliest, json_body))
+                           (now, earliest, json_body))
   if now > latest:
     raise AppIdentityError('Token used too late, %d > %d: %s' %
-      (now, latest, json_body))
+                           (now, latest, json_body))
 
   # Check audience.
   if audience is not None:
@@ -433,6 +426,6 @@ def verify_signed_jwt_with_certs(jwt, certs, audience):
       raise AppIdentityError('No aud field in token: %s' % json_body)
     if aud != audience:
       raise AppIdentityError('Wrong recipient, %s != %s: %s' %
-          (aud, audience, json_body))
+                             (aud, audience, json_body))
 
   return parsed

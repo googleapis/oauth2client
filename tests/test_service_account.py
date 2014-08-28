@@ -20,13 +20,13 @@
 Unit tests for service account credentials implemented using RSA.
 """
 
+import json
 import os
 import rsa
 import time
 import unittest
 
 from .http_mock import HttpMockSequence
-from oauth2client.anyjson import simplejson
 from oauth2client.service_account import _ServiceAccountCredentials
 
 
@@ -98,13 +98,13 @@ class ServiceAccountCredentialsTests(unittest.TestCase):
     token_response_first = {'access_token': 'first_token', 'expires_in': S}
     token_response_second = {'access_token': 'second_token', 'expires_in': S}
     http = HttpMockSequence([
-        ({'status': '200'}, simplejson.dumps(token_response_first)),
-        ({'status': '200'}, simplejson.dumps(token_response_second)),
+      ({'status': '200'}, json.dumps(token_response_first).encode('utf-8')),
+      ({'status': '200'}, json.dumps(token_response_second).encode('utf-8')),
     ])
 
     token = self.credentials.get_access_token(http=http)
     self.assertEqual('first_token', token.access_token)
-    self.assertEqual(S - 1, token.expires_in)  
+    self.assertEqual(S - 1, token.expires_in)
     self.assertFalse(self.credentials.access_token_expired)
     self.assertEqual(token_response_first, self.credentials.token_response)
 

@@ -14,9 +14,9 @@
 
 """Copy of googleapiclient.http's mock functionality."""
 
-import httplib2
+import json
 
-from oauth2client.anyjson import simplejson
+import httplib2
 
 # TODO(craigcitro): Find a cleaner way to share this code with googleapiclient.
 
@@ -67,8 +67,8 @@ class HttpMockSequence(object):
   and content and then use as if an httplib2.Http instance.
 
     http = HttpMockSequence([
-      ({'status': '401'}, ''),
-      ({'status': '200'}, '{"access_token":"1/3w","expires_in":3600}'),
+      ({'status': '401'}, b''),
+      ({'status': '200'}, b'{"access_token":"1/3w","expires_in":3600}'),
       ({'status': '200'}, 'echo_request_headers'),
       ])
     resp, content = http.request("http://examples.com")
@@ -101,7 +101,7 @@ class HttpMockSequence(object):
     if content == 'echo_request_headers':
       content = headers
     elif content == 'echo_request_headers_as_json':
-      content = simplejson.dumps(headers)
+      content = json.dumps(headers)
     elif content == 'echo_request_body':
       if hasattr(body, 'read'):
         content = body.read()
@@ -109,4 +109,6 @@ class HttpMockSequence(object):
         content = body
     elif content == 'echo_request_uri':
       content = uri
+    elif not isinstance(content, bytes):
+      raise TypeError("http content should be bytes: %r" % (content,))
     return httplib2.Response(resp), content

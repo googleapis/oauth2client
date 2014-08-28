@@ -20,37 +20,23 @@ Tools for interacting with OAuth 2.0 protected resources.
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 import base64
-from oauth2client import clientsecrets
+import collections
 import copy
 import datetime
-import httplib2
+import json
 import logging
 import os
 import sys
 import time
 import six
-try:
-  from urllib.parse import urlparse, urlunparse, urlencode, parse_qsl
-  from urllib.request import urlopen
-  from urllib.error import URLError
-except ImportError:
-  from urlparse import urlparse, urlunparse
-  from urllib import urlencode
-  from urllib2 import urlopen, URLError
-  try:
-    from urlparse import parse_qsl
-  except ImportError:
-    from cgi import parse_qsl
+from six.moves import urllib
 
-if sys.version > '3':
-  long = int
-
-from collections import namedtuple
+import httplib2
 from oauth2client import GOOGLE_AUTH_URI
 from oauth2client import GOOGLE_REVOKE_URI
 from oauth2client import GOOGLE_TOKEN_URI
+from oauth2client import clientsecrets
 from oauth2client import util
-from oauth2client.anyjson import simplejson
 
 HAS_OPENSSL = False
 HAS_CRYPTO = False
@@ -90,7 +76,8 @@ SERVICE_ACCOUNT = 'service_account'
 GOOGLE_APPLICATION_CREDENTIALS = 'GOOGLE_APPLICATION_CREDENTIALS'
 
 # The access token along with the seconds in which it expires.
-AccessTokenInfo = namedtuple('AccessTokenInfo', ['access_token', 'expires_in'])
+AccessTokenInfo = collections.namedtuple(
+    'AccessTokenInfo', ['access_token', 'expires_in'])
 
 class Error(Exception):
   """Base error for this module."""
@@ -219,10 +206,10 @@ class Credentials(object):
     # Add in information we will need later to reconsistitue this instance.
     d['_class'] = t.__name__
     d['_module'] = t.__module__
-    for key in d.keys():
-      if isinstance(d[key], bytes):
-        d[key] = bytes.decode(d[key])
-    return simplejson.dumps(d)
+    for key, val in d.items():
+      if isinstance(val, bytes):
+        d[key] = val.decode('utf-8')
+    return json.dumps(d)
 
   def to_json(self):
     """Creating a JSON representation of an instance of Credentials.
@@ -245,12 +232,9 @@ class Credentials(object):
       An instance of the subclass of Credentials that was serialized with
       to_json().
     """
-    try:
-      # s: already str
-      data = simplejson.loads(s)
-    except TypeError:
-      # s: bytes -> str
-      data = simplejson.loads(bytes.decode(s))
+    if six.PY3 and isinstance(s, bytes):
+      s = s.decode('utf-8')
+    data = json.loads(s)
     # Find and call the right classmethod from_json() to restore the object.
     module = data['_module']
     try:
@@ -411,11 +395,11 @@ def _update_query_params(uri, params):
   Returns:
     The same URI but with the new query parameters added.
   """
-  parts = list(urlparse(uri))
-  query_params = dict(parse_qsl(parts[4]))  # 4 is the index of the query part
+  parts = urllib.parse.urlparse(uri)
+  query_params = dict(urllib.parse.parse_qsl(parts.query))
   query_params.update(params)
-  parts[4] = urlencode(query_params)
-  return urlunparse(parts)
+  new_parts = parts._replace(query=urllib.parse.urlencode(query_params))
+  return urllib.parse.urlunparse(new_parts)
 
 
 class OAuth2Credentials(Credentials):
@@ -585,12 +569,9 @@ class OAuth2Credentials(Credentials):
     Returns:
       An instance of a Credentials subclass.
     """
-    try:
-      # s: already str
-      data = simplejson.loads(s)
-    except TypeError:
-      # s: bytes -> str
-      data = simplejson.loads(bytes.decode(s))
+    if six.PY3 and isinstance(s, bytes):
+      s = s.decode('utf-8')
+    data = json.loads(s)
     if 'token_expiry' in data and not isinstance(data['token_expiry'],
         datetime.datetime):
       try:
@@ -692,7 +673,7 @@ class OAuth2Credentials(Credentials):
 
   def _generate_refresh_request_body(self):
     """Generate the body that will be used in the refresh request."""
-    body = urlencode({
+    body = urllib.parse.urlencode({
         'grant_type': 'refresh_token',
         'client_id': self.client_id,
         'client_secret': self.client_secret,
@@ -756,11 +737,10 @@ class OAuth2Credentials(Credentials):
     logger.info('Refreshing access_token')
     resp, content = http_request(
         self.token_uri, method='POST', body=body, headers=headers)
+    if six.PY3:
+      content = content.decode('utf-8')
     if resp.status == 200:
-      try:
-        d = simplejson.loads(content)
-      except TypeError:
-        d = simplejson.loads(content.decode('utf-8'))
+      d = json.loads(content)
       self.token_response = d
       self.access_token = d['access_token']
       self.refresh_token = d.get('refresh_token', self.refresh_token)
@@ -780,7 +760,7 @@ class OAuth2Credentials(Credentials):
       logger.info('Failed to retrieve access token: %s' % content)
       error_msg = 'Invalid response %s.' % resp['status']
       try:
-        d = simplejson.loads(content)
+        d = json.loads(content)
         if 'error' in d:
           error_msg = d['error']
           self.invalid = True
@@ -820,7 +800,7 @@ class OAuth2Credentials(Credentials):
     else:
       error_msg = 'Invalid response %s.' % resp.status
       try:
-        d = simplejson.loads(content)
+        d = json.loads(content)
         if 'error' in d:
           error_msg = d['error']
       except (TypeError, ValueError):
@@ -881,12 +861,9 @@ class AccessTokenCredentials(OAuth2Credentials):
 
   @classmethod
   def from_json(cls, s):
-    try:
-      # s: already str
-      data = simplejson.loads(s)
-    except TypeError:
-      # s: bytes -> str
-      data = simplejson.loads(bytes.decode(s))
+    if six.PY3 and isinstance(s, bytes):
+      s = s.decode('utf-8')
+    data = json.loads(s)
     retval = AccessTokenCredentials(
       data['access_token'],
       data['user_agent'])
@@ -909,7 +886,7 @@ class AccessTokenCredentials(OAuth2Credentials):
 _env_name = None
 
 
-def _get_environment(urllib2_urlopen=None):
+def _get_environment(urlopen=None):
   """Detect the environment the code is being run on."""
 
   global _env_name
@@ -924,14 +901,14 @@ def _get_environment(urllib2_urlopen=None):
     _env_name = 'GAE_LOCAL'
   else:
     try:
-      if urllib2_urlopen is None:
-        urllib2_urlopen = urlopen
-      response = urllib2_urlopen('http://metadata.google.internal')
+      if urlopen is None:
+        urlopen = urllib.request.urlopen
+      response = urlopen('http://metadata.google.internal')
       if any('Metadata-Flavor: Google' in h for h in response.info().headers):
         _env_name = 'GCE_PRODUCTION'
       else:
         _env_name = 'UNKNOWN'
-    except URLError:
+    except urllib.error.URLError:
       _env_name = 'UNKNOWN'
 
   return _env_name
@@ -1130,7 +1107,7 @@ def save_to_well_known_file(credentials, well_known_file=None):
   credentials_data = credentials.serialization_data
 
   with open(well_known_file, 'w') as f:
-    simplejson.dump(credentials_data, f, sort_keys=True, indent=2)
+    json.dump(credentials_data, f, sort_keys=True, indent=2)
 
 
 def _get_environment_variable_file():
@@ -1184,8 +1161,7 @@ def _get_application_default_credential_from_file(
   # read the credentials from the file
   with open(application_default_credential_filename) as (
       application_default_credential):
-    client_credentials = service_account.simplejson.load(
-        application_default_credential)
+    client_credentials = json.load(application_default_credential)
 
   credentials_type = client_credentials.get('type')
   if credentials_type == AUTHORIZED_USER:
@@ -1286,7 +1262,7 @@ class AssertionCredentials(GoogleCredentials):
   def _generate_refresh_request_body(self):
     assertion = self._generate_assertion()
 
-    body = urlencode({
+    body = urllib.parse.urlencode({
         'assertion': assertion,
         'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
         })
@@ -1364,11 +1340,8 @@ if HAS_CRYPTO:
 
       # Keep base64 encoded so it can be stored in JSON.
       self.private_key = base64.b64encode(private_key)
-      try:
-        # Ensure it's bytes
-        self.private_key = str.encode(self.private_key)
-      except TypeError:
-        pass
+      if isinstance(self.private_key, six.text_type):
+        self.private_key = self.private_key.encode('utf-8')
 
       self.private_key_password = private_key_password
       self.service_account_name = service_account_name
@@ -1376,17 +1349,9 @@ if HAS_CRYPTO:
 
     @classmethod
     def from_json(cls, s):
-      try:
-        # Ensure it's a str
-        s = bytes.decode(s)
-      except TypeError:
-        pass
-      data = simplejson.loads(s)
-      try:
-        # Ensure it's bytes
-        data['private_key'] = str.encode(data['private_key'])
-      except TypeError:
-        pass
+      if six.PY3 and isinstance(s, bytes):
+        s = s.decode('utf-8')
+      data = json.loads(s)
       retval = SignedJwtAssertionCredentials(
           data['service_account_name'],
           base64.b64decode(data['private_key']),
@@ -1402,7 +1367,7 @@ if HAS_CRYPTO:
 
     def _generate_assertion(self):
       """Generate the assertion that will be used in the request."""
-      now = long(time.time())
+      now = int(time.time())
       payload = {
           'aud': self.token_uri,
           'scope': self.scope,
@@ -1449,8 +1414,7 @@ if HAS_CRYPTO:
     resp, content = http.request(cert_uri)
 
     if resp.status == 200:
-      content = bytes.decode(content)
-      certs = simplejson.loads(content)
+      certs = json.loads(content.decode('utf-8'))
       return crypt.verify_signed_jwt_with_certs(id_token, certs, audience)
     else:
       raise VerifyJwtTokenError('Status code: %d' % resp.status)
@@ -1480,7 +1444,7 @@ def _extract_id_token(id_token):
     raise VerifyJwtTokenError(
       'Wrong number of segments in token: %s' % id_token)
 
-  return simplejson.loads(_urlsafe_b64decode(segments[1]))
+  return json.loads(_urlsafe_b64decode(segments[1]))
 
 
 def _parse_exchange_token_response(content):
@@ -1498,11 +1462,11 @@ def _parse_exchange_token_response(content):
   """
   resp = {}
   try:
-    resp = simplejson.loads(content)
-  except (TypeError, ValueError):
+    resp = json.loads(content)
+  except Exception:
     # different JSON libs raise different exceptions,
     # so we just do a catch-all here
-    resp = dict(parse_qsl(content))
+    resp = dict(urllib.parse.parse_qsl(content))
 
   # some providers respond with 'expires', others with 'expires_in'
   if resp and 'expires' in resp:
@@ -1716,7 +1680,7 @@ class OAuth2WebServerFlow(Flow):
       else:
         code = code['code']
 
-    body = urlencode({
+    body = urllib.parse.urlencode({
         'grant_type': 'authorization_code',
         'client_id': self.client_id,
         'client_secret': self.client_secret,

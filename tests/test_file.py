@@ -25,19 +25,18 @@ __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 import copy
 import datetime
 import httplib2
+import json
 import os
 import pickle
 import stat
 import tempfile
 import unittest
 
-from .http_mock import HttpMockSequence
 from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client import file
 from oauth2client import locked_file
 from oauth2client import multistore_file
 from oauth2client import util
-from oauth2client.anyjson import simplejson
 from oauth2client.client import AccessTokenCredentials
 from oauth2client.client import AssertionCredentials
 from oauth2client.client import OAuth2Credentials
@@ -113,9 +112,8 @@ class OAuth2ClientFileTests(unittest.TestCase):
 
     # Now write it back out and confirm it has been rewritten as JSON
     s.put(credentials)
-    f = open(FILENAME)
-    data = simplejson.load(f)
-    f.close()
+    with open(FILENAME) as f:
+      data = json.load(f)
 
     self.assertEquals(data['access_token'], 'foo')
     self.assertEquals(data['_class'], 'OAuth2Credentials')

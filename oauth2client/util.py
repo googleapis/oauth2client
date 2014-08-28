@@ -17,32 +17,26 @@
 
 """Common utility library."""
 
-__author__ = ['rafek@google.com (Rafe Kaplan)',
-              'guido@google.com (Guido van Rossum)',
+__author__ = [
+    'rafek@google.com (Rafe Kaplan)',
+    'guido@google.com (Guido van Rossum)',
 ]
+
 __all__ = [
-  'positional',
-  'POSITIONAL_WARNING',
-  'POSITIONAL_EXCEPTION',
-  'POSITIONAL_IGNORE',
+    'positional',
+    'POSITIONAL_WARNING',
+    'POSITIONAL_EXCEPTION',
+    'POSITIONAL_IGNORE',
 ]
 
 import inspect
 import logging
-import types
-try:
-  from urllib.parse import urlparse, urlunparse, urlencode, parse_qsl
-except ImportError:
-  from urlparse import urlparse, urlunparse
-  from urllib import urlencode
-  try:
-    from urlparse import parse_qsl
-  except ImportError:
-    from cgi import parse_qsl
-
 import sys
-if sys.version > '3':
-  long = int
+import types
+
+import six
+from six.moves import urllib
+
 
 logger = logging.getLogger(__name__)
 
@@ -138,7 +132,7 @@ def positional(max_positional_args):
       return wrapped(*args, **kwargs)
     return positional_wrapper
 
-  if isinstance(max_positional_args, (int, long)):
+  if isinstance(max_positional_args, six.integer_types):
     return positional_decorator
   else:
     args, _, _, defaults = inspect.getargspec(max_positional_args)
@@ -199,8 +193,8 @@ def _add_query_parameter(url, name, value):
   if value is None:
     return url
   else:
-    parsed = list(urlparse(url))
-    q = dict(parse_qsl(parsed[4]))
+    parsed = list(urllib.parse.urlparse(url))
+    q = dict(urllib.parse.parse_qsl(parsed[4]))
     q[name] = value
-    parsed[4] = urlencode(q)
-    return urlunparse(parsed)
+    parsed[4] = urllib.parse.urlencode(q)
+    return urllib.parse.urlunparse(parsed)

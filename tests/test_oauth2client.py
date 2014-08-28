@@ -24,6 +24,7 @@ __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 import base64
 import datetime
+import json
 try:
   from mox3 import mox
 except ImportError:
@@ -32,16 +33,12 @@ import os
 import time
 import unittest
 import six
-try:
-  from urllib.parse import urlparse, parse_qs
-except ImportError:
-  from urlparse import urlparse, parse_qs
+from six.moves import urllib
 
 from .http_mock import HttpMock
 from .http_mock import HttpMockSequence
 from oauth2client import GOOGLE_REVOKE_URI
 from oauth2client import GOOGLE_TOKEN_URI
-from oauth2client.anyjson import simplejson
 from oauth2client.client import AccessTokenCredentials
 from oauth2client.client import AccessTokenCredentialsError
 from oauth2client.client import AccessTokenRefreshError
@@ -85,15 +82,15 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 # googleapiclient.test_discovery; consolidate these definitions.
 def assertUrisEqual(testcase, expected, actual):
   """Test that URIs are the same, up to reordering of query parameters."""
-  expected = urlparse(expected)
-  actual = urlparse(actual)
+  expected = urllib.parse.urlparse(expected)
+  actual = urllib.parse.urlparse(actual)
   testcase.assertEqual(expected.scheme, actual.scheme)
   testcase.assertEqual(expected.netloc, actual.netloc)
   testcase.assertEqual(expected.path, actual.path)
   testcase.assertEqual(expected.params, actual.params)
   testcase.assertEqual(expected.fragment, actual.fragment)
-  expected_query = parse_qs(expected.query)
-  actual_query = parse_qs(actual.query)
+  expected_query = urllib.parse.parse_qs(expected.query)
+  actual_query = urllib.parse.parse_qs(actual.query)
   for name in expected_query.keys():
     testcase.assertEqual(expected_query[name], actual_query[name])
   for name in actual_query.keys():
@@ -132,7 +129,7 @@ class CredentialsTests(unittest.TestCase):
 
 class MockResponse(object):
   """Mock the response of urllib2.urlopen() call."""
-  
+
   def __init__(self, headers):
     self._headers = headers
 
@@ -194,7 +191,7 @@ class GoogleCredentialsTests(unittest.TestCase):
         self.get_a_google_credentials_object().create_scoped_required())
 
   def test_create_scoped(self):
-    credentials = self.get_a_google_credentials_object() 
+    credentials = self.get_a_google_credentials_object()
     self.assertEqual(credentials, credentials.create_scoped(None))
     self.assertEqual(credentials,
                      credentials.create_scoped(['dummy_scope']))
@@ -284,7 +281,7 @@ class GoogleCredentialsTests(unittest.TestCase):
         os.path.join('gcloud', 'temp_well_known_file_service_account.json'))
     save_to_well_known_file(credentials, temp_credential_file)
     with open(temp_credential_file) as f:
-      d = simplejson.load(f)
+      d = json.load(f)
     self.assertEqual('service_account', d['type'])
     self.assertEqual('123', d['client_id'])
     self.assertEqual('dummy@google.com', d['client_email'])
@@ -309,7 +306,7 @@ class GoogleCredentialsTests(unittest.TestCase):
         os.path.join('gcloud', 'temp_well_known_file_authorized_user.json'))
     save_to_well_known_file(credentials, temp_credential_file)
     with open(temp_credential_file) as f:
-      d = simplejson.load(f)
+      d = json.load(f)
     self.assertEqual('authorized_user', d['type'])
     self.assertEqual('123', d['client_id'])
     self.assertEqual('secret', d['client_secret'])
@@ -387,7 +384,7 @@ class GoogleCredentialsTests(unittest.TestCase):
     from oauth2client import client
     self.assertEqual(None, getattr(client, '_env_name'))
     self.test_get_application_default_from_environment_variable_service_account()
-    self.assertEqual('UNKNOWN', getattr(client, '_env_name'))    
+    self.assertEqual('UNKNOWN', getattr(client, '_env_name'))
 
   def test_get_application_default_from_environment_variable_authorized_user(
       self):
@@ -547,8 +544,8 @@ class BasicCredentialsTests(unittest.TestCase):
     for status_code in REFRESH_STATUS_CODES:
       token_response = {'access_token': '1/3w', 'expires_in': 3600}
       http = HttpMockSequence([
-          ({'status': status_code}, ''),
-          ({'status': '200'}, simplejson.dumps(token_response)),
+          ({'status': status_code}, b''),
+          ({'status': '200'}, json.dumps(token_response).encode('utf-8')),
           ({'status': '200'}, 'echo_request_headers'),
       ])
       http = self.credentials.authorize(http)
@@ -560,8 +557,8 @@ class BasicCredentialsTests(unittest.TestCase):
   def test_token_refresh_failure(self):
     for status_code in REFRESH_STATUS_CODES:
       http = HttpMockSequence([
-        ({'status': status_code}, ''),
-        ({'status': '400'}, '{"error":"access_denied"}'),
+        ({'status': status_code}, b''),
+        ({'status': '400'}, b'{"error":"access_denied"}'),
         ])
       http = self.credentials.authorize(http)
       try:
@@ -584,7 +581,7 @@ class BasicCredentialsTests(unittest.TestCase):
 
   def test_non_401_error_response(self):
     http = HttpMockSequence([
-      ({'status': '400'}, ''),
+      ({'status': '400'}, b''),
       ])
     http = self.credentials.authorize(http)
     resp, content = http.request('http://example.com')
@@ -637,8 +634,8 @@ class BasicCredentialsTests(unittest.TestCase):
     token_response_first = {'access_token': 'first_token', 'expires_in': S}
     token_response_second = {'access_token': 'second_token', 'expires_in': S}
     http = HttpMockSequence([
-        ({'status': '200'}, simplejson.dumps(token_response_first)),
-        ({'status': '200'}, simplejson.dumps(token_response_second)),
+      ({'status': '200'}, json.dumps(token_response_first).encode('utf-8')),
+      ({'status': '200'}, json.dumps(token_response_second).encode('utf-8')),
     ])
 
     token = self.credentials.get_access_token(http=http)
@@ -674,7 +671,7 @@ class AccessTokenCredentialsTests(unittest.TestCase):
   def test_token_refresh_success(self):
     for status_code in REFRESH_STATUS_CODES:
       http = HttpMockSequence([
-        ({'status': status_code}, ''),
+        ({'status': status_code}, b''),
         ])
       http = self.credentials.authorize(http)
       try:
@@ -697,7 +694,7 @@ class AccessTokenCredentialsTests(unittest.TestCase):
 
   def test_non_401_error_response(self):
     http = HttpMockSequence([
-      ({'status': '400'}, ''),
+      ({'status': '400'}, b''),
       ])
     http = self.credentials.authorize(http)
     resp, content = http.request('http://example.com')
@@ -727,14 +724,15 @@ class TestAssertionCredentials(unittest.TestCase):
         user_agent=user_agent)
 
   def test_assertion_body(self):
-    body = parse_qs(self.credentials._generate_refresh_request_body())
+    body = urllib.parse.parse_qs(
+      self.credentials._generate_refresh_request_body())
     self.assertEqual(self.assertion_text, body['assertion'][0])
     self.assertEqual('urn:ietf:params:oauth:grant-type:jwt-bearer',
                      body['grant_type'][0])
 
   def test_assertion_refresh(self):
     http = HttpMockSequence([
-      ({'status': '200'}, '{"access_token":"1/3w"}'),
+      ({'status': '200'}, b'{"access_token":"1/3w"}'),
       ({'status': '200'}, 'echo_request_headers'),
       ])
     http = self.credentials.authorize(http)
@@ -770,7 +768,7 @@ class ExtractIdTokenTest(unittest.TestCase):
 
   def test_extract_success(self):
     body = {'foo': 'bar'}
-    payload = base64.urlsafe_b64encode(simplejson.dumps(body)).strip('=')
+    payload = base64.urlsafe_b64encode(json.dumps(body)).strip('=')
     jwt = 'stuff.' + payload + '.signature'
 
     extracted = _extract_id_token(jwt)
@@ -778,7 +776,7 @@ class ExtractIdTokenTest(unittest.TestCase):
 
   def test_extract_failure(self):
     body = {'foo': 'bar'}
-    payload = base64.urlsafe_b64encode(simplejson.dumps(body)).strip('=')
+    payload = base64.urlsafe_b64encode(json.dumps(body)).strip('=')
     jwt = 'stuff.' + payload
 
     self.assertRaises(VerifyJwtTokenError, _extract_id_token, jwt)
@@ -799,8 +797,8 @@ class OAuth2WebServerFlowTest(unittest.TestCase):
   def test_construct_authorize_url(self):
     authorize_url = self.flow.step1_get_authorize_url()
 
-    parsed = urlparse(authorize_url)
-    q = parse_qs(parsed[4])
+    parsed = urllib.parse.urlparse(authorize_url)
+    q = urllib.parse.parse_qs(parsed[4])
     self.assertEqual('client_id+1', q['client_id'][0])
     self.assertEqual('code', q['response_type'][0])
     self.assertEqual('foo', q['scope'][0])
@@ -820,8 +818,8 @@ class OAuth2WebServerFlowTest(unittest.TestCase):
         )
     authorize_url = flow.step1_get_authorize_url()
 
-    parsed = urlparse(authorize_url)
-    q = parse_qs(parsed[4])
+    parsed = urllib.parse.urlparse(authorize_url)
+    q = urllib.parse.parse_qs(parsed[4])
     self.assertEqual('client_id+1', q['client_id'][0])
     self.assertEqual('token', q['response_type'][0])
     self.assertEqual('foo', q['scope'][0])
@@ -830,7 +828,7 @@ class OAuth2WebServerFlowTest(unittest.TestCase):
 
   def test_exchange_failure(self):
     http = HttpMockSequence([
-      ({'status': '400'}, '{"error":"invalid_request"}'),
+      ({'status': '400'}, b'{"error":"invalid_request"}'),
       ])
 
     try:
@@ -857,9 +855,9 @@ class OAuth2WebServerFlowTest(unittest.TestCase):
     # exceptions are being raised instead of FlowExchangeError.
     http = HttpMockSequence([
       ({'status': '400'},
-      """ {"error": {
-              "type": "OAuthException",
-              "message": "Error validating verification code."} }"""),
+      b""" {"error": {
+            "type": "OAuthException",
+            "message": "Error validating verification code."} }"""),
       ])
 
     try:
@@ -871,7 +869,7 @@ class OAuth2WebServerFlowTest(unittest.TestCase):
   def test_exchange_success(self):
     http = HttpMockSequence([
       ({'status': '200'},
-      """{ "access_token":"SlAV32hkKG",
+      b"""{ "access_token":"SlAV32hkKG",
        "expires_in":3600,
        "refresh_token":"8xLOxBtZp8" }"""),
       ])
@@ -884,7 +882,7 @@ class OAuth2WebServerFlowTest(unittest.TestCase):
 
   def test_urlencoded_exchange_success(self):
     http = HttpMockSequence([
-      ({'status': '200'}, 'access_token=SlAV32hkKG&expires_in=3600'),
+      ({'status': '200'}, b'access_token=SlAV32hkKG&expires_in=3600'),
     ])
 
     credentials = self.flow.step2_exchange('some random code', http=http)
@@ -895,7 +893,7 @@ class OAuth2WebServerFlowTest(unittest.TestCase):
     http = HttpMockSequence([
       # Note the 'expires=3600' where you'd normally
       # have if named 'expires_in'
-      ({'status': '200'}, 'access_token=SlAV32hkKG&expires=3600'),
+      ({'status': '200'}, b'access_token=SlAV32hkKG&expires=3600'),
     ])
 
     credentials = self.flow.step2_exchange('some random code', http=http)
@@ -903,7 +901,7 @@ class OAuth2WebServerFlowTest(unittest.TestCase):
 
   def test_exchange_no_expires_in(self):
     http = HttpMockSequence([
-      ({'status': '200'}, """{ "access_token":"SlAV32hkKG",
+      ({'status': '200'}, b"""{ "access_token":"SlAV32hkKG",
        "refresh_token":"8xLOxBtZp8" }"""),
       ])
 
@@ -914,7 +912,7 @@ class OAuth2WebServerFlowTest(unittest.TestCase):
     http = HttpMockSequence([
       # This might be redundant but just to make sure
       # urlencoded access_token gets parsed correctly
-      ({'status': '200'}, 'access_token=SlAV32hkKG'),
+      ({'status': '200'}, b'access_token=SlAV32hkKG'),
     ])
 
     credentials = self.flow.step2_exchange('some random code', http=http)
@@ -922,7 +920,7 @@ class OAuth2WebServerFlowTest(unittest.TestCase):
 
   def test_exchange_fails_if_no_code(self):
     http = HttpMockSequence([
-      ({'status': '200'}, """{ "access_token":"SlAV32hkKG",
+      ({'status': '200'}, b"""{ "access_token":"SlAV32hkKG",
        "refresh_token":"8xLOxBtZp8" }"""),
       ])
 
@@ -935,7 +933,7 @@ class OAuth2WebServerFlowTest(unittest.TestCase):
 
   def test_exchange_id_token_fail(self):
     http = HttpMockSequence([
-      ({'status': '200'}, """{ "access_token":"SlAV32hkKG",
+      ({'status': '200'}, b"""{ "access_token":"SlAV32hkKG",
        "refresh_token":"8xLOxBtZp8",
        "id_token": "stuff.payload"}"""),
       ])
@@ -945,14 +943,14 @@ class OAuth2WebServerFlowTest(unittest.TestCase):
 
   def test_exchange_id_token(self):
     body = {'foo': 'bar'}
-    payload = base64.urlsafe_b64encode(simplejson.dumps(body)).strip('=')
+    payload = base64.urlsafe_b64encode(json.dumps(body)).strip('=')
     jwt = (base64.urlsafe_b64encode('stuff')+ '.' + payload + '.' +
            base64.urlsafe_b64encode('signature'))
 
     http = HttpMockSequence([
-      ({'status': '200'}, """{ "access_token":"SlAV32hkKG",
+      ({'status': '200'}, ("""{ "access_token":"SlAV32hkKG",
        "refresh_token":"8xLOxBtZp8",
-       "id_token": "%s"}""" % jwt),
+       "id_token": "%s"}""" % jwt).encode('utf-8')),
       ])
 
     credentials = self.flow.step2_exchange('some random code', http=http)
@@ -980,9 +978,9 @@ class CredentialsFromCodeTests(unittest.TestCase):
 
   def test_exchange_code_for_token(self):
     token = 'asdfghjkl'
-    payload =simplejson.dumps({'access_token': token, 'expires_in': 3600})
+    payload = json.dumps({'access_token': token, 'expires_in': 3600})
     http = HttpMockSequence([
-      ({'status': '200'}, payload),
+      ({'status': '200'}, payload.encode('utf-8')),
     ])
     credentials = credentials_from_code(self.client_id, self.client_secret,
         self.scope, self.code, redirect_uri=self.redirect_uri,
@@ -992,7 +990,7 @@ class CredentialsFromCodeTests(unittest.TestCase):
 
   def test_exchange_code_for_token_fail(self):
     http = HttpMockSequence([
-      ({'status': '400'}, '{"error":"invalid_request"}'),
+      ({'status': '400'}, b'{"error":"invalid_request"}'),
       ])
 
     try:
@@ -1006,7 +1004,7 @@ class CredentialsFromCodeTests(unittest.TestCase):
   def test_exchange_code_and_file_for_token(self):
     http = HttpMockSequence([
       ({'status': '200'},
-      """{ "access_token":"asdfghjkl",
+      b"""{ "access_token":"asdfghjkl",
        "expires_in":3600 }"""),
     ])
     credentials = credentials_from_clientsecrets_and_code(
@@ -1017,7 +1015,7 @@ class CredentialsFromCodeTests(unittest.TestCase):
 
   def test_exchange_code_and_cached_file_for_token(self):
     http = HttpMockSequence([
-      ({'status': '200'}, '{ "access_token":"asdfghjkl"}'),
+      ({'status': '200'}, b'{ "access_token":"asdfghjkl"}'),
       ])
     cache_mock = CacheMock()
     load_and_cache('client_secrets.json', 'some_secrets', cache_mock)
@@ -1029,7 +1027,7 @@ class CredentialsFromCodeTests(unittest.TestCase):
 
   def test_exchange_code_and_file_for_token_fail(self):
     http = HttpMockSequence([
-      ({'status': '400'}, '{"error":"invalid_request"}'),
+      ({'status': '400'}, b'{"error":"invalid_request"}'),
       ])
 
     try:
