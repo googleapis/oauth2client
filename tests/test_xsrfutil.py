@@ -96,7 +96,7 @@ class XsrfUtilTests(unittest.TestCase):
 
     # Invalid with extra garbage
     self.assertFalse(xsrfutil.validate_token(TEST_KEY,
-                                            token.decode('utf-8') + 'x',
+                                            token + b'x',
                                             TEST_USER_ID_1,
                                             action_id=TEST_ACTION_ID_1,
                                             current_time=later15mins))
