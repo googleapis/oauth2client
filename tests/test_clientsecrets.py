@@ -19,10 +19,7 @@ __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 import os
 import unittest
-try:
-    from io import StringIO
-except ImportError:
-    from StringIO import StringIO
+from io import StringIO
 
 import httplib2
 
