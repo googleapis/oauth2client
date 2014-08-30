@@ -58,7 +58,16 @@
 <!-- ==================== CLASS DESCRIPTION ==================== -->
 <h1 class="epydoc">Class OAuth2WebServerFlow</h1><p class="nomargin-top"><span class="codelink"><a href="oauth2client.client-pysrc.html#OAuth2WebServerFlow">source&nbsp;code</a></span></p>
 <center>
-
+<center>  <map id="uml_class_diagram_for_oauth2cl_29" name="uml_class_diagram_for_oauth2cl_29">
+<area shape="rect" id="node1_4" href="oauth2client.client.OAuth2WebServerFlow-class.html#__init__" title="Constructor for OAuth2WebServerFlow." alt="" coords="18,97,1529,116"/>
+<area shape="rect" id="node1_5" href="oauth2client.client.OAuth2WebServerFlow-class.html#step1_get_authorize_url" title="Returns a URI to redirect to the provider." alt="" coords="18,116,1529,135"/>
+<area shape="rect" id="node1_6" href="oauth2client.client.OAuth2WebServerFlow-class.html#step1_get_device_and_user_codes" title="Returns a user code and the verification URL where to enter it" alt="" coords="18,135,1529,153"/>
+<area shape="rect" id="node1_7" href="oauth2client.client.OAuth2WebServerFlow-class.html#step2_exchange" title="Exchanges a code for OAuth2Credentials." alt="" coords="18,153,1529,172"/>
+<area shape="rect" id="node1" href="oauth2client.client.OAuth2WebServerFlow-class.html" title="Does the Web Server Flow for OAuth 2.0." alt="" coords="5,67,1540,179"/>
+<area shape="rect" id="node2" href="oauth2client.client.Flow-class.html" title="Base class for all Flow objects." alt="" coords="747,5,799,48"/>
+</map>
+  <img src="uml_class_diagram_for_oauth2cl_29.gif" alt='' usemap="#uml_class_diagram_for_oauth2cl_29" ismap="ismap" class="graph-without-title" />
+</center>
 </center>
 <hr />
 <pre class="literalblock">
@@ -101,6 +110,7 @@ OAuth2WebServerFlow objects may be safely pickled and unpickled.
         <span class="summary-sig-arg">token_uri</span>=<span class="summary-sig-default">GOOGLE_TOKEN_URI</span>,
         <span class="summary-sig-arg">revoke_uri</span>=<span class="summary-sig-default">GOOGLE_REVOKE_URI</span>,
         <span class="summary-sig-arg">login_hint</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">device_uri</span>=<span class="summary-sig-default">GOOGLE_DEVICE_URI</span>,
         <span class="summary-sig-arg">**kwargs</span>)</span><br />
       Constructor for OAuth2WebServerFlow.</td>
           <td align="right" valign="top">
@@ -136,9 +146,28 @@ OAuth2WebServerFlow objects may be safely pickled and unpickled.
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="oauth2client.client.OAuth2WebServerFlow-class.html#step2_exchange" class="summary-sig-name">step2_exchange</a>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">code</span>,
+          <td><span class="summary-sig"><a href="oauth2client.client.OAuth2WebServerFlow-class.html#step1_get_device_and_user_codes" class="summary-sig-name">step1_get_device_and_user_codes</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">http</span>=<span class="summary-sig-default">None</span>)</span><br />
+      Returns a user code and the verification URL where to enter it</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="oauth2client.client-pysrc.html#OAuth2WebServerFlow.step1_get_device_and_user_codes">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="oauth2client.client.OAuth2WebServerFlow-class.html#step2_exchange" class="summary-sig-name">step2_exchange</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">code</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">http</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">device_flow_info</span>=<span class="summary-sig-default">None</span>)</span><br />
       Exchanges a code for OAuth2Credentials.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="oauth2client.client-pysrc.html#OAuth2WebServerFlow.step2_exchange">source&nbsp;code</a></span>
@@ -228,6 +257,7 @@ OAuth2WebServerFlow objects may be safely pickled and unpickled.
         <span class="sig-arg">token_uri</span>=<span class="sig-default">GOOGLE_TOKEN_URI</span>,
         <span class="sig-arg">revoke_uri</span>=<span class="sig-default">GOOGLE_REVOKE_URI</span>,
         <span class="sig-arg">login_hint</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">device_uri</span>=<span class="sig-default">GOOGLE_DEVICE_URI</span>,
         <span class="sig-arg">**kwargs</span>)</span>
     <br /><em class="fname">(Constructor)</em>
   </h3>
@@ -261,6 +291,8 @@ Args:
   login_hint: string, Either an email address or domain. Passing this hint
     will either pre-fill the email box on the sign-in form or select the
     proper multi-login session, thereby simplifying the login flow.
+  device_uri: string, URI for device authorization endpoint. For convenience
+    defaults to Google's endpoints but any OAuth 2.0 provider can be used.
   **kwargs: dict, The keyword arguments are all optional and required
                     parameters for the OAuth calls.
 
@@ -312,6 +344,37 @@ Returns:
   </dl>
 </td></tr></table>
 </div>
+<a name="step1_get_device_and_user_codes"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">step1_get_device_and_user_codes</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">http</span>=<span class="sig-default">None</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="oauth2client.client-pysrc.html#OAuth2WebServerFlow.step1_get_device_and_user_codes">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+Returns a user code and the verification URL where to enter it
+
+Returns:
+  A user code as a string for the user to authorize the application
+  An URL as a string where the user has to enter the code
+
+</pre>
+  <dl class="fields">
+    <dt>Decorators:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code>@util.positional(1)</code></li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
 <a name="step2_exchange"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
@@ -320,8 +383,9 @@ Returns:
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">step2_exchange</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">code</span>,
-        <span class="sig-arg">http</span>=<span class="sig-default">None</span>)</span>
+        <span class="sig-arg">code</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">http</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">device_flow_info</span>=<span class="sig-default">None</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="oauth2client.client-pysrc.html#OAuth2WebServerFlow.step2_exchange">source&nbsp;code</a></span>&nbsp;
@@ -332,17 +396,24 @@ Returns:
 Exchanges a code for OAuth2Credentials.
 
 Args:
-  code: string or dict, either the code as a string, or a dictionary
-    of the query parameters to the redirect_uri, which contains
-    the code.
-  http: httplib2.Http, optional http instance to use to do the fetch
+
+  code: string, dict or None. For a non-device flow, this is
+      either the response code as a string, or a dictionary of
+      query parameters to the redirect_uri. For a device flow,
+      this should be None.
+  http: httplib2.Http, optional http instance to use when fetching
+      credentials.
+  device_flow_info: DeviceFlowInfo, return value from step1 in the
+      case of a device flow.
 
 Returns:
   An OAuth2Credentials object that can be used to authorize requests.
 
 Raises:
-  FlowExchangeError if a problem occured exchanging the code for a
-  refresh_token.
+  FlowExchangeError: if a problem occured exchanging the code for a
+      refresh_token.
+  ValueError: if code and device_flow_info are both provided or both
+      missing.
 
 </pre>
   <dl class="fields">
@@ -380,7 +451,7 @@ Raises:
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Sun Aug 10 14:40:28 2014
+    Generated by Epydoc 3.0.1 on Tue Aug 19 11:34:24 2014
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"
