@@ -1422,7 +1422,8 @@ if HAS_CRYPTO:
 
 def _urlsafe_b64decode(b64string):
   # Guard against unicode strings, which base64 can't handle.
-  b64string = b64string.encode('ascii')
+  if isinstance(b64string, six.text_type):
+    b64string = b64string.encode('ascii')
   padded = b64string + '=' * (4 - len(b64string) % 4)
   return base64.urlsafe_b64decode(padded)
 
@@ -1664,13 +1665,7 @@ class OAuth2WebServerFlow(Flow):
       refresh_token.
     """
 
-    try:
-      # Python2
-      is_string = isinstance(code, basestring)
-    except NameError:
-      # Python3
-      is_string = isinstance(code, str)
-    if not is_string:
+    if not isinstance(code, six.string_types):
       if 'code' not in code:
         if 'error' in code:
           error_msg = code['error']

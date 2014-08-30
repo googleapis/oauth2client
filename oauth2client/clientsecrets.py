@@ -21,6 +21,7 @@ an OAuth 2.0 protected service.
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 import json
+import six
 
 
 # Properties that make a client_secrets.json file valid.
@@ -70,12 +71,9 @@ class InvalidClientSecretsError(Error):
 def _validate_clientsecrets(obj):
   if obj is None or len(obj) != 1:
     raise InvalidClientSecretsError('Invalid file format.')
-  try:
-    client_type = obj.keys()[0]
-  except TypeError:
-    client_type = list(obj.keys())[0]
-  if client_type not in VALID_CLIENT.keys():
-    raise InvalidClientSecretsError('Unknown client type: %s.' % client_type)
+  client_type = tuple(obj)[0]
+  if client_type not in VALID_CLIENT:
+    raise InvalidClientSecretsError('Unknown client type: %s.' % (client_type,))
   client_info = obj[client_type]
   for prop_name in VALID_CLIENT[client_type]['required']:
     if prop_name not in client_info:
@@ -101,11 +99,8 @@ def loads(s):
 
 def _loadfile(filename):
   try:
-    fp = open(filename, 'r')
-    try:
+    with open(filename, 'r') as fp:
       obj = json.load(fp)
-    finally:
-      fp.close()
   except IOError:
     raise InvalidClientSecretsError('File not found: "%s"' % filename)
   return _validate_clientsecrets(obj)
@@ -153,8 +148,4 @@ def loadfile(filename, cache=None):
     obj = {client_type: client_info}
     cache.set(filename, obj, namespace=_SECRET_NAMESPACE)
 
-  try:
-    items = obj.iteritems().next()
-  except AttributeError:
-    items = next(iter(obj.items()))
-  return items
+  return next(six.iteritems(obj))
