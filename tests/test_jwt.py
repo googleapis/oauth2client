@@ -82,7 +82,7 @@ class CryptTests(unittest.TestCase):
       crypt.verify_signed_jwt_with_certs(jwt, certs, audience)
       self.fail()
     except crypt.AppIdentityError as e:
-      self.assertIn(expected_error, str(e))
+      self.assert(expected_error in str(e))
 
   def _create_signed_jwt(self):
     private_key = datafile('privatekey.%s' % self.format)
