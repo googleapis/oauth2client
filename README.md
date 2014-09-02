@@ -9,7 +9,7 @@ Installation
 
 To install, simply say
 
-    $ easy_install --upgrade oauth2client
+    $ pip install --upgrade oauth2client
 
 
 Third Party Libraries
