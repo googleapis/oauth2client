@@ -21,6 +21,8 @@ import logging
 import sys
 import time
 
+import six
+
 
 CLOCK_SKEW_SECS = 300  # 5 minutes in seconds
 AUTH_TOKEN_LIFETIME_SECS = 300  # 5 minutes in seconds
@@ -60,6 +62,8 @@ try:
         key that this object was constructed with.
       """
       try:
+        if isinstance(message, six.text_type):
+          message = message.encode('utf-8')
         crypto.verify(self._pubkey, signature, message, 'sha256')
         return True
       except:
@@ -102,22 +106,17 @@ try:
       """Signs a message.
 
       Args:
-        message: string, Message to be signed.
+        message: bytes, Message to be signed.
 
       Returns:
         string, The signature of the message for the given key.
       """
-      message = str(message)
-      try:
-        signed_message = crypto.sign(self._key, message, 'sha256')
-      except TypeError:
-        # Failed as str, so let's try with bytes (probably 0.14+)
-        message = str.encode(message)
-        signed_message = crypto.sign(self._key, message, 'sha256')
-      return signed_message
+      if isinstance(message, six.text_type):
+        message = message.encode('utf-8')
+      return crypto.sign(self._key, message, 'sha256')
 
     @staticmethod
-    def from_string(key, password='notasecret'):
+    def from_string(key, password=b'notasecret'):
       """Construct a Signer instance from a string.
 
       Args:
@@ -134,15 +133,9 @@ try:
       if parsed_pem_key:
         pkey = crypto.load_privatekey(crypto.FILETYPE_PEM, parsed_pem_key)
       else:
-        # OpenSSL 0.13 needs password to be str
-        # OpenSSL 0.14 needs password to be bytes
-        password = str(password)
-        try:
-          pkey = crypto.load_pkcs12(key, password).get_privatekey()
-        except TypeError:
-          # Failed as str, so let's try with bytes (probably 0.14+)
-          password = str.encode(password)
-          pkey = crypto.load_pkcs12(key, password).get_privatekey()
+        if isinstance(password, six.text_type):
+          password = password.encode('utf-8')
+        pkey = crypto.load_pkcs12(key, password).get_privatekey()
       return OpenSSLSigner(pkey)
 
 except ImportError:
@@ -228,10 +221,8 @@ try:
       Returns:
         string, The signature of the message for the given key.
       """
-      try:
-        message = str.encode(message)
-      except TypeError:
-        pass
+      if isinstance(message, six.text_type):
+        message = message.encode('utf-8')
       return PKCS1_v1_5.new(self._key).sign(SHA256.new(message))
 
     @staticmethod
@@ -294,17 +285,15 @@ def _parse_pem_key(raw_key_input):
     return None
 
 def _urlsafe_b64encode(raw_bytes):
-  # Make sure our bytes are actually bytes
-  try:
-    raw_bytes = str.encode(raw_bytes)
-  except (TypeError, UnicodeDecodeError):
-    pass
-  return bytes.decode(base64.urlsafe_b64encode(raw_bytes)).rstrip('=')
+  if isinstance(raw_bytes, six.text_type):
+    raw_bytes = raw_bytes.encode('utf-8')
+  return base64.urlsafe_b64encode(raw_bytes).decode('ascii').rstrip('=')
 
 
 def _urlsafe_b64decode(b64string):
   # Guard against unicode strings, which base64 can't handle.
-  b64string = b64string.encode('ascii')
+  if isinstance(b64string, six.text_type):
+    b64string = b64string.encode('ascii')
   padded = b64string + b'=' * (4 - len(b64string) % 4)
   return base64.urlsafe_b64decode(padded)
 
@@ -363,35 +352,21 @@ def verify_signed_jwt_with_certs(jwt, certs, audience):
   if len(segments) != 3:
     raise AppIdentityError('Wrong number of segments in token: %s' % jwt)
   signed = '%s.%s' % (segments[0], segments[1])
-  try:
-    signed_bytes = str.encode(signed)
-  except TypeError:
-    signed_bytes = None
-  try:
-    signed_str = str(signed)
-  except TypeError:
-    signed_str = None
 
   signature = _urlsafe_b64decode(segments[2])
 
   # Parse token.
   json_body = _urlsafe_b64decode(segments[1])
   try:
-    json_body = bytes.decode(json_body)
-    parsed = json.loads(json_body)
+    parsed = json.loads(json_body.decode('utf-8'))
   except:
     raise AppIdentityError('Can\'t parse token: %s' % json_body)
 
   # Check signature.
   verified = False
-  for _, pem in certs.items():
+  for pem in certs.values():
     verifier = Verifier.from_string(pem, True)
-    # Python2
-    if verifier.verify(signed_str, signature):
-      verified = True
-      break
-    # Python3
-    if verifier.verify(signed_bytes, signature):
+    if verifier.verify(signed, signature):
       verified = True
       break
   if not verified:
