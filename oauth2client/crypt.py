@@ -168,10 +168,7 @@ try:
         return PKCS1_v1_5.new(self._pubkey).verify(
             SHA256.new(message), signature)
       except:
-        lsignature = long(signature.encode('hex'), 16)
-        hexsig = '%064x' % self._pubkey.encrypt(lsignature, '')[0]
-        local_hash = SHA256.new(message).hexdigest()
-        return hexsig[-64:] == local_hash
+        return False
 
     @staticmethod
     def from_string(key_pem, is_x509_cert):
