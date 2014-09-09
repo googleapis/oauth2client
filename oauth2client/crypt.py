@@ -139,6 +139,7 @@ try:
   from Crypto.PublicKey import RSA
   from Crypto.Hash import SHA256
   from Crypto.Signature import PKCS1_v1_5
+  from Crypto.Util.asn1 import DerSequence
 
 
   class PyCryptoVerifier(object):
@@ -167,7 +168,10 @@ try:
         return PKCS1_v1_5.new(self._pubkey).verify(
             SHA256.new(message), signature)
       except:
-        return False
+        lsignature = long(signature.encode('hex'), 16)
+        hexsig = '%064x' % self._pubkey.encrypt(lsignature, '')[0]
+        local_hash = SHA256.new(message).hexdigest()
+        return hexsig[-64:] == local_hash
 
     @staticmethod
     def from_string(key_pem, is_x509_cert):
@@ -180,14 +184,15 @@ try:
 
       Returns:
         Verifier instance.
-
-      Raises:
-        NotImplementedError if is_x509_cert is true.
       """
       if is_x509_cert:
-        raise NotImplementedError(
-            'X509 certs are not supported by the PyCrypto library. '
-            'Try using PyOpenSSL if native code is an option.')
+        pemLines = key_pem.replace(' ', '').split()
+        certDer = _urlsafe_b64decode(''.join(pemLines[1:-1]))
+        certSeq = DerSequence()
+        certSeq.decode(certDer)
+        tbsSeq = DerSequence()
+        tbsSeq.decode(certSeq[0])
+        pubkey = RSA.importKey(tbsSeq[6])
       else:
         pubkey = RSA.importKey(key_pem)
       return PyCryptoVerifier(pubkey)
