@@ -189,7 +189,7 @@ class PEMCryptTestsPyCrypto(CryptTests):
   def setUp(self):
     self.format = 'pem'
     self.signer = crypt.PyCryptoSigner
-    self.verifier = crypt.OpenSSLVerifier
+    self.verifier = crypt.PyCryptoVerifier
 
 
 class PEMCryptTestsOpenSSL(CryptTests):
