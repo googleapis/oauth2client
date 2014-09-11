@@ -1429,7 +1429,7 @@ def _urlsafe_b64decode(b64string):
   # Guard against unicode strings, which base64 can't handle.
   if isinstance(b64string, six.text_type):
     b64string = b64string.encode('ascii')
-  padded = b64string + '='.encode('ascii') * (4 - len(b64string) % 4)
+  padded = b64string + b'=' * (4 - len(b64string) % 4)
   return base64.urlsafe_b64decode(padded)
 
 
