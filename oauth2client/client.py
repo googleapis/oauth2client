@@ -1429,7 +1429,7 @@ def _urlsafe_b64decode(b64string):
   # Guard against unicode strings, which base64 can't handle.
   if isinstance(b64string, six.text_type):
     b64string = b64string.encode('ascii')
-  padded = b64string + '=' * (4 - len(b64string) % 4)
+  padded = b64string + b'=' * (4 - len(b64string) % 4)
   return base64.urlsafe_b64decode(padded)
 
 
@@ -1450,7 +1450,7 @@ def _extract_id_token(id_token):
     raise VerifyJwtTokenError(
       'Wrong number of segments in token: %s' % id_token)
 
-  return json.loads(_urlsafe_b64decode(segments[1]))
+  return json.loads(_urlsafe_b64decode(segments[1]).decode('utf-8'))
 
 
 def _parse_exchange_token_response(content):
@@ -1468,7 +1468,7 @@ def _parse_exchange_token_response(content):
   """
   resp = {}
   try:
-    resp = json.loads(content)
+    resp = json.loads(content.decode('utf-8'))
   except Exception:
     # different JSON libs raise different exceptions,
     # so we just do a catch-all here
