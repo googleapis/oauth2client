@@ -760,6 +760,8 @@ class OAuth2Credentials(Credentials):
         d = json.loads(content)
         if 'error' in d:
           error_msg = d['error']
+          if 'error_description' in d:
+            error_msg += ': ' + d['error_description']
           self.invalid = True
           if self.store:
             self.store.locked_put(self)
