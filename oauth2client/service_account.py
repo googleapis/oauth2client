@@ -21,14 +21,14 @@ import base64
 import json
 import time
 
+from pyasn1.codec.ber import decoder
+from pyasn1_modules.rfc5208 import PrivateKeyInfo
+import rsa
+
 from oauth2client import GOOGLE_REVOKE_URI
 from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client import util
 from oauth2client.client import AssertionCredentials
-
-from pyasn1.codec.ber import decoder
-from pyasn1_modules.rfc5208 import PrivateKeyInfo
-import rsa
 
 
 class _ServiceAccountCredentials(AssertionCredentials):
@@ -116,9 +116,11 @@ class _ServiceAccountCredentials(AssertionCredentials):
                                       revoke_uri=self._revoke_uri,
                                       **self._kwargs)
 
+
 def _urlsafe_b64encode(data):
   return base64.urlsafe_b64encode(
       json.dumps(data, separators=(',', ':')).encode('UTF-8')).rstrip('=')
+
 
 def _get_private_key(private_key_pkcs8_text):
   """Get an RSA private key object from a pkcs8 representation."""

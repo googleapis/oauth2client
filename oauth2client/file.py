@@ -23,8 +23,8 @@ __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 import os
 import threading
 
-from oauth2client.client import Storage as BaseStorage
 from oauth2client.client import Credentials
+from oauth2client.client import Storage as BaseStorage
 
 
 class CredentialsFileSymbolicLinkError(Exception):

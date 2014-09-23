@@ -89,8 +89,8 @@ class AppAssertionCredentials(AssertionCredentials):
       self.access_token = d['accessToken']
     else:
       if response.status == 404:
-        content = content + (' This can occur if a VM was created'
-                             ' with no service account or scopes.')
+        content += (' This can occur if a VM was created'
+                    ' with no service account or scopes.')
       raise AccessTokenRefreshError(content)
 
   @property

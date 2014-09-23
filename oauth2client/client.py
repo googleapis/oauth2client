@@ -32,11 +32,11 @@ import urllib
 import urlparse
 
 import httplib2
+from oauth2client import clientsecrets
 from oauth2client import GOOGLE_AUTH_URI
 from oauth2client import GOOGLE_DEVICE_URI
 from oauth2client import GOOGLE_REVOKE_URI
 from oauth2client import GOOGLE_TOKEN_URI
-from oauth2client import clientsecrets
 from oauth2client import util
 
 HAS_OPENSSL = False
@@ -79,6 +79,7 @@ GOOGLE_APPLICATION_CREDENTIALS = 'GOOGLE_APPLICATION_CREDENTIALS'
 # The access token along with the seconds in which it expires.
 AccessTokenInfo = collections.namedtuple(
     'AccessTokenInfo', ['access_token', 'expires_in'])
+
 
 class Error(Exception):
   """Base error for this module."""
@@ -152,6 +153,7 @@ class Credentials(object):
 
   NON_SERIALIZED_MEMBERS = ['store']
 
+
   def authorize(self, http):
     """Take an httplib2.Http instance (or equivalent) and authorizes it.
 
@@ -165,6 +167,7 @@ class Credentials(object):
     """
     _abstract()
 
+
   def refresh(self, http):
     """Forces a refresh of the access_token.
 
@@ -174,6 +177,7 @@ class Credentials(object):
     """
     _abstract()
 
+
   def revoke(self, http):
     """Revokes a refresh_token and makes the credentials void.
 
@@ -182,6 +186,7 @@ class Credentials(object):
         request.
     """
     _abstract()
+
 
   def apply(self, headers):
     """Add the authorization to the headers.
@@ -250,13 +255,13 @@ class Credentials(object):
     return from_json(s)
 
   @classmethod
-  def from_json(cls, s):
+  def from_json(cls, unused_data):
     """Instantiate a Credentials object from a JSON description of it.
 
     The JSON should have been produced by calling .to_json() on the object.
 
     Args:
-      data: dict, A deserialized JSON object.
+      unused_data: dict, A deserialized JSON object.
 
     Returns:
       An instance of a Credentials subclass.
@@ -513,7 +518,7 @@ class OAuth2Credentials(Credentials):
                                    redirections, connection_type)
 
       if resp.status in REFRESH_STATUS_CODES:
-        logger.info('Refreshing due to a %s' % str(resp.status))
+        logger.info('Refreshing due to a %s', resp.status)
         self._refresh(request_orig)
         self.apply(headers)
         return request_orig(uri, method, body, clean_headers(headers),
@@ -570,12 +575,12 @@ class OAuth2Credentials(Credentials):
       An instance of a Credentials subclass.
     """
     data = json.loads(s)
-    if 'token_expiry' in data and not isinstance(data['token_expiry'],
-        datetime.datetime):
+    if ('token_expiry' in data and
+        not isinstance(data['token_expiry'], datetime.datetime)):
       try:
         data['token_expiry'] = datetime.datetime.strptime(
             data['token_expiry'], EXPIRY_FORMAT)
-      except:
+      except ValueError:
         data['token_expiry'] = None
     retval = cls(
         data['access_token'],
@@ -754,7 +759,7 @@ class OAuth2Credentials(Credentials):
     else:
       # An {'error':...} response body means the token is expired or revoked,
       # so we flag the credentials as such.
-      logger.info('Failed to retrieve access token: %s' % content)
+      logger.info('Failed to retrieve access token: %s', content)
       error_msg = 'Invalid response %s.' % resp['status']
       try:
         d = json.loads(content)
@@ -1013,9 +1018,9 @@ class GoogleCredentials(OAuth2Credentials):
                                           to be retrieved.
     """
 
-    _env_name = _get_environment()
+    env_name = _get_environment()
 
-    if _env_name in ('GAE_PRODUCTION', 'GAE_LOCAL'):
+    if env_name in ('GAE_PRODUCTION', 'GAE_LOCAL'):
       # if we are running inside Google App Engine
       # there is no need to look for credentials in local files
       application_default_credential_filename = None
@@ -1042,18 +1047,18 @@ class GoogleCredentials(OAuth2Credentials):
         extra_help = (' (produced automatically when running'
                       ' "gcloud auth login" command)')
         _raise_exception_for_reading_json(well_known_file, extra_help, error)
-    elif _env_name in ('GAE_PRODUCTION', 'GAE_LOCAL'):
+    elif env_name in ('GAE_PRODUCTION', 'GAE_LOCAL'):
       return _get_application_default_credential_GAE()
-    elif _env_name == 'GCE_PRODUCTION':
+    elif env_name == 'GCE_PRODUCTION':
       return _get_application_default_credential_GCE()
     else:
       raise ApplicationDefaultCredentialsError(
-          "The Application Default Credentials are not available. They are "
-          "available if running in Google Compute Engine.  Otherwise, the "
-          " environment variable " + GOOGLE_APPLICATION_CREDENTIALS +
-          " must be defined pointing to a file defining the credentials. "
-          "See https://developers.google.com/accounts/docs/application-default-"
-          "credentials for more information.")
+          'The Application Default Credentials are not available. They are '
+          'available if running in Google Compute Engine. Otherwise, the '
+          ' environment variable ' + GOOGLE_APPLICATION_CREDENTIALS +
+          ' must be defined pointing to a file defining the credentials. '
+          'See https://developers.google.com/accounts/docs/application-default-'
+          'credentials for more information.')
 
   @staticmethod
   def from_stream(credential_filename):
@@ -1303,14 +1308,14 @@ if HAS_CRYPTO:
 
     @util.positional(4)
     def __init__(self,
-        service_account_name,
-        private_key,
-        scope,
-        private_key_password='notasecret',
-        user_agent=None,
-        token_uri=GOOGLE_TOKEN_URI,
-        revoke_uri=GOOGLE_REVOKE_URI,
-        **kwargs):
+                 service_account_name,
+                 private_key,
+                 scope,
+                 private_key_password='notasecret',
+                 user_agent=None,
+                 token_uri=GOOGLE_TOKEN_URI,
+                 revoke_uri=GOOGLE_REVOKE_URI,
+                 **kwargs):
       """Constructor for SignedJwtAssertionCredentials.
 
       Args:
@@ -1434,9 +1439,9 @@ def _extract_id_token(id_token):
   """
   segments = id_token.split('.')
 
-  if (len(segments) != 3):
+  if len(segments) != 3:
     raise VerifyJwtTokenError(
-      'Wrong number of segments in token: %s' % id_token)
+        'Wrong number of segments in token: %s' % id_token)
 
   return json.loads(_urlsafe_b64decode(segments[1]))
 
@@ -1551,7 +1556,8 @@ def credentials_from_clientsecrets_and_code(filename, scope, code,
       invalid.
   """
   flow = flow_from_clientsecrets(filename, scope, message=message, cache=cache,
-                                 redirect_uri=redirect_uri, device_uri=device_uri)
+                                 redirect_uri=redirect_uri,
+                                 device_uri=device_uri)
   credentials = flow.step2_exchange(code, http=http)
   return credentials
 
@@ -1668,7 +1674,8 @@ class OAuth2WebServerFlow(Flow):
       A URI as a string to redirect the user to begin the authorization flow.
     """
     if redirect_uri is not None:
-      logger.warning(('The redirect_uri parameter for '
+      logger.warning((
+          'The redirect_uri parameter for '
           'OAuth2WebServerFlow.step1_get_authorize_url is deprecated. Please '
           'move to passing the redirect_uri in via the constructor.'))
       self.redirect_uri = redirect_uri
@@ -1715,7 +1722,7 @@ class OAuth2WebServerFlow(Flow):
                                  headers=headers)
     if resp.status == 200:
       try:
-        flow_info = simplejson.loads(content)
+        flow_info = json.loads(content)
       except ValueError as e:
         raise OAuth2DeviceCodeError(
             'Could not parse server response as JSON: "%s", error: "%s"' % (
@@ -1724,7 +1731,7 @@ class OAuth2WebServerFlow(Flow):
     else:
       error_msg = 'Invalid response %s.' % resp.status
       try:
-        d = simplejson.loads(content)
+        d = json.loads(content)
         if 'error' in d:
           error_msg += ' Error: %s' % d['error']
       except ValueError:
@@ -1818,7 +1825,7 @@ class OAuth2WebServerFlow(Flow):
                                id_token=d.get('id_token', None),
                                token_response=d)
     else:
-      logger.info('Failed to retrieve access token: %s' % content)
+      logger.info('Failed to retrieve access token: %s', content)
       if 'error' in d:
         # you never know what those providers got to say
         error_msg = unicode(d['error'])

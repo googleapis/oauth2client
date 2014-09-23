@@ -1,4 +1,3 @@
-#!/usr/bin/python2.4
 # -*- coding: utf-8 -*-
 #
 # Copyright 2014 Google Inc.
@@ -14,9 +13,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""Crypto-related routines for oauth2client."""
 
 import base64
-import hashlib
 import json
 import logging
 import time
@@ -273,8 +272,7 @@ def _parse_pem_key(raw_key_input):
   offset = raw_key_input.find('-----BEGIN ')
   if offset != -1:
     return raw_key_input[offset:]
-  else:
-    return None
+
 
 def _urlsafe_b64encode(raw_bytes):
   return base64.urlsafe_b64encode(raw_bytes).rstrip('=')
@@ -288,7 +286,7 @@ def _urlsafe_b64decode(b64string):
 
 
 def _json_encode(data):
-  return json.dumps(data, separators = (',', ':'))
+  return json.dumps(data, separators=(',', ':'))
 
 
 def make_signed_jwt(signer, payload):
@@ -306,8 +304,8 @@ def make_signed_jwt(signer, payload):
   header = {'typ': 'JWT', 'alg': 'RS256'}
 
   segments = [
-          _urlsafe_b64encode(_json_encode(header)),
-          _urlsafe_b64encode(_json_encode(payload)),
+      _urlsafe_b64encode(_json_encode(header)),
+      _urlsafe_b64encode(_json_encode(payload)),
   ]
   signing_input = '.'.join(segments)
 
