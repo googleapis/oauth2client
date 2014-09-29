@@ -131,6 +131,10 @@ class OAuth2DeviceCodeError(Error):
   """Error trying to retrieve a device code."""
 
 
+class CryptoUnavailableError(Error, NotImplementedError):
+  """Raised when a crypto library is required, but none is available."""
+
+
 def _abstract():
   raise NotImplementedError('You need to override this function')
 
@@ -1292,135 +1296,148 @@ class AssertionCredentials(GoogleCredentials):
     self._do_revoke(http_request, self.access_token)
 
 
-if HAS_CRYPTO:
-  # PyOpenSSL and PyCrypto are not prerequisites for oauth2client, so if it is
-  # missing then don't create the SignedJwtAssertionCredentials or the
-  # verify_id_token() method.
+def _RequireCryptoOrDie():
+  """Ensure we have a crypto library, or throw CryptoUnavailableError.
 
-  class SignedJwtAssertionCredentials(AssertionCredentials):
-    """Credentials object used for OAuth 2.0 Signed JWT assertion grants.
+  The oauth2client.crypt module requires either PyCrypto or PyOpenSSL
+  to be available in order to function, but these are optional
+  dependencies.
+  """
+  if not HAS_CRYPTO:
+    raise CryptoUnavailableError('No crypto library available')
 
-    This credential does not require a flow to instantiate because it represents
-    a two legged flow, and therefore has all of the required information to
-    generate and refresh its own access tokens.
 
-    SignedJwtAssertionCredentials requires either PyOpenSSL, or PyCrypto 2.6 or
-    later. For App Engine you may also consider using AppAssertionCredentials.
-    """
+class SignedJwtAssertionCredentials(AssertionCredentials):
+  """Credentials object used for OAuth 2.0 Signed JWT assertion grants.
 
-    MAX_TOKEN_LIFETIME_SECS = 3600  # 1 hour in seconds
+  This credential does not require a flow to instantiate because it
+  represents a two legged flow, and therefore has all of the required
+  information to generate and refresh its own access tokens.
 
-    @util.positional(4)
-    def __init__(self,
-                 service_account_name,
-                 private_key,
-                 scope,
-                 private_key_password='notasecret',
-                 user_agent=None,
-                 token_uri=GOOGLE_TOKEN_URI,
-                 revoke_uri=GOOGLE_REVOKE_URI,
-                 **kwargs):
-      """Constructor for SignedJwtAssertionCredentials.
+  SignedJwtAssertionCredentials requires either PyOpenSSL, or PyCrypto
+  2.6 or later. For App Engine you may also consider using
+  AppAssertionCredentials.
+  """
 
-      Args:
-        service_account_name: string, id for account, usually an email address.
-        private_key: string, private key in PKCS12 or PEM format.
-        scope: string or iterable of strings, scope(s) of the credentials being
-          requested.
-        private_key_password: string, password for private_key, unused if
-          private_key is in PEM format.
-        user_agent: string, HTTP User-Agent to provide for this application.
-        token_uri: string, URI for token endpoint. For convenience
-          defaults to Google's endpoints but any OAuth 2.0 provider can be used.
-        revoke_uri: string, URI for revoke endpoint.
-        kwargs: kwargs, Additional parameters to add to the JWT token, for
-          example sub=joe@xample.org."""
+  MAX_TOKEN_LIFETIME_SECS = 3600  # 1 hour in seconds
 
-      super(SignedJwtAssertionCredentials, self).__init__(
-          None,
-          user_agent=user_agent,
-          token_uri=token_uri,
-          revoke_uri=revoke_uri,
-          )
-
-      self.scope = util.scopes_to_string(scope)
-
-      # Keep base64 encoded so it can be stored in JSON.
-      self.private_key = base64.b64encode(private_key)
-
-      self.private_key_password = private_key_password
-      self.service_account_name = service_account_name
-      self.kwargs = kwargs
-
-    @classmethod
-    def from_json(cls, s):
-      data = json.loads(s)
-      retval = SignedJwtAssertionCredentials(
-          data['service_account_name'],
-          base64.b64decode(data['private_key']),
-          data['scope'],
-          private_key_password=data['private_key_password'],
-          user_agent=data['user_agent'],
-          token_uri=data['token_uri'],
-          **data['kwargs']
-          )
-      retval.invalid = data['invalid']
-      retval.access_token = data['access_token']
-      return retval
-
-    def _generate_assertion(self):
-      """Generate the assertion that will be used in the request."""
-      now = long(time.time())
-      payload = {
-          'aud': self.token_uri,
-          'scope': self.scope,
-          'iat': now,
-          'exp': now + SignedJwtAssertionCredentials.MAX_TOKEN_LIFETIME_SECS,
-          'iss': self.service_account_name
-      }
-      payload.update(self.kwargs)
-      logger.debug(str(payload))
-
-      private_key = base64.b64decode(self.private_key)
-      return crypt.make_signed_jwt(crypt.Signer.from_string(
-          private_key, self.private_key_password), payload)
-
-  # Only used in verify_id_token(), which is always calling to the same URI
-  # for the certs.
-  _cached_http = httplib2.Http(MemoryCache())
-
-  @util.positional(2)
-  def verify_id_token(id_token, audience, http=None,
-                      cert_uri=ID_TOKEN_VERIFICATION_CERTS):
-    """Verifies a signed JWT id_token.
-
-    This function requires PyOpenSSL and because of that it does not work on
-    App Engine.
+  @util.positional(4)
+  def __init__(self,
+               service_account_name,
+               private_key,
+               scope,
+               private_key_password='notasecret',
+               user_agent=None,
+               token_uri=GOOGLE_TOKEN_URI,
+               revoke_uri=GOOGLE_REVOKE_URI,
+               **kwargs):
+    """Constructor for SignedJwtAssertionCredentials.
 
     Args:
-      id_token: string, A Signed JWT.
-      audience: string, The audience 'aud' that the token should be for.
-      http: httplib2.Http, instance to use to make the HTTP request. Callers
-        should supply an instance that has caching enabled.
-      cert_uri: string, URI of the certificates in JSON format to
-        verify the JWT against.
-
-    Returns:
-      The deserialized JSON in the JWT.
+      service_account_name: string, id for account, usually an email address.
+      private_key: string, private key in PKCS12 or PEM format.
+      scope: string or iterable of strings, scope(s) of the credentials being
+        requested.
+      private_key_password: string, password for private_key, unused if
+        private_key is in PEM format.
+      user_agent: string, HTTP User-Agent to provide for this application.
+      token_uri: string, URI for token endpoint. For convenience
+        defaults to Google's endpoints but any OAuth 2.0 provider can be used.
+      revoke_uri: string, URI for revoke endpoint.
+      kwargs: kwargs, Additional parameters to add to the JWT token, for
+        example sub=joe@xample.org.
 
     Raises:
-      oauth2client.crypt.AppIdentityError if the JWT fails to verify.
+      CryptoUnavailableError if no crypto library is available.
     """
-    if http is None:
-      http = _cached_http
+    _RequireCryptoOrDie()
+    super(SignedJwtAssertionCredentials, self).__init__(
+        None,
+        user_agent=user_agent,
+        token_uri=token_uri,
+        revoke_uri=revoke_uri,
+        )
 
-    resp, content = http.request(cert_uri)
+    self.scope = util.scopes_to_string(scope)
 
-    if resp.status == 200:
-      certs = json.loads(content)
-      return crypt.verify_signed_jwt_with_certs(id_token, certs, audience)
-    else:
-      raise VerifyJwtTokenError('Status code: %d' % resp.status)
+    # Keep base64 encoded so it can be stored in JSON.
+    self.private_key = base64.b64encode(private_key)
+
+    self.private_key_password = private_key_password
+    self.service_account_name = service_account_name
+    self.kwargs = kwargs
+
+  @classmethod
+  def from_json(cls, s):
+    data = json.loads(s)
+    retval = SignedJwtAssertionCredentials(
+        data['service_account_name'],
+        base64.b64decode(data['private_key']),
+        data['scope'],
+        private_key_password=data['private_key_password'],
+        user_agent=data['user_agent'],
+        token_uri=data['token_uri'],
+        **data['kwargs']
+        )
+    retval.invalid = data['invalid']
+    retval.access_token = data['access_token']
+    return retval
+
+  def _generate_assertion(self):
+    """Generate the assertion that will be used in the request."""
+    now = long(time.time())
+    payload = {
+        'aud': self.token_uri,
+        'scope': self.scope,
+        'iat': now,
+        'exp': now + SignedJwtAssertionCredentials.MAX_TOKEN_LIFETIME_SECS,
+        'iss': self.service_account_name
+    }
+    payload.update(self.kwargs)
+    logger.debug(str(payload))
+
+    private_key = base64.b64decode(self.private_key)
+    return crypt.make_signed_jwt(crypt.Signer.from_string(
+        private_key, self.private_key_password), payload)
+
+# Only used in verify_id_token(), which is always calling to the same URI
+# for the certs.
+_cached_http = httplib2.Http(MemoryCache())
+
+@util.positional(2)
+def verify_id_token(id_token, audience, http=None,
+                    cert_uri=ID_TOKEN_VERIFICATION_CERTS):
+  """Verifies a signed JWT id_token.
+
+  This function requires PyOpenSSL and because of that it does not work on
+  App Engine.
+
+  Args:
+    id_token: string, A Signed JWT.
+    audience: string, The audience 'aud' that the token should be for.
+    http: httplib2.Http, instance to use to make the HTTP request. Callers
+      should supply an instance that has caching enabled.
+    cert_uri: string, URI of the certificates in JSON format to
+      verify the JWT against.
+
+  Returns:
+    The deserialized JSON in the JWT.
+
+  Raises:
+    oauth2client.crypt.AppIdentityError: if the JWT fails to verify.
+    CryptoUnavailableError: if no crypto library is available.
+  """
+  _RequireCryptoOrDie()
+  if http is None:
+    http = _cached_http
+
+  resp, content = http.request(cert_uri)
+
+  if resp.status == 200:
+    certs = json.loads(content)
+    return crypt.verify_signed_jwt_with_certs(id_token, certs, audience)
+  else:
+    raise VerifyJwtTokenError('Status code: %d' % resp.status)
 
 
 def _urlsafe_b64decode(b64string):
