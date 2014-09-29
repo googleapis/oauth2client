@@ -38,6 +38,7 @@ from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client.client import AccessTokenCredentials
 from oauth2client.client import AccessTokenCredentialsError
 from oauth2client.client import AccessTokenRefreshError
+from oauth2client.client import ADC_HELP_MSG
 from oauth2client.client import AssertionCredentials
 from oauth2client.client import AUTHORIZED_USER
 from oauth2client.client import Credentials
@@ -421,14 +422,7 @@ class GoogleCredentialsTests(unittest.TestCase):
       GoogleCredentials.get_application_default()
       self.fail('An exception was expected!')
     except ApplicationDefaultCredentialsError as error:
-      self.assertEqual(
-          "The Application Default Credentials are not available. They are "
-          "available if running in Google Compute Engine.  Otherwise, the "
-          " environment variable " + GOOGLE_APPLICATION_CREDENTIALS +
-          " must be defined pointing to a file defining the credentials. "
-          "See https://developers.google.com/accounts/docs/application-default-"
-          "credentials for more information.",
-          str(error))
+      self.assertEqual(ADC_HELP_MSG, str(error))
 
   def test_from_stream_service_account(self):
     credentials_file = datafile(

@@ -76,6 +76,16 @@ SERVICE_ACCOUNT = 'service_account'
 # Application Default Credentials.
 GOOGLE_APPLICATION_CREDENTIALS = 'GOOGLE_APPLICATION_CREDENTIALS'
 
+# The error message we show users when we can't find the Application
+# Default Credentials.
+ADC_HELP_MSG = (
+    'The Application Default Credentials are not available. They are available '
+    'if running in Google Compute Engine. Otherwise, the environment variable '
+    + GOOGLE_APPLICATION_CREDENTIALS +
+    ' must be defined pointing to a file defining the credentials. See '
+    'https://developers.google.com/accounts/docs/application-default-credentials'  # pylint:disable=line-too-long
+    ' for more information.')
+
 # The access token along with the seconds in which it expires.
 AccessTokenInfo = collections.namedtuple(
     'AccessTokenInfo', ['access_token', 'expires_in'])
@@ -1052,13 +1062,7 @@ class GoogleCredentials(OAuth2Credentials):
     elif env_name == 'GCE_PRODUCTION':
       return _get_application_default_credential_GCE()
     else:
-      raise ApplicationDefaultCredentialsError(
-          'The Application Default Credentials are not available. They are '
-          'available if running in Google Compute Engine. Otherwise, the '
-          ' environment variable ' + GOOGLE_APPLICATION_CREDENTIALS +
-          ' must be defined pointing to a file defining the credentials. '
-          'See https://developers.google.com/accounts/docs/application-default-'
-          'credentials for more information.')
+      raise ApplicationDefaultCredentialsError(ADC_HELP_MSG)
 
   @staticmethod
   def from_stream(credential_filename):
