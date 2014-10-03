@@ -1118,7 +1118,7 @@ def save_to_well_known_file(credentials, well_known_file=None):
   credentials_data = credentials.serialization_data
 
   with open(well_known_file, 'w') as f:
-    json.dump(credentials_data, f, sort_keys=True, indent=2)
+    json.dump(credentials_data, f, sort_keys=True, indent=2, separators=(',', ': '))
 
 
 def _get_environment_variable_file():
