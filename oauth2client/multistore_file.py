@@ -327,7 +327,7 @@ class _MultiStore(object):
     if self._read_only:
       return
     self._file.file_handle().seek(0)
-    json.dump(data, self._file.file_handle(), sort_keys=True, indent=2)
+    json.dump(data, self._file.file_handle(), sort_keys=True, indent=2, separators=(',', ': '))
     self._file.file_handle().truncate()
 
   def _refresh_data_cache(self):
