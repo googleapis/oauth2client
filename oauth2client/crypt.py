@@ -191,8 +191,10 @@ try:
         Verifier instance.
       """
       if is_x509_cert:
-        pemLines = key_pem.replace(' ', '').split()
-        certDer = _urlsafe_b64decode(''.join(pemLines[1:-1]))
+        if isinstance(key_pem, six.text_type):
+          key_pem = key_pem.encode('ascii')
+        pemLines = key_pem.replace(b' ', b'').split()
+        certDer = _urlsafe_b64decode(b''.join(pemLines[1:-1]))
         certSeq = DerSequence()
         certSeq.decode(certDer)
         tbsSeq = DerSequence()
