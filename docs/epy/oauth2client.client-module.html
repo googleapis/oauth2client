@@ -168,6 +168,14 @@ Tools for interacting with OAuth 2.0 protected resources.
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
+        <a href="oauth2client.client.CryptoUnavailableError-class.html" class="summary-name">CryptoUnavailableError</a><br />
+      Raised when a crypto library is required, but none is available.
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
         <a href="oauth2client.client.MemoryCache-class.html" class="summary-name">MemoryCache</a><br />
       httplib2 Cache implementation which only caches locally.
     </td>
@@ -472,6 +480,23 @@ Tools for interacting with OAuth 2.0 protected resources.
       
     </td>
   </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="oauth2client.client-module.html#_RequireCryptoOrDie" class="summary-sig-name" onclick="show_private();">_RequireCryptoOrDie</a>()</span><br />
+      Ensure we have a crypto library, or throw CryptoUnavailableError.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="oauth2client.client-pysrc.html#_RequireCryptoOrDie">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
@@ -715,6 +740,18 @@ Tools for interacting with OAuth 2.0 protected resources.
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
+        <a href="oauth2client.client-module.html#ADC_HELP_MSG" class="summary-name">ADC_HELP_MSG</a> = <code title="'The Application Default Credentials are not available. They are avail\
+able ' 'if running in Google Compute Engine. Otherwise, the environmen\
+t variable '+ GOOGLE_APPLICATION_CREDENTIALS+ ' must be defined pointi\
+ng to a file defining the credentials. See ' 'https://developers.googl\
+e.com/accounts/docs/application-default-credentials' ' for more inform\
+ation.'">'The Application Default Credentials are not av<code class="variable-ellipsis">...</code></code>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
         <a href="oauth2client.client-module.html#AccessTokenInfo" class="summary-name">AccessTokenInfo</a> = <code title="collections.namedtuple('AccessTokenInfo', ['access_token', 'expires_in\
 '])">collections.namedtuple('AccessTokenInfo', ['<code class="variable-ellipsis">...</code></code>
     </td>
@@ -845,6 +882,32 @@ Args:
   </dl>
 </td></tr></table>
 </div>
+<a name="_RequireCryptoOrDie"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">_RequireCryptoOrDie</span>()</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="oauth2client.client-pysrc.html#_RequireCryptoOrDie">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <pre class="literalblock">
+Ensure we have a crypto library, or throw CryptoUnavailableError.
+
+The oauth2client.crypt module requires either PyCrypto or PyOpenSSL
+to be available in order to function, but these are optional
+dependencies.
+
+</pre>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
 <a name="verify_id_token"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
@@ -880,7 +943,8 @@ Returns:
   The deserialized JSON in the JWT.
 
 Raises:
-  oauth2client.crypt.AppIdentityError if the JWT fails to verify.
+  oauth2client.crypt.AppIdentityError: if the JWT fails to verify.
+  CryptoUnavailableError: if no crypto library is available.
 
 </pre>
   <dl class="fields">
@@ -1192,6 +1256,29 @@ Raises:
   </dl>
 </td></tr></table>
 </div>
+<a name="ADC_HELP_MSG"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <h3 class="epydoc">ADC_HELP_MSG</h3>
+  
+  <dl class="fields">
+  </dl>
+  <dl class="fields">
+    <dt>Value:</dt>
+      <dd><table><tr><td><pre class="variable">
+'The Application Default Credentials are not available. They are avail<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+able ' 'if running in Google Compute Engine. Otherwise, the environmen<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+t variable '+ GOOGLE_APPLICATION_CREDENTIALS+ ' must be defined pointi<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+ng to a file defining the credentials. See ' 'https://developers.googl<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+e.com/accounts/docs/application-default-credentials' ' for more inform<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+ation.'
+</pre></td></tr></table>
+</dd>
+  </dl>
+</td></tr></table>
+</div>
 <a name="AccessTokenInfo"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
@@ -1238,7 +1325,7 @@ collections.namedtuple('AccessTokenInfo', ['access_token', 'expires_in<span clas
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Tue Aug 19 11:34:23 2014
+    Generated by Epydoc 3.0.1 on Mon Sep 29 15:21:51 2014
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

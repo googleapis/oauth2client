@@ -1,4 +1,4 @@
-# Copyright 2011 Google Inc.
+# Copyright 2014 Google Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -48,8 +48,8 @@ import logging
 import os
 import threading
 
-from oauth2client.client import Storage as BaseStorage
 from oauth2client.client import Credentials
+from oauth2client.client import Storage as BaseStorage
 from oauth2client import util
 from oauth2client.locked_file import LockedFile
 
@@ -327,7 +327,7 @@ class _MultiStore(object):
     if self._read_only:
       return
     self._file.file_handle().seek(0)
-    json.dump(data, self._file.file_handle(), sort_keys=True, indent=2)
+    json.dump(data, self._file.file_handle(), sort_keys=True, indent=2, separators=(',', ': '))
     self._file.file_handle().truncate()
 
   def _refresh_data_cache(self):

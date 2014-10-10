@@ -1,3 +1,28 @@
+v1.3
+  Version 1.3
+
+  Added support for the Google Application Default Credentials; see
+    https://developers.google.com/accounts/docs/application-default-credentials
+    for more information (thanks @orestica).
+  Added support for OAuth2 for devices (#3, thanks @sde-melo).
+  The minimum required Python version is now 2.6.
+  The `anyjson` submodule has been removed.
+
+  - Better exception handling around missing crypto libraries (#56).
+  - Improve error messages in `AccessTokenRefreshError` (#53, thanks
+	@erickoledadevrel).
+  - Drop uritemplate as a dependency.
+  - Handle X509 certs with PyCrypto (#51, thanks @liujin-google).
+  - Handle additional failure types on OSX (#32, thanks @simoncadman).
+  - Better unicode handling with PKCS12 passwords (#31, thanks @jterrace).
+  - Better retry handling with bad server replies on refresh (#29, thanks
+	@kaste).
+  - Better logging for missing `refresh_token` in server replies (#21).
+  - Support `login_hint` (#18, thanks @jay0lee).
+  - Better overwrite options in `django_orm.Storage`. (#2, thanks
+	@lraccomando). 
+
+
 v1.2
   Version 1.2
 
@@ -140,4 +165,3 @@ v1.0beta7
    50  Defect  Need sample client code for Admin Audit API
    28  Defect  better comments for app engine sample   Nov 9
    63  Enhancement Let OAuth2Decorator take a list of scope
-

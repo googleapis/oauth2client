@@ -20,6 +20,7 @@ oauth2client.client._extract_id_token	oauth2client.client-module.html#_extract_i
 oauth2client.client.HAS_CRYPTO	oauth2client.client-module.html#HAS_CRYPTO
 oauth2client.client._get_environment	oauth2client.client-module.html#_get_environment
 oauth2client.client.AUTHORIZED_USER	oauth2client.client-module.html#AUTHORIZED_USER
+oauth2client.client.ADC_HELP_MSG	oauth2client.client-module.html#ADC_HELP_MSG
 oauth2client.client._get_application_default_credential_GCE	oauth2client.client-module.html#_get_application_default_credential_GCE
 oauth2client.client._get_application_default_credential_from_file	oauth2client.client-module.html#_get_application_default_credential_from_file
 oauth2client.client._get_application_default_credential_GAE	oauth2client.client-module.html#_get_application_default_credential_GAE
@@ -27,9 +28,9 @@ oauth2client.client.credentials_from_code	oauth2client.client-module.html#creden
 oauth2client.client.ID_TOKEN_VERIFICATON_CERTS	oauth2client.client-module.html#ID_TOKEN_VERIFICATON_CERTS
 oauth2client.client.credentials_from_clientsecrets_and_code	oauth2client.client-module.html#credentials_from_clientsecrets_and_code
 oauth2client.client._raise_exception_for_missing_fields	oauth2client.client-module.html#_raise_exception_for_missing_fields
-oauth2client.client._update_query_params	oauth2client.client-module.html#_update_query_params
 oauth2client.client.EXPIRY_FORMAT	oauth2client.client-module.html#EXPIRY_FORMAT
 oauth2client.client.logger	oauth2client.client-module.html#logger
+oauth2client.client._update_query_params	oauth2client.client-module.html#_update_query_params
 oauth2client.client._env_name	oauth2client.client-module.html#_env_name
 oauth2client.client.AccessTokenInfo	oauth2client.client-module.html#AccessTokenInfo
 oauth2client.client._abstract	oauth2client.client-module.html#_abstract
@@ -40,6 +41,7 @@ oauth2client.client._raise_exception_for_reading_json	oauth2client.client-module
 oauth2client.client._parse_exchange_token_response	oauth2client.client-module.html#_parse_exchange_token_response
 oauth2client.client.HAS_OPENSSL	oauth2client.client-module.html#HAS_OPENSSL
 oauth2client.client.ID_TOKEN_VERIFICATION_CERTS	oauth2client.client-module.html#ID_TOKEN_VERIFICATION_CERTS
+oauth2client.client._RequireCryptoOrDie	oauth2client.client-module.html#_RequireCryptoOrDie
 oauth2client.client.GOOGLE_APPLICATION_CREDENTIALS	oauth2client.client-module.html#GOOGLE_APPLICATION_CREDENTIALS
 oauth2client.client._cached_http	oauth2client.client-module.html#_cached_http
 oauth2client.client.verify_id_token	oauth2client.client-module.html#verify_id_token
@@ -297,6 +299,7 @@ oauth2client.client.Credentials.new_from_json	oauth2client.client.Credentials-cl
 oauth2client.client.Credentials._to_json	oauth2client.client.Credentials-class.html#_to_json
 oauth2client.client.Credentials.NON_SERIALIZED_MEMBERS	oauth2client.client.Credentials-class.html#NON_SERIALIZED_MEMBERS
 oauth2client.client.Credentials.refresh	oauth2client.client.Credentials-class.html#refresh
+oauth2client.client.CryptoUnavailableError	oauth2client.client.CryptoUnavailableError-class.html
 oauth2client.client.DeviceFlowInfo	oauth2client.client.DeviceFlowInfo-class.html
 oauth2client.client.DeviceFlowInfo.FromResponse	oauth2client.client.DeviceFlowInfo-class.html#FromResponse
 oauth2client.client.Error	oauth2client.client.Error-class.html

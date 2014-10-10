@@ -1,4 +1,4 @@
-# Copyright (C) 2010 Google Inc.
+# Copyright 2014 Google Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,12 +20,13 @@ Utilities for making it easier to use OAuth 2.0 on Google App Engine.
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 import cgi
-import httplib2
 import json
 import logging
 import os
 import pickle
 import threading
+
+import httplib2
 
 from google.appengine.api import app_identity
 from google.appengine.api import memcache
@@ -157,7 +158,7 @@ class AppAssertionCredentials(AssertionCredentials):
     Args:
       scope: string or iterable of strings, scope(s) of the credentials being
         requested.
-      kwargs: optional keyword args, including:
+      **kwargs: optional keyword args, including:
         service_account_id: service account id of the application. If None or
           unspecified, the default service account for the app is used.
     """
@@ -169,8 +170,8 @@ class AppAssertionCredentials(AssertionCredentials):
     super(AppAssertionCredentials, self).__init__(None)
 
   @classmethod
-  def from_json(cls, json):
-    data = json.loads(json)
+  def from_json(cls, json_data):
+    data = json.loads(json_data)
     return AppAssertionCredentials(data['scope'])
 
   def _refresh(self, http_request):
@@ -824,8 +825,8 @@ class OAuth2Decorator(object):
     returns True.
 
     Args:
-        args: Positional arguments passed to httplib2.Http constructor.
-        kwargs: Positional arguments passed to httplib2.Http constructor.
+        *args: Positional arguments passed to httplib2.Http constructor.
+        **kwargs: Positional arguments passed to httplib2.Http constructor.
     """
     return self.credentials.authorize(httplib2.Http(*args, **kwargs))
 
@@ -949,9 +950,9 @@ class OAuth2DecoratorFromClientSecrets(OAuth2Decorator):
           "OAuth2Decorator doesn't support this OAuth 2.0 flow.")
     constructor_kwargs = dict(kwargs)
     constructor_kwargs.update({
-      'auth_uri': client_info['auth_uri'],
-      'token_uri': client_info['token_uri'],
-      'message': message,
+        'auth_uri': client_info['auth_uri'],
+        'token_uri': client_info['token_uri'],
+        'message': message,
     })
     revoke_uri = client_info.get('revoke_uri')
     if revoke_uri is not None:

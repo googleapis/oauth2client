@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2011 Google Inc.
+# Copyright 2014 Google Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,9 +13,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""Crypto-related routines for oauth2client."""
 
 import base64
-import hashlib
 import json
 import logging
 import sys
@@ -147,6 +147,7 @@ try:
   from Crypto.PublicKey import RSA
   from Crypto.Hash import SHA256
   from Crypto.Signature import PKCS1_v1_5
+  from Crypto.Util.asn1 import DerSequence
 
 
   class PyCryptoVerifier(object):
@@ -188,14 +189,15 @@ try:
 
       Returns:
         Verifier instance.
-
-      Raises:
-        NotImplementedError if is_x509_cert is true.
       """
       if is_x509_cert:
-        raise NotImplementedError(
-            'X509 certs are not supported by the PyCrypto library. '
-            'Try using PyOpenSSL if native code is an option.')
+        pemLines = key_pem.replace(' ', '').split()
+        certDer = _urlsafe_b64decode(''.join(pemLines[1:-1]))
+        certSeq = DerSequence()
+        certSeq.decode(certDer)
+        tbsSeq = DerSequence()
+        tbsSeq.decode(certSeq[0])
+        pubkey = RSA.importKey(tbsSeq[6])
       else:
         pubkey = RSA.importKey(key_pem)
       return PyCryptoVerifier(pubkey)
@@ -281,8 +283,7 @@ def _parse_pem_key(raw_key_input):
   offset = raw_key_input.find(b'-----BEGIN ')
   if offset != -1:
     return raw_key_input[offset:]
-  else:
-    return None
+
 
 def _urlsafe_b64encode(raw_bytes):
   if isinstance(raw_bytes, six.text_type):
@@ -299,7 +300,7 @@ def _urlsafe_b64decode(b64string):
 
 
 def _json_encode(data):
-  return json.dumps(data, separators = (',', ':'))
+  return json.dumps(data, separators=(',', ':'))
 
 
 def make_signed_jwt(signer, payload):
@@ -317,8 +318,8 @@ def make_signed_jwt(signer, payload):
   header = {'typ': 'JWT', 'alg': 'RS256'}
 
   segments = [
-          _urlsafe_b64encode(_json_encode(header)),
-          _urlsafe_b64encode(_json_encode(payload)),
+      _urlsafe_b64encode(_json_encode(header)),
+      _urlsafe_b64encode(_json_encode(payload)),
   ]
   signing_input = '.'.join(segments)
 
