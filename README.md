@@ -18,7 +18,6 @@ Third Party Libraries
 These libraries will be installed when you install the client library:
 
 * http://code.google.com/p/httplib2
-* http://pypi.python.org/pypi/simplejson/ (python version < 2.7 only)
 
 Contributing
 ============
