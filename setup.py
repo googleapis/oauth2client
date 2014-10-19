@@ -1,4 +1,4 @@
-# Copyright (C) 2014 Google Inc.
+# Copyright 2014 Google Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -48,8 +48,7 @@ setup(
     version=version,
     description="OAuth 2.0 client library",
     long_description=long_desc,
-    author="John Asmuth",
-    author_email="jasmuth@google.com",
+    author="Google Inc.",
     url="http://github.com/google/oauth2client/",
     install_requires=install_requires,
     packages=packages,

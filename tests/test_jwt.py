@@ -1,6 +1,6 @@
 #!/usr/bin/python2.4
 #
-# Copyright 2010 Google Inc.
+# Copyright 2014 Google Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import tempfile
 import time
 import unittest
 
-from tests.http_mock import HttpMockSequence
+from .http_mock import HttpMockSequence
 from oauth2client import crypt
 from oauth2client.client import Credentials
 from oauth2client.client import SignedJwtAssertionCredentials
@@ -189,7 +189,7 @@ class PEMCryptTestsPyCrypto(CryptTests):
   def setUp(self):
     self.format = 'pem'
     self.signer = crypt.PyCryptoSigner
-    self.verifier = crypt.OpenSSLVerifier
+    self.verifier = crypt.PyCryptoVerifier
 
 
 class PEMCryptTestsOpenSSL(CryptTests):
