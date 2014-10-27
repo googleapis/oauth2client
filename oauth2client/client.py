@@ -225,7 +225,8 @@ class Credentials(object):
     for member in strip:
       if member in d:
         del d[member]
-    if 'token_expiry' in d and isinstance(d['token_expiry'], datetime.datetime):
+    if (d.get('token_expiry') and
+        isinstance(d['token_expiry'], datetime.datetime)):
       d['token_expiry'] = d['token_expiry'].strftime(EXPIRY_FORMAT)
     # Add in information we will need later to reconsistitue this instance.
     d['_class'] = t.__name__
@@ -589,7 +590,7 @@ class OAuth2Credentials(Credentials):
       An instance of a Credentials subclass.
     """
     data = json.loads(s)
-    if ('token_expiry' in data and
+    if (data.get('token_expiry') and
         not isinstance(data['token_expiry'], datetime.datetime)):
       try:
         data['token_expiry'] = datetime.datetime.strptime(

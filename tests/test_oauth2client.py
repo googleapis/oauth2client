@@ -587,6 +587,12 @@ class BasicCredentialsTests(unittest.TestCase):
 
     self.assertEqual(instance.__dict__, self.credentials.__dict__)
 
+  def test_from_json_token_expiry(self):
+    data = json.loads(self.credentials.to_json())
+    data['token_expiry'] = None
+    instance = OAuth2Credentials.from_json(json.dumps(data))
+    self.assertTrue(isinstance(instance, OAuth2Credentials))
+
   def test_no_unicode_in_request_params(self):
     access_token = u'foo'
     client_id = u'some_client_id'
