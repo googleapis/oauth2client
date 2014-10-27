@@ -17,7 +17,7 @@ Third Party Libraries
 
 These libraries will be installed when you install the client library:
 
-* http://code.google.com/p/httplib2
+* https://github.com/jcgregorio/httplib2
 
 Contributing
 ============
