@@ -1767,10 +1767,10 @@ class OAuth2WebServerFlow(Flow):
 
     Args:
 
-      code: string, dict or None. For a non-device flow, this is
-          either the response code as a string, or a dictionary of
-          query parameters to the redirect_uri. For a device flow,
-          this should be None.
+      code: string, a dict-like object, or None. For a non-device
+          flow, this is either the response code as a string, or a
+          dictionary of query parameters to the redirect_uri. For a
+          device flow, this should be None.
       http: httplib2.Http, optional http instance to use when fetching
           credentials.
       device_flow_info: DeviceFlowInfo, return value from step1 in the
@@ -1793,7 +1793,7 @@ class OAuth2WebServerFlow(Flow):
 
     if code is None:
       code = device_flow_info.device_code
-    elif isinstance(code, dict):
+    elif not isinstance(code, basestring):
       if 'code' not in code:
         raise FlowExchangeError(code.get(
             'error', 'No code was supplied in the query parameters.'))

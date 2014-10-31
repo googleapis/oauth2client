@@ -90,6 +90,7 @@ class HttpMockSequence(object):
     """
     self._iterable = iterable
     self.follow_redirects = True
+    self.requests = []
 
   def request(self, uri,
               method='GET',
@@ -98,6 +99,7 @@ class HttpMockSequence(object):
               redirections=1,
               connection_type=None):
     resp, content = self._iterable.pop(0)
+    self.requests.append({'uri': uri, 'body': body, 'headers': headers})
     if content == 'echo_request_headers':
       content = headers
     elif content == 'echo_request_headers_as_json':

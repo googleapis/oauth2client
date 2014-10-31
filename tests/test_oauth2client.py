@@ -875,6 +875,34 @@ class OAuth2WebServerFlowTest(unittest.TestCase):
     self.assertEqual('8xLOxBtZp8', credentials.refresh_token)
     self.assertEqual('dummy_revoke_uri', credentials.revoke_uri)
 
+  def test_exchange_dictlike(self):
+    class FakeDict(object):
+      def __init__(self, d):
+        self.d = d
+
+      def __getitem__(self, name):
+        return self.d[name]
+
+      def __contains__(self, name):
+        return name in self.d
+
+    code = 'some random code'
+    not_a_dict = FakeDict({'code': code})
+    http = HttpMockSequence([
+      ({'status': '200'},
+      """{ "access_token":"SlAV32hkKG",
+       "expires_in":3600,
+       "refresh_token":"8xLOxBtZp8" }"""),
+      ])
+
+    credentials = self.flow.step2_exchange(not_a_dict, http=http)
+    self.assertEqual('SlAV32hkKG', credentials.access_token)
+    self.assertNotEqual(None, credentials.token_expiry)
+    self.assertEqual('8xLOxBtZp8', credentials.refresh_token)
+    self.assertEqual('dummy_revoke_uri', credentials.revoke_uri)
+    request_code = urlparse.parse_qs(http.requests[0]['body'])['code'][0]
+    self.assertEqual(code, request_code)
+
   def test_urlencoded_exchange_success(self):
     http = HttpMockSequence([
       ({'status': '200'}, 'access_token=SlAV32hkKG&expires_in=3600'),
