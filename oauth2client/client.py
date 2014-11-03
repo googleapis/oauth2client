@@ -1836,15 +1836,16 @@ class OAuth2WebServerFlow(Flow):
         token_expiry = datetime.datetime.utcnow() + datetime.timedelta(
             seconds=int(d['expires_in']))
 
+      extracted_id_token = None
       if 'id_token' in d:
-        d['id_token'] = _extract_id_token(d['id_token'])
+        extracted_id_token = _extract_id_token(d['id_token'])
 
       logger.info('Successfully retrieved access token')
       return OAuth2Credentials(access_token, self.client_id,
                                self.client_secret, refresh_token, token_expiry,
                                self.token_uri, self.user_agent,
                                revoke_uri=self.revoke_uri,
-                               id_token=d.get('id_token', None),
+                               id_token=extracted_id_token,
                                token_response=d)
     else:
       logger.info('Failed to retrieve access token: %s', content)
