@@ -26,13 +26,13 @@ import rsa
 import time
 import unittest
 
-from http_mock import HttpMockSequence
+from .http_mock import HttpMockSequence
 from oauth2client.service_account import _ServiceAccountCredentials
 
 
 def datafile(filename):
   # TODO(orestica): Refactor this using pkgutil.get_data
-  f = open(os.path.join(os.path.dirname(__file__), 'data', filename), 'r')
+  f = open(os.path.join(os.path.dirname(__file__), 'data', filename), 'rb')
   data = f.read()
   f.close()
   return data
@@ -58,16 +58,16 @@ class ServiceAccountCredentialsTests(unittest.TestCase):
     pub_key = rsa.PublicKey.load_pkcs1_openssl_pem(
         datafile('publickey_openssl.pem'))
 
-    self.assertTrue(rsa.pkcs1.verify('Google', signature, pub_key))
+    self.assertTrue(rsa.pkcs1.verify(b'Google', signature, pub_key))
 
     try:
-      rsa.pkcs1.verify('Orest', signature, pub_key)
+      rsa.pkcs1.verify(b'Orest', signature, pub_key)
       self.fail('Verification should have failed!')
     except rsa.pkcs1.VerificationError:
       pass  # Expected
 
     try:
-      rsa.pkcs1.verify('Google', 'bad signature', pub_key)
+      rsa.pkcs1.verify(b'Google', b'bad signature', pub_key)
       self.fail('Verification should have failed!')
     except rsa.pkcs1.VerificationError:
       pass  # Expected
@@ -98,8 +98,8 @@ class ServiceAccountCredentialsTests(unittest.TestCase):
     token_response_first = {'access_token': 'first_token', 'expires_in': S}
     token_response_second = {'access_token': 'second_token', 'expires_in': S}
     http = HttpMockSequence([
-        ({'status': '200'}, json.dumps(token_response_first)),
-        ({'status': '200'}, json.dumps(token_response_second)),
+      ({'status': '200'}, json.dumps(token_response_first).encode('utf-8')),
+      ({'status': '200'}, json.dumps(token_response_second).encode('utf-8')),
     ])
 
     token = self.credentials.get_access_token(http=http)

@@ -23,7 +23,10 @@ __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 import datetime
 import keyring
 import unittest
-import mox
+try:
+  from mox3 import mox
+except ImportError:
+  import mox
 
 from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client.client import OAuth2Credentials

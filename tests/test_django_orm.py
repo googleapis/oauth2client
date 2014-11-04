@@ -40,6 +40,8 @@ from oauth2client.client import Credentials
 from oauth2client.client import Flow
 
 # Mock a Django environment
+from django.conf import global_settings
+global_settings.SECRET_KEY = 'NotASecret'
 os.environ['DJANGO_SETTINGS_MODULE'] = 'django_settings'
 sys.modules['django_settings'] = django_settings = imp.new_module('django_settings')
 django_settings.SECRET_KEY = 'xyzzy'

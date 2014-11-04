@@ -32,7 +32,6 @@ import stat
 import tempfile
 import unittest
 
-from http_mock import HttpMockSequence
 from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client import file
 from oauth2client import locked_file
@@ -41,6 +40,11 @@ from oauth2client import util
 from oauth2client.client import AccessTokenCredentials
 from oauth2client.client import AssertionCredentials
 from oauth2client.client import OAuth2Credentials
+try:
+  # Python2
+  from future_builtins import oct
+except:
+  pass
 
 
 FILENAME = tempfile.mktemp('oauth2client_test.data')
@@ -96,7 +100,7 @@ class OAuth2ClientFileTests(unittest.TestCase):
     # Write a file with a pickled OAuth2Credentials.
     credentials = self.create_test_credentials()
 
-    f = open(FILENAME, 'w')
+    f = open(FILENAME, 'wb')
     pickle.dump(credentials, f)
     f.close()
 
@@ -154,13 +158,13 @@ class OAuth2ClientFileTests(unittest.TestCase):
     mode = os.stat(FILENAME).st_mode
 
     if os.name == 'posix':
-      self.assertEquals('0600', oct(stat.S_IMODE(os.stat(FILENAME).st_mode)))
+      self.assertEquals('0o600', oct(stat.S_IMODE(os.stat(FILENAME).st_mode)))
 
   def test_read_only_file_fail_lock(self):
     credentials = self.create_test_credentials()
 
     open(FILENAME, 'a+b').close()
-    os.chmod(FILENAME, 0400)
+    os.chmod(FILENAME, 0o400)
 
     store = multistore_file.get_credential_storage(
         FILENAME,
@@ -171,7 +175,7 @@ class OAuth2ClientFileTests(unittest.TestCase):
     store.put(credentials)
     if os.name == 'posix':
       self.assertTrue(store._multistore._read_only)
-    os.chmod(FILENAME, 0600)
+    os.chmod(FILENAME, 0o600)
 
   def test_multistore_no_symbolic_link_files(self):
     if hasattr(os, 'symlink'):
@@ -221,7 +225,7 @@ class OAuth2ClientFileTests(unittest.TestCase):
     self.assertEquals(None, credentials)
 
     if os.name == 'posix':
-      self.assertEquals('0600', oct(stat.S_IMODE(os.stat(FILENAME).st_mode)))
+      self.assertEquals('0o600', oct(stat.S_IMODE(os.stat(FILENAME).st_mode)))
 
   def test_multistore_file_custom_key(self):
     credentials = self.create_test_credentials()

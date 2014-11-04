@@ -1,12 +1,16 @@
 language: python
 python: 2.7
 env:
-  - TOX_ENV=py26
-  - TOX_ENV=py27
-  - TOX_ENV=pypy
+  - TOX_ENV=py26openssl13
+  - TOX_ENV=py26openssl14
+  - TOX_ENV=py27openssl13
+  - TOX_ENV=py27openssl14
+  - TOX_ENV=py33openssl14
+  - TOX_ENV=py34openssl14
+  - TOX_ENV=pypyopenssl13
+  - TOX_ENV=pypyopenssl14
 install:
   - pip install tox
-  - pip install .
 script:
   - tox -e $TOX_ENV
 notifications:

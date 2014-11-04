@@ -23,11 +23,12 @@ Unit tests for oauth2client.
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 import os
+import sys
 import tempfile
 import time
 import unittest
 
-from http_mock import HttpMockSequence
+from .http_mock import HttpMockSequence
 from oauth2client import crypt
 from oauth2client.client import Credentials
 from oauth2client.client import SignedJwtAssertionCredentials
@@ -39,7 +40,7 @@ from oauth2client.file import Storage
 
 
 def datafile(filename):
-  f = open(os.path.join(os.path.dirname(__file__), 'data', filename), 'r')
+  f = open(os.path.join(os.path.dirname(__file__), 'data', filename), 'rb')
   data = f.read()
   f.close()
   return data
@@ -67,11 +68,10 @@ class CryptTests(unittest.TestCase):
     signature = signer.sign('foo')
 
     verifier = self.verifier.from_string(public_key, True)
+    self.assertTrue(verifier.verify(b'foo', signature))
 
-    self.assertTrue(verifier.verify('foo', signature))
-
-    self.assertFalse(verifier.verify('bar', signature))
-    self.assertFalse(verifier.verify('foo', 'bad signature'))
+    self.assertFalse(verifier.verify(b'bar', signature))
+    self.assertFalse(verifier.verify(b'foo', 'bad signagure'))
 
   def _check_jwt_failure(self, jwt, expected_error):
     public_key = datafile('publickey.pem')
@@ -88,7 +88,7 @@ class CryptTests(unittest.TestCase):
     private_key = datafile('privatekey.%s' % self.format)
     signer = self.signer.from_string(private_key)
     audience = 'some_audience_address@testing.gserviceaccount.com'
-    now = long(time.time())
+    now = int(time.time())
 
     return crypt.make_signed_jwt(signer, {
         'aud': audience,
@@ -212,11 +212,11 @@ class SignedJwtAssertionCredentialsTests(unittest.TestCase):
         scope='read+write',
         sub='joe@example.org')
     http = HttpMockSequence([
-        ({'status': '200'}, '{"access_token":"1/3w","expires_in":3600}'),
+        ({'status': '200'}, b'{"access_token":"1/3w","expires_in":3600}'),
         ({'status': '200'}, 'echo_request_headers'),
     ])
     http = credentials.authorize(http)
-    _, content = http.request('http://example.org')
+    resp, content = http.request('http://example.org')
     self.assertEqual('Bearer 1/3w', content['Authorization'])
 
   def test_credentials_to_from_json(self):
@@ -235,9 +235,9 @@ class SignedJwtAssertionCredentialsTests(unittest.TestCase):
 
   def _credentials_refresh(self, credentials):
     http = HttpMockSequence([
-        ({'status': '200'}, '{"access_token":"1/3w","expires_in":3600}'),
-        ({'status': '401'}, ''),
-        ({'status': '200'}, '{"access_token":"3/3w","expires_in":3600}'),
+        ({'status': '200'}, b'{"access_token":"1/3w","expires_in":3600}'),
+        ({'status': '401'}, b''),
+        ({'status': '200'}, b'{"access_token":"3/3w","expires_in":3600}'),
         ({'status': '200'}, 'echo_request_headers'),
     ])
     http = credentials.authorize(http)

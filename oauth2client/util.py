@@ -31,9 +31,12 @@ __all__ = [
 
 import inspect
 import logging
+import sys
 import types
-import urllib
-import urlparse
+
+import six
+from six.moves import urllib
+
 
 logger = logging.getLogger(__name__)
 
@@ -129,7 +132,7 @@ def positional(max_positional_args):
       return wrapped(*args, **kwargs)
     return positional_wrapper
 
-  if isinstance(max_positional_args, (int, long)):
+  if isinstance(max_positional_args, six.integer_types):
     return positional_decorator
   else:
     args, _, _, defaults = inspect.getargspec(max_positional_args)
@@ -149,7 +152,11 @@ def scopes_to_string(scopes):
   Returns:
     The scopes formatted as a single string.
   """
-  if isinstance(scopes, types.StringTypes):
+  try:
+    is_string = isinstance(scopes, basestring)
+  except NameError:
+    is_string = isinstance(scopes, str)
+  if is_string:
     return scopes
   else:
     return ' '.join(scopes)
@@ -186,8 +193,8 @@ def _add_query_parameter(url, name, value):
   if value is None:
     return url
   else:
-    parsed = list(urlparse.urlparse(url))
-    q = dict(urlparse.parse_qsl(parsed[4]))
+    parsed = list(urllib.parse.urlparse(url))
+    q = dict(urllib.parse.parse_qsl(parsed[4]))
     q[name] = value
-    parsed[4] = urllib.urlencode(q)
-    return urlparse.urlunparse(parsed)
+    parsed[4] = urllib.parse.urlencode(q)
+    return urllib.parse.urlunparse(parsed)
