@@ -1,3 +1,8 @@
+v.next
+
+  Change `flow.step2_exchange` to preserve the raw `id_token` in the
+	`token_response` field.
+
 v1.3.2
   Version 1.3.2
 
@@ -8,7 +13,7 @@ v1.3.1
   Version 1.3.1
 
   Quick bugfix for bad error handling in from_json.
-	
+
 v1.3
   Version 1.3
 
@@ -31,7 +36,7 @@ v1.3
   - Better logging for missing `refresh_token` in server replies (#21).
   - Support `login_hint` (#18, thanks @jay0lee).
   - Better overwrite options in `django_orm.Storage`. (#2, thanks
-	@lraccomando). 
+	@lraccomando).
 
 
 v1.2
