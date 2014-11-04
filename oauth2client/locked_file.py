@@ -28,6 +28,8 @@ Usage:
     f.unlock_and_close()
 """
 
+from __future__ import print_function
+
 __author__ = 'cache@google.com (David T McWherter)'
 
 import errno

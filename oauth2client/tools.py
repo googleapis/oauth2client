@@ -22,6 +22,7 @@ the same directory.
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 __all__ = ['argparser', 'run_flow', 'run', 'message_if_missing']
 
+from __future__ import print_function
 
 import argparse
 import BaseHTTPServer

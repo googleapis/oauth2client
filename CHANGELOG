@@ -1,5 +1,8 @@
 v.next
 
+  Merge python3 branch! Massive thanks due to @pferate and @methane for doing
+	the heavy lifting.
+
   Change `flow.step2_exchange` to preserve the raw `id_token` in the
 	`token_response` field.
 

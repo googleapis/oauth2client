@@ -115,4 +115,4 @@ def validate_token(key, token, user_id, action_id="", current_time=None):
   different = 0
   for x, y in zip(bytearray(token), bytearray(expected_token)):
     different |= x ^ y
-  return different == 0
+  return not different

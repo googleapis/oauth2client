@@ -762,7 +762,7 @@ class OAuth2Credentials(Credentials):
     logger.info('Refreshing access_token')
     resp, content = http_request(
         self.token_uri, method='POST', body=body, headers=headers)
-    if six.PY3:
+    if six.PY3 and isinstance(content, bytes):
       content = content.decode('utf-8')
     if resp.status == 200:
       d = json.loads(content)
@@ -953,6 +953,7 @@ class GoogleCredentials(OAuth2Credentials):
   service that requires authentication:
 
   <code>
+  from __future__ import print_function  # unnecessary in python3
   from googleapiclient.discovery import build
   from oauth2client.client import GoogleCredentials
 

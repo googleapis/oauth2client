@@ -15,6 +15,7 @@
 """This module holds the old run() function which is deprecated, the
 tools.run_flow() function should be used in its place."""
 
+from __future__ import print_function
 
 import logging
 import socket
