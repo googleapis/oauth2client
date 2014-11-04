@@ -1838,14 +1838,14 @@ class OAuth2WebServerFlow(Flow):
 
       extracted_id_token = None
       if 'id_token' in d:
-        extracted_id_token = _extract_id_token(d['id_token'])
+        d['extracted_id_token'] = _extract_id_token(d['id_token'])
 
       logger.info('Successfully retrieved access token')
       return OAuth2Credentials(access_token, self.client_id,
                                self.client_secret, refresh_token, token_expiry,
                                self.token_uri, self.user_agent,
                                revoke_uri=self.revoke_uri,
-                               id_token=extracted_id_token,
+                               id_token=d.get('extracted_id_token', None),
                                token_response=d)
     else:
       logger.info('Failed to retrieve access token: %s', content)
