@@ -19,10 +19,10 @@ generated credentials in a common file that is used by other example apps in
 the same directory.
 """
 
+from __future__ import print_function
+
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 __all__ = ['argparser', 'run_flow', 'run', 'message_if_missing']
-
-from __future__ import print_function
 
 import argparse
 import BaseHTTPServer
