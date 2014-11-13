@@ -24,12 +24,12 @@ from __future__ import print_function
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 __all__ = ['argparser', 'run_flow', 'run', 'message_if_missing']
 
-import BaseHTTPServer
 import logging
 import socket
 import sys
 import webbrowser
 
+from six.moves import BaseHTTPServer
 from six.moves import urllib
 
 from oauth2client import client
