@@ -1,7 +1,10 @@
-v.next
+v1.4
+  Version 1.4
 
   Merge python3 branch! Massive thanks due to @pferate and @methane for doing
 	the heavy lifting.
+
+  Make oauth2client.tools import gracefully if argparse isn't present.
 
   Change `flow.step2_exchange` to preserve the raw `id_token` in the
 	`token_response` field.

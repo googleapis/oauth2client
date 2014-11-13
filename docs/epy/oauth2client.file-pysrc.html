@@ -163,7 +163,7 @@ oauth2client.appengine.OAuth2Decorator.credentials" class="py-name" href="#" onc
 <a name="L90"></a><tt class="py-lineno"> 90</tt>  <tt class="py-line"><tt class="py-docstring">    simple version of "touch" to ensure the file has been created.</tt> </tt>
 <a name="L91"></a><tt class="py-lineno"> 91</tt>  <tt class="py-line"><tt class="py-docstring">    """</tt> </tt>
 <a name="L92"></a><tt class="py-lineno"> 92</tt>  <tt class="py-line">    <tt class="py-keyword">if</tt> <tt class="py-keyword">not</tt> <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">path</tt><tt class="py-op">.</tt><tt class="py-name">exists</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_filename</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
-<a name="L93"></a><tt class="py-lineno"> 93</tt>  <tt class="py-line">      <tt class="py-name">old_umask</tt> <tt class="py-op">=</tt> <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">umask</tt><tt class="py-op">(</tt><tt class="py-number">0177</tt><tt class="py-op">)</tt> </tt>
+<a name="L93"></a><tt class="py-lineno"> 93</tt>  <tt class="py-line">      <tt class="py-name">old_umask</tt> <tt class="py-op">=</tt> <tt class="py-name">os</tt><tt class="py-op">.</tt><tt class="py-name">umask</tt><tt class="py-op">(</tt><tt class="py-number">0o177</tt><tt class="py-op">)</tt> </tt>
 <a name="L94"></a><tt class="py-lineno"> 94</tt>  <tt class="py-line">      <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
 <a name="L95"></a><tt class="py-lineno"> 95</tt>  <tt class="py-line">        <tt class="py-name">open</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_filename</tt><tt class="py-op">,</tt> <tt class="py-string">'a+b'</tt><tt class="py-op">)</tt><tt class="py-op">.</tt><tt class="py-name">close</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
 <a name="L96"></a><tt class="py-lineno"> 96</tt>  <tt class="py-line">      <tt class="py-keyword">finally</tt><tt class="py-op">:</tt> </tt>
@@ -182,7 +182,7 @@ oauth2client.appengine.OAuth2Decorator.credentials" class="py-name" href="#" onc
 <a name="L109"></a><tt class="py-lineno">109</tt>  <tt class="py-line">    <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-20" class="py-name" targets="Method oauth2client.file.Storage._create_file_if_needed()=oauth2client.file.Storage-class.html#_create_file_if_needed,Method oauth2client.multistore_file._MultiStore._create_file_if_needed()=oauth2client.multistore_file._MultiStore-class.html#_create_file_if_needed"><a title="oauth2client.file.Storage._create_file_if_needed
 oauth2client.multistore_file._MultiStore._create_file_if_needed" class="py-name" href="#" onclick="return doclink('link-20', '_create_file_if_needed', 'link-20');">_create_file_if_needed</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
 <a name="L110"></a><tt class="py-lineno">110</tt>  <tt class="py-line">    <tt class="py-name">self</tt><tt class="py-op">.</tt><tt id="link-21" class="py-name"><a title="oauth2client.file.Storage._validate_file" class="py-name" href="#" onclick="return doclink('link-21', '_validate_file', 'link-12');">_validate_file</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
-<a name="L111"></a><tt class="py-lineno">111</tt>  <tt class="py-line">    <tt class="py-name">f</tt> <tt class="py-op">=</tt> <tt class="py-name">open</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_filename</tt><tt class="py-op">,</tt> <tt class="py-string">'wb'</tt><tt class="py-op">)</tt> </tt>
+<a name="L111"></a><tt class="py-lineno">111</tt>  <tt class="py-line">    <tt class="py-name">f</tt> <tt class="py-op">=</tt> <tt class="py-name">open</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">_filename</tt><tt class="py-op">,</tt> <tt class="py-string">'w'</tt><tt class="py-op">)</tt> </tt>
 <a name="L112"></a><tt class="py-lineno">112</tt>  <tt class="py-line">    <tt class="py-name">f</tt><tt class="py-op">.</tt><tt class="py-name">write</tt><tt class="py-op">(</tt><tt id="link-22" class="py-name"><a title="oauth2client.appengine.CredentialsModel.credentials
 oauth2client.appengine.CredentialsNDBModel.credentials
 oauth2client.appengine.OAuth2Decorator.credentials" class="py-name" href="#" onclick="return doclink('link-22', 'credentials', 'link-11');">credentials</a></tt><tt class="py-op">.</tt><tt id="link-23" class="py-name" targets="Method oauth2client.client.Credentials.to_json()=oauth2client.client.Credentials-class.html#to_json,Method oauth2client.client.OAuth2Credentials.to_json()=oauth2client.client.OAuth2Credentials-class.html#to_json"><a title="oauth2client.client.Credentials.to_json
@@ -230,7 +230,7 @@ expandto(location.href);
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Mon Sep 29 15:21:53 2014
+    Generated by Epydoc 3.0.1 on Thu Nov 13 12:43:44 2014
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

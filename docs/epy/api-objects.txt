@@ -106,6 +106,7 @@ oauth2client.tools	oauth2client.tools-module.html
 oauth2client.tools.argparser	oauth2client.tools-module.html#argparser
 oauth2client.tools._CLIENT_SECRETS_MESSAGE	oauth2client.tools-module.html#_CLIENT_SECRETS_MESSAGE
 oauth2client.tools.message_if_missing	oauth2client.tools-module.html#message_if_missing
+oauth2client.tools._CreateArgumentParser	oauth2client.tools-module.html#_CreateArgumentParser
 oauth2client.tools.run	oauth2client.tools-module.html#run
 oauth2client.tools.run_flow	oauth2client.tools-module.html#run_flow
 oauth2client.util	oauth2client.util-module.html
@@ -121,6 +122,7 @@ oauth2client.util.positional_parameters_enforcement	oauth2client.util-module.htm
 oauth2client.util.POSITIONAL_SET	oauth2client.util-module.html#POSITIONAL_SET
 oauth2client.xsrfutil	oauth2client.xsrfutil-module.html
 oauth2client.xsrfutil.validate_token	oauth2client.xsrfutil-module.html#validate_token
+oauth2client.xsrfutil._force_bytes	oauth2client.xsrfutil-module.html#_force_bytes
 oauth2client.xsrfutil.DEFAULT_TIMEOUT_SECS	oauth2client.xsrfutil-module.html#DEFAULT_TIMEOUT_SECS
 oauth2client.xsrfutil.DELIMITER	oauth2client.xsrfutil-module.html#DELIMITER
 oauth2client.xsrfutil.generate_token	oauth2client.xsrfutil-module.html#generate_token
