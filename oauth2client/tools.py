@@ -47,28 +47,27 @@ with information from the APIs Console <https://code.google.com/apis/console>.
 
 """
 
-# argparser is an ArgumentParser that contains command-line options expected
-# by tools.run(). Pass it in as part of the 'parents' argument to your own
-# ArgumentParser.
-argparser = _CreateArgumentParser()
-
 def _CreateArgumentParser():
   try:
     import argparse
   except ImportError:
     return None
-  argparser = argparse.ArgumentParser(add_help=False)
-  argparser.add_argument('--auth_host_name', default='localhost',
-                         help='Hostname when running a local web server.')
-  argparser.add_argument('--noauth_local_webserver', action='store_true',
-                         default=False, help='Do not run a local web server.')
-  argparser.add_argument('--auth_host_port', default=[8080, 8090], type=int,
-                         nargs='*', help='Port web server should listen on.')
-  argparser.add_argument('--logging_level', default='ERROR',
-                         choices=['DEBUG', 'INFO', 'WARNING', 'ERROR',
-                                  'CRITICAL'],
-                         help='Set the logging level of detail.')
-  return argparser
+  parser = argparse.ArgumentParser(add_help=False)
+  parser.add_argument('--auth_host_name', default='localhost',
+                      help='Hostname when running a local web server.')
+  parser.add_argument('--noauth_local_webserver', action='store_true',
+                      default=False, help='Do not run a local web server.')
+  parser.add_argument('--auth_host_port', default=[8080, 8090], type=int,
+                      nargs='*', help='Port web server should listen on.')
+  parser.add_argument('--logging_level', default='ERROR',
+                      choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
+                      help='Set the logging level of detail.')
+  return parser
+
+# argparser is an ArgumentParser that contains command-line options expected
+# by tools.run(). Pass it in as part of the 'parents' argument to your own
+# ArgumentParser.
+argparser = _CreateArgumentParser()
 
 
 class ClientRedirectServer(BaseHTTPServer.HTTPServer):
