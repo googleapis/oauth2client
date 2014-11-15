@@ -152,11 +152,7 @@ def scopes_to_string(scopes):
   Returns:
     The scopes formatted as a single string.
   """
-  try:
-    is_string = isinstance(scopes, basestring)
-  except NameError:
-    is_string = isinstance(scopes, str)
-  if is_string:
+  if isinstance(scopes, six.string_types):
     return scopes
   else:
     return ' '.join(scopes)
