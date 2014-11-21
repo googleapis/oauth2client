@@ -1739,7 +1739,7 @@ class OAuth2WebServerFlow(Flow):
     if self.device_uri is None:
       raise ValueError('The value of device_uri must not be None.')
 
-    body = urllib.urlencode({
+    body = urllib.parse.urlencode({
         'client_id': self.client_id,
         'scope': self.scope,
     })
