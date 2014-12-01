@@ -210,9 +210,9 @@ try:
         except IOError as e:
           # If not retrying, then just pass on the error.
           if timeout == 0:
-            raise e
+            raise
           if e.errno != errno.EACCES:
-            raise e
+            raise
           # We could not acquire the lock. Try again.
           if (time.time() - start_time) >= timeout:
             logger.warn('Could not lock %s in %s seconds',
@@ -289,7 +289,7 @@ try:
           return
         except pywintypes.error as e:
           if timeout == 0:
-            raise e
+            raise
 
           # If the error is not that the file is already in use, raise.
           if e[0] != _Win32Opener.FILE_IN_USE_ERROR:
