@@ -60,7 +60,6 @@ from oauth2client.client import SERVICE_ACCOUNT
 from oauth2client.client import Storage
 from oauth2client.client import TokenRevokeError
 from oauth2client.client import VerifyJwtTokenError
-from oauth2client.client import _env_name
 from oauth2client.client import _extract_id_token
 from oauth2client.client import _get_application_default_credential_from_file
 from oauth2client.client import _get_environment
@@ -73,6 +72,7 @@ from oauth2client.client import credentials_from_clientsecrets_and_code
 from oauth2client.client import credentials_from_code
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import save_to_well_known_file
+from oauth2client import client_settings
 from oauth2client.clientsecrets import _loadfile
 from oauth2client.service_account import _ServiceAccountCredentials
 
@@ -151,7 +151,7 @@ class GoogleCredentialsTests(unittest.TestCase):
     self.env_appdata = os.environ.get('APPDATA', None)
     self.os_name = os.name
     from oauth2client import client
-    setattr(client, '_env_name', None)
+    client_settings.ENV_NAME = None
 
   def tearDown(self):
     self.reset_env('SERVER_SOFTWARE', self.env_server_software)
@@ -234,7 +234,8 @@ class GoogleCredentialsTests(unittest.TestCase):
 
     m.ReplayAll()
 
-    self.assertEqual('UNKNOWN', _get_environment(urllib2_urlopen))
+    self.assertEqual(client_settings.DEFAULT_ENV,
+                     _get_environment(urllib2_urlopen))
 
     m.UnsetStubs()
     m.VerifyAll()
@@ -383,9 +384,9 @@ class GoogleCredentialsTests(unittest.TestCase):
 
   def test_env_name(self):
     from oauth2client import client
-    self.assertEqual(None, getattr(client, '_env_name'))
+    self.assertEqual(None, client_settings.ENV_NAME)
     self.test_get_application_default_from_environment_variable_service_account()
-    self.assertEqual('UNKNOWN', getattr(client, '_env_name'))
+    self.assertEqual(client_settings.DEFAULT_ENV, client_settings.ENV_NAME)
 
   def test_get_application_default_from_environment_variable_authorized_user(
       self):
