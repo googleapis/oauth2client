@@ -39,6 +39,7 @@ from .http_mock import HttpMock
 from .http_mock import HttpMockSequence
 from oauth2client import GOOGLE_REVOKE_URI
 from oauth2client import GOOGLE_TOKEN_URI
+from oauth2client import client
 from oauth2client.client import AccessTokenCredentials
 from oauth2client.client import AccessTokenCredentialsError
 from oauth2client.client import AccessTokenRefreshError
@@ -46,6 +47,7 @@ from oauth2client.client import ADC_HELP_MSG
 from oauth2client.client import AssertionCredentials
 from oauth2client.client import AUTHORIZED_USER
 from oauth2client.client import Credentials
+from oauth2client.client import DEFAULT_ENV_NAME
 from oauth2client.client import ApplicationDefaultCredentialsError
 from oauth2client.client import FlowExchangeError
 from oauth2client.client import GoogleCredentials
@@ -72,7 +74,6 @@ from oauth2client.client import credentials_from_clientsecrets_and_code
 from oauth2client.client import credentials_from_code
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import save_to_well_known_file
-from oauth2client import client_settings
 from oauth2client.clientsecrets import _loadfile
 from oauth2client.service_account import _ServiceAccountCredentials
 
@@ -151,7 +152,7 @@ class GoogleCredentialsTests(unittest.TestCase):
     self.env_appdata = os.environ.get('APPDATA', None)
     self.os_name = os.name
     from oauth2client import client
-    client_settings.ENV_NAME = None
+    client.SETTINGS.env_name = None
 
   def tearDown(self):
     self.reset_env('SERVER_SOFTWARE', self.env_server_software)
@@ -234,8 +235,7 @@ class GoogleCredentialsTests(unittest.TestCase):
 
     m.ReplayAll()
 
-    self.assertEqual(client_settings.DEFAULT_ENV,
-                     _get_environment(urllib2_urlopen))
+    self.assertEqual(DEFAULT_ENV_NAME, _get_environment(urllib2_urlopen))
 
     m.UnsetStubs()
     m.VerifyAll()
@@ -384,9 +384,9 @@ class GoogleCredentialsTests(unittest.TestCase):
 
   def test_env_name(self):
     from oauth2client import client
-    self.assertEqual(None, client_settings.ENV_NAME)
+    self.assertEqual(None, client.SETTINGS.env_name)
     self.test_get_application_default_from_environment_variable_service_account()
-    self.assertEqual(client_settings.DEFAULT_ENV, client_settings.ENV_NAME)
+    self.assertEqual(DEFAULT_ENV_NAME, client.SETTINGS.env_name)
 
   def test_get_application_default_from_environment_variable_authorized_user(
       self):

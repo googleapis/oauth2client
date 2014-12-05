@@ -33,7 +33,6 @@ from six.moves import urllib
 
 import httplib2
 from oauth2client import clientsecrets
-from oauth2client import client_settings
 from oauth2client import GOOGLE_AUTH_URI
 from oauth2client import GOOGLE_DEVICE_URI
 from oauth2client import GOOGLE_REVOKE_URI
@@ -90,6 +89,10 @@ ADC_HELP_MSG = (
 # The access token along with the seconds in which it expires.
 AccessTokenInfo = collections.namedtuple(
     'AccessTokenInfo', ['access_token', 'expires_in'])
+
+DEFAULT_ENV_NAME = 'UNKNOWN'
+SETTINGS = collections.namedtuple(
+  'Settings', ['env_name'])(env_name=None)
 
 
 class Error(Exception):
@@ -938,24 +941,24 @@ def _get_environment(urlopen=None):
       urlopen: Optional argument. Function used to open a connection to a URL.
 
   Returns:
-      The value of client_settings.ENV_NAME after being set. If already
+      The value of SETTINGS.env_name after being set. If already
           set, simply returns the value.
   """
-  if client_settings.ENV_NAME is not None:
-    return client_settings.ENV_NAME
+  if SETTINGS.env_name is not None:
+    return SETTINGS.env_name
 
   # None is an unset value, not the default.
-  client_settings.ENV_NAME = client_settings.DEFAULT_ENV
+  SETTINGS.env_name = DEFAULT_ENV_NAME
 
   server_software = os.environ.get('SERVER_SOFTWARE', '')
   if server_software.startswith('Google App Engine/'):
-    client_settings.ENV_NAME = 'GAE_PRODUCTION'
+    SETTINGS.env_name = 'GAE_PRODUCTION'
   elif server_software.startswith('Development/'):
-    client_settings.ENV_NAME = 'GAE_LOCAL'
+    SETTINGS.env_name = 'GAE_LOCAL'
   elif _detect_gce_environment(urlopen=urlopen):
-    client_settings.ENV_NAME = 'GCE_PRODUCTION'
+    SETTINGS.env_name = 'GCE_PRODUCTION'
 
-  return client_settings.ENV_NAME
+  return SETTINGS.env_name
 
 
 class GoogleCredentials(OAuth2Credentials):

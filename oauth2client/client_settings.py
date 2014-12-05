@@ -1,2 +1,0 @@
-ENV_NAME = None
-DEFAULT_ENV = 'UNKNOWN'
