@@ -1037,18 +1037,24 @@ class GoogleCredentials(OAuth2Credentials):
     }
 
   @staticmethod
-  def get_application_default():
-    """Get the Application Default Credentials for the current environment.
+  def _get_implicit_credentials():
+    """Gets credentials implicitly from the environment.
+
+    Checks environment in order of precedence:
+    - Google App Engine (production and testing)
+    - Environment variable GOOGLE_APPLICATION_CREDENTIALS pointing to
+      a file with stored credentials information.
+    - Stored "well known" file associated with `gcloud` command line tool.
+    - Google Compute Engine production environment.
 
     Exceptions:
       ApplicationDefaultCredentialsError: raised when the credentials fail
-                                          to be retrieved.
+          to be retrieved.
     """
-
     env_name = _get_environment()
 
     if env_name in ('GAE_PRODUCTION', 'GAE_LOCAL'):
-      # if we are running inside Google App Engine
+      # If we are running inside Google App Engine
       # there is no need to look for credentials in local files
       application_default_credential_filename = None
       well_known_file = None
@@ -1080,6 +1086,16 @@ class GoogleCredentials(OAuth2Credentials):
       return _get_application_default_credential_GCE()
     else:
       raise ApplicationDefaultCredentialsError(ADC_HELP_MSG)
+
+  @staticmethod
+  def get_application_default():
+    """Get the Application Default Credentials for the current environment.
+
+    Exceptions:
+      ApplicationDefaultCredentialsError: raised when the credentials fail
+                                          to be retrieved.
+    """
+    return GoogleCredentials._get_implicit_credentials()
 
   @staticmethod
   def from_stream(credential_filename):
