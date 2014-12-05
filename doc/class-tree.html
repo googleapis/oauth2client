@@ -63,53 +63,13 @@
     </li>
     <li> <strong class="uidlink"><i>unreachable</i></strong>
     </li>
-    <li> <strong class="uidlink">SocketServer.BaseRequestHandler</strong>:
-      <em class="summary">Base class for request handler classes.</em>
-    <ul>
-    <li> <strong class="uidlink">SocketServer.StreamRequestHandler</strong>:
-      <em class="summary">Define self.rfile and self.wfile for stream sockets.</em>
-    <ul>
-    <li> <strong class="uidlink">BaseHTTPServer.BaseHTTPRequestHandler</strong>:
-      <em class="summary">HTTP request handler base class.</em>
-    <ul>
-    <li> <strong class="uidlink"><a href="oauth2client.tools.ClientRedirectHandler-class.html" onclick="show_private();">oauth2client.tools.ClientRedirectHandler</a></strong>:
-      <em class="summary">A handler for OAuth 2.0 redirects back to localhost.</em>
-    </li>
-    </ul>
-    </li>
-    </ul>
-    </li>
-    </ul>
-    </li>
-    <li> <strong class="uidlink">SocketServer.BaseServer</strong>:
-      <em class="summary">Base class for server classes.</em>
-    <ul>
-    <li> <strong class="uidlink">SocketServer.TCPServer</strong>:
-      <em class="summary">Base class for various socket-based server classes.</em>
-    <ul>
-    <li> <strong class="uidlink">BaseHTTPServer.HTTPServer</strong>
-    <ul>
-    <li> <strong class="uidlink"><a href="oauth2client.tools.ClientRedirectServer-class.html" onclick="show_private();">oauth2client.tools.ClientRedirectServer</a></strong>:
-      <em class="summary">A server to handle OAuth 2.0 redirects back to localhost.</em>
-    </li>
-    </ul>
-    </li>
-    </ul>
-    </li>
-    </ul>
+    <li> <strong class="uidlink">six.moves.BaseHTTPServer.BaseHTTPRequestHandler</strong>
     </li>
     <li> <strong class="uidlink">django.db.models.Field</strong>
     </li>
     <li> <strong class="uidlink">django.db.models.Field</strong>
     </li>
-    <li> <strong class="uidlink">rfc822.Message</strong>:
-      <em class="summary">Represents a single RFC 2822-compliant message.</em>
-    <ul>
-    <li> <strong class="uidlink"><a href="mimetools.Message-class.html">mimetools.Message</a></strong>:
-      <em class="summary">A derived class of rfc822.Message that knows about MIME headers and
-        contains some hooks for decoding encoded and multipart messages.</em>
-    </li>
-    </ul>
+    <li> <strong class="uidlink">six.moves.BaseHTTPServer.HTTPServer</strong>
     </li>
     <li> <strong class="uidlink">google.appengine.ext.db.Model</strong>
     </li>
@@ -129,8 +89,7 @@
       <em class="summary">Common base class for all non-exit exceptions.</em>
     <ul>
     <li> <strong class="uidlink"><a href="oauth2client.locked_file.AlreadyLockedException-class.html">oauth2client.locked_file.AlreadyLockedException</a></strong>:
-      <em class="summary">Trying to lock a file that has already been locked by the 
-        LockedFile.</em>
+      <em class="summary">Trying to lock a file that has already been locked by the LockedFile.</em>
     </li>
     <li> <strong class="uidlink"><a href="oauth2client.crypt.AppIdentityError-class.html">oauth2client.crypt.AppIdentityError</a></strong>
     </li>
@@ -140,56 +99,34 @@
     <li> <strong class="uidlink"><a href="oauth2client.locked_file.CredentialsFileSymbolicLinkError-class.html">oauth2client.locked_file.CredentialsFileSymbolicLinkError</a></strong>:
       <em class="summary">Credentials files must not be symbolic links.</em>
     </li>
-    <li> <strong class="uidlink"><a href="oauth2client.multistore_file.Error-class.html">oauth2client.multistore_file.Error</a></strong>:
-      <em class="summary">Base error for this module.</em>
-    <ul>
-    <li> <strong class="uidlink"><a href="oauth2client.multistore_file.NewerCredentialStoreError-class.html">oauth2client.multistore_file.NewerCredentialStoreError</a></strong>:
-      <em class="summary">The credential store is a newer version that supported.</em>
-    </li>
-    </ul>
-    </li>
     <li> <strong class="uidlink"><a href="oauth2client.clientsecrets.Error-class.html">oauth2client.clientsecrets.Error</a></strong>:
       <em class="summary">Base error for this module.</em>
-    <ul>
-    <li> <strong class="uidlink"><a href="oauth2client.clientsecrets.InvalidClientSecretsError-class.html">oauth2client.clientsecrets.InvalidClientSecretsError</a></strong>:
-      <em class="summary">Format of ClientSecrets file is invalid.</em>
-    </li>
-    </ul>
     </li>
     <li> <strong class="uidlink"><a href="oauth2client.client.Error-class.html">oauth2client.client.Error</a></strong>:
       <em class="summary">Base error for this module.</em>
-    <ul>
-    <li> <strong class="uidlink"><a href="oauth2client.client.AccessTokenCredentialsError-class.html">oauth2client.client.AccessTokenCredentialsError</a></strong>:
-      <em class="summary">Having only the access_token means no refresh is possible.</em>
     </li>
-    <li> <strong class="uidlink"><a href="oauth2client.client.AccessTokenRefreshError-class.html">oauth2client.client.AccessTokenRefreshError</a></strong>:
-      <em class="summary">Error trying to refresh an expired access token.</em>
-    </li>
-    <li> <strong class="uidlink"><a href="oauth2client.client.FlowExchangeError-class.html">oauth2client.client.FlowExchangeError</a></strong>:
-      <em class="summary">Error trying to exchange an authorization grant for an access 
-        token.</em>
-    </li>
-    <li> <strong class="uidlink"><a href="oauth2client.client.NonAsciiHeaderError-class.html">oauth2client.client.NonAsciiHeaderError</a></strong>:
-      <em class="summary">Header names and values must be ASCII strings.</em>
-    </li>
-    <li> <strong class="uidlink"><a href="oauth2client.client.TokenRevokeError-class.html">oauth2client.client.TokenRevokeError</a></strong>:
-      <em class="summary">Error trying to revoke a token.</em>
-    </li>
-    <li> <strong class="uidlink"><a href="oauth2client.client.UnknownClientSecretsFlowError-class.html">oauth2client.client.UnknownClientSecretsFlowError</a></strong>:
-      <em class="summary">The client secrets file called for an unknown type of OAuth 2.0 
-        flow.</em>
-    </li>
-    <li> <strong class="uidlink"><a href="oauth2client.client.VerifyJwtTokenError-class.html">oauth2client.client.VerifyJwtTokenError</a></strong>:
-      <em class="summary">Could on retrieve certificates for validation.</em>
-    </li>
-    </ul>
+    <li> <strong class="uidlink"><a href="oauth2client.multistore_file.Error-class.html">oauth2client.multistore_file.Error</a></strong>:
+      <em class="summary">Base error for this module.</em>
     </li>
     <li> <strong class="uidlink"><a href="oauth2client.appengine.InvalidClientSecretsError-class.html">oauth2client.appengine.InvalidClientSecretsError</a></strong>:
-      <em class="summary">The client_secrets.json file is malformed or missing required 
-        fields.</em>
+      <em class="summary">The client_secrets.json file is malformed or missing required fields.</em>
     </li>
     <li> <strong class="uidlink"><a href="oauth2client.appengine.InvalidXsrfTokenError-class.html">oauth2client.appengine.InvalidXsrfTokenError</a></strong>:
       <em class="summary">The XSRF token is invalid or expired.</em>
+    </li>
+    <li> <strong class="uidlink">exceptions.StandardError</strong>:
+      <em class="summary">Base class for all standard Python exceptions that do not represent
+interpreter exiting.</em>
+    <ul>
+    <li> <strong class="uidlink">exceptions.RuntimeError</strong>:
+      <em class="summary">Unspecified run-time error.</em>
+    <ul>
+    <li> <strong class="uidlink">exceptions.NotImplementedError</strong>:
+      <em class="summary">Method or function hasn't been implemented yet.</em>
+    </li>
+    </ul>
+    </li>
+    </ul>
     </li>
     </ul>
     </li>
@@ -197,35 +134,9 @@
     </li>
     <li> <strong class="uidlink"><a href="oauth2client.client.Credentials-class.html">oauth2client.client.Credentials</a></strong>:
       <em class="summary">Base class for all Credentials objects.</em>
-    <ul>
-    <li> <strong class="uidlink"><a href="oauth2client.client.OAuth2Credentials-class.html">oauth2client.client.OAuth2Credentials</a></strong>:
-      <em class="summary">Credentials object for OAuth 2.0.</em>
-    <ul>
-    <li> <strong class="uidlink"><a href="oauth2client.client.AccessTokenCredentials-class.html">oauth2client.client.AccessTokenCredentials</a></strong>:
-      <em class="summary">Credentials object for OAuth 2.0.</em>
-    </li>
-    <li> <strong class="uidlink"><a href="oauth2client.client.AssertionCredentials-class.html">oauth2client.client.AssertionCredentials</a></strong>:
-      <em class="summary">Abstract Credentials object used for OAuth 2.0 assertion grants.</em>
-    <ul>
-    <li> <strong class="uidlink"><a href="oauth2client.gce.AppAssertionCredentials-class.html">oauth2client.gce.AppAssertionCredentials</a></strong>:
-      <em class="summary">Credentials object for Compute Engine Assertion Grants</em>
-    </li>
-    <li> <strong class="uidlink"><a href="oauth2client.client.SignedJwtAssertionCredentials-class.html">oauth2client.client.SignedJwtAssertionCredentials</a></strong>:
-      <em class="summary">Credentials object used for OAuth 2.0 Signed JWT assertion grants.</em>
-    </li>
-    </ul>
-    </li>
-    </ul>
-    </li>
-    </ul>
     </li>
     <li> <strong class="uidlink"><a href="oauth2client.client.Flow-class.html">oauth2client.client.Flow</a></strong>:
       <em class="summary">Base class for all Flow objects.</em>
-    <ul>
-    <li> <strong class="uidlink"><a href="oauth2client.client.OAuth2WebServerFlow-class.html">oauth2client.client.OAuth2WebServerFlow</a></strong>:
-      <em class="summary">Does the Web Server Flow for OAuth 2.0.</em>
-    </li>
-    </ul>
     </li>
     <li> <strong class="uidlink"><a href="oauth2client.locked_file.LockedFile-class.html">oauth2client.locked_file.LockedFile</a></strong>:
       <em class="summary">Represent a file that has exclusive access.</em>
@@ -236,39 +147,14 @@
     <li> <strong class="uidlink"><a href="oauth2client.appengine.OAuth2Decorator-class.html">oauth2client.appengine.OAuth2Decorator</a></strong>:
       <em class="summary">Utility for making OAuth 2.0 easier.</em>
     </li>
-    <li> <strong class="uidlink"><a href="oauth2client.crypt.OpenSSLSigner-class.html">oauth2client.crypt.OpenSSLSigner</a></strong>:
-      <em class="summary">Signs messages with a private key.</em>
-    </li>
-    <li> <strong class="uidlink"><a href="oauth2client.crypt.OpenSSLVerifier-class.html">oauth2client.crypt.OpenSSLVerifier</a></strong>:
-      <em class="summary">Verifies the signature on a message.</em>
-    </li>
     <li> <strong class="uidlink"><a href="oauth2client.client.Storage-class.html">oauth2client.client.Storage</a></strong>:
       <em class="summary">Base class for all Storage objects.</em>
-    <ul>
-    <li> <strong class="uidlink"><a href="oauth2client.file.Storage-class.html">oauth2client.file.Storage</a></strong>:
-      <em class="summary">Store and retrieve a single credential to and from a file.</em>
-    </li>
-    <li> <strong class="uidlink"><a href="oauth2client.keyring_storage.Storage-class.html">oauth2client.keyring_storage.Storage</a></strong>:
-      <em class="summary">Store and retrieve a single credential to and from the keyring.</em>
-    </li>
-    <li> <strong class="uidlink"><a href="oauth2client.multistore_file._MultiStore._Storage-class.html" onclick="show_private();">oauth2client.multistore_file._MultiStore._Storage</a></strong>:
-      <em class="summary">A Storage object that knows how to read/write a single credential.</em>
-    </li>
-    </ul>
     </li>
     <li> <strong class="uidlink"><a href="oauth2client.multistore_file._MultiStore-class.html" onclick="show_private();">oauth2client.multistore_file._MultiStore</a></strong>:
       <em class="summary">A file backed store for multiple credentials.</em>
     </li>
     <li> <strong class="uidlink"><a href="oauth2client.locked_file._Opener-class.html" onclick="show_private();">oauth2client.locked_file._Opener</a></strong>:
       <em class="summary">Base class for different locking primitives.</em>
-    <ul>
-    <li> <strong class="uidlink"><a href="oauth2client.locked_file._FcntlOpener-class.html" onclick="show_private();">oauth2client.locked_file._FcntlOpener</a></strong>:
-      <em class="summary">Open, lock, and unlock a file using fcntl.lockf.</em>
-    </li>
-    <li> <strong class="uidlink"><a href="oauth2client.locked_file._PosixOpener-class.html" onclick="show_private();">oauth2client.locked_file._PosixOpener</a></strong>:
-      <em class="summary">Lock files using Posix advisory lock files.</em>
-    </li>
-    </ul>
     </li>
     </ul>
     </li>
@@ -299,7 +185,7 @@
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Tue Nov 26 11:32:28 2013
+    Generated by Epydoc 3.0.1 on Fri Dec  5 09:51:12 2014
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

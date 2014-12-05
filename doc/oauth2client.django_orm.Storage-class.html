@@ -57,18 +57,33 @@
 </table>
 <!-- ==================== CLASS DESCRIPTION ==================== -->
 <h1 class="epydoc">Class Storage</h1><p class="nomargin-top"><span class="codelink"><a href="oauth2client.django_orm-pysrc.html#Storage">source&nbsp;code</a></span></p>
-<pre class="base-tree">
-    object --+    
-             |    
-<a href="oauth2client.client.Storage-class.html">client.Storage</a> --+
-                 |
-                <strong class="uidshort">Storage</strong>
-</pre>
-
+<center>
+<center>  <map id="uml_class_diagram_for_oauth2cl_41" name="uml_class_diagram_for_oauth2cl_41">
+<area shape="rect" id="node1_9" href="oauth2client.django_orm.Storage-class.html#__init__" title="Constructor for Storage." alt="" coords="18,185,414,204"/>
+<area shape="rect" id="node1_10" href="oauth2client.django_orm.Storage-class.html#locked_get" title="Retrieve Credential from datastore." alt="" coords="18,204,414,223"/>
+<area shape="rect" id="node1_11" href="oauth2client.django_orm.Storage-class.html#locked_put" title="Write a Credentials to the datastore." alt="" coords="18,223,414,241"/>
+<area shape="rect" id="node1_12" href="oauth2client.django_orm.Storage-class.html#locked_delete" title="Delete Credentials from the datastore." alt="" coords="18,241,414,260"/>
+<area shape="rect" id="node1" href="oauth2client.django_orm.Storage-class.html" title="Store and retrieve a single credential to and from the datastore." alt="" coords="5,155,425,267"/>
+<area shape="rect" id="node2_13" href="oauth2client.client.Storage-class.html#acquire_lock" title="Acquires any lock necessary to access this Storage." alt="" coords="154,36,279,55"/>
+<area shape="rect" id="node2_14" href="oauth2client.client.Storage-class.html#release_lock" title="Release the Storage lock." alt="" coords="154,55,279,73"/>
+<area shape="rect" id="node2_15" href="oauth2client.client.Storage-class.html#get" title="Retrieve credential." alt="" coords="154,73,279,92"/>
+<area shape="rect" id="node2_16" href="oauth2client.client.Storage-class.html#put" title="Write a credential." alt="" coords="154,92,279,111"/>
+<area shape="rect" id="node2_17" href="oauth2client.client.Storage-class.html#delete" title="Delete credential." alt="" coords="154,111,279,129"/>
+<area shape="rect" id="node2" href="oauth2client.client.Storage-class.html" title="Base class for all Storage objects." alt="" coords="142,5,291,136"/>
+</map>
+  <img src="uml_class_diagram_for_oauth2cl_41.gif" alt='' usemap="#uml_class_diagram_for_oauth2cl_41" ismap="ismap" class="graph-without-title" />
+</center>
+</center>
 <hr />
-<p>Store and retrieve a single credential to and from the datastore.</p>
-  <p>This Storage helper presumes the Credentials have been stored as a 
-  CredenialsField on a db model class.</p>
+<pre class="literalblock">
+Store and retrieve a single credential to and from
+the datastore.
+
+This Storage helper presumes the Credentials
+have been stored as a CredenialsField
+on a db model class.
+
+</pre>
 
 <!-- ==================== INSTANCE METHODS ==================== -->
 <a name="section-InstanceMethods"></a>
@@ -132,7 +147,8 @@
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td><span class="summary-sig"><a href="oauth2client.django_orm.Storage-class.html#locked_put" class="summary-sig-name">locked_put</a>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">credentials</span>)</span><br />
+        <span class="summary-sig-arg">credentials</span>,
+        <span class="summary-sig-arg">overwrite</span>=<span class="summary-sig-default">False</span>)</span><br />
       Write a Credentials to the datastore.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="oauth2client.django_orm-pysrc.html#Storage.locked_put">source&nbsp;code</a></span>
@@ -301,7 +317,8 @@ Returns:
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">locked_put</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">credentials</span>)</span>
+        <span class="sig-arg">credentials</span>,
+        <span class="sig-arg">overwrite</span>=<span class="sig-default">False</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="oauth2client.django_orm-pysrc.html#Storage.locked_put">source&nbsp;code</a></span>&nbsp;
@@ -313,6 +330,8 @@ Write a Credentials to the datastore.
 
 Args:
   credentials: Credentials, the credentials to store.
+  overwrite: Boolean, indicates whether you would like these credentials to
+                      overwrite any existing stored credentials.
 
 </pre>
   <dl class="fields">
@@ -336,7 +355,10 @@ Args:
     </td>
   </tr></table>
   
-  <p>Delete Credentials from the datastore.</p>
+  <pre class="literalblock">
+Delete Credentials from the datastore.
+
+</pre>
   <dl class="fields">
     <dt>Overrides:
         <a href="oauth2client.client.Storage-class.html#locked_delete">client.Storage.locked_delete</a>
@@ -371,7 +393,7 @@ Args:
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Tue Nov 26 11:32:28 2013
+    Generated by Epydoc 3.0.1 on Fri Dec  5 09:51:13 2014
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

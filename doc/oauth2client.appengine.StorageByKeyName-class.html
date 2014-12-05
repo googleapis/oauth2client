@@ -57,20 +57,32 @@
 </table>
 <!-- ==================== CLASS DESCRIPTION ==================== -->
 <h1 class="epydoc">Class StorageByKeyName</h1><p class="nomargin-top"><span class="codelink"><a href="oauth2client.appengine-pysrc.html#StorageByKeyName">source&nbsp;code</a></span></p>
-<pre class="base-tree">
-    object --+    
-             |    
-<a href="oauth2client.client.Storage-class.html">client.Storage</a> --+
-                 |
-                <strong class="uidshort">StorageByKeyName</strong>
-</pre>
-
+<center>
+<center>  <map id="uml_class_diagram_for_oauth2cl_14" name="uml_class_diagram_for_oauth2cl_14">
+<area shape="rect" id="node1_9" href="oauth2client.appengine.StorageByKeyName-class.html#__init__" title="Constructor for Storage." alt="" coords="18,185,465,204"/>
+<area shape="rect" id="node1_10" href="oauth2client.appengine.StorageByKeyName-class.html#locked_get" title="Retrieve Credential from datastore." alt="" coords="18,204,465,223"/>
+<area shape="rect" id="node1_11" href="oauth2client.appengine.StorageByKeyName-class.html#locked_put" title="Write a Credentials to the datastore." alt="" coords="18,223,465,241"/>
+<area shape="rect" id="node1_12" href="oauth2client.appengine.StorageByKeyName-class.html#locked_delete" title="Delete Credential from datastore." alt="" coords="18,241,465,260"/>
+<area shape="rect" id="node1" href="oauth2client.appengine.StorageByKeyName-class.html" title="Store and retrieve a credential to and from the App Engine datastore." alt="" coords="5,155,476,267"/>
+<area shape="rect" id="node2_13" href="oauth2client.client.Storage-class.html#acquire_lock" title="Acquires any lock necessary to access this Storage." alt="" coords="179,36,305,55"/>
+<area shape="rect" id="node2_14" href="oauth2client.client.Storage-class.html#release_lock" title="Release the Storage lock." alt="" coords="179,55,305,73"/>
+<area shape="rect" id="node2_15" href="oauth2client.client.Storage-class.html#get" title="Retrieve credential." alt="" coords="179,73,305,92"/>
+<area shape="rect" id="node2_16" href="oauth2client.client.Storage-class.html#put" title="Write a credential." alt="" coords="179,92,305,111"/>
+<area shape="rect" id="node2_17" href="oauth2client.client.Storage-class.html#delete" title="Delete credential." alt="" coords="179,111,305,129"/>
+<area shape="rect" id="node2" href="oauth2client.client.Storage-class.html" title="Base class for all Storage objects." alt="" coords="167,5,317,136"/>
+</map>
+  <img src="uml_class_diagram_for_oauth2cl_14.gif" alt='' usemap="#uml_class_diagram_for_oauth2cl_14" ismap="ismap" class="graph-without-title" />
+</center>
+</center>
 <hr />
-<p>Store and retrieve a credential to and from the App Engine 
-  datastore.</p>
-  <p>This Storage helper presumes the Credentials have been stored as a 
-  CredentialsProperty or CredentialsNDBProperty on a datastore model class,
-  and that entities are stored by key_name.</p>
+<pre class="literalblock">
+Store and retrieve a credential to and from the App Engine datastore.
+
+This Storage helper presumes the Credentials have been stored as a
+CredentialsProperty or CredentialsNDBProperty on a datastore model class, and
+that entities are stored by key_name.
+
+</pre>
 
 <!-- ==================== INSTANCE METHODS ==================== -->
 <a name="section-InstanceMethods"></a>
@@ -396,9 +408,13 @@ Returns:
     </td>
   </tr></table>
   
-  <p>Delete entity from datastore.</p>
-  <p>Attempts to delete using the key_name stored on the object, whether or
-  not the given key is in the datastore.</p>
+  <pre class="literalblock">
+Delete entity from datastore.
+
+Attempts to delete using the key_name stored on the object, whether or not
+the given key is in the datastore.
+
+</pre>
   <dl class="fields">
   </dl>
 </td></tr></table>
@@ -425,6 +441,10 @@ Returns:
 
 </pre>
   <dl class="fields">
+    <dt>Decorators:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code>@db.non_transactional(allow_existing= True)</code></li>
+    </ul></dd>
     <dt>Overrides:
         <a href="oauth2client.client.Storage-class.html#locked_get">client.Storage.locked_get</a>
     </dt>
@@ -454,6 +474,10 @@ Args:
 
 </pre>
   <dl class="fields">
+    <dt>Decorators:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code>@db.non_transactional(allow_existing= True)</code></li>
+    </ul></dd>
     <dt>Overrides:
         <a href="oauth2client.client.Storage-class.html#locked_put">client.Storage.locked_put</a>
     </dt>
@@ -474,8 +498,15 @@ Args:
     </td>
   </tr></table>
   
-  <p>Delete Credential from datastore.</p>
+  <pre class="literalblock">
+Delete Credential from datastore.
+
+</pre>
   <dl class="fields">
+    <dt>Decorators:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code>@db.non_transactional(allow_existing= True)</code></li>
+    </ul></dd>
     <dt>Overrides:
         <a href="oauth2client.client.Storage-class.html#locked_delete">client.Storage.locked_delete</a>
     </dt>
@@ -509,7 +540,7 @@ Args:
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Tue Nov 26 11:32:28 2013
+    Generated by Epydoc 3.0.1 on Fri Dec  5 09:51:12 2014
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"
