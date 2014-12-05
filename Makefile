@@ -15,7 +15,7 @@ coverage:
 
 .PHONY: docs
 docs:
-	cd docs; ./build
+	./doc-build
 
 .PHONY: prerelease
 oauth2_prerelease: test

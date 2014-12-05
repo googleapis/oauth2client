@@ -3,6 +3,7 @@
 oauth2client.egg-info/
 build/
 dist/
+docs/
 
 # Test files
 .tox/
