@@ -90,6 +90,10 @@ ADC_HELP_MSG = (
 AccessTokenInfo = collections.namedtuple(
     'AccessTokenInfo', ['access_token', 'expires_in'])
 
+DEFAULT_ENV_NAME = 'UNKNOWN'
+SETTINGS = collections.namedtuple(
+  'Settings', ['env_name'])(env_name=None)
+
 
 class Error(Exception):
   """Base error for this module."""
@@ -910,35 +914,51 @@ class AccessTokenCredentials(OAuth2Credentials):
     self._do_revoke(http_request, self.access_token)
 
 
-_env_name = None
+def _detect_gce_environment(urlopen=None):
+  """Determine if the current environment is Compute Engine.
+
+  Args:
+      urlopen: Optional argument. Function used to open a connection to a URL.
+
+  Returns:
+      Boolean indicating whether or not the current environment is Google
+          Compute Engine.
+  """
+  urlopen = urlopen or urllib.request.urlopen
+
+  try:
+    response = urlopen('http://metadata.google.internal')
+    return any('Metadata-Flavor: Google' in header
+               for header in response.info().headers)
+  except urllib.error.URLError:
+    return False
 
 
 def _get_environment(urlopen=None):
-  """Detect the environment the code is being run on."""
+  """Detect the environment the code is being run on.
 
-  global _env_name
+  Args:
+      urlopen: Optional argument. Function used to open a connection to a URL.
 
-  if _env_name:
-    return _env_name
+  Returns:
+      The value of SETTINGS.env_name after being set. If already
+          set, simply returns the value.
+  """
+  if SETTINGS.env_name is not None:
+    return SETTINGS.env_name
+
+  # None is an unset value, not the default.
+  SETTINGS.env_name = DEFAULT_ENV_NAME
 
   server_software = os.environ.get('SERVER_SOFTWARE', '')
   if server_software.startswith('Google App Engine/'):
-    _env_name = 'GAE_PRODUCTION'
+    SETTINGS.env_name = 'GAE_PRODUCTION'
   elif server_software.startswith('Development/'):
-    _env_name = 'GAE_LOCAL'
-  else:
-    try:
-      if urlopen is None:
-        urlopen = urllib.request.urlopen
-      response = urlopen('http://metadata.google.internal')
-      if any('Metadata-Flavor: Google' in h for h in response.info().headers):
-        _env_name = 'GCE_PRODUCTION'
-      else:
-        _env_name = 'UNKNOWN'
-    except urllib.error.URLError:
-      _env_name = 'UNKNOWN'
+    SETTINGS.env_name = 'GAE_LOCAL'
+  elif _detect_gce_environment(urlopen=urlopen):
+    SETTINGS.env_name = 'GCE_PRODUCTION'
 
-  return _env_name
+  return SETTINGS.env_name
 
 
 class GoogleCredentials(OAuth2Credentials):
@@ -952,37 +972,19 @@ class GoogleCredentials(OAuth2Credentials):
   Here is an example of how to use the Application Default Credentials for a
   service that requires authentication:
 
-  <code>
-  from __future__ import print_function  # unnecessary in python3
-  from googleapiclient.discovery import build
-  from oauth2client.client import GoogleCredentials
+      from googleapiclient.discovery import build
+      from oauth2client.client import GoogleCredentials
 
-  PROJECT = 'bamboo-machine-422'  # replace this with one of your projects
-  ZONE = 'us-central1-a'          # replace this with the zone you care about
+      credentials = GoogleCredentials.get_application_default()
+      service = build('compute', 'v1', credentials=credentials)
 
-  credentials = GoogleCredentials.get_application_default()
-  service = build('compute', 'v1', credentials=credentials)
+      PROJECT = 'bamboo-machine-422'
+      ZONE = 'us-central1-a'
+      request = service.instances().list(project=PROJECT, zone=ZONE)
+      response = request.execute()
 
-  request = service.instances().list(project=PROJECT, zone=ZONE)
-  response = request.execute()
-
-  print(response)
-  </code>
-
-  A service that does not require authentication does not need credentials
-  to be passed in:
-
-  <code>
-  from googleapiclient.discovery import build
-
-  service = build('discovery', 'v1')
-
-  request = service.apis().list()
-  response = request.execute()
-
-  print(response)
-  </code>
-  """
+      print(response)
+ """
 
   def __init__(self, access_token, client_id, client_secret, refresh_token,
                token_expiry, token_uri, user_agent,
