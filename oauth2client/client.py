@@ -1037,6 +1037,115 @@ class GoogleCredentials(OAuth2Credentials):
     }
 
   @staticmethod
+  def _implicit_credentials_from_gae(env_name=None):
+    """Attempts to get implicit credentials in Google App Engine env.
+
+    If the current environment is not detected as App Engine, returns None,
+    indicating no Google App Engine credentials can be detected from the
+    current environment.
+
+    Args:
+        env_name: String, indicating current environment.
+
+    Returns:
+        None, if not in GAE, else an appengine.AppAssertionCredentials object.
+    """
+    env_name = env_name or _get_environment()
+    if env_name not in ('GAE_PRODUCTION', 'GAE_LOCAL'):
+      return None
+
+    return _get_application_default_credential_GAE()
+
+  @staticmethod
+  def _implicit_credentials_from_gce(env_name=None):
+    """Attempts to get implicit credentials in Google Compute Engine env.
+
+    If the current environment is not detected as Compute Engine, returns None,
+    indicating no Google Compute Engine credentials can be detected from the
+    current environment.
+
+    Args:
+        env_name: String, indicating current environment.
+
+    Returns:
+        None, if not in GCE, else a gce.AppAssertionCredentials object.
+    """
+    env_name = env_name or _get_environment()
+    if env_name != 'GCE_PRODUCTION':
+      return None
+
+    return _get_application_default_credential_GCE()
+
+  @staticmethod
+  def _implicit_credentials_from_files(env_name=None):
+    """Attempts to get implicit credentials from local credential files.
+
+    First checks if the environment variable GOOGLE_APPLICATION_CREDENTIALS
+    is set with a filename and then falls back to a configuration file (the
+    "well known" file) associated with the 'gcloud' command line tool.
+
+    Args:
+        env_name: Unused argument.
+
+    Returns:
+        Credentials object associated with the GOOGLE_APPLICATION_CREDENTIALS
+            file or the "well known" file if either exist. If neither file is
+            define, returns None, indicating no credentials from a file can
+            detected from the current environment.
+    """
+    credentials_filename = _get_environment_variable_file()
+    if not credentials_filename:
+      credentials_filename = _get_well_known_file()
+      if os.path.isfile(credentials_filename):
+        extra_help = (' (produced automatically when running'
+                      ' "gcloud auth login" command)')
+      else:
+        credentials_filename = None
+    else:
+      extra_help = (' (pointed to by ' + GOOGLE_APPLICATION_CREDENTIALS +
+                    ' environment variable)')
+
+    if not credentials_filename:
+      return
+
+    try:
+      return _get_application_default_credential_from_file(credentials_filename)
+    except (ApplicationDefaultCredentialsError, ValueError) as error:
+      _raise_exception_for_reading_json(credentials_filename, extra_help, error)
+
+  def _get_implicit_credentials():
+    """Gets credentials implicitly from the environment.
+
+    Checks environment in order of precedence:
+    - Google App Engine (production and testing)
+    - Environment variable GOOGLE_APPLICATION_CREDENTIALS pointing to
+      a file with stored credentials information.
+    - Stored "well known" file associated with `gcloud` command line tool.
+    - Google Compute Engine production environment.
+
+    Exceptions:
+      ApplicationDefaultCredentialsError: raised when the credentials fail
+          to be retrieved.
+    """
+    env_name = _get_environment()
+
+    # Environ checks (in order). Assumes each checker takes `env_name`
+    # as a kwarg.
+    environ_checkers = [
+      cls._implicit_credentials_from_gae,
+      cls._implicit_credentials_from_files,
+      cls._implicit_credentials_from_gce,
+    ]
+
+    for checker in environ_checkers:
+      credentials = checker(env_name=env_name)
+      if credentials is not None:
+        return credentials
+
+    # If no credentials, fail.
+    raise ApplicationDefaultCredentialsError(ADC_HELP_MSG)
+
+  @staticmethod
   def get_application_default():
     """Get the Application Default Credentials for the current environment.
 
@@ -1044,42 +1153,7 @@ class GoogleCredentials(OAuth2Credentials):
       ApplicationDefaultCredentialsError: raised when the credentials fail
                                           to be retrieved.
     """
-
-    env_name = _get_environment()
-
-    if env_name in ('GAE_PRODUCTION', 'GAE_LOCAL'):
-      # if we are running inside Google App Engine
-      # there is no need to look for credentials in local files
-      application_default_credential_filename = None
-      well_known_file = None
-    else:
-      application_default_credential_filename = _get_environment_variable_file()
-      well_known_file = _get_well_known_file()
-      if not os.path.isfile(well_known_file):
-        well_known_file = None
-
-    if application_default_credential_filename:
-      try:
-        return _get_application_default_credential_from_file(
-            application_default_credential_filename)
-      except (ApplicationDefaultCredentialsError, ValueError) as error:
-        extra_help = (' (pointed to by ' + GOOGLE_APPLICATION_CREDENTIALS +
-                      ' environment variable)')
-        _raise_exception_for_reading_json(
-            application_default_credential_filename, extra_help, error)
-    elif well_known_file:
-      try:
-        return _get_application_default_credential_from_file(well_known_file)
-      except (ApplicationDefaultCredentialsError, ValueError) as error:
-        extra_help = (' (produced automatically when running'
-                      ' "gcloud auth login" command)')
-        _raise_exception_for_reading_json(well_known_file, extra_help, error)
-    elif env_name in ('GAE_PRODUCTION', 'GAE_LOCAL'):
-      return _get_application_default_credential_GAE()
-    elif env_name == 'GCE_PRODUCTION':
-      return _get_application_default_credential_GCE()
-    else:
-      raise ApplicationDefaultCredentialsError(ADC_HELP_MSG)
+    return GoogleCredentials._get_implicit_credentials()
 
   @staticmethod
   def from_stream(credential_filename):
