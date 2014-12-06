@@ -91,8 +91,9 @@ AccessTokenInfo = collections.namedtuple(
     'AccessTokenInfo', ['access_token', 'expires_in'])
 
 DEFAULT_ENV_NAME = 'UNKNOWN'
-SETTINGS = collections.namedtuple(
-  'Settings', ['env_name'])(env_name=None)
+class SETTINGS(object):
+  """Settings namespace for globally."""
+  env_name = None
 
 
 class Error(Exception):
@@ -1113,7 +1114,8 @@ class GoogleCredentials(OAuth2Credentials):
     except (ApplicationDefaultCredentialsError, ValueError) as error:
       _raise_exception_for_reading_json(credentials_filename, extra_help, error)
 
-  def _get_implicit_credentials():
+  @classmethod
+  def _get_implicit_credentials(cls):
     """Gets credentials implicitly from the environment.
 
     Checks environment in order of precedence:
