@@ -409,7 +409,7 @@ def clean_headers(headers):
   clean = {}
   try:
     for k, v in six.iteritems(headers):
-      clean[str(k)] = str(v)
+      clean[k.encode('ascii')] = v.encode('ascii')
   except UnicodeEncodeError:
     raise NonAsciiHeaderError(k + ': ' + v)
   return clean
@@ -1252,16 +1252,14 @@ def _get_well_known_file():
   return default_config_path
 
 
-def _get_application_default_credential_from_file(
-    application_default_credential_filename):
+def _get_application_default_credential_from_file(filename):
   """Build the Application Default Credentials from file."""
 
   from oauth2client import service_account
 
   # read the credentials from the file
-  with open(application_default_credential_filename) as (
-      application_default_credential):
-    client_credentials = json.load(application_default_credential)
+  with open(filename) as file_obj:
+    client_credentials = json.load(file_obj)
 
   credentials_type = client_credentials.get('type')
   if credentials_type == AUTHORIZED_USER:
@@ -1545,12 +1543,15 @@ def _extract_id_token(id_token):
   Does the extraction w/o checking the signature.
 
   Args:
-    id_token: string, OAuth 2.0 id_token.
+    id_token: string or bytestring, OAuth 2.0 id_token.
 
   Returns:
     object, The deserialized JSON payload.
   """
-  segments = id_token.split('.')
+  if type(id_token) == bytes:
+    segments = id_token.split(b'.')
+  else:
+    segments = id_token.split(u'.')
 
   if len(segments) != 3:
     raise VerifyJwtTokenError(
@@ -1578,6 +1579,7 @@ def _parse_exchange_token_response(content):
   except Exception:
     # different JSON libs raise different exceptions,
     # so we just do a catch-all here
+    content = content.decode('utf-8')
     resp = dict(urllib.parse.parse_qsl(content))
 
   # some providers respond with 'expires', others with 'expires_in'

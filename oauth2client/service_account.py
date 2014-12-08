@@ -19,6 +19,7 @@ This credentials class is implemented on top of rsa library.
 
 import base64
 import json
+import six
 import time
 
 from pyasn1.codec.ber import decoder
@@ -131,6 +132,8 @@ def _urlsafe_b64encode(data):
 def _get_private_key(private_key_pkcs8_text):
   """Get an RSA private key object from a pkcs8 representation."""
 
+  if not isinstance(private_key_pkcs8_text, six.binary_type):
+    private_key_pkcs8_text = private_key_pkcs8_text.encode('ascii')
   der = rsa.pem.load_pem(private_key_pkcs8_text, 'PRIVATE KEY')
   asn1_private_key, _ = decoder.decode(der, asn1Spec=PrivateKeyInfo())
   return rsa.PrivateKey.load_pkcs1(

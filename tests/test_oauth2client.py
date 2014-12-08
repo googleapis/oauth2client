@@ -545,7 +545,7 @@ class BasicCredentialsTests(unittest.TestCase):
       ])
       http = self.credentials.authorize(http)
       resp, content = http.request('http://example.com')
-      self.assertEqual('Bearer 1/3w', content['Authorization'])
+      self.assertEqual(b'Bearer 1/3w', content[b'Authorization'])
       self.assertFalse(self.credentials.access_token_expired)
       self.assertEqual(token_response, self.credentials.token_response)
 
@@ -615,10 +615,10 @@ class BasicCredentialsTests(unittest.TestCase):
     http = credentials.authorize(http)
     http.request(u'http://example.com', method=u'GET', headers={u'foo': u'bar'})
     for k, v in six.iteritems(http.headers):
-      self.assertEqual(str, type(k))
-      self.assertEqual(str, type(v))
+      self.assertEqual(six.binary_type, type(k))
+      self.assertEqual(six.binary_type, type(v))
 
-    # Test again with unicode strings that can't simple be converted to ASCII.
+    # Test again with unicode strings that can't simply be converted to ASCII.
     try:
       http.request(
           u'http://example.com', method=u'GET', headers={u'foo': u'\N{COMET}'})
@@ -707,7 +707,7 @@ class AccessTokenCredentialsTests(unittest.TestCase):
       ])
     http = self.credentials.authorize(http)
     resp, content = http.request('http://example.com')
-    self.assertEqual('Bearer foo', content['Authorization'])
+    self.assertEqual(b'Bearer foo', content[b'Authorization'])
 
 
 class TestAssertionCredentials(unittest.TestCase):
@@ -738,7 +738,7 @@ class TestAssertionCredentials(unittest.TestCase):
       ])
     http = self.credentials.authorize(http)
     resp, content = http.request('http://example.com')
-    self.assertEqual('Bearer 1/3w', content['Authorization'])
+    self.assertEqual(b'Bearer 1/3w', content[b'Authorization'])
 
   def test_token_revoke_success(self):
     _token_revoke_test_helper(
@@ -769,16 +769,18 @@ class ExtractIdTokenTest(unittest.TestCase):
 
   def test_extract_success(self):
     body = {'foo': 'bar'}
-    payload = base64.urlsafe_b64encode(json.dumps(body)).strip('=')
-    jwt = 'stuff.' + payload + '.signature'
+    body_json = json.dumps(body).encode('ascii')
+    payload = base64.urlsafe_b64encode(body_json).strip(b'=')
+    jwt = b'stuff.' + payload + b'.signature'
 
     extracted = _extract_id_token(jwt)
     self.assertEqual(extracted, body)
 
   def test_extract_failure(self):
     body = {'foo': 'bar'}
-    payload = base64.urlsafe_b64encode(json.dumps(body)).strip('=')
-    jwt = 'stuff.' + payload
+    body_json = json.dumps(body).encode('ascii')
+    payload = base64.urlsafe_b64encode(body_json).strip(b'=')
+    jwt = b'stuff.' + payload
 
     self.assertRaises(VerifyJwtTokenError, _extract_id_token, jwt)
 
@@ -840,14 +842,14 @@ class OAuth2WebServerFlowTest(unittest.TestCase):
 
   def test_urlencoded_exchange_failure(self):
     http = HttpMockSequence([
-      ({'status': '400'}, 'error=invalid_request'),
+      ({'status': '400'}, b'error=invalid_request'),
     ])
 
     try:
       credentials = self.flow.step2_exchange('some random code', http=http)
       self.fail('should raise exception if exchange doesn\'t get 200')
     except FlowExchangeError as e:
-      self.assertEquals('invalid_request', str(e))
+      self.assertEqual('invalid_request', str(e))
 
   def test_exchange_failure_with_json_error(self):
     # Some providers have 'error' attribute as a JSON object
@@ -894,12 +896,12 @@ class OAuth2WebServerFlowTest(unittest.TestCase):
 
     code = 'some random code'
     not_a_dict = FakeDict({'code': code})
-    http = HttpMockSequence([
-      ({'status': '200'},
-      """{ "access_token":"SlAV32hkKG",
-       "expires_in":3600,
-       "refresh_token":"8xLOxBtZp8" }"""),
-      ])
+    payload = (b'{'
+               b'  "access_token":"SlAV32hkKG",'
+               b'  "expires_in":3600,'
+               b'  "refresh_token":"8xLOxBtZp8"'
+               b'}')
+    http = HttpMockSequence([({'status': '200'}, payload),])
 
     credentials = self.flow.step2_exchange(not_a_dict, http=http)
     self.assertEqual('SlAV32hkKG', credentials.access_token)
@@ -972,9 +974,10 @@ class OAuth2WebServerFlowTest(unittest.TestCase):
 
   def test_exchange_id_token(self):
     body = {'foo': 'bar'}
-    payload = base64.urlsafe_b64encode(json.dumps(body)).strip('=')
-    jwt = (base64.urlsafe_b64encode('stuff')+ '.' + payload + '.' +
-           base64.urlsafe_b64encode('signature'))
+    body_json = json.dumps(body).encode('ascii')
+    payload = base64.urlsafe_b64encode(body_json).strip(b'=')
+    jwt = (base64.urlsafe_b64encode(b'stuff') + b'.' + payload + b'.' +
+           base64.urlsafe_b64encode(b'signature'))
 
     http = HttpMockSequence([
       ({'status': '200'}, ("""{ "access_token":"SlAV32hkKG",
@@ -994,7 +997,7 @@ class FlowFromCachedClientsecrets(unittest.TestCase):
 
     flow = flow_from_clientsecrets(
         'some_secrets', '', redirect_uri='oob', cache=cache_mock)
-    self.assertEquals('foo_client_secret', flow.client_secret)
+    self.assertEqual('foo_client_secret', flow.client_secret)
 
 
 class CredentialsFromCodeTests(unittest.TestCase):
@@ -1014,7 +1017,7 @@ class CredentialsFromCodeTests(unittest.TestCase):
     credentials = credentials_from_code(self.client_id, self.client_secret,
         self.scope, self.code, redirect_uri=self.redirect_uri,
         http=http)
-    self.assertEquals(credentials.access_token, token)
+    self.assertEqual(credentials.access_token, token)
     self.assertNotEqual(None, credentials.token_expiry)
 
   def test_exchange_code_for_token_fail(self):
@@ -1039,7 +1042,7 @@ class CredentialsFromCodeTests(unittest.TestCase):
     credentials = credentials_from_clientsecrets_and_code(
                             datafile('client_secrets.json'), self.scope,
                             self.code, http=http)
-    self.assertEquals(credentials.access_token, 'asdfghjkl')
+    self.assertEqual(credentials.access_token, 'asdfghjkl')
     self.assertNotEqual(None, credentials.token_expiry)
 
   def test_exchange_code_and_cached_file_for_token(self):
@@ -1052,7 +1055,7 @@ class CredentialsFromCodeTests(unittest.TestCase):
     credentials = credentials_from_clientsecrets_and_code(
         'some_secrets', self.scope,
         self.code, http=http, cache=cache_mock)
-    self.assertEquals(credentials.access_token, 'asdfghjkl')
+    self.assertEqual(credentials.access_token, 'asdfghjkl')
 
   def test_exchange_code_and_file_for_token_fail(self):
     http = HttpMockSequence([

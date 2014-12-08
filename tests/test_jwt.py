@@ -217,7 +217,7 @@ class SignedJwtAssertionCredentialsTests(unittest.TestCase):
     ])
     http = credentials.authorize(http)
     resp, content = http.request('http://example.org')
-    self.assertEqual('Bearer 1/3w', content['Authorization'])
+    self.assertEqual(b'Bearer 1/3w', content[b'Authorization'])
 
   def test_credentials_to_from_json(self):
     private_key = datafile('privatekey.%s' % self.format)
@@ -254,7 +254,7 @@ class SignedJwtAssertionCredentialsTests(unittest.TestCase):
 
     content = self._credentials_refresh(credentials)
 
-    self.assertEqual('Bearer 3/3w', content['Authorization'])
+    self.assertEqual(b'Bearer 3/3w', content[b'Authorization'])
 
   def test_credentials_refresh_with_storage(self):
     private_key = datafile('privatekey.%s' % self.format)
@@ -272,7 +272,7 @@ class SignedJwtAssertionCredentialsTests(unittest.TestCase):
 
     content = self._credentials_refresh(credentials)
 
-    self.assertEqual('Bearer 3/3w', content['Authorization'])
+    self.assertEqual(b'Bearer 3/3w', content[b'Authorization'])
     os.unlink(filename)
 
 
