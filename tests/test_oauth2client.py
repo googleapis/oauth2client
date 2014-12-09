@@ -373,7 +373,7 @@ class GoogleCredentialsTests(unittest.TestCase):
                        extra_help + ': ' + str(error),
                        str(ex))
 
-  def _disabled_test_get_application_default_from_environment_variable_service_account(
+  def test_get_application_default_from_environment_variable_service_account(
       self):
     os.environ['SERVER_SOFTWARE'] = ''
     environment_variable_file = datafile(
@@ -382,13 +382,13 @@ class GoogleCredentialsTests(unittest.TestCase):
     self.validate_service_account_credentials(
         GoogleCredentials.get_application_default())
 
-  def _disabled_test_env_name(self):
+  def test_env_name(self):
     from oauth2client import client
     self.assertEqual(None, client.SETTINGS.env_name)
     self.test_get_application_default_from_environment_variable_service_account()
     self.assertEqual(DEFAULT_ENV_NAME, client.SETTINGS.env_name)
 
-  def _disabled_test_get_application_default_from_environment_variable_authorized_user(
+  def test_get_application_default_from_environment_variable_authorized_user(
       self):
     os.environ['SERVER_SOFTWARE'] = ''
     environment_variable_file = datafile(
@@ -398,7 +398,7 @@ class GoogleCredentialsTests(unittest.TestCase):
     self.validate_google_credentials(
         GoogleCredentials.get_application_default())
 
-  def _disabled_test_get_application_default_from_environment_variable_malformed_file(
+  def test_get_application_default_from_environment_variable_malformed_file(
       self):
     os.environ['SERVER_SOFTWARE'] = ''
     environment_variable_file = datafile(
@@ -415,7 +415,7 @@ class GoogleCredentialsTests(unittest.TestCase):
           environment_variable_file + ' (pointed to by ' +
           GOOGLE_APPLICATION_CREDENTIALS + ' environment variable):'))
 
-  def _disabled_test_get_application_default_environment_not_set_up(self):
+  def test_get_application_default_environment_not_set_up(self):
     # It is normal for this test to fail if run inside
     # a Google Compute Engine VM or after 'gcloud auth login' command
     # has been executed on a non Windows machine.
