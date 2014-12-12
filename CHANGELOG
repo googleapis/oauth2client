@@ -1,3 +1,14 @@
+v1.4.3
+  Version 1.4.3
+
+  Big thanks to @dhermes for spotting and fixing a mess in our test setup.
+
+  Fix a serious issue with tests not being run. (#86, #87, #89)
+  Start credentials cleanup for single 2LO/3LO call. (#83, #84)
+  Clean up stack traces when re-raising in some places. (#79)
+  Clean up doc building. (#81, #82)
+  Fixed minimum version for `six` dependency. (#75)
+
 v1.4.2
   Version 1.4.2
 
