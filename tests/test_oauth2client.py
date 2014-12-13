@@ -651,7 +651,7 @@ class BasicCredentialsTests(unittest.TestCase):
     self.assertFalse(self.credentials.access_token_expired)
     self.assertEqual(token_response_first, self.credentials.token_response)
 
-    time.sleep(S)
+    time.sleep(S + 0.5)  # some margin to avoid flakiness
     self.assertTrue(self.credentials.access_token_expired)
 
     token = self.credentials.get_access_token(http=http)
