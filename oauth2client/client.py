@@ -409,7 +409,9 @@ def clean_headers(headers):
   clean = {}
   try:
     for k, v in six.iteritems(headers):
-      clean[k.encode('ascii')] = v.encode('ascii')
+      clean_k = k if isinstance(k, bytes) else str(k).encode('ascii')
+      clean_v = v if isinstance(v, bytes) else str(v).encode('ascii')
+      clean[clean_k] = clean_v
   except UnicodeEncodeError:
     raise NonAsciiHeaderError(k + ': ' + v)
   return clean
