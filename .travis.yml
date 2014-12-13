@@ -13,5 +13,7 @@ install:
   - pip install tox
 script:
   - tox -e $TOX_ENV
+after_success:
+  - tox -e coveralls
 notifications:
   - email: false

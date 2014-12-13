@@ -7,3 +7,8 @@ docs/
 
 # Test files
 .tox/
+
+# Coverage files
+.coverage
+coverage.xml
+nosetests.xml
