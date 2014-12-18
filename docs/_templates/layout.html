@@ -1,0 +1,28 @@
+{% extends "!layout.html" %}
+
+{# Custom CSS overrides #}
+{# set bootswatch_css_custom = ['_static/my-styles.css'] #}
+
+{# Add github banner (from: https://github.com/codepo8/css-fork-on-github-ribbon). #}
+{% block header %}
+  {{ super() }}
+
+  <a href="https://github.com/google/oauth2client"
+     class="visible-desktop hidden-xs">
+    <img id="gh-banner"
+         style="position:absolute; right:0; border:0; width:149px; height:149px;"
+         src="http://aral.github.com/fork-me-on-github-retina-ribbons/right-grey@2x.png"
+         alt="Fork me on GitHub">
+  </a>
+  <script>
+    // Adjust banner height.
+    $(function () {
+      var navHeight = $(".navbar .container").css("height");
+      $("#gh-banner").css("top", navHeight);
+      var navZ = $(".container").css("z-index");
+      navZ = (navZ === "auto") ? 10 : navZ + 10;
+      $("#gh-banner").css("z-index", navZ);
+    });
+  </script>
+{% endblock %}
+
