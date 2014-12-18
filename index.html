@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>oauth2client &mdash; oauth2client 1.4.4 documentation</title>
+    
+    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootswatch-3.2.0/flatly/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.4.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-3.2.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+    <link rel="top" title="oauth2client 1.4.4 documentation" href="#" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body>
+  
+
+  <a href="https://github.com/google/oauth2client"
+     class="visible-desktop hidden-xs">
+    <img id="gh-banner"
+         style="position:absolute; right:0; border:0; width:149px; height:149px;"
+         src="http://aral.github.com/fork-me-on-github-retina-ribbons/right-grey@2x.png"
+         alt="Fork me on GitHub">
+  </a>
+  <script>
+    // Adjust banner height.
+    $(function () {
+      var navHeight = $(".navbar .container").css("height");
+      $("#gh-banner").css("top", navHeight);
+      var navZ = $(".container").css("z-index");
+      navZ = (navZ === "auto") ? 10 : navZ + 10;
+      $("#gh-banner").css("z-index", navZ);
+    });
+  </script>
+
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#"><img src="_static/google_logo.png">
+          oauth2client</a>
+        <span class="navbar-text navbar-version pull-left"><b>1.4.4</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"></ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">oauth2client</a><ul>
+<li><a class="reference internal" href="#getting-started">Getting started</a><ul>
+<li><a class="reference internal" href="#downloads">Downloads</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#library-documentation">Library Documentation</a></li>
+<li><a class="reference internal" href="#contributing">Contributing</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="_sources/index.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      
+  <div class="section" id="oauth2client">
+<h1>oauth2client<a class="headerlink" href="#oauth2client" title="Permalink to this headline">¶</a></h1>
+<p><em>making OAuth2 just a little less painful</em></p>
+<p><tt class="docutils literal"><span class="pre">oauth2client</span></tt> makes it easy to interact with OAuth2-protected resources,
+especially those related to Google APIs. You can also start with <a class="reference external" href="https://developers.google.com/accounts/docs/OAuth2">general
+information about using OAuth2 with Google APIs</a>.</p>
+<div class="section" id="getting-started">
+<h2>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
+<p>We recommend installing via <tt class="docutils literal"><span class="pre">pip</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ pip install --upgrade oauth2client
+</pre></div>
+</div>
+<p>You can also install from source:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ git clone https://github.com/google/oauth2client
+$ cd oauth2client
+$ python setup.py install
+</pre></div>
+</div>
+<div class="section" id="downloads">
+<h3>Downloads<a class="headerlink" href="#downloads" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><a class="reference external" href="https://github.com/google/oauth2client/tarball/master">Most recent release tarball</a></li>
+<li><a class="reference external" href="https://github.com/google/oauth2client/zipball/master">Most recent release zipfile</a></li>
+<li><a class="reference external" href="https://github.com/google/oauth2client/releases">Complete release list</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="library-documentation">
+<h2>Library Documentation<a class="headerlink" href="#library-documentation" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Complete library index: <a class="reference internal" href="genindex.html"><em>Index</em></a></li>
+<li>Index of all modules: <a class="reference internal" href="py-modindex.html"><em>Module Index</em></a></li>
+<li>Search all documentation: <a class="reference internal" href="search.html"><em>Search Page</em></a></li>
+</ul>
+</div>
+<div class="section" id="contributing">
+<h2>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h2>
+<p>Please see the <a class="reference external" href="http://google.github.io/oauth2client/contributing.html">contributing page</a> for more
+information. In particular, we love pull requests &#8211; but please make sure to
+sign the contributor license agreement.</p>
+</div>
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2014, Google, Inc.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.3.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

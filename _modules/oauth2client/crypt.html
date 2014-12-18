@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>oauth2client.crypt &mdash; oauth2client 1.4.4 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/bootswatch-3.2.0/flatly/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.4.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-3.2.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
+    <link rel="top" title="oauth2client 1.4.4 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body>
+  
+
+  <a href="https://github.com/google/oauth2client"
+     class="visible-desktop hidden-xs">
+    <img id="gh-banner"
+         style="position:absolute; right:0; border:0; width:149px; height:149px;"
+         src="http://aral.github.com/fork-me-on-github-retina-ribbons/right-grey@2x.png"
+         alt="Fork me on GitHub">
+  </a>
+  <script>
+    // Adjust banner height.
+    $(function () {
+      var navHeight = $(".navbar .container").css("height");
+      $("#gh-banner").css("top", navHeight);
+      var navZ = $(".container").css("z-index");
+      navZ = (navZ === "auto") ? 10 : navZ + 10;
+      $("#gh-banner").css("z-index", navZ);
+    });
+  </script>
+
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../index.html"><img src="../../_static/google_logo.png">
+          oauth2client</a>
+        <span class="navbar-text navbar-version pull-left"><b>1.4.4</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"></ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      
+  <h1>Source code for oauth2client.crypt</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="c">#</span>
+<span class="c"># Copyright 2014 Google Inc. All rights reserved.</span>
+<span class="c">#</span>
+<span class="c"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c"># you may not use this file except in compliance with the License.</span>
+<span class="c"># You may obtain a copy of the License at</span>
+<span class="c">#</span>
+<span class="c">#      http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c">#</span>
+<span class="c"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c"># See the License for the specific language governing permissions and</span>
+<span class="c"># limitations under the License.</span>
+<span class="sd">&quot;&quot;&quot;Crypto-related routines for oauth2client.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">base64</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">import</span> <span class="nn">six</span>
+
+
+<span class="n">CLOCK_SKEW_SECS</span> <span class="o">=</span> <span class="mi">300</span>  <span class="c"># 5 minutes in seconds</span>
+<span class="n">AUTH_TOKEN_LIFETIME_SECS</span> <span class="o">=</span> <span class="mi">300</span>  <span class="c"># 5 minutes in seconds</span>
+<span class="n">MAX_TOKEN_LIFETIME_SECS</span> <span class="o">=</span> <span class="mi">86400</span>  <span class="c"># 1 day in seconds</span>
+
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="AppIdentityError"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.crypt.AppIdentityError">[docs]</a><span class="k">class</span> <span class="nc">AppIdentityError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+  <span class="k">pass</span>
+
+</div>
+<span class="k">try</span><span class="p">:</span>
+  <span class="kn">from</span> <span class="nn">OpenSSL</span> <span class="kn">import</span> <span class="n">crypto</span>
+
+<div class="viewcode-block" id="OpenSSLVerifier"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.crypt.OpenSSLVerifier">[docs]</a>  <span class="k">class</span> <span class="nc">OpenSSLVerifier</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Verifies the signature on a message.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pubkey</span><span class="p">):</span>
+      <span class="sd">&quot;&quot;&quot;Constructor.</span>
+
+<span class="sd">      Args:</span>
+<span class="sd">        pubkey, OpenSSL.crypto.PKey, The public key to verify with.</span>
+<span class="sd">      &quot;&quot;&quot;</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_pubkey</span> <span class="o">=</span> <span class="n">pubkey</span>
+
+<div class="viewcode-block" id="OpenSSLVerifier.verify"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.crypt.OpenSSLVerifier.verify">[docs]</a>    <span class="k">def</span> <span class="nf">verify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">signature</span><span class="p">):</span>
+      <span class="sd">&quot;&quot;&quot;Verifies a message against a signature.</span>
+
+<span class="sd">      Args:</span>
+<span class="sd">        message: string, The message to verify.</span>
+<span class="sd">        signature: string, The signature on the message.</span>
+
+<span class="sd">      Returns:</span>
+<span class="sd">        True if message was signed by the private key associated with the public</span>
+<span class="sd">        key that this object was constructed with.</span>
+<span class="sd">      &quot;&quot;&quot;</span>
+      <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">text_type</span><span class="p">):</span>
+          <span class="n">message</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">)</span>
+        <span class="n">crypto</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pubkey</span><span class="p">,</span> <span class="n">signature</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="s">&#39;sha256&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">True</span>
+      <span class="k">except</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">False</span>
+</div>
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="OpenSSLVerifier.from_string"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.crypt.OpenSSLVerifier.from_string">[docs]</a>    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="n">key_pem</span><span class="p">,</span> <span class="n">is_x509_cert</span><span class="p">):</span>
+      <span class="sd">&quot;&quot;&quot;Construct a Verified instance from a string.</span>
+
+<span class="sd">      Args:</span>
+<span class="sd">        key_pem: string, public key in PEM format.</span>
+<span class="sd">        is_x509_cert: bool, True if key_pem is an X509 cert, otherwise it is</span>
+<span class="sd">          expected to be an RSA key in PEM format.</span>
+
+<span class="sd">      Returns:</span>
+<span class="sd">        Verifier instance.</span>
+
+<span class="sd">      Raises:</span>
+<span class="sd">        OpenSSL.crypto.Error if the key_pem can&#39;t be parsed.</span>
+<span class="sd">      &quot;&quot;&quot;</span>
+      <span class="k">if</span> <span class="n">is_x509_cert</span><span class="p">:</span>
+        <span class="n">pubkey</span> <span class="o">=</span> <span class="n">crypto</span><span class="o">.</span><span class="n">load_certificate</span><span class="p">(</span><span class="n">crypto</span><span class="o">.</span><span class="n">FILETYPE_PEM</span><span class="p">,</span> <span class="n">key_pem</span><span class="p">)</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="n">pubkey</span> <span class="o">=</span> <span class="n">crypto</span><span class="o">.</span><span class="n">load_privatekey</span><span class="p">(</span><span class="n">crypto</span><span class="o">.</span><span class="n">FILETYPE_PEM</span><span class="p">,</span> <span class="n">key_pem</span><span class="p">)</span>
+      <span class="k">return</span> <span class="n">OpenSSLVerifier</span><span class="p">(</span><span class="n">pubkey</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="OpenSSLSigner"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.crypt.OpenSSLSigner">[docs]</a>  <span class="k">class</span> <span class="nc">OpenSSLSigner</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Signs messages with a private key.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkey</span><span class="p">):</span>
+      <span class="sd">&quot;&quot;&quot;Constructor.</span>
+
+<span class="sd">      Args:</span>
+<span class="sd">        pkey, OpenSSL.crypto.PKey (or equiv), The private key to sign with.</span>
+<span class="sd">      &quot;&quot;&quot;</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_key</span> <span class="o">=</span> <span class="n">pkey</span>
+
+<div class="viewcode-block" id="OpenSSLSigner.sign"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.crypt.OpenSSLSigner.sign">[docs]</a>    <span class="k">def</span> <span class="nf">sign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+      <span class="sd">&quot;&quot;&quot;Signs a message.</span>
+
+<span class="sd">      Args:</span>
+<span class="sd">        message: bytes, Message to be signed.</span>
+
+<span class="sd">      Returns:</span>
+<span class="sd">        string, The signature of the message for the given key.</span>
+<span class="sd">      &quot;&quot;&quot;</span>
+      <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">text_type</span><span class="p">):</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">)</span>
+      <span class="k">return</span> <span class="n">crypto</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_key</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="s">&#39;sha256&#39;</span><span class="p">)</span>
+</div>
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="OpenSSLSigner.from_string"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.crypt.OpenSSLSigner.from_string">[docs]</a>    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">b</span><span class="s">&#39;notasecret&#39;</span><span class="p">):</span>
+      <span class="sd">&quot;&quot;&quot;Construct a Signer instance from a string.</span>
+
+<span class="sd">      Args:</span>
+<span class="sd">        key: string, private key in PKCS12 or PEM format.</span>
+<span class="sd">        password: string, password for the private key file.</span>
+
+<span class="sd">      Returns:</span>
+<span class="sd">        Signer instance.</span>
+
+<span class="sd">      Raises:</span>
+<span class="sd">        OpenSSL.crypto.Error if the key can&#39;t be parsed.</span>
+<span class="sd">      &quot;&quot;&quot;</span>
+      <span class="n">parsed_pem_key</span> <span class="o">=</span> <span class="n">_parse_pem_key</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">parsed_pem_key</span><span class="p">:</span>
+        <span class="n">pkey</span> <span class="o">=</span> <span class="n">crypto</span><span class="o">.</span><span class="n">load_privatekey</span><span class="p">(</span><span class="n">crypto</span><span class="o">.</span><span class="n">FILETYPE_PEM</span><span class="p">,</span> <span class="n">parsed_pem_key</span><span class="p">)</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">password</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">text_type</span><span class="p">):</span>
+          <span class="n">password</span> <span class="o">=</span> <span class="n">password</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">)</span>
+        <span class="n">pkey</span> <span class="o">=</span> <span class="n">crypto</span><span class="o">.</span><span class="n">load_pkcs12</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span><span class="o">.</span><span class="n">get_privatekey</span><span class="p">()</span>
+      <span class="k">return</span> <span class="n">OpenSSLSigner</span><span class="p">(</span><span class="n">pkey</span><span class="p">)</span>
+</div></div>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+  <span class="n">OpenSSLVerifier</span> <span class="o">=</span> <span class="bp">None</span>
+  <span class="n">OpenSSLSigner</span> <span class="o">=</span> <span class="bp">None</span>
+
+
+<span class="k">try</span><span class="p">:</span>
+  <span class="kn">from</span> <span class="nn">Crypto.PublicKey</span> <span class="kn">import</span> <span class="n">RSA</span>
+  <span class="kn">from</span> <span class="nn">Crypto.Hash</span> <span class="kn">import</span> <span class="n">SHA256</span>
+  <span class="kn">from</span> <span class="nn">Crypto.Signature</span> <span class="kn">import</span> <span class="n">PKCS1_v1_5</span>
+  <span class="kn">from</span> <span class="nn">Crypto.Util.asn1</span> <span class="kn">import</span> <span class="n">DerSequence</span>
+
+
+<div class="viewcode-block" id="PyCryptoVerifier"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.crypt.PyCryptoVerifier">[docs]</a>  <span class="k">class</span> <span class="nc">PyCryptoVerifier</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Verifies the signature on a message.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pubkey</span><span class="p">):</span>
+      <span class="sd">&quot;&quot;&quot;Constructor.</span>
+
+<span class="sd">      Args:</span>
+<span class="sd">        pubkey, OpenSSL.crypto.PKey (or equiv), The public key to verify with.</span>
+<span class="sd">      &quot;&quot;&quot;</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_pubkey</span> <span class="o">=</span> <span class="n">pubkey</span>
+
+<div class="viewcode-block" id="PyCryptoVerifier.verify"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.crypt.PyCryptoVerifier.verify">[docs]</a>    <span class="k">def</span> <span class="nf">verify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">signature</span><span class="p">):</span>
+      <span class="sd">&quot;&quot;&quot;Verifies a message against a signature.</span>
+
+<span class="sd">      Args:</span>
+<span class="sd">        message: string, The message to verify.</span>
+<span class="sd">        signature: string, The signature on the message.</span>
+
+<span class="sd">      Returns:</span>
+<span class="sd">        True if message was signed by the private key associated with the public</span>
+<span class="sd">        key that this object was constructed with.</span>
+<span class="sd">      &quot;&quot;&quot;</span>
+      <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">PKCS1_v1_5</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pubkey</span><span class="p">)</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span>
+            <span class="n">SHA256</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">message</span><span class="p">),</span> <span class="n">signature</span><span class="p">)</span>
+      <span class="k">except</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">False</span>
+</div>
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="PyCryptoVerifier.from_string"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.crypt.PyCryptoVerifier.from_string">[docs]</a>    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="n">key_pem</span><span class="p">,</span> <span class="n">is_x509_cert</span><span class="p">):</span>
+      <span class="sd">&quot;&quot;&quot;Construct a Verified instance from a string.</span>
+
+<span class="sd">      Args:</span>
+<span class="sd">        key_pem: string, public key in PEM format.</span>
+<span class="sd">        is_x509_cert: bool, True if key_pem is an X509 cert, otherwise it is</span>
+<span class="sd">          expected to be an RSA key in PEM format.</span>
+
+<span class="sd">      Returns:</span>
+<span class="sd">        Verifier instance.</span>
+<span class="sd">      &quot;&quot;&quot;</span>
+      <span class="k">if</span> <span class="n">is_x509_cert</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key_pem</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">text_type</span><span class="p">):</span>
+          <span class="n">key_pem</span> <span class="o">=</span> <span class="n">key_pem</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;ascii&#39;</span><span class="p">)</span>
+        <span class="n">pemLines</span> <span class="o">=</span> <span class="n">key_pem</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">b</span><span class="s">&#39; &#39;</span><span class="p">,</span> <span class="n">b</span><span class="s">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="n">certDer</span> <span class="o">=</span> <span class="n">_urlsafe_b64decode</span><span class="p">(</span><span class="n">b</span><span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pemLines</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="n">certSeq</span> <span class="o">=</span> <span class="n">DerSequence</span><span class="p">()</span>
+        <span class="n">certSeq</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">certDer</span><span class="p">)</span>
+        <span class="n">tbsSeq</span> <span class="o">=</span> <span class="n">DerSequence</span><span class="p">()</span>
+        <span class="n">tbsSeq</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">certSeq</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">pubkey</span> <span class="o">=</span> <span class="n">RSA</span><span class="o">.</span><span class="n">importKey</span><span class="p">(</span><span class="n">tbsSeq</span><span class="p">[</span><span class="mi">6</span><span class="p">])</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="n">pubkey</span> <span class="o">=</span> <span class="n">RSA</span><span class="o">.</span><span class="n">importKey</span><span class="p">(</span><span class="n">key_pem</span><span class="p">)</span>
+      <span class="k">return</span> <span class="n">PyCryptoVerifier</span><span class="p">(</span><span class="n">pubkey</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="PyCryptoSigner"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.crypt.PyCryptoSigner">[docs]</a>  <span class="k">class</span> <span class="nc">PyCryptoSigner</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Signs messages with a private key.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkey</span><span class="p">):</span>
+      <span class="sd">&quot;&quot;&quot;Constructor.</span>
+
+<span class="sd">      Args:</span>
+<span class="sd">        pkey, OpenSSL.crypto.PKey (or equiv), The private key to sign with.</span>
+<span class="sd">      &quot;&quot;&quot;</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_key</span> <span class="o">=</span> <span class="n">pkey</span>
+
+<div class="viewcode-block" id="PyCryptoSigner.sign"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.crypt.PyCryptoSigner.sign">[docs]</a>    <span class="k">def</span> <span class="nf">sign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+      <span class="sd">&quot;&quot;&quot;Signs a message.</span>
+
+<span class="sd">      Args:</span>
+<span class="sd">        message: string, Message to be signed.</span>
+
+<span class="sd">      Returns:</span>
+<span class="sd">        string, The signature of the message for the given key.</span>
+<span class="sd">      &quot;&quot;&quot;</span>
+      <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">text_type</span><span class="p">):</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">)</span>
+      <span class="k">return</span> <span class="n">PKCS1_v1_5</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_key</span><span class="p">)</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">SHA256</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">message</span><span class="p">))</span>
+</div>
+    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="PyCryptoSigner.from_string"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.crypt.PyCryptoSigner.from_string">[docs]</a>    <span class="k">def</span> <span class="nf">from_string</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="s">&#39;notasecret&#39;</span><span class="p">):</span>
+      <span class="sd">&quot;&quot;&quot;Construct a Signer instance from a string.</span>
+
+<span class="sd">      Args:</span>
+<span class="sd">        key: string, private key in PEM format.</span>
+<span class="sd">        password: string, password for private key file. Unused for PEM files.</span>
+
+<span class="sd">      Returns:</span>
+<span class="sd">        Signer instance.</span>
+
+<span class="sd">      Raises:</span>
+<span class="sd">        NotImplementedError if they key isn&#39;t in PEM format.</span>
+<span class="sd">      &quot;&quot;&quot;</span>
+      <span class="n">parsed_pem_key</span> <span class="o">=</span> <span class="n">_parse_pem_key</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">parsed_pem_key</span><span class="p">:</span>
+        <span class="n">pkey</span> <span class="o">=</span> <span class="n">RSA</span><span class="o">.</span><span class="n">importKey</span><span class="p">(</span><span class="n">parsed_pem_key</span><span class="p">)</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+            <span class="s">&#39;PKCS12 format is not supported by the PyCrypto library. &#39;</span>
+            <span class="s">&#39;Try converting to a &quot;PEM&quot; &#39;</span>
+            <span class="s">&#39;(openssl pkcs12 -in xxxxx.p12 -nodes -nocerts &gt; privatekey.pem) &#39;</span>
+            <span class="s">&#39;or using PyOpenSSL if native code is an option.&#39;</span><span class="p">)</span>
+      <span class="k">return</span> <span class="n">PyCryptoSigner</span><span class="p">(</span><span class="n">pkey</span><span class="p">)</span>
+</div></div>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+  <span class="n">PyCryptoVerifier</span> <span class="o">=</span> <span class="bp">None</span>
+  <span class="n">PyCryptoSigner</span> <span class="o">=</span> <span class="bp">None</span>
+
+
+<span class="k">if</span> <span class="n">OpenSSLSigner</span><span class="p">:</span>
+  <span class="n">Signer</span> <span class="o">=</span> <span class="n">OpenSSLSigner</span>
+  <span class="n">Verifier</span> <span class="o">=</span> <span class="n">OpenSSLVerifier</span>
+<span class="k">elif</span> <span class="n">PyCryptoSigner</span><span class="p">:</span>
+  <span class="n">Signer</span> <span class="o">=</span> <span class="n">PyCryptoSigner</span>
+  <span class="n">Verifier</span> <span class="o">=</span> <span class="n">PyCryptoVerifier</span>
+<span class="k">else</span><span class="p">:</span>
+  <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s">&#39;No encryption library found. Please install either &#39;</span>
+                    <span class="s">&#39;PyOpenSSL, or PyCrypto 2.6 or later&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_parse_pem_key</span><span class="p">(</span><span class="n">raw_key_input</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Identify and extract PEM keys.</span>
+
+<span class="sd">  Determines whether the given key is in the format of PEM key, and extracts</span>
+<span class="sd">  the relevant part of the key if it is.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    raw_key_input: The contents of a private key file (either PEM or PKCS12).</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    string, The actual key if the contents are from a PEM file, or else None.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">offset</span> <span class="o">=</span> <span class="n">raw_key_input</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="n">b</span><span class="s">&#39;-----BEGIN &#39;</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">offset</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">raw_key_input</span><span class="p">[</span><span class="n">offset</span><span class="p">:]</span>
+
+
+<span class="k">def</span> <span class="nf">_urlsafe_b64encode</span><span class="p">(</span><span class="n">raw_bytes</span><span class="p">):</span>
+  <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">raw_bytes</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">text_type</span><span class="p">):</span>
+    <span class="n">raw_bytes</span> <span class="o">=</span> <span class="n">raw_bytes</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">base64</span><span class="o">.</span><span class="n">urlsafe_b64encode</span><span class="p">(</span><span class="n">raw_bytes</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s">&#39;ascii&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s">&#39;=&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_urlsafe_b64decode</span><span class="p">(</span><span class="n">b64string</span><span class="p">):</span>
+  <span class="c"># Guard against unicode strings, which base64 can&#39;t handle.</span>
+  <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">b64string</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">text_type</span><span class="p">):</span>
+    <span class="n">b64string</span> <span class="o">=</span> <span class="n">b64string</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;ascii&#39;</span><span class="p">)</span>
+  <span class="n">padded</span> <span class="o">=</span> <span class="n">b64string</span> <span class="o">+</span> <span class="n">b</span><span class="s">&#39;=&#39;</span> <span class="o">*</span> <span class="p">(</span><span class="mi">4</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">b64string</span><span class="p">)</span> <span class="o">%</span> <span class="mi">4</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">base64</span><span class="o">.</span><span class="n">urlsafe_b64decode</span><span class="p">(</span><span class="n">padded</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_json_encode</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+  <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">separators</span><span class="o">=</span><span class="p">(</span><span class="s">&#39;,&#39;</span><span class="p">,</span> <span class="s">&#39;:&#39;</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="make_signed_jwt"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.crypt.make_signed_jwt">[docs]</a><span class="k">def</span> <span class="nf">make_signed_jwt</span><span class="p">(</span><span class="n">signer</span><span class="p">,</span> <span class="n">payload</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Make a signed JWT.</span>
+
+<span class="sd">  See http://self-issued.info/docs/draft-jones-json-web-token.html.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    signer: crypt.Signer, Cryptographic signer.</span>
+<span class="sd">    payload: dict, Dictionary of data to convert to JSON and then sign.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    string, The JWT for the payload.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">header</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;typ&#39;</span><span class="p">:</span> <span class="s">&#39;JWT&#39;</span><span class="p">,</span> <span class="s">&#39;alg&#39;</span><span class="p">:</span> <span class="s">&#39;RS256&#39;</span><span class="p">}</span>
+
+  <span class="n">segments</span> <span class="o">=</span> <span class="p">[</span>
+      <span class="n">_urlsafe_b64encode</span><span class="p">(</span><span class="n">_json_encode</span><span class="p">(</span><span class="n">header</span><span class="p">)),</span>
+      <span class="n">_urlsafe_b64encode</span><span class="p">(</span><span class="n">_json_encode</span><span class="p">(</span><span class="n">payload</span><span class="p">)),</span>
+  <span class="p">]</span>
+  <span class="n">signing_input</span> <span class="o">=</span> <span class="s">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">segments</span><span class="p">)</span>
+
+  <span class="n">signature</span> <span class="o">=</span> <span class="n">signer</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">signing_input</span><span class="p">)</span>
+  <span class="n">segments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_urlsafe_b64encode</span><span class="p">(</span><span class="n">signature</span><span class="p">))</span>
+
+  <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">segments</span><span class="p">))</span>
+
+  <span class="k">return</span> <span class="s">&#39;.&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">segments</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="verify_signed_jwt_with_certs"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.crypt.verify_signed_jwt_with_certs">[docs]</a><span class="k">def</span> <span class="nf">verify_signed_jwt_with_certs</span><span class="p">(</span><span class="n">jwt</span><span class="p">,</span> <span class="n">certs</span><span class="p">,</span> <span class="n">audience</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Verify a JWT against public certs.</span>
+
+<span class="sd">  See http://self-issued.info/docs/draft-jones-json-web-token.html.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    jwt: string, A JWT.</span>
+<span class="sd">    certs: dict, Dictionary where values of public keys in PEM format.</span>
+<span class="sd">    audience: string, The audience, &#39;aud&#39;, that this JWT should contain. If</span>
+<span class="sd">      None then the JWT&#39;s &#39;aud&#39; parameter is not verified.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    dict, The deserialized JSON payload in the JWT.</span>
+
+<span class="sd">  Raises:</span>
+<span class="sd">    AppIdentityError if any checks are failed.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">segments</span> <span class="o">=</span> <span class="n">jwt</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)</span>
+
+  <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">segments</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="n">AppIdentityError</span><span class="p">(</span><span class="s">&#39;Wrong number of segments in token: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">jwt</span><span class="p">)</span>
+  <span class="n">signed</span> <span class="o">=</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">.</span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">segments</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">segments</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+  <span class="n">signature</span> <span class="o">=</span> <span class="n">_urlsafe_b64decode</span><span class="p">(</span><span class="n">segments</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+
+  <span class="c"># Parse token.</span>
+  <span class="n">json_body</span> <span class="o">=</span> <span class="n">_urlsafe_b64decode</span><span class="p">(</span><span class="n">segments</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+  <span class="k">try</span><span class="p">:</span>
+    <span class="n">parsed</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json_body</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">))</span>
+  <span class="k">except</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="n">AppIdentityError</span><span class="p">(</span><span class="s">&#39;Can</span><span class="se">\&#39;</span><span class="s">t parse token: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">json_body</span><span class="p">)</span>
+
+  <span class="c"># Check signature.</span>
+  <span class="n">verified</span> <span class="o">=</span> <span class="bp">False</span>
+  <span class="k">for</span> <span class="n">pem</span> <span class="ow">in</span> <span class="n">certs</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+    <span class="n">verifier</span> <span class="o">=</span> <span class="n">Verifier</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">pem</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">verifier</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="n">signed</span><span class="p">,</span> <span class="n">signature</span><span class="p">):</span>
+      <span class="n">verified</span> <span class="o">=</span> <span class="bp">True</span>
+      <span class="k">break</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="n">verified</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="n">AppIdentityError</span><span class="p">(</span><span class="s">&#39;Invalid token signature: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">jwt</span><span class="p">)</span>
+
+  <span class="c"># Check creation timestamp.</span>
+  <span class="n">iat</span> <span class="o">=</span> <span class="n">parsed</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;iat&#39;</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">iat</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="n">AppIdentityError</span><span class="p">(</span><span class="s">&#39;No iat field in token: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">json_body</span><span class="p">)</span>
+  <span class="n">earliest</span> <span class="o">=</span> <span class="n">iat</span> <span class="o">-</span> <span class="n">CLOCK_SKEW_SECS</span>
+
+  <span class="c"># Check expiration timestamp.</span>
+  <span class="n">now</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span>
+  <span class="n">exp</span> <span class="o">=</span> <span class="n">parsed</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;exp&#39;</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">exp</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="n">AppIdentityError</span><span class="p">(</span><span class="s">&#39;No exp field in token: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">json_body</span><span class="p">)</span>
+  <span class="k">if</span> <span class="n">exp</span> <span class="o">&gt;=</span> <span class="n">now</span> <span class="o">+</span> <span class="n">MAX_TOKEN_LIFETIME_SECS</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="n">AppIdentityError</span><span class="p">(</span><span class="s">&#39;exp field too far in future: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">json_body</span><span class="p">)</span>
+  <span class="n">latest</span> <span class="o">=</span> <span class="n">exp</span> <span class="o">+</span> <span class="n">CLOCK_SKEW_SECS</span>
+
+  <span class="k">if</span> <span class="n">now</span> <span class="o">&lt;</span> <span class="n">earliest</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="n">AppIdentityError</span><span class="p">(</span><span class="s">&#39;Token used too early, </span><span class="si">%d</span><span class="s"> &lt; </span><span class="si">%d</span><span class="s">: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span>
+                           <span class="p">(</span><span class="n">now</span><span class="p">,</span> <span class="n">earliest</span><span class="p">,</span> <span class="n">json_body</span><span class="p">))</span>
+  <span class="k">if</span> <span class="n">now</span> <span class="o">&gt;</span> <span class="n">latest</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="n">AppIdentityError</span><span class="p">(</span><span class="s">&#39;Token used too late, </span><span class="si">%d</span><span class="s"> &gt; </span><span class="si">%d</span><span class="s">: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span>
+                           <span class="p">(</span><span class="n">now</span><span class="p">,</span> <span class="n">latest</span><span class="p">,</span> <span class="n">json_body</span><span class="p">))</span>
+
+  <span class="c"># Check audience.</span>
+  <span class="k">if</span> <span class="n">audience</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="n">aud</span> <span class="o">=</span> <span class="n">parsed</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;aud&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">aud</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="n">AppIdentityError</span><span class="p">(</span><span class="s">&#39;No aud field in token: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">json_body</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">aud</span> <span class="o">!=</span> <span class="n">audience</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="n">AppIdentityError</span><span class="p">(</span><span class="s">&#39;Wrong recipient, </span><span class="si">%s</span><span class="s"> != </span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span>
+                             <span class="p">(</span><span class="n">aud</span><span class="p">,</span> <span class="n">audience</span><span class="p">,</span> <span class="n">json_body</span><span class="p">))</span>
+
+  <span class="k">return</span> <span class="n">parsed</span></div>
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2014, Google, Inc.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.3.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

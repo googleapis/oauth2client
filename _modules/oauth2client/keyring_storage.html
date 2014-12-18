@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>oauth2client.keyring_storage &mdash; oauth2client 1.4.4 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/bootswatch-3.2.0/flatly/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.4.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-3.2.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
+    <link rel="top" title="oauth2client 1.4.4 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body>
+  
+
+  <a href="https://github.com/google/oauth2client"
+     class="visible-desktop hidden-xs">
+    <img id="gh-banner"
+         style="position:absolute; right:0; border:0; width:149px; height:149px;"
+         src="http://aral.github.com/fork-me-on-github-retina-ribbons/right-grey@2x.png"
+         alt="Fork me on GitHub">
+  </a>
+  <script>
+    // Adjust banner height.
+    $(function () {
+      var navHeight = $(".navbar .container").css("height");
+      $("#gh-banner").css("top", navHeight);
+      var navZ = $(".container").css("z-index");
+      navZ = (navZ === "auto") ? 10 : navZ + 10;
+      $("#gh-banner").css("z-index", navZ);
+    });
+  </script>
+
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../index.html"><img src="../../_static/google_logo.png">
+          oauth2client</a>
+        <span class="navbar-text navbar-version pull-left"><b>1.4.4</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"></ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      
+  <h1>Source code for oauth2client.keyring_storage</h1><div class="highlight"><pre>
+<span class="c"># Copyright 2014 Google Inc. All rights reserved.</span>
+<span class="c">#</span>
+<span class="c"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c"># you may not use this file except in compliance with the License.</span>
+<span class="c"># You may obtain a copy of the License at</span>
+<span class="c">#</span>
+<span class="c">#      http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c">#</span>
+<span class="c"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c"># See the License for the specific language governing permissions and</span>
+<span class="c"># limitations under the License.</span>
+
+<span class="sd">&quot;&quot;&quot;A keyring based Storage.</span>
+
+<span class="sd">A Storage for Credentials that uses the keyring module.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;jcgregorio@google.com (Joe Gregorio)&#39;</span>
+
+<span class="kn">import</span> <span class="nn">threading</span>
+
+<span class="kn">import</span> <span class="nn">keyring</span>
+
+<span class="kn">from</span> <span class="nn">oauth2client.client</span> <span class="kn">import</span> <span class="n">Credentials</span>
+<span class="kn">from</span> <span class="nn">oauth2client.client</span> <span class="kn">import</span> <span class="n">Storage</span> <span class="k">as</span> <span class="n">BaseStorage</span>
+
+
+<div class="viewcode-block" id="Storage"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.keyring_storage.Storage">[docs]</a><span class="k">class</span> <span class="nc">Storage</span><span class="p">(</span><span class="n">BaseStorage</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Store and retrieve a single credential to and from the keyring.</span>
+
+<span class="sd">  To use this module you must have the keyring module installed. See</span>
+<span class="sd">  &lt;http://pypi.python.org/pypi/keyring/&gt;. This is an optional module and is not</span>
+<span class="sd">  installed with oauth2client by default because it does not work on all the</span>
+<span class="sd">  platforms that oauth2client supports, such as Google App Engine.</span>
+
+<span class="sd">  The keyring module &lt;http://pypi.python.org/pypi/keyring/&gt; is a cross-platform</span>
+<span class="sd">  library for access the keyring capabilities of the local system. The user will</span>
+<span class="sd">  be prompted for their keyring password when this module is used, and the</span>
+<span class="sd">  manner in which the user is prompted will vary per platform.</span>
+
+<span class="sd">  Usage:</span>
+<span class="sd">    from oauth2client.keyring_storage import Storage</span>
+
+<span class="sd">    s = Storage(&#39;name_of_application&#39;, &#39;user1&#39;)</span>
+<span class="sd">    credentials = s.get()</span>
+
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service_name</span><span class="p">,</span> <span class="n">user_name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Constructor.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      service_name: string, The name of the service under which the credentials</span>
+<span class="sd">        are stored.</span>
+<span class="sd">      user_name: string, The name of the user to store credentials for.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_service_name</span> <span class="o">=</span> <span class="n">service_name</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_user_name</span> <span class="o">=</span> <span class="n">user_name</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Storage.acquire_lock"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.keyring_storage.Storage.acquire_lock">[docs]</a>  <span class="k">def</span> <span class="nf">acquire_lock</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Acquires any lock necessary to access this Storage.</span>
+
+<span class="sd">    This lock is not reentrant.&quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="o">.</span><span class="n">acquire</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Storage.release_lock"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.keyring_storage.Storage.release_lock">[docs]</a>  <span class="k">def</span> <span class="nf">release_lock</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Release the Storage lock.</span>
+
+<span class="sd">    Trying to release a lock that isn&#39;t held will result in a</span>
+<span class="sd">    RuntimeError.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Storage.locked_get"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.keyring_storage.Storage.locked_get">[docs]</a>  <span class="k">def</span> <span class="nf">locked_get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Retrieve Credential from file.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      oauth2client.client.Credentials</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">credentials</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="n">keyring</span><span class="o">.</span><span class="n">get_password</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_service_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_user_name</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">content</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="k">try</span><span class="p">:</span>
+        <span class="n">credentials</span> <span class="o">=</span> <span class="n">Credentials</span><span class="o">.</span><span class="n">new_from_json</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+        <span class="n">credentials</span><span class="o">.</span><span class="n">set_store</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+      <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="k">return</span> <span class="n">credentials</span>
+</div>
+<div class="viewcode-block" id="Storage.locked_put"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.keyring_storage.Storage.locked_put">[docs]</a>  <span class="k">def</span> <span class="nf">locked_put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">credentials</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Write Credentials to file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      credentials: Credentials, the credentials to store.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">keyring</span><span class="o">.</span><span class="n">set_password</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_service_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_user_name</span><span class="p">,</span>
+                         <span class="n">credentials</span><span class="o">.</span><span class="n">to_json</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="Storage.locked_delete"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.keyring_storage.Storage.locked_delete">[docs]</a>  <span class="k">def</span> <span class="nf">locked_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Delete Credentials file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      credentials: Credentials, the credentials to store.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">keyring</span><span class="o">.</span><span class="n">set_password</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_service_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_user_name</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span></div></div>
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2014, Google, Inc.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.3.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

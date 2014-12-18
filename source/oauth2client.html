@@ -1,0 +1,1787 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>oauth2client package &mdash; oauth2client 1.4.4 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/bootswatch-3.2.0/flatly/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/bootstrap-sphinx.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.4.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="../_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="../_static/bootstrap-3.2.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
+    <link rel="top" title="oauth2client 1.4.4 documentation" href="../index.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body>
+  
+
+  <a href="https://github.com/google/oauth2client"
+     class="visible-desktop hidden-xs">
+    <img id="gh-banner"
+         style="position:absolute; right:0; border:0; width:149px; height:149px;"
+         src="http://aral.github.com/fork-me-on-github-retina-ribbons/right-grey@2x.png"
+         alt="Fork me on GitHub">
+  </a>
+  <script>
+    // Adjust banner height.
+    $(function () {
+      var navHeight = $(".navbar .container").css("height");
+      $("#gh-banner").css("top", navHeight);
+      var navZ = $(".container").css("z-index");
+      navZ = (navZ === "auto") ? 10 : navZ + 10;
+      $("#gh-banner").css("z-index", navZ);
+    });
+  </script>
+
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../index.html"><img src="../_static/google_logo.png">
+          oauth2client</a>
+        <span class="navbar-text navbar-version pull-left"><b>1.4.4</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"></ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">oauth2client package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#oauth2client-appengine-module">oauth2client.appengine module</a></li>
+<li><a class="reference internal" href="#module-oauth2client.client">oauth2client.client module</a></li>
+<li><a class="reference internal" href="#module-oauth2client.clientsecrets">oauth2client.clientsecrets module</a></li>
+<li><a class="reference internal" href="#module-oauth2client.crypt">oauth2client.crypt module</a></li>
+<li><a class="reference internal" href="#oauth2client-django-orm-module">oauth2client.django_orm module</a></li>
+<li><a class="reference internal" href="#module-oauth2client.file">oauth2client.file module</a></li>
+<li><a class="reference internal" href="#module-oauth2client.gce">oauth2client.gce module</a></li>
+<li><a class="reference internal" href="#module-oauth2client.keyring_storage">oauth2client.keyring_storage module</a></li>
+<li><a class="reference internal" href="#module-oauth2client.locked_file">oauth2client.locked_file module</a></li>
+<li><a class="reference internal" href="#module-oauth2client.multistore_file">oauth2client.multistore_file module</a></li>
+<li><a class="reference internal" href="#module-oauth2client.old_run">oauth2client.old_run module</a></li>
+<li><a class="reference internal" href="#module-oauth2client.service_account">oauth2client.service_account module</a></li>
+<li><a class="reference internal" href="#module-oauth2client.tools">oauth2client.tools module</a></li>
+<li><a class="reference internal" href="#module-oauth2client.util">oauth2client.util module</a></li>
+<li><a class="reference internal" href="#module-oauth2client.xsrfutil">oauth2client.xsrfutil module</a></li>
+<li><a class="reference internal" href="#module-oauth2client">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+              <li class="hidden-sm">
+<div id="sourcelink">
+  <a href="../_sources/source/oauth2client.txt"
+     rel="nofollow">Source</a>
+</div></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      
+  <div class="section" id="oauth2client-package">
+<h1>oauth2client package<a class="headerlink" href="#oauth2client-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="oauth2client-appengine-module">
+<h2>oauth2client.appengine module<a class="headerlink" href="#oauth2client-appengine-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-oauth2client.client">
+<span id="oauth2client-client-module"></span><h2>oauth2client.client module<a class="headerlink" href="#module-oauth2client.client" title="Permalink to this headline">¶</a></h2>
+<p>An OAuth 2.0 client.</p>
+<p>Tools for interacting with OAuth 2.0 protected resources.</p>
+<dl class="class">
+<dt id="oauth2client.client.AccessTokenCredentials">
+<em class="property">class </em><tt class="descclassname">oauth2client.client.</tt><tt class="descname">AccessTokenCredentials</tt><big>(</big><em>access_token</em>, <em>user_agent</em>, <em>revoke_uri=None</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#AccessTokenCredentials"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.AccessTokenCredentials" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#oauth2client.client.OAuth2Credentials" title="oauth2client.client.OAuth2Credentials"><tt class="xref py py-class docutils literal"><span class="pre">oauth2client.client.OAuth2Credentials</span></tt></a></p>
+<p>Credentials object for OAuth 2.0.</p>
+<p>Credentials can be applied to an httplib2.Http object using the
+authorize() method, which then signs each request from that object
+with the OAuth 2.0 access token. This set of credentials is for the
+use case where you have acquired an OAuth 2.0 access_token from
+another place such as a JavaScript client or another web
+application, and wish to use it from Python. Because only the
+access_token is present it can not be refreshed and will in time
+expire.</p>
+<p>AccessTokenCredentials objects may be safely pickled and unpickled.</p>
+<dl class="docutils">
+<dt>Usage:</dt>
+<dd><dl class="first docutils">
+<dt>credentials = AccessTokenCredentials(&#8216;&lt;an access token&gt;&#8217;,</dt>
+<dd>&#8216;my-user-agent/1.0&#8217;)</dd>
+</dl>
+<p class="last">http = httplib2.Http()
+http = credentials.authorize(http)</p>
+</dd>
+<dt>Exceptions:</dt>
+<dd><dl class="first last docutils">
+<dt>AccessTokenCredentialsExpired: raised when the access_token expires or is</dt>
+<dd>revoked.</dd>
+</dl>
+</dd>
+</dl>
+<dl class="classmethod">
+<dt id="oauth2client.client.AccessTokenCredentials.from_json">
+<em class="property">classmethod </em><tt class="descname">from_json</tt><big>(</big><em>s</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#AccessTokenCredentials.from_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.AccessTokenCredentials.from_json" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="oauth2client.client.AccessTokenCredentialsError">
+<em class="property">exception </em><tt class="descclassname">oauth2client.client.</tt><tt class="descname">AccessTokenCredentialsError</tt><a class="reference internal" href="../_modules/oauth2client/client.html#AccessTokenCredentialsError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.AccessTokenCredentialsError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#oauth2client.client.Error" title="oauth2client.client.Error"><tt class="xref py py-class docutils literal"><span class="pre">oauth2client.client.Error</span></tt></a></p>
+<p>Having only the access_token means no refresh is possible.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="oauth2client.client.AccessTokenInfo">
+<em class="property">class </em><tt class="descclassname">oauth2client.client.</tt><tt class="descname">AccessTokenInfo</tt><a class="headerlink" href="#oauth2client.client.AccessTokenInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">tuple</span></tt></p>
+<p>AccessTokenInfo(access_token, expires_in)</p>
+<dl class="method">
+<dt id="oauth2client.client.AccessTokenInfo.__getnewargs__">
+<tt class="descname">__getnewargs__</tt><big>(</big><big>)</big><a class="headerlink" href="#oauth2client.client.AccessTokenInfo.__getnewargs__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return self as a plain tuple.  Used by copy and pickle.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.client.AccessTokenInfo.__getstate__">
+<tt class="descname">__getstate__</tt><big>(</big><big>)</big><a class="headerlink" href="#oauth2client.client.AccessTokenInfo.__getstate__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exclude the OrderedDict from pickling</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.client.AccessTokenInfo.__repr__">
+<tt class="descname">__repr__</tt><big>(</big><big>)</big><a class="headerlink" href="#oauth2client.client.AccessTokenInfo.__repr__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a nicely formatted representation string</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="oauth2client.client.AccessTokenInfo.access_token">
+<tt class="descname">access_token</tt><a class="headerlink" href="#oauth2client.client.AccessTokenInfo.access_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 0</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="oauth2client.client.AccessTokenInfo.expires_in">
+<tt class="descname">expires_in</tt><a class="headerlink" href="#oauth2client.client.AccessTokenInfo.expires_in" title="Permalink to this definition">¶</a></dt>
+<dd><p>Alias for field number 1</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="oauth2client.client.AccessTokenRefreshError">
+<em class="property">exception </em><tt class="descclassname">oauth2client.client.</tt><tt class="descname">AccessTokenRefreshError</tt><a class="reference internal" href="../_modules/oauth2client/client.html#AccessTokenRefreshError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.AccessTokenRefreshError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#oauth2client.client.Error" title="oauth2client.client.Error"><tt class="xref py py-class docutils literal"><span class="pre">oauth2client.client.Error</span></tt></a></p>
+<p>Error trying to refresh an expired access token.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="oauth2client.client.ApplicationDefaultCredentialsError">
+<em class="property">exception </em><tt class="descclassname">oauth2client.client.</tt><tt class="descname">ApplicationDefaultCredentialsError</tt><a class="reference internal" href="../_modules/oauth2client/client.html#ApplicationDefaultCredentialsError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.ApplicationDefaultCredentialsError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#oauth2client.client.Error" title="oauth2client.client.Error"><tt class="xref py py-class docutils literal"><span class="pre">oauth2client.client.Error</span></tt></a></p>
+<p>Error retrieving the Application Default Credentials.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="oauth2client.client.AssertionCredentials">
+<em class="property">class </em><tt class="descclassname">oauth2client.client.</tt><tt class="descname">AssertionCredentials</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#AssertionCredentials"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.AssertionCredentials" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#oauth2client.client.GoogleCredentials" title="oauth2client.client.GoogleCredentials"><tt class="xref py py-class docutils literal"><span class="pre">oauth2client.client.GoogleCredentials</span></tt></a></p>
+<p>Abstract Credentials object used for OAuth 2.0 assertion grants.</p>
+<p>This credential does not require a flow to instantiate because it
+represents a two legged flow, and therefore has all of the required
+information to generate and refresh its own access tokens. It must
+be subclassed to generate the appropriate assertion string.</p>
+<p>AssertionCredentials objects may be safely pickled and unpickled.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="oauth2client.client.Credentials">
+<em class="property">class </em><tt class="descclassname">oauth2client.client.</tt><tt class="descname">Credentials</tt><a class="reference internal" href="../_modules/oauth2client/client.html#Credentials"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.Credentials" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Base class for all Credentials objects.</p>
+<p>Subclasses must define an authorize() method that applies the credentials to
+an HTTP transport.</p>
+<p>Subclasses must also specify a classmethod named &#8216;from_json&#8217; that takes a JSON
+string as input and returns an instantiated Credentials object.</p>
+<dl class="attribute">
+<dt id="oauth2client.client.Credentials.NON_SERIALIZED_MEMBERS">
+<tt class="descname">NON_SERIALIZED_MEMBERS</tt><em class="property"> = ['store']</em><a class="headerlink" href="#oauth2client.client.Credentials.NON_SERIALIZED_MEMBERS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.client.Credentials.apply">
+<tt class="descname">apply</tt><big>(</big><em>headers</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#Credentials.apply"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.Credentials.apply" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the authorization to the headers.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>headers</strong> &#8211; dict, the headers to add the Authorization header to.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.client.Credentials.authorize">
+<tt class="descname">authorize</tt><big>(</big><em>http</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#Credentials.authorize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.Credentials.authorize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Take an httplib2.Http instance (or equivalent) and authorizes it.</p>
+<p>Authorizes it for the set of credentials, usually by replacing
+http.request() with a method that adds in the appropriate headers and then
+delegates to the original Http.request() method.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>http</strong> &#8211; httplib2.Http, an http object to be used to make the refresh
+request.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="oauth2client.client.Credentials.from_json">
+<em class="property">classmethod </em><tt class="descname">from_json</tt><big>(</big><em>unused_data</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#Credentials.from_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.Credentials.from_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Instantiate a Credentials object from a JSON description of it.</p>
+<p>The JSON should have been produced by calling .to_json() on the object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>unused_data</strong> &#8211; dict, A deserialized JSON object.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An instance of a Credentials subclass.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="oauth2client.client.Credentials.new_from_json">
+<em class="property">classmethod </em><tt class="descname">new_from_json</tt><big>(</big><em>s</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#Credentials.new_from_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.Credentials.new_from_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Utility class method to instantiate a Credentials subclass from a JSON
+representation produced by to_json().</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>s</strong> &#8211; string, JSON from to_json().</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An instance of the subclass of Credentials that was serialized with
+to_json().</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.client.Credentials.refresh">
+<tt class="descname">refresh</tt><big>(</big><em>http</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#Credentials.refresh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.Credentials.refresh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Forces a refresh of the access_token.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>http</strong> &#8211; httplib2.Http, an http object to be used to make the refresh
+request.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.client.Credentials.revoke">
+<tt class="descname">revoke</tt><big>(</big><em>http</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#Credentials.revoke"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.Credentials.revoke" title="Permalink to this definition">¶</a></dt>
+<dd><p>Revokes a refresh_token and makes the credentials void.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>http</strong> &#8211; httplib2.Http, an http object to be used to make the revoke
+request.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.client.Credentials.to_json">
+<tt class="descname">to_json</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#Credentials.to_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.Credentials.to_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creating a JSON representation of an instance of Credentials.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">string, a JSON representation of this instance, suitable to pass to
+from_json().</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="oauth2client.client.CryptoUnavailableError">
+<em class="property">exception </em><tt class="descclassname">oauth2client.client.</tt><tt class="descname">CryptoUnavailableError</tt><a class="reference internal" href="../_modules/oauth2client/client.html#CryptoUnavailableError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.CryptoUnavailableError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#oauth2client.client.Error" title="oauth2client.client.Error"><tt class="xref py py-class docutils literal"><span class="pre">oauth2client.client.Error</span></tt></a>, <tt class="xref py py-class docutils literal"><span class="pre">exceptions.NotImplementedError</span></tt></p>
+<p>Raised when a crypto library is required, but none is available.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="oauth2client.client.DeviceFlowInfo">
+<em class="property">class </em><tt class="descclassname">oauth2client.client.</tt><tt class="descname">DeviceFlowInfo</tt><a class="reference internal" href="../_modules/oauth2client/client.html#DeviceFlowInfo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.DeviceFlowInfo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#oauth2client.client.DeviceFlowInfo" title="oauth2client.client.DeviceFlowInfo"><tt class="xref py py-class docutils literal"><span class="pre">oauth2client.client.DeviceFlowInfo</span></tt></a></p>
+<p>Intermediate information the OAuth2 for devices flow.</p>
+<dl class="classmethod">
+<dt id="oauth2client.client.DeviceFlowInfo.FromResponse">
+<em class="property">classmethod </em><tt class="descname">FromResponse</tt><big>(</big><em>response</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#DeviceFlowInfo.FromResponse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.DeviceFlowInfo.FromResponse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a DeviceFlowInfo from a server response.</p>
+<p>The response should be a dict containing entries as described
+here:</p>
+<blockquote>
+<div><a class="reference external" href="http://tools.ietf.org/html/draft-ietf-oauth-v2-05#section-3.7.1">http://tools.ietf.org/html/draft-ietf-oauth-v2-05#section-3.7.1</a></div></blockquote>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="oauth2client.client.Error">
+<em class="property">exception </em><tt class="descclassname">oauth2client.client.</tt><tt class="descname">Error</tt><a class="reference internal" href="../_modules/oauth2client/client.html#Error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.Error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+<p>Base error for this module.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="oauth2client.client.Flow">
+<em class="property">class </em><tt class="descclassname">oauth2client.client.</tt><tt class="descname">Flow</tt><a class="reference internal" href="../_modules/oauth2client/client.html#Flow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.Flow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Base class for all Flow objects.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="oauth2client.client.FlowExchangeError">
+<em class="property">exception </em><tt class="descclassname">oauth2client.client.</tt><tt class="descname">FlowExchangeError</tt><a class="reference internal" href="../_modules/oauth2client/client.html#FlowExchangeError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.FlowExchangeError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#oauth2client.client.Error" title="oauth2client.client.Error"><tt class="xref py py-class docutils literal"><span class="pre">oauth2client.client.Error</span></tt></a></p>
+<p>Error trying to exchange an authorization grant for an access token.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="oauth2client.client.GoogleCredentials">
+<em class="property">class </em><tt class="descclassname">oauth2client.client.</tt><tt class="descname">GoogleCredentials</tt><big>(</big><em>access_token</em>, <em>client_id</em>, <em>client_secret</em>, <em>refresh_token</em>, <em>token_expiry</em>, <em>token_uri</em>, <em>user_agent</em>, <em>revoke_uri='https://accounts.google.com/o/oauth2/revoke'</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#GoogleCredentials"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.GoogleCredentials" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#oauth2client.client.OAuth2Credentials" title="oauth2client.client.OAuth2Credentials"><tt class="xref py py-class docutils literal"><span class="pre">oauth2client.client.OAuth2Credentials</span></tt></a></p>
+<p>Application Default Credentials for use in calling Google APIs.</p>
+<p>The Application Default Credentials are being constructed as a function of
+the environment where the code is being run.
+More details can be found on this page:
+<a class="reference external" href="https://developers.google.com/accounts/docs/application-default-credentials">https://developers.google.com/accounts/docs/application-default-credentials</a></p>
+<p>Here is an example of how to use the Application Default Credentials for a
+service that requires authentication:</p>
+<blockquote>
+<div><p>from googleapiclient.discovery import build
+from oauth2client.client import GoogleCredentials</p>
+<p>credentials = GoogleCredentials.get_application_default()
+service = build(&#8216;compute&#8217;, &#8216;v1&#8217;, credentials=credentials)</p>
+<p>PROJECT = &#8216;bamboo-machine-422&#8217;
+ZONE = &#8216;us-central1-a&#8217;
+request = service.instances().list(project=PROJECT, zone=ZONE)
+response = request.execute()</p>
+<p>print(response)</p>
+</div></blockquote>
+<dl class="method">
+<dt id="oauth2client.client.GoogleCredentials.create_scoped">
+<tt class="descname">create_scoped</tt><big>(</big><em>scopes</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#GoogleCredentials.create_scoped"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.GoogleCredentials.create_scoped" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a Credentials object for the given scopes.</p>
+<p>The Credentials type is preserved.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.client.GoogleCredentials.create_scoped_required">
+<tt class="descname">create_scoped_required</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#GoogleCredentials.create_scoped_required"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.GoogleCredentials.create_scoped_required" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether this Credentials object is scopeless.</p>
+<p>create_scoped(scopes) method needs to be called in order to create
+a Credentials object for API calls.</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="oauth2client.client.GoogleCredentials.from_stream">
+<em class="property">static </em><tt class="descname">from_stream</tt><big>(</big><em>credential_filename</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#GoogleCredentials.from_stream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.GoogleCredentials.from_stream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a Credentials object by reading the information from a given file.</p>
+<p>It returns an object of type GoogleCredentials.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>credential_filename</strong> &#8211; the path to the file from where the credentials
+are to be read</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
+<dt>Exceptions:</dt>
+<dd><dl class="first last docutils">
+<dt>ApplicationDefaultCredentialsError: raised when the credentials fail</dt>
+<dd>to be retrieved.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="oauth2client.client.GoogleCredentials.get_application_default">
+<em class="property">static </em><tt class="descname">get_application_default</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#GoogleCredentials.get_application_default"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.GoogleCredentials.get_application_default" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the Application Default Credentials for the current environment.</p>
+<dl class="docutils">
+<dt>Exceptions:</dt>
+<dd><dl class="first last docutils">
+<dt>ApplicationDefaultCredentialsError: raised when the credentials fail</dt>
+<dd>to be retrieved.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="oauth2client.client.GoogleCredentials.serialization_data">
+<tt class="descname">serialization_data</tt><a class="reference internal" href="../_modules/oauth2client/client.html#GoogleCredentials.serialization_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.GoogleCredentials.serialization_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the fields and their values identifying the current credentials.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="oauth2client.client.MemoryCache">
+<em class="property">class </em><tt class="descclassname">oauth2client.client.</tt><tt class="descname">MemoryCache</tt><a class="reference internal" href="../_modules/oauth2client/client.html#MemoryCache"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.MemoryCache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>httplib2 Cache implementation which only caches locally.</p>
+<dl class="method">
+<dt id="oauth2client.client.MemoryCache.delete">
+<tt class="descname">delete</tt><big>(</big><em>key</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#MemoryCache.delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.MemoryCache.delete" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.client.MemoryCache.get">
+<tt class="descname">get</tt><big>(</big><em>key</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#MemoryCache.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.MemoryCache.get" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.client.MemoryCache.set">
+<tt class="descname">set</tt><big>(</big><em>key</em>, <em>value</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#MemoryCache.set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.MemoryCache.set" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="oauth2client.client.NonAsciiHeaderError">
+<em class="property">exception </em><tt class="descclassname">oauth2client.client.</tt><tt class="descname">NonAsciiHeaderError</tt><a class="reference internal" href="../_modules/oauth2client/client.html#NonAsciiHeaderError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.NonAsciiHeaderError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#oauth2client.client.Error" title="oauth2client.client.Error"><tt class="xref py py-class docutils literal"><span class="pre">oauth2client.client.Error</span></tt></a></p>
+<p>Header names and values must be ASCII strings.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="oauth2client.client.OAuth2Credentials">
+<em class="property">class </em><tt class="descclassname">oauth2client.client.</tt><tt class="descname">OAuth2Credentials</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#OAuth2Credentials"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.OAuth2Credentials" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#oauth2client.client.Credentials" title="oauth2client.client.Credentials"><tt class="xref py py-class docutils literal"><span class="pre">oauth2client.client.Credentials</span></tt></a></p>
+<p>Credentials object for OAuth 2.0.</p>
+<p>Credentials can be applied to an httplib2.Http object using the authorize()
+method, which then adds the OAuth 2.0 access token to each request.</p>
+<p>OAuth2Credentials objects may be safely pickled and unpickled.</p>
+<dl class="method">
+<dt id="oauth2client.client.OAuth2Credentials.__getstate__">
+<tt class="descname">__getstate__</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#OAuth2Credentials.__getstate__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.OAuth2Credentials.__getstate__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Trim the state down to something that can be pickled.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.client.OAuth2Credentials.__setstate__">
+<tt class="descname">__setstate__</tt><big>(</big><em>state</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#OAuth2Credentials.__setstate__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.OAuth2Credentials.__setstate__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reconstitute the state of the object from being pickled.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="oauth2client.client.OAuth2Credentials.access_token_expired">
+<tt class="descname">access_token_expired</tt><a class="reference internal" href="../_modules/oauth2client/client.html#OAuth2Credentials.access_token_expired"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.OAuth2Credentials.access_token_expired" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if the credential is expired or invalid.</p>
+<p>If the token_expiry isn&#8217;t set, we assume the token doesn&#8217;t expire.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.client.OAuth2Credentials.apply">
+<tt class="descname">apply</tt><big>(</big><em>headers</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#OAuth2Credentials.apply"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.OAuth2Credentials.apply" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the authorization to the headers.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>headers</strong> &#8211; dict, the headers to add the Authorization header to.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.client.OAuth2Credentials.authorize">
+<tt class="descname">authorize</tt><big>(</big><em>http</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#OAuth2Credentials.authorize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.OAuth2Credentials.authorize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Authorize an httplib2.Http instance with these credentials.</p>
+<p>The modified http.request method will add authentication headers to each
+request and will refresh access_tokens when a 401 is received on a
+request. In addition the http.request method has a credentials property,
+http.request.credentials, which is the Credentials object that authorized
+it.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>http</strong> &#8211; An instance of httplib2.Http
+or something that acts like it.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A modified instance of http that was passed in.</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Example</p>
+<p>h = httplib2.Http()
+h = credentials.authorize(h)</p>
+<p>You can&#8217;t create a new OAuth subclass of httplib2.Authentication
+because it never gets passed the absolute URI, which is needed for
+signing. So instead we have to overload &#8216;request&#8217; with a closure
+that adds in the Authorization header and then calls the original
+version of &#8216;request()&#8217;.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="oauth2client.client.OAuth2Credentials.from_json">
+<em class="property">classmethod </em><tt class="descname">from_json</tt><big>(</big><em>s</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#OAuth2Credentials.from_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.OAuth2Credentials.from_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Instantiate a Credentials object from a JSON description of it. The JSON
+should have been produced by calling .to_json() on the object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data</strong> &#8211; dict, A deserialized JSON object.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An instance of a Credentials subclass.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.client.OAuth2Credentials.get_access_token">
+<tt class="descname">get_access_token</tt><big>(</big><em>http=None</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#OAuth2Credentials.get_access_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.OAuth2Credentials.get_access_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the access token and its expiration information.</p>
+<p>If the token does not exist, get one.
+If the token expired, refresh it.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.client.OAuth2Credentials.refresh">
+<tt class="descname">refresh</tt><big>(</big><em>http</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#OAuth2Credentials.refresh"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.OAuth2Credentials.refresh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Forces a refresh of the access_token.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>http</strong> &#8211; httplib2.Http, an http object to be used to make the refresh
+request.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.client.OAuth2Credentials.revoke">
+<tt class="descname">revoke</tt><big>(</big><em>http</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#OAuth2Credentials.revoke"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.OAuth2Credentials.revoke" title="Permalink to this definition">¶</a></dt>
+<dd><p>Revokes a refresh_token and makes the credentials void.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>http</strong> &#8211; httplib2.Http, an http object to be used to make the revoke
+request.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.client.OAuth2Credentials.set_store">
+<tt class="descname">set_store</tt><big>(</big><em>store</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#OAuth2Credentials.set_store"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.OAuth2Credentials.set_store" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the Storage for the credential.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>store</strong> &#8211; Storage, an implementation of Storage object.
+This is needed to store the latest access_token if it
+has expired and been refreshed. This implementation uses
+locking to check for updates before updating the
+access_token.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.client.OAuth2Credentials.to_json">
+<tt class="descname">to_json</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#OAuth2Credentials.to_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.OAuth2Credentials.to_json" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="oauth2client.client.OAuth2DeviceCodeError">
+<em class="property">exception </em><tt class="descclassname">oauth2client.client.</tt><tt class="descname">OAuth2DeviceCodeError</tt><a class="reference internal" href="../_modules/oauth2client/client.html#OAuth2DeviceCodeError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.OAuth2DeviceCodeError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#oauth2client.client.Error" title="oauth2client.client.Error"><tt class="xref py py-class docutils literal"><span class="pre">oauth2client.client.Error</span></tt></a></p>
+<p>Error trying to retrieve a device code.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="oauth2client.client.OAuth2WebServerFlow">
+<em class="property">class </em><tt class="descclassname">oauth2client.client.</tt><tt class="descname">OAuth2WebServerFlow</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#OAuth2WebServerFlow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.OAuth2WebServerFlow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#oauth2client.client.Flow" title="oauth2client.client.Flow"><tt class="xref py py-class docutils literal"><span class="pre">oauth2client.client.Flow</span></tt></a></p>
+<p>Does the Web Server Flow for OAuth 2.0.</p>
+<p>OAuth2WebServerFlow objects may be safely pickled and unpickled.</p>
+<dl class="method">
+<dt id="oauth2client.client.OAuth2WebServerFlow.step1_get_authorize_url">
+<tt class="descname">step1_get_authorize_url</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#OAuth2WebServerFlow.step1_get_authorize_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.OAuth2WebServerFlow.step1_get_authorize_url" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.client.OAuth2WebServerFlow.step1_get_device_and_user_codes">
+<tt class="descname">step1_get_device_and_user_codes</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#OAuth2WebServerFlow.step1_get_device_and_user_codes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.OAuth2WebServerFlow.step1_get_device_and_user_codes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.client.OAuth2WebServerFlow.step2_exchange">
+<tt class="descname">step2_exchange</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#OAuth2WebServerFlow.step2_exchange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.OAuth2WebServerFlow.step2_exchange" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="oauth2client.client.SETTINGS">
+<em class="property">class </em><tt class="descclassname">oauth2client.client.</tt><tt class="descname">SETTINGS</tt><a class="reference internal" href="../_modules/oauth2client/client.html#SETTINGS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.SETTINGS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Settings namespace for globally.</p>
+<dl class="attribute">
+<dt id="oauth2client.client.SETTINGS.env_name">
+<tt class="descname">env_name</tt><em class="property"> = None</em><a class="headerlink" href="#oauth2client.client.SETTINGS.env_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="oauth2client.client.SignedJwtAssertionCredentials">
+<em class="property">class </em><tt class="descclassname">oauth2client.client.</tt><tt class="descname">SignedJwtAssertionCredentials</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#SignedJwtAssertionCredentials"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.SignedJwtAssertionCredentials" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#oauth2client.client.AssertionCredentials" title="oauth2client.client.AssertionCredentials"><tt class="xref py py-class docutils literal"><span class="pre">oauth2client.client.AssertionCredentials</span></tt></a></p>
+<p>Credentials object used for OAuth 2.0 Signed JWT assertion grants.</p>
+<p>This credential does not require a flow to instantiate because it
+represents a two legged flow, and therefore has all of the required
+information to generate and refresh its own access tokens.</p>
+<p>SignedJwtAssertionCredentials requires either PyOpenSSL, or PyCrypto
+2.6 or later. For App Engine you may also consider using
+AppAssertionCredentials.</p>
+<dl class="attribute">
+<dt id="oauth2client.client.SignedJwtAssertionCredentials.MAX_TOKEN_LIFETIME_SECS">
+<tt class="descname">MAX_TOKEN_LIFETIME_SECS</tt><em class="property"> = 3600</em><a class="headerlink" href="#oauth2client.client.SignedJwtAssertionCredentials.MAX_TOKEN_LIFETIME_SECS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="oauth2client.client.SignedJwtAssertionCredentials.from_json">
+<em class="property">classmethod </em><tt class="descname">from_json</tt><big>(</big><em>s</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#SignedJwtAssertionCredentials.from_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.SignedJwtAssertionCredentials.from_json" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="oauth2client.client.Storage">
+<em class="property">class </em><tt class="descclassname">oauth2client.client.</tt><tt class="descname">Storage</tt><a class="reference internal" href="../_modules/oauth2client/client.html#Storage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.Storage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Base class for all Storage objects.</p>
+<p>Store and retrieve a single credential. This class supports locking
+such that multiple processes and threads can operate on a single
+store.</p>
+<dl class="method">
+<dt id="oauth2client.client.Storage.acquire_lock">
+<tt class="descname">acquire_lock</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#Storage.acquire_lock"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.Storage.acquire_lock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Acquires any lock necessary to access this Storage.</p>
+<p>This lock is not reentrant.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.client.Storage.delete">
+<tt class="descname">delete</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#Storage.delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.Storage.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete credential.</p>
+<p>Frees any resources associated with storing the credential.
+The Storage lock must <em>not</em> be held when this is called.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.client.Storage.get">
+<tt class="descname">get</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#Storage.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.Storage.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve credential.</p>
+<p>The Storage lock must <em>not</em> be held when this is called.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">oauth2client.client.Credentials</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.client.Storage.locked_delete">
+<tt class="descname">locked_delete</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#Storage.locked_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.Storage.locked_delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete a credential.</p>
+<p>The Storage lock must be held when this is called.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.client.Storage.locked_get">
+<tt class="descname">locked_get</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#Storage.locked_get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.Storage.locked_get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve credential.</p>
+<p>The Storage lock must be held when this is called.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">oauth2client.client.Credentials</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.client.Storage.locked_put">
+<tt class="descname">locked_put</tt><big>(</big><em>credentials</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#Storage.locked_put"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.Storage.locked_put" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a credential.</p>
+<p>The Storage lock must be held when this is called.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>credentials</strong> &#8211; Credentials, the credentials to store.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.client.Storage.put">
+<tt class="descname">put</tt><big>(</big><em>credentials</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#Storage.put"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.Storage.put" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a credential.</p>
+<p>The Storage lock must be held when this is called.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>credentials</strong> &#8211; Credentials, the credentials to store.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.client.Storage.release_lock">
+<tt class="descname">release_lock</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#Storage.release_lock"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.Storage.release_lock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Release the Storage lock.</p>
+<p>Trying to release a lock that isn&#8217;t held will result in a
+RuntimeError.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="oauth2client.client.TokenRevokeError">
+<em class="property">exception </em><tt class="descclassname">oauth2client.client.</tt><tt class="descname">TokenRevokeError</tt><a class="reference internal" href="../_modules/oauth2client/client.html#TokenRevokeError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.TokenRevokeError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#oauth2client.client.Error" title="oauth2client.client.Error"><tt class="xref py py-class docutils literal"><span class="pre">oauth2client.client.Error</span></tt></a></p>
+<p>Error trying to revoke a token.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="oauth2client.client.UnknownClientSecretsFlowError">
+<em class="property">exception </em><tt class="descclassname">oauth2client.client.</tt><tt class="descname">UnknownClientSecretsFlowError</tt><a class="reference internal" href="../_modules/oauth2client/client.html#UnknownClientSecretsFlowError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.UnknownClientSecretsFlowError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#oauth2client.client.Error" title="oauth2client.client.Error"><tt class="xref py py-class docutils literal"><span class="pre">oauth2client.client.Error</span></tt></a></p>
+<p>The client secrets file called for an unknown type of OAuth 2.0 flow.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="oauth2client.client.VerifyJwtTokenError">
+<em class="property">exception </em><tt class="descclassname">oauth2client.client.</tt><tt class="descname">VerifyJwtTokenError</tt><a class="reference internal" href="../_modules/oauth2client/client.html#VerifyJwtTokenError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.VerifyJwtTokenError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#oauth2client.client.Error" title="oauth2client.client.Error"><tt class="xref py py-class docutils literal"><span class="pre">oauth2client.client.Error</span></tt></a></p>
+<p>Could not retrieve certificates for validation.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="oauth2client.client.clean_headers">
+<tt class="descclassname">oauth2client.client.</tt><tt class="descname">clean_headers</tt><big>(</big><em>headers</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#clean_headers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.clean_headers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Forces header keys and values to be strings, i.e not unicode.</p>
+<p>The httplib module just concats the header keys and values in a way that may
+make the message header a unicode string, which, if it then tries to
+contatenate to a binary request body may result in a unicode decode error.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>headers</strong> &#8211; dict, A dictionary of headers.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The same dictionary but with all the keys converted to strings.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="oauth2client.client.save_to_well_known_file">
+<tt class="descclassname">oauth2client.client.</tt><tt class="descname">save_to_well_known_file</tt><big>(</big><em>credentials</em>, <em>well_known_file=None</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#save_to_well_known_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.save_to_well_known_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the provided GoogleCredentials to the well known file.</p>
+<blockquote>
+<div><p>the credentials to be saved to the well known file;
+it should be an instance of GoogleCredentials</p>
+<blockquote>
+<div>the name of the file where the credentials are to be saved;
+this parameter is supposed to be used for testing only</div></blockquote>
+</div></blockquote>
+</dd></dl>
+
+</div>
+<div class="section" id="module-oauth2client.clientsecrets">
+<span id="oauth2client-clientsecrets-module"></span><h2>oauth2client.clientsecrets module<a class="headerlink" href="#module-oauth2client.clientsecrets" title="Permalink to this headline">¶</a></h2>
+<p>Utilities for reading OAuth 2.0 client secret files.</p>
+<p>A client_secrets.json file contains all the information needed to interact with
+an OAuth 2.0 protected service.</p>
+<dl class="exception">
+<dt id="oauth2client.clientsecrets.Error">
+<em class="property">exception </em><tt class="descclassname">oauth2client.clientsecrets.</tt><tt class="descname">Error</tt><a class="reference internal" href="../_modules/oauth2client/clientsecrets.html#Error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.clientsecrets.Error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+<p>Base error for this module.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="oauth2client.clientsecrets.InvalidClientSecretsError">
+<em class="property">exception </em><tt class="descclassname">oauth2client.clientsecrets.</tt><tt class="descname">InvalidClientSecretsError</tt><a class="reference internal" href="../_modules/oauth2client/clientsecrets.html#InvalidClientSecretsError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.clientsecrets.InvalidClientSecretsError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#oauth2client.clientsecrets.Error" title="oauth2client.clientsecrets.Error"><tt class="xref py py-class docutils literal"><span class="pre">oauth2client.clientsecrets.Error</span></tt></a></p>
+<p>Format of ClientSecrets file is invalid.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="oauth2client.clientsecrets.load">
+<tt class="descclassname">oauth2client.clientsecrets.</tt><tt class="descname">load</tt><big>(</big><em>fp</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/clientsecrets.html#load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.clientsecrets.load" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="oauth2client.clientsecrets.loadfile">
+<tt class="descclassname">oauth2client.clientsecrets.</tt><tt class="descname">loadfile</tt><big>(</big><em>filename</em>, <em>cache=None</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/clientsecrets.html#loadfile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.clientsecrets.loadfile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loading of client_secrets JSON file, optionally backed by a cache.</p>
+<p>Typical cache storage would be App Engine memcache service,
+but you can pass in any other cache client that implements
+these methods:</p>
+<blockquote>
+<div><ul class="simple">
+<li>get(key, namespace=ns)</li>
+<li>set(key, value, namespace=ns)</li>
+</ul>
+</div></blockquote>
+<dl class="docutils">
+<dt>Usage:</dt>
+<dd># without caching
+client_type, client_info = loadfile(&#8216;secrets.json&#8217;)
+# using App Engine memcache service
+from google.appengine.api import memcache
+client_type, client_info = loadfile(&#8216;secrets.json&#8217;, cache=memcache)</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>filename</strong> &#8211; string, Path to a client_secrets.json file on a filesystem.</li>
+<li><strong>cache</strong> &#8211; An optional cache service client that implements get() and set()
+methods. If not specified, the file is always being loaded from
+a filesystem.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><a class="reference internal" href="#oauth2client.clientsecrets.InvalidClientSecretsError" title="oauth2client.clientsecrets.InvalidClientSecretsError"><tt class="xref py py-exc docutils literal"><span class="pre">InvalidClientSecretsError</span></tt></a> &#8211; 
+In case of a validation error or some
+I/O failure. Can happen only on cache miss.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">(client_type, client_info) tuple, as _loadfile() normally would.
+JSON contents is validated only during first load. Cache hits are not
+validated.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="oauth2client.clientsecrets.loads">
+<tt class="descclassname">oauth2client.clientsecrets.</tt><tt class="descname">loads</tt><big>(</big><em>s</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/clientsecrets.html#loads"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.clientsecrets.loads" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-oauth2client.crypt">
+<span id="oauth2client-crypt-module"></span><h2>oauth2client.crypt module<a class="headerlink" href="#module-oauth2client.crypt" title="Permalink to this headline">¶</a></h2>
+<p>Crypto-related routines for oauth2client.</p>
+<dl class="exception">
+<dt id="oauth2client.crypt.AppIdentityError">
+<em class="property">exception </em><tt class="descclassname">oauth2client.crypt.</tt><tt class="descname">AppIdentityError</tt><a class="reference internal" href="../_modules/oauth2client/crypt.html#AppIdentityError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.crypt.AppIdentityError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="oauth2client.crypt.OpenSSLSigner">
+<em class="property">class </em><tt class="descclassname">oauth2client.crypt.</tt><tt class="descname">OpenSSLSigner</tt><big>(</big><em>pkey</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/crypt.html#OpenSSLSigner"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.crypt.OpenSSLSigner" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Signs messages with a private key.</p>
+<dl class="staticmethod">
+<dt id="oauth2client.crypt.OpenSSLSigner.from_string">
+<em class="property">static </em><tt class="descname">from_string</tt><big>(</big><em>key</em>, <em>password='notasecret'</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/crypt.html#OpenSSLSigner.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.crypt.OpenSSLSigner.from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a Signer instance from a string.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>key</strong> &#8211; string, private key in PKCS12 or PEM format.</li>
+<li><strong>password</strong> &#8211; string, password for the private key file.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Signer instance.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><strong>OpenSSL.crypto.Error if the key can&#8217;t be parsed.</strong> &#8211;</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.crypt.OpenSSLSigner.sign">
+<tt class="descname">sign</tt><big>(</big><em>message</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/crypt.html#OpenSSLSigner.sign"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.crypt.OpenSSLSigner.sign" title="Permalink to this definition">¶</a></dt>
+<dd><p>Signs a message.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> &#8211; bytes, Message to be signed.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">string, The signature of the message for the given key.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="oauth2client.crypt.OpenSSLVerifier">
+<em class="property">class </em><tt class="descclassname">oauth2client.crypt.</tt><tt class="descname">OpenSSLVerifier</tt><big>(</big><em>pubkey</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/crypt.html#OpenSSLVerifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.crypt.OpenSSLVerifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Verifies the signature on a message.</p>
+<dl class="staticmethod">
+<dt id="oauth2client.crypt.OpenSSLVerifier.from_string">
+<em class="property">static </em><tt class="descname">from_string</tt><big>(</big><em>key_pem</em>, <em>is_x509_cert</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/crypt.html#OpenSSLVerifier.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.crypt.OpenSSLVerifier.from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a Verified instance from a string.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>key_pem</strong> &#8211; string, public key in PEM format.</li>
+<li><strong>is_x509_cert</strong> &#8211; bool, True if key_pem is an X509 cert, otherwise it is
+expected to be an RSA key in PEM format.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Verifier instance.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><strong>OpenSSL.crypto.Error if the key_pem can&#8217;t be parsed.</strong> &#8211;</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.crypt.OpenSSLVerifier.verify">
+<tt class="descname">verify</tt><big>(</big><em>message</em>, <em>signature</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/crypt.html#OpenSSLVerifier.verify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.crypt.OpenSSLVerifier.verify" title="Permalink to this definition">¶</a></dt>
+<dd><p>Verifies a message against a signature.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>message</strong> &#8211; string, The message to verify.</li>
+<li><strong>signature</strong> &#8211; string, The signature on the message.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if message was signed by the private key associated with the public
+key that this object was constructed with.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="oauth2client.crypt.PyCryptoSigner">
+<em class="property">class </em><tt class="descclassname">oauth2client.crypt.</tt><tt class="descname">PyCryptoSigner</tt><big>(</big><em>pkey</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/crypt.html#PyCryptoSigner"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.crypt.PyCryptoSigner" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Signs messages with a private key.</p>
+<dl class="staticmethod">
+<dt id="oauth2client.crypt.PyCryptoSigner.from_string">
+<em class="property">static </em><tt class="descname">from_string</tt><big>(</big><em>key</em>, <em>password='notasecret'</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/crypt.html#PyCryptoSigner.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.crypt.PyCryptoSigner.from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a Signer instance from a string.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>key</strong> &#8211; string, private key in PEM format.</li>
+<li><strong>password</strong> &#8211; string, password for private key file. Unused for PEM files.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Signer instance.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><strong>NotImplementedError if they key isn&#8217;t in PEM format.</strong> &#8211;</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.crypt.PyCryptoSigner.sign">
+<tt class="descname">sign</tt><big>(</big><em>message</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/crypt.html#PyCryptoSigner.sign"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.crypt.PyCryptoSigner.sign" title="Permalink to this definition">¶</a></dt>
+<dd><p>Signs a message.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>message</strong> &#8211; string, Message to be signed.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">string, The signature of the message for the given key.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="oauth2client.crypt.PyCryptoVerifier">
+<em class="property">class </em><tt class="descclassname">oauth2client.crypt.</tt><tt class="descname">PyCryptoVerifier</tt><big>(</big><em>pubkey</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/crypt.html#PyCryptoVerifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.crypt.PyCryptoVerifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Verifies the signature on a message.</p>
+<dl class="staticmethod">
+<dt id="oauth2client.crypt.PyCryptoVerifier.from_string">
+<em class="property">static </em><tt class="descname">from_string</tt><big>(</big><em>key_pem</em>, <em>is_x509_cert</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/crypt.html#PyCryptoVerifier.from_string"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.crypt.PyCryptoVerifier.from_string" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a Verified instance from a string.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>key_pem</strong> &#8211; string, public key in PEM format.</li>
+<li><strong>is_x509_cert</strong> &#8211; bool, True if key_pem is an X509 cert, otherwise it is
+expected to be an RSA key in PEM format.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Verifier instance.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.crypt.PyCryptoVerifier.verify">
+<tt class="descname">verify</tt><big>(</big><em>message</em>, <em>signature</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/crypt.html#PyCryptoVerifier.verify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.crypt.PyCryptoVerifier.verify" title="Permalink to this definition">¶</a></dt>
+<dd><p>Verifies a message against a signature.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>message</strong> &#8211; string, The message to verify.</li>
+<li><strong>signature</strong> &#8211; string, The signature on the message.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if message was signed by the private key associated with the public
+key that this object was constructed with.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="attribute">
+<dt id="oauth2client.crypt.Signer">
+<tt class="descclassname">oauth2client.crypt.</tt><tt class="descname">Signer</tt><a class="headerlink" href="#oauth2client.crypt.Signer" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#oauth2client.crypt.OpenSSLSigner" title="oauth2client.crypt.OpenSSLSigner"><tt class="xref py py-class docutils literal"><span class="pre">OpenSSLSigner</span></tt></a></p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="oauth2client.crypt.Verifier">
+<tt class="descclassname">oauth2client.crypt.</tt><tt class="descname">Verifier</tt><a class="headerlink" href="#oauth2client.crypt.Verifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#oauth2client.crypt.OpenSSLVerifier" title="oauth2client.crypt.OpenSSLVerifier"><tt class="xref py py-class docutils literal"><span class="pre">OpenSSLVerifier</span></tt></a></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="oauth2client.crypt.make_signed_jwt">
+<tt class="descclassname">oauth2client.crypt.</tt><tt class="descname">make_signed_jwt</tt><big>(</big><em>signer</em>, <em>payload</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/crypt.html#make_signed_jwt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.crypt.make_signed_jwt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a signed JWT.</p>
+<p>See <a class="reference external" href="http://self-issued.info/docs/draft-jones-json-web-token.html">http://self-issued.info/docs/draft-jones-json-web-token.html</a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>signer</strong> &#8211; crypt.Signer, Cryptographic signer.</li>
+<li><strong>payload</strong> &#8211; dict, Dictionary of data to convert to JSON and then sign.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">string, The JWT for the payload.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="oauth2client.crypt.verify_signed_jwt_with_certs">
+<tt class="descclassname">oauth2client.crypt.</tt><tt class="descname">verify_signed_jwt_with_certs</tt><big>(</big><em>jwt</em>, <em>certs</em>, <em>audience</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/crypt.html#verify_signed_jwt_with_certs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.crypt.verify_signed_jwt_with_certs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Verify a JWT against public certs.</p>
+<p>See <a class="reference external" href="http://self-issued.info/docs/draft-jones-json-web-token.html">http://self-issued.info/docs/draft-jones-json-web-token.html</a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>jwt</strong> &#8211; string, A JWT.</li>
+<li><strong>certs</strong> &#8211; dict, Dictionary where values of public keys in PEM format.</li>
+<li><strong>audience</strong> &#8211; string, The audience, &#8216;aud&#8217;, that this JWT should contain. If
+None then the JWT&#8217;s &#8216;aud&#8217; parameter is not verified.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">dict, The deserialized JSON payload in the JWT.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><strong>AppIdentityError if any checks are failed.</strong> &#8211;</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="oauth2client-django-orm-module">
+<h2>oauth2client.django_orm module<a class="headerlink" href="#oauth2client-django-orm-module" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-oauth2client.file">
+<span id="oauth2client-file-module"></span><h2>oauth2client.file module<a class="headerlink" href="#module-oauth2client.file" title="Permalink to this headline">¶</a></h2>
+<p>Utilities for OAuth.</p>
+<p>Utilities for making it easier to work with OAuth 2.0
+credentials.</p>
+<dl class="exception">
+<dt id="oauth2client.file.CredentialsFileSymbolicLinkError">
+<em class="property">exception </em><tt class="descclassname">oauth2client.file.</tt><tt class="descname">CredentialsFileSymbolicLinkError</tt><a class="reference internal" href="../_modules/oauth2client/file.html#CredentialsFileSymbolicLinkError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.file.CredentialsFileSymbolicLinkError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+<p>Credentials files must not be symbolic links.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="oauth2client.file.Storage">
+<em class="property">class </em><tt class="descclassname">oauth2client.file.</tt><tt class="descname">Storage</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/file.html#Storage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.file.Storage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#oauth2client.client.Storage" title="oauth2client.client.Storage"><tt class="xref py py-class docutils literal"><span class="pre">oauth2client.client.Storage</span></tt></a></p>
+<p>Store and retrieve a single credential to and from a file.</p>
+<dl class="method">
+<dt id="oauth2client.file.Storage.acquire_lock">
+<tt class="descname">acquire_lock</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/oauth2client/file.html#Storage.acquire_lock"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.file.Storage.acquire_lock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Acquires any lock necessary to access this Storage.</p>
+<p>This lock is not reentrant.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.file.Storage.locked_delete">
+<tt class="descname">locked_delete</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/oauth2client/file.html#Storage.locked_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.file.Storage.locked_delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete Credentials file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>credentials</strong> &#8211; Credentials, the credentials to store.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.file.Storage.locked_get">
+<tt class="descname">locked_get</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/oauth2client/file.html#Storage.locked_get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.file.Storage.locked_get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve Credential from file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">oauth2client.client.Credentials</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><strong>CredentialsFileSymbolicLinkError if the file is a symbolic link.</strong> &#8211;</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.file.Storage.locked_put">
+<tt class="descname">locked_put</tt><big>(</big><em>credentials</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/file.html#Storage.locked_put"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.file.Storage.locked_put" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write Credentials to file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>credentials</strong> &#8211; Credentials, the credentials to store.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><strong>CredentialsFileSymbolicLinkError if the file is a symbolic link.</strong> &#8211;</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.file.Storage.release_lock">
+<tt class="descname">release_lock</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/oauth2client/file.html#Storage.release_lock"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.file.Storage.release_lock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Release the Storage lock.</p>
+<p>Trying to release a lock that isn&#8217;t held will result in a
+RuntimeError.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-oauth2client.gce">
+<span id="oauth2client-gce-module"></span><h2>oauth2client.gce module<a class="headerlink" href="#module-oauth2client.gce" title="Permalink to this headline">¶</a></h2>
+<p>Utilities for Google Compute Engine</p>
+<p>Utilities for making it easier to use OAuth 2.0 on Google Compute Engine.</p>
+<dl class="class">
+<dt id="oauth2client.gce.AppAssertionCredentials">
+<em class="property">class </em><tt class="descclassname">oauth2client.gce.</tt><tt class="descname">AppAssertionCredentials</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/gce.html#AppAssertionCredentials"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.gce.AppAssertionCredentials" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#oauth2client.client.AssertionCredentials" title="oauth2client.client.AssertionCredentials"><tt class="xref py py-class docutils literal"><span class="pre">oauth2client.client.AssertionCredentials</span></tt></a></p>
+<p>Credentials object for Compute Engine Assertion Grants</p>
+<p>This object will allow a Compute Engine instance to identify itself to
+Google and other OAuth 2.0 servers that can verify assertions. It can be used
+for the purpose of accessing data stored under an account assigned to the
+Compute Engine instance itself.</p>
+<p>This credential does not require a flow to instantiate because it represents
+a two legged flow, and therefore has all of the required information to
+generate and refresh its own access tokens.</p>
+<dl class="method">
+<dt id="oauth2client.gce.AppAssertionCredentials.create_scoped">
+<tt class="descname">create_scoped</tt><big>(</big><em>scopes</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/gce.html#AppAssertionCredentials.create_scoped"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.gce.AppAssertionCredentials.create_scoped" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.gce.AppAssertionCredentials.create_scoped_required">
+<tt class="descname">create_scoped_required</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/oauth2client/gce.html#AppAssertionCredentials.create_scoped_required"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.gce.AppAssertionCredentials.create_scoped_required" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="oauth2client.gce.AppAssertionCredentials.from_json">
+<em class="property">classmethod </em><tt class="descname">from_json</tt><big>(</big><em>json_data</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/gce.html#AppAssertionCredentials.from_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.gce.AppAssertionCredentials.from_json" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="oauth2client.gce.AppAssertionCredentials.serialization_data">
+<tt class="descname">serialization_data</tt><a class="reference internal" href="../_modules/oauth2client/gce.html#AppAssertionCredentials.serialization_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.gce.AppAssertionCredentials.serialization_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-oauth2client.keyring_storage">
+<span id="oauth2client-keyring-storage-module"></span><h2>oauth2client.keyring_storage module<a class="headerlink" href="#module-oauth2client.keyring_storage" title="Permalink to this headline">¶</a></h2>
+<p>A keyring based Storage.</p>
+<p>A Storage for Credentials that uses the keyring module.</p>
+<dl class="class">
+<dt id="oauth2client.keyring_storage.Storage">
+<em class="property">class </em><tt class="descclassname">oauth2client.keyring_storage.</tt><tt class="descname">Storage</tt><big>(</big><em>service_name</em>, <em>user_name</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/keyring_storage.html#Storage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.keyring_storage.Storage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#oauth2client.client.Storage" title="oauth2client.client.Storage"><tt class="xref py py-class docutils literal"><span class="pre">oauth2client.client.Storage</span></tt></a></p>
+<p>Store and retrieve a single credential to and from the keyring.</p>
+<p>To use this module you must have the keyring module installed. See
+&lt;<a class="reference external" href="http://pypi.python.org/pypi/keyring/">http://pypi.python.org/pypi/keyring/</a>&gt;. This is an optional module and is not
+installed with oauth2client by default because it does not work on all the
+platforms that oauth2client supports, such as Google App Engine.</p>
+<p>The keyring module &lt;<a class="reference external" href="http://pypi.python.org/pypi/keyring/">http://pypi.python.org/pypi/keyring/</a>&gt; is a cross-platform
+library for access the keyring capabilities of the local system. The user will
+be prompted for their keyring password when this module is used, and the
+manner in which the user is prompted will vary per platform.</p>
+<dl class="docutils">
+<dt>Usage:</dt>
+<dd><p class="first">from oauth2client.keyring_storage import Storage</p>
+<p class="last">s = Storage(&#8216;name_of_application&#8217;, &#8216;user1&#8217;)
+credentials = s.get()</p>
+</dd>
+</dl>
+<dl class="method">
+<dt id="oauth2client.keyring_storage.Storage.acquire_lock">
+<tt class="descname">acquire_lock</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/oauth2client/keyring_storage.html#Storage.acquire_lock"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.keyring_storage.Storage.acquire_lock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Acquires any lock necessary to access this Storage.</p>
+<p>This lock is not reentrant.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.keyring_storage.Storage.locked_delete">
+<tt class="descname">locked_delete</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/oauth2client/keyring_storage.html#Storage.locked_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.keyring_storage.Storage.locked_delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete Credentials file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>credentials</strong> &#8211; Credentials, the credentials to store.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.keyring_storage.Storage.locked_get">
+<tt class="descname">locked_get</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/oauth2client/keyring_storage.html#Storage.locked_get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.keyring_storage.Storage.locked_get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve Credential from file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">oauth2client.client.Credentials</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.keyring_storage.Storage.locked_put">
+<tt class="descname">locked_put</tt><big>(</big><em>credentials</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/keyring_storage.html#Storage.locked_put"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.keyring_storage.Storage.locked_put" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write Credentials to file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>credentials</strong> &#8211; Credentials, the credentials to store.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.keyring_storage.Storage.release_lock">
+<tt class="descname">release_lock</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/oauth2client/keyring_storage.html#Storage.release_lock"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.keyring_storage.Storage.release_lock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Release the Storage lock.</p>
+<p>Trying to release a lock that isn&#8217;t held will result in a
+RuntimeError.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-oauth2client.locked_file">
+<span id="oauth2client-locked-file-module"></span><h2>oauth2client.locked_file module<a class="headerlink" href="#module-oauth2client.locked_file" title="Permalink to this headline">¶</a></h2>
+<p>Locked file interface that should work on Unix and Windows pythons.</p>
+<p>This module first tries to use fcntl locking to ensure serialized access
+to a file, then falls back on a lock file if that is unavialable.</p>
+<dl class="docutils">
+<dt>Usage:</dt>
+<dd><p class="first">f = LockedFile(&#8216;filename&#8217;, &#8216;r+b&#8217;, &#8216;rb&#8217;)
+f.open_and_lock()
+if f.is_locked():</p>
+<blockquote>
+<div>print(&#8216;Acquired filename with r+b mode&#8217;)
+f.file_handle().write(&#8216;locked data&#8217;)</div></blockquote>
+<dl class="docutils">
+<dt>else:</dt>
+<dd>print(&#8216;Acquired filename with rb mode&#8217;)</dd>
+</dl>
+<p class="last">f.unlock_and_close()</p>
+</dd>
+</dl>
+<dl class="exception">
+<dt id="oauth2client.locked_file.AlreadyLockedException">
+<em class="property">exception </em><tt class="descclassname">oauth2client.locked_file.</tt><tt class="descname">AlreadyLockedException</tt><a class="reference internal" href="../_modules/oauth2client/locked_file.html#AlreadyLockedException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.locked_file.AlreadyLockedException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+<p>Trying to lock a file that has already been locked by the LockedFile.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="oauth2client.locked_file.CredentialsFileSymbolicLinkError">
+<em class="property">exception </em><tt class="descclassname">oauth2client.locked_file.</tt><tt class="descname">CredentialsFileSymbolicLinkError</tt><a class="reference internal" href="../_modules/oauth2client/locked_file.html#CredentialsFileSymbolicLinkError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.locked_file.CredentialsFileSymbolicLinkError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+<p>Credentials files must not be symbolic links.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="oauth2client.locked_file.LockedFile">
+<em class="property">class </em><tt class="descclassname">oauth2client.locked_file.</tt><tt class="descname">LockedFile</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/locked_file.html#LockedFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.locked_file.LockedFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Represent a file that has exclusive access.</p>
+<dl class="method">
+<dt id="oauth2client.locked_file.LockedFile.file_handle">
+<tt class="descname">file_handle</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/oauth2client/locked_file.html#LockedFile.file_handle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.locked_file.LockedFile.file_handle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the file_handle to the opened file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.locked_file.LockedFile.filename">
+<tt class="descname">filename</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/oauth2client/locked_file.html#LockedFile.filename"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.locked_file.LockedFile.filename" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the filename we were constructed with.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.locked_file.LockedFile.is_locked">
+<tt class="descname">is_locked</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/oauth2client/locked_file.html#LockedFile.is_locked"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.locked_file.LockedFile.is_locked" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return whether we successfully locked the file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.locked_file.LockedFile.open_and_lock">
+<tt class="descname">open_and_lock</tt><big>(</big><em>timeout=0</em>, <em>delay=0.05</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/locked_file.html#LockedFile.open_and_lock"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.locked_file.LockedFile.open_and_lock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Open the file, trying to lock it.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>timeout</strong> &#8211; float, The number of seconds to try to acquire the lock.</li>
+<li><strong>delay</strong> &#8211; float, The number of seconds to wait between retry attempts.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="#oauth2client.locked_file.AlreadyLockedException" title="oauth2client.locked_file.AlreadyLockedException"><tt class="xref py py-exc docutils literal"><span class="pre">AlreadyLockedException</span></tt></a> &#8211; 
+if the lock is already acquired.</li>
+<li><tt class="xref py py-exc docutils literal"><span class="pre">IOError</span></tt> &#8211; 
+if the open fails.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.locked_file.LockedFile.unlock_and_close">
+<tt class="descname">unlock_and_close</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/oauth2client/locked_file.html#LockedFile.unlock_and_close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.locked_file.LockedFile.unlock_and_close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unlock and close a file.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="oauth2client.locked_file.validate_file">
+<tt class="descclassname">oauth2client.locked_file.</tt><tt class="descname">validate_file</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/locked_file.html#validate_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.locked_file.validate_file" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-oauth2client.multistore_file">
+<span id="oauth2client-multistore-file-module"></span><h2>oauth2client.multistore_file module<a class="headerlink" href="#module-oauth2client.multistore_file" title="Permalink to this headline">¶</a></h2>
+<p>Multi-credential file store with lock support.</p>
+<p>This module implements a JSON credential store where multiple
+credentials can be stored in one file. That file supports locking
+both in a single process and across processes.</p>
+<p>The credential themselves are keyed off of:
+* client_id
+* user_agent
+* scope</p>
+<p>The format of the stored data is like so:
+{</p>
+<blockquote>
+<div><p>&#8216;file_version&#8217;: 1,
+&#8216;data&#8217;: [</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>{</dt>
+<dd><dl class="first docutils">
+<dt>&#8216;key&#8217;: {</dt>
+<dd>&#8216;clientId&#8217;: &#8216;&lt;client id&gt;&#8217;,
+&#8216;userAgent&#8217;: &#8216;&lt;user agent&gt;&#8217;,
+&#8216;scope&#8217;: &#8216;&lt;scope&gt;&#8217;</dd>
+</dl>
+<p>},
+&#8216;credential&#8217;: {</p>
+<blockquote>
+<div># JSON serialized Credentials.</div></blockquote>
+<p class="last">}</p>
+</dd>
+</dl>
+<p>}</p>
+</div></blockquote>
+<p>]</p>
+</div></blockquote>
+<p>}</p>
+<dl class="exception">
+<dt id="oauth2client.multistore_file.Error">
+<em class="property">exception </em><tt class="descclassname">oauth2client.multistore_file.</tt><tt class="descname">Error</tt><a class="reference internal" href="../_modules/oauth2client/multistore_file.html#Error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.multistore_file.Error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+<p>Base error for this module.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="oauth2client.multistore_file.NewerCredentialStoreError">
+<em class="property">exception </em><tt class="descclassname">oauth2client.multistore_file.</tt><tt class="descname">NewerCredentialStoreError</tt><a class="reference internal" href="../_modules/oauth2client/multistore_file.html#NewerCredentialStoreError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.multistore_file.NewerCredentialStoreError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#oauth2client.multistore_file.Error" title="oauth2client.multistore_file.Error"><tt class="xref py py-class docutils literal"><span class="pre">oauth2client.multistore_file.Error</span></tt></a></p>
+<p>The credential store is a newer version that supported.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-oauth2client.old_run">
+<span id="oauth2client-old-run-module"></span><h2>oauth2client.old_run module<a class="headerlink" href="#module-oauth2client.old_run" title="Permalink to this headline">¶</a></h2>
+<p>This module holds the old run() function which is deprecated, the
+tools.run_flow() function should be used in its place.</p>
+</div>
+<div class="section" id="module-oauth2client.service_account">
+<span id="oauth2client-service-account-module"></span><h2>oauth2client.service_account module<a class="headerlink" href="#module-oauth2client.service_account" title="Permalink to this headline">¶</a></h2>
+<p>A service account credentials class.</p>
+<p>This credentials class is implemented on top of rsa library.</p>
+</div>
+<div class="section" id="module-oauth2client.tools">
+<span id="oauth2client-tools-module"></span><h2>oauth2client.tools module<a class="headerlink" href="#module-oauth2client.tools" title="Permalink to this headline">¶</a></h2>
+<p>Command-line tools for authenticating via OAuth 2.0</p>
+<p>Do the OAuth 2.0 Web Server dance for a command line application. Stores the
+generated credentials in a common file that is used by other example apps in
+the same directory.</p>
+<dl class="function">
+<dt id="oauth2client.tools.run_flow">
+<tt class="descclassname">oauth2client.tools.</tt><tt class="descname">run_flow</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/tools.html#run_flow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.tools.run_flow" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="oauth2client.tools.run">
+<tt class="descclassname">oauth2client.tools.</tt><tt class="descname">run</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/tools.html#run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.tools.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="oauth2client.tools.message_if_missing">
+<tt class="descclassname">oauth2client.tools.</tt><tt class="descname">message_if_missing</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/tools.html#message_if_missing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.tools.message_if_missing" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helpful message to display if the CLIENT_SECRETS file is missing.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-oauth2client.util">
+<span id="oauth2client-util-module"></span><h2>oauth2client.util module<a class="headerlink" href="#module-oauth2client.util" title="Permalink to this headline">¶</a></h2>
+<p>Common utility library.</p>
+<dl class="function">
+<dt id="oauth2client.util.positional">
+<tt class="descclassname">oauth2client.util.</tt><tt class="descname">positional</tt><big>(</big><em>max_positional_args</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/util.html#positional"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.util.positional" title="Permalink to this definition">¶</a></dt>
+<dd><p>A decorator to declare that only the first N arguments my be positional.</p>
+<p>This decorator makes it easy to support Python 3 style key-word only
+parameters. For example, in Python 3 it is possible to write:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>def fn(pos1, <a href="#id1"><span class="problematic" id="id2">*</span></a>, kwonly1=None, kwonly1=None):</dt>
+<dd>...</dd>
+</dl>
+</div></blockquote>
+<p>All named parameters after * must be a keyword:</p>
+<blockquote>
+<div>fn(10, &#8216;kw1&#8217;, &#8216;kw2&#8217;)  # Raises exception.
+fn(10, kwonly1=&#8217;kw1&#8217;)  # Ok.</div></blockquote>
+<p class="rubric">Example</p>
+<p>To define a function like above, do:</p>
+<blockquote>
+<div><p>&#64;positional(1)
+def fn(pos1, kwonly1=None, kwonly2=None):</p>
+<blockquote>
+<div>...</div></blockquote>
+</div></blockquote>
+<p>If no default value is provided to a keyword argument, it becomes a required
+keyword argument:</p>
+<blockquote>
+<div><p>&#64;positional(0)
+def fn(required_kw):</p>
+<blockquote>
+<div>...</div></blockquote>
+</div></blockquote>
+<p>This must be called with the keyword parameter:</p>
+<blockquote>
+<div>fn()  # Raises exception.
+fn(10)  # Raises exception.
+fn(required_kw=10)  # Ok.</div></blockquote>
+<p>When defining instance or class methods always remember to account for
+&#8216;self&#8217; and &#8216;cls&#8217;:</p>
+<blockquote>
+<div><p>class MyClass(object):</p>
+<blockquote>
+<div><p>&#64;positional(2)
+def my_method(self, pos1, kwonly1=None):</p>
+<blockquote>
+<div>...</div></blockquote>
+<p>&#64;classmethod
+&#64;positional(2)
+def my_method(cls, pos1, kwonly1=None):</p>
+<blockquote>
+<div>...</div></blockquote>
+</div></blockquote>
+</div></blockquote>
+<p>The positional decorator behavior is controlled by
+util.positional_parameters_enforcement, which may be set to
+POSITIONAL_EXCEPTION, POSITIONAL_WARNING or POSITIONAL_IGNORE to raise an
+exception, log a warning, or do nothing, respectively, if a declaration is
+violated.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>max_positional_arguments</strong> &#8211; Maximum number of positional arguments. All
+parameters after the this index must be keyword only.</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A decorator that prevents using arguments after max_positional_args from
+being used as positional parameters.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><strong>TypeError if a key-word only argument is provided as a positional</strong> &#8211;</li>
+<li><strong>parameter, but only if util.positional_parameters_enforcement is set to</strong> &#8211;</li>
+<li><tt class="xref py py-exc docutils literal"><span class="pre">POSITIONAL_EXCEPTION.</span></tt> &#8211;</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-oauth2client.xsrfutil">
+<span id="oauth2client-xsrfutil-module"></span><h2>oauth2client.xsrfutil module<a class="headerlink" href="#module-oauth2client.xsrfutil" title="Permalink to this headline">¶</a></h2>
+<p>Helper methods for creating &amp; verifying XSRF tokens.</p>
+</div>
+<div class="section" id="module-oauth2client">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-oauth2client" title="Permalink to this headline">¶</a></h2>
+<p>Client library for using OAuth2, especially with Google APIs.</p>
+</div>
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2014, Google, Inc.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.3.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

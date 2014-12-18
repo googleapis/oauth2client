@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>oauth2client.tools &mdash; oauth2client 1.4.4 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/bootswatch-3.2.0/flatly/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.4.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-3.2.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
+    <link rel="top" title="oauth2client 1.4.4 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body>
+  
+
+  <a href="https://github.com/google/oauth2client"
+     class="visible-desktop hidden-xs">
+    <img id="gh-banner"
+         style="position:absolute; right:0; border:0; width:149px; height:149px;"
+         src="http://aral.github.com/fork-me-on-github-retina-ribbons/right-grey@2x.png"
+         alt="Fork me on GitHub">
+  </a>
+  <script>
+    // Adjust banner height.
+    $(function () {
+      var navHeight = $(".navbar .container").css("height");
+      $("#gh-banner").css("top", navHeight);
+      var navZ = $(".container").css("z-index");
+      navZ = (navZ === "auto") ? 10 : navZ + 10;
+      $("#gh-banner").css("z-index", navZ);
+    });
+  </script>
+
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../index.html"><img src="../../_static/google_logo.png">
+          oauth2client</a>
+        <span class="navbar-text navbar-version pull-left"><b>1.4.4</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"></ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      
+  <h1>Source code for oauth2client.tools</h1><div class="highlight"><pre>
+<span class="c"># Copyright 2014 Google Inc. All rights reserved.</span>
+<span class="c">#</span>
+<span class="c"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c"># you may not use this file except in compliance with the License.</span>
+<span class="c"># You may obtain a copy of the License at</span>
+<span class="c">#</span>
+<span class="c">#      http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c">#</span>
+<span class="c"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c"># See the License for the specific language governing permissions and</span>
+<span class="c"># limitations under the License.</span>
+
+<span class="sd">&quot;&quot;&quot;Command-line tools for authenticating via OAuth 2.0</span>
+
+<span class="sd">Do the OAuth 2.0 Web Server dance for a command line application. Stores the</span>
+<span class="sd">generated credentials in a common file that is used by other example apps in</span>
+<span class="sd">the same directory.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;jcgregorio@google.com (Joe Gregorio)&#39;</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;argparser&#39;</span><span class="p">,</span> <span class="s">&#39;run_flow&#39;</span><span class="p">,</span> <span class="s">&#39;run&#39;</span><span class="p">,</span> <span class="s">&#39;message_if_missing&#39;</span><span class="p">]</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">socket</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">webbrowser</span>
+
+<span class="kn">from</span> <span class="nn">six.moves</span> <span class="kn">import</span> <span class="n">BaseHTTPServer</span>
+<span class="kn">from</span> <span class="nn">six.moves</span> <span class="kn">import</span> <span class="n">urllib</span>
+
+<span class="kn">from</span> <span class="nn">oauth2client</span> <span class="kn">import</span> <span class="n">client</span>
+<span class="kn">from</span> <span class="nn">oauth2client</span> <span class="kn">import</span> <span class="n">util</span>
+
+
+<span class="n">_CLIENT_SECRETS_MESSAGE</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;WARNING: Please configure OAuth 2.0</span>
+
+<span class="s">To make this sample run you will need to populate the client_secrets.json file</span>
+<span class="s">found at:</span>
+
+<span class="s">   </span><span class="si">%s</span><span class="s"></span>
+
+<span class="s">with information from the APIs Console &lt;https://code.google.com/apis/console&gt;.</span>
+
+<span class="s">&quot;&quot;&quot;</span>
+
+<span class="k">def</span> <span class="nf">_CreateArgumentParser</span><span class="p">():</span>
+  <span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">argparse</span>
+  <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="k">return</span> <span class="bp">None</span>
+  <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">add_help</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+  <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--auth_host_name&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s">&#39;localhost&#39;</span><span class="p">,</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s">&#39;Hostname when running a local web server.&#39;</span><span class="p">)</span>
+  <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--noauth_local_webserver&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s">&#39;store_true&#39;</span><span class="p">,</span>
+                      <span class="n">default</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Do not run a local web server.&#39;</span><span class="p">)</span>
+  <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--auth_host_port&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">[</span><span class="mi">8080</span><span class="p">,</span> <span class="mi">8090</span><span class="p">],</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+                      <span class="n">nargs</span><span class="o">=</span><span class="s">&#39;*&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s">&#39;Port web server should listen on.&#39;</span><span class="p">)</span>
+  <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s">&#39;--logging_level&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s">&#39;ERROR&#39;</span><span class="p">,</span>
+                      <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;DEBUG&#39;</span><span class="p">,</span> <span class="s">&#39;INFO&#39;</span><span class="p">,</span> <span class="s">&#39;WARNING&#39;</span><span class="p">,</span> <span class="s">&#39;ERROR&#39;</span><span class="p">,</span> <span class="s">&#39;CRITICAL&#39;</span><span class="p">],</span>
+                      <span class="n">help</span><span class="o">=</span><span class="s">&#39;Set the logging level of detail.&#39;</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">parser</span>
+
+<span class="c"># argparser is an ArgumentParser that contains command-line options expected</span>
+<span class="c"># by tools.run(). Pass it in as part of the &#39;parents&#39; argument to your own</span>
+<span class="c"># ArgumentParser.</span>
+<span class="n">argparser</span> <span class="o">=</span> <span class="n">_CreateArgumentParser</span><span class="p">()</span>
+
+
+<span class="k">class</span> <span class="nc">ClientRedirectServer</span><span class="p">(</span><span class="n">BaseHTTPServer</span><span class="o">.</span><span class="n">HTTPServer</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;A server to handle OAuth 2.0 redirects back to localhost.</span>
+
+<span class="sd">  Waits for a single request and parses the query parameters</span>
+<span class="sd">  into query_params and then stops serving.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">query_params</span> <span class="o">=</span> <span class="p">{}</span>
+
+
+<span class="k">class</span> <span class="nc">ClientRedirectHandler</span><span class="p">(</span><span class="n">BaseHTTPServer</span><span class="o">.</span><span class="n">BaseHTTPRequestHandler</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;A handler for OAuth 2.0 redirects back to localhost.</span>
+
+<span class="sd">  Waits for a single request and parses the query parameters</span>
+<span class="sd">  into the servers query_params and then stops serving.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="nf">do_GET</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Handle a GET request.</span>
+
+<span class="sd">    Parses the query parameters and prints a message</span>
+<span class="sd">    if the flow has completed. Note that we can&#39;t detect</span>
+<span class="sd">    if an error occurred.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">send_response</span><span class="p">(</span><span class="mi">200</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">send_header</span><span class="p">(</span><span class="s">&quot;Content-type&quot;</span><span class="p">,</span> <span class="s">&quot;text/html&quot;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">end_headers</span><span class="p">()</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;?&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">query</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">parse_qsl</span><span class="p">(</span><span class="n">query</span><span class="p">))</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">query_params</span> <span class="o">=</span> <span class="n">query</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">wfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;&lt;html&gt;&lt;head&gt;&lt;title&gt;Authentication Status&lt;/title&gt;&lt;/head&gt;&quot;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">wfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;&lt;body&gt;&lt;p&gt;The authentication flow has completed.&lt;/p&gt;&quot;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">wfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;&lt;/body&gt;&lt;/html&gt;&quot;</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">log_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">format</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Do not log messages to stdout while running as command line program.&quot;&quot;&quot;</span>
+
+
+<span class="nd">@util.positional</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<div class="viewcode-block" id="run_flow"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.tools.run_flow">[docs]</a><span class="k">def</span> <span class="nf">run_flow</span><span class="p">(</span><span class="n">flow</span><span class="p">,</span> <span class="n">storage</span><span class="p">,</span> <span class="n">flags</span><span class="p">,</span> <span class="n">http</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Core code for a command-line application.</span>
+
+<span class="sd">  The run() function is called from your application and runs through all the</span>
+<span class="sd">  steps to obtain credentials. It takes a Flow argument and attempts to open an</span>
+<span class="sd">  authorization server page in the user&#39;s default web browser. The server asks</span>
+<span class="sd">  the user to grant your application access to the user&#39;s data. If the user</span>
+<span class="sd">  grants access, the run() function returns new credentials. The new credentials</span>
+<span class="sd">  are also stored in the Storage argument, which updates the file associated</span>
+<span class="sd">  with the Storage object.</span>
+
+<span class="sd">  It presumes it is run from a command-line application and supports the</span>
+<span class="sd">  following flags:</span>
+
+<span class="sd">    --auth_host_name: Host name to use when running a local web server</span>
+<span class="sd">      to handle redirects during OAuth authorization.</span>
+<span class="sd">      (default: &#39;localhost&#39;)</span>
+
+<span class="sd">    --auth_host_port: Port to use when running a local web server to handle</span>
+<span class="sd">      redirects during OAuth authorization.;</span>
+<span class="sd">      repeat this option to specify a list of values</span>
+<span class="sd">      (default: &#39;[8080, 8090]&#39;)</span>
+<span class="sd">      (an integer)</span>
+
+<span class="sd">    --[no]auth_local_webserver: Run a local web server to handle redirects</span>
+<span class="sd">      during OAuth authorization.</span>
+<span class="sd">      (default: &#39;true&#39;)</span>
+
+<span class="sd">  The tools module defines an ArgumentParser the already contains the flag</span>
+<span class="sd">  definitions that run() requires. You can pass that ArgumentParser to your</span>
+<span class="sd">  ArgumentParser constructor:</span>
+
+<span class="sd">    parser = argparse.ArgumentParser(description=__doc__,</span>
+<span class="sd">        formatter_class=argparse.RawDescriptionHelpFormatter,</span>
+<span class="sd">        parents=[tools.argparser])</span>
+<span class="sd">    flags = parser.parse_args(argv)</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    flow: Flow, an OAuth 2.0 Flow to step through.</span>
+<span class="sd">    storage: Storage, a Storage to store the credential in.</span>
+<span class="sd">    flags: argparse.ArgumentParser, the command-line flags.</span>
+<span class="sd">    http: An instance of httplib2.Http.request</span>
+<span class="sd">         or something that acts like it.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    Credentials, the obtained credential.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">logging</span><span class="p">,</span> <span class="n">flags</span><span class="o">.</span><span class="n">logging_level</span><span class="p">))</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="n">flags</span><span class="o">.</span><span class="n">noauth_local_webserver</span><span class="p">:</span>
+    <span class="n">success</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="n">port_number</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">port</span> <span class="ow">in</span> <span class="n">flags</span><span class="o">.</span><span class="n">auth_host_port</span><span class="p">:</span>
+      <span class="n">port_number</span> <span class="o">=</span> <span class="n">port</span>
+      <span class="k">try</span><span class="p">:</span>
+        <span class="n">httpd</span> <span class="o">=</span> <span class="n">ClientRedirectServer</span><span class="p">((</span><span class="n">flags</span><span class="o">.</span><span class="n">auth_host_name</span><span class="p">,</span> <span class="n">port</span><span class="p">),</span>
+                                     <span class="n">ClientRedirectHandler</span><span class="p">)</span>
+      <span class="k">except</span> <span class="n">socket</span><span class="o">.</span><span class="n">error</span><span class="p">:</span>
+        <span class="k">pass</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">break</span>
+    <span class="n">flags</span><span class="o">.</span><span class="n">noauth_local_webserver</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">success</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">success</span><span class="p">:</span>
+      <span class="k">print</span><span class="p">(</span><span class="s">&#39;Failed to start a local webserver listening on either port 8080&#39;</span><span class="p">)</span>
+      <span class="k">print</span><span class="p">(</span><span class="s">&#39;or port 9090. Please check your firewall settings and locally&#39;</span><span class="p">)</span>
+      <span class="k">print</span><span class="p">(</span><span class="s">&#39;running programs that may be blocking or using those ports.&#39;</span><span class="p">)</span>
+      <span class="k">print</span><span class="p">()</span>
+      <span class="k">print</span><span class="p">(</span><span class="s">&#39;Falling back to --noauth_local_webserver and continuing with&#39;</span><span class="p">)</span>
+      <span class="k">print</span><span class="p">(</span><span class="s">&#39;authorization.&#39;</span><span class="p">)</span>
+      <span class="k">print</span><span class="p">()</span>
+
+  <span class="k">if</span> <span class="ow">not</span> <span class="n">flags</span><span class="o">.</span><span class="n">noauth_local_webserver</span><span class="p">:</span>
+    <span class="n">oauth_callback</span> <span class="o">=</span> <span class="s">&#39;http://</span><span class="si">%s</span><span class="s">:</span><span class="si">%s</span><span class="s">/&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">flags</span><span class="o">.</span><span class="n">auth_host_name</span><span class="p">,</span> <span class="n">port_number</span><span class="p">)</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">oauth_callback</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">OOB_CALLBACK_URN</span>
+  <span class="n">flow</span><span class="o">.</span><span class="n">redirect_uri</span> <span class="o">=</span> <span class="n">oauth_callback</span>
+  <span class="n">authorize_url</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">step1_get_authorize_url</span><span class="p">()</span>
+
+  <span class="k">if</span> <span class="ow">not</span> <span class="n">flags</span><span class="o">.</span><span class="n">noauth_local_webserver</span><span class="p">:</span>
+    <span class="n">webbrowser</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">authorize_url</span><span class="p">,</span> <span class="n">new</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">autoraise</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&#39;Your browser has been opened to visit:&#39;</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">()</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&#39;    &#39;</span> <span class="o">+</span> <span class="n">authorize_url</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">()</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&#39;If your browser is on a different machine then exit and re-run this&#39;</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&#39;application with the command-line parameter &#39;</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">()</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&#39;  --noauth_local_webserver&#39;</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">()</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&#39;Go to the following link in your browser:&#39;</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">()</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&#39;    &#39;</span> <span class="o">+</span> <span class="n">authorize_url</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">()</span>
+
+  <span class="n">code</span> <span class="o">=</span> <span class="bp">None</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="n">flags</span><span class="o">.</span><span class="n">noauth_local_webserver</span><span class="p">:</span>
+    <span class="n">httpd</span><span class="o">.</span><span class="n">handle_request</span><span class="p">()</span>
+    <span class="k">if</span> <span class="s">&#39;error&#39;</span> <span class="ow">in</span> <span class="n">httpd</span><span class="o">.</span><span class="n">query_params</span><span class="p">:</span>
+      <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s">&#39;Authentication request was rejected.&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s">&#39;code&#39;</span> <span class="ow">in</span> <span class="n">httpd</span><span class="o">.</span><span class="n">query_params</span><span class="p">:</span>
+      <span class="n">code</span> <span class="o">=</span> <span class="n">httpd</span><span class="o">.</span><span class="n">query_params</span><span class="p">[</span><span class="s">&#39;code&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">print</span><span class="p">(</span><span class="s">&#39;Failed to find &quot;code&quot; in the query parameters of the redirect.&#39;</span><span class="p">)</span>
+      <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s">&#39;Try running with --noauth_local_webserver.&#39;</span><span class="p">)</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="n">code</span> <span class="o">=</span> <span class="nb">raw_input</span><span class="p">(</span><span class="s">&#39;Enter verification code: &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+  <span class="k">try</span><span class="p">:</span>
+    <span class="n">credential</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">step2_exchange</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">http</span><span class="o">=</span><span class="n">http</span><span class="p">)</span>
+  <span class="k">except</span> <span class="n">client</span><span class="o">.</span><span class="n">FlowExchangeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s">&#39;Authentication has failed: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">e</span><span class="p">)</span>
+
+  <span class="n">storage</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">credential</span><span class="p">)</span>
+  <span class="n">credential</span><span class="o">.</span><span class="n">set_store</span><span class="p">(</span><span class="n">storage</span><span class="p">)</span>
+  <span class="k">print</span><span class="p">(</span><span class="s">&#39;Authentication successful.&#39;</span><span class="p">)</span>
+
+  <span class="k">return</span> <span class="n">credential</span>
+
+</div>
+<div class="viewcode-block" id="message_if_missing"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.tools.message_if_missing">[docs]</a><span class="k">def</span> <span class="nf">message_if_missing</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Helpful message to display if the CLIENT_SECRETS file is missing.&quot;&quot;&quot;</span>
+
+  <span class="k">return</span> <span class="n">_CLIENT_SECRETS_MESSAGE</span> <span class="o">%</span> <span class="n">filename</span>
+</div>
+<span class="k">try</span><span class="p">:</span>
+  <span class="kn">from</span> <span class="nn">oauth2client.old_run</span> <span class="kn">import</span> <span class="n">run</span>
+  <span class="kn">from</span> <span class="nn">oauth2client.old_run</span> <span class="kn">import</span> <span class="n">FLAGS</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+<div class="viewcode-block" id="run"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.tools.run">[docs]</a>  <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+        <span class="s">&#39;The gflags library must be installed to use tools.run(). &#39;</span>
+        <span class="s">&#39;Please install gflags or preferrably switch to using &#39;</span>
+        <span class="s">&#39;tools.run_flow().&#39;</span><span class="p">)</span></div>
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2014, Google, Inc.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.3.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

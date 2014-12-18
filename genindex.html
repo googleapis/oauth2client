@@ -1,0 +1,921 @@
+
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Index &mdash; oauth2client 1.4.4 documentation</title>
+    
+    <link rel="stylesheet" href="_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootswatch-3.2.0/flatly/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.4.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-3.2.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+    <link rel="top" title="oauth2client 1.4.4 documentation" href="index.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body>
+  
+
+  <a href="https://github.com/google/oauth2client"
+     class="visible-desktop hidden-xs">
+    <img id="gh-banner"
+         style="position:absolute; right:0; border:0; width:149px; height:149px;"
+         src="http://aral.github.com/fork-me-on-github-retina-ribbons/right-grey@2x.png"
+         alt="Fork me on GitHub">
+  </a>
+  <script>
+    // Adjust banner height.
+    $(function () {
+      var navHeight = $(".navbar .container").css("height");
+      $("#gh-banner").css("top", navHeight);
+      var navZ = $(".container").css("z-index");
+      navZ = (navZ === "auto") ? 10 : navZ + 10;
+      $("#gh-banner").css("z-index", navZ);
+    });
+  </script>
+
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="index.html"><img src="_static/google_logo.png">
+          oauth2client</a>
+        <span class="navbar-text navbar-version pull-left"><b>1.4.4</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"></ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      
+
+<h1 id="index">Index</h1>
+
+<div class="genindex-jumpbox">
+ <a href="#_"><strong>_</strong></a>
+ | <a href="#A"><strong>A</strong></a>
+ | <a href="#C"><strong>C</strong></a>
+ | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
+ | <a href="#F"><strong>F</strong></a>
+ | <a href="#G"><strong>G</strong></a>
+ | <a href="#I"><strong>I</strong></a>
+ | <a href="#L"><strong>L</strong></a>
+ | <a href="#M"><strong>M</strong></a>
+ | <a href="#N"><strong>N</strong></a>
+ | <a href="#O"><strong>O</strong></a>
+ | <a href="#P"><strong>P</strong></a>
+ | <a href="#R"><strong>R</strong></a>
+ | <a href="#S"><strong>S</strong></a>
+ | <a href="#T"><strong>T</strong></a>
+ | <a href="#U"><strong>U</strong></a>
+ | <a href="#V"><strong>V</strong></a>
+ 
+</div>
+<h2 id="_">_</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.AccessTokenInfo.__getnewargs__">__getnewargs__() (oauth2client.client.AccessTokenInfo method)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.AccessTokenInfo.__getstate__">__getstate__() (oauth2client.client.AccessTokenInfo method)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="source/oauth2client.html#oauth2client.client.OAuth2Credentials.__getstate__">(oauth2client.client.OAuth2Credentials method)</a>
+  </dt>
+
+      </dl></dd>
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.AccessTokenInfo.__repr__">__repr__() (oauth2client.client.AccessTokenInfo method)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.OAuth2Credentials.__setstate__">__setstate__() (oauth2client.client.OAuth2Credentials method)</a>
+  </dt>
+
+  </dl></td>
+</tr></table>
+
+<h2 id="A">A</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.AccessTokenInfo.access_token">access_token (oauth2client.client.AccessTokenInfo attribute)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.OAuth2Credentials.access_token_expired">access_token_expired (oauth2client.client.OAuth2Credentials attribute)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.AccessTokenCredentials">AccessTokenCredentials (class in oauth2client.client)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.AccessTokenCredentialsError">AccessTokenCredentialsError</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.AccessTokenInfo">AccessTokenInfo (class in oauth2client.client)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.AccessTokenRefreshError">AccessTokenRefreshError</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.Storage.acquire_lock">acquire_lock() (oauth2client.client.Storage method)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="source/oauth2client.html#oauth2client.file.Storage.acquire_lock">(oauth2client.file.Storage method)</a>
+  </dt>
+
+        
+  <dt><a href="source/oauth2client.html#oauth2client.keyring_storage.Storage.acquire_lock">(oauth2client.keyring_storage.Storage method)</a>
+  </dt>
+
+      </dl></dd>
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.locked_file.AlreadyLockedException">AlreadyLockedException</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.gce.AppAssertionCredentials">AppAssertionCredentials (class in oauth2client.gce)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.crypt.AppIdentityError">AppIdentityError</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.ApplicationDefaultCredentialsError">ApplicationDefaultCredentialsError</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.Credentials.apply">apply() (oauth2client.client.Credentials method)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="source/oauth2client.html#oauth2client.client.OAuth2Credentials.apply">(oauth2client.client.OAuth2Credentials method)</a>
+  </dt>
+
+      </dl></dd>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.AssertionCredentials">AssertionCredentials (class in oauth2client.client)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.Credentials.authorize">authorize() (oauth2client.client.Credentials method)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="source/oauth2client.html#oauth2client.client.OAuth2Credentials.authorize">(oauth2client.client.OAuth2Credentials method)</a>
+  </dt>
+
+      </dl></dd>
+  </dl></td>
+</tr></table>
+
+<h2 id="C">C</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.clean_headers">clean_headers() (in module oauth2client.client)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.GoogleCredentials.create_scoped">create_scoped() (oauth2client.client.GoogleCredentials method)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="source/oauth2client.html#oauth2client.gce.AppAssertionCredentials.create_scoped">(oauth2client.gce.AppAssertionCredentials method)</a>
+  </dt>
+
+      </dl></dd>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.GoogleCredentials.create_scoped_required">create_scoped_required() (oauth2client.client.GoogleCredentials method)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="source/oauth2client.html#oauth2client.gce.AppAssertionCredentials.create_scoped_required">(oauth2client.gce.AppAssertionCredentials method)</a>
+  </dt>
+
+      </dl></dd>
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.Credentials">Credentials (class in oauth2client.client)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.file.CredentialsFileSymbolicLinkError">CredentialsFileSymbolicLinkError</a>, <a href="source/oauth2client.html#oauth2client.locked_file.CredentialsFileSymbolicLinkError">[1]</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.CryptoUnavailableError">CryptoUnavailableError</a>
+  </dt>
+
+  </dl></td>
+</tr></table>
+
+<h2 id="D">D</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.MemoryCache.delete">delete() (oauth2client.client.MemoryCache method)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="source/oauth2client.html#oauth2client.client.Storage.delete">(oauth2client.client.Storage method)</a>
+  </dt>
+
+      </dl></dd>
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.DeviceFlowInfo">DeviceFlowInfo (class in oauth2client.client)</a>
+  </dt>
+
+  </dl></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.SETTINGS.env_name">env_name (oauth2client.client.SETTINGS attribute)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.Error">Error</a>, <a href="source/oauth2client.html#oauth2client.clientsecrets.Error">[1]</a>, <a href="source/oauth2client.html#oauth2client.multistore_file.Error">[2]</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.AccessTokenInfo.expires_in">expires_in (oauth2client.client.AccessTokenInfo attribute)</a>
+  </dt>
+
+  </dl></td>
+</tr></table>
+
+<h2 id="F">F</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.locked_file.LockedFile.file_handle">file_handle() (oauth2client.locked_file.LockedFile method)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.locked_file.LockedFile.filename">filename() (oauth2client.locked_file.LockedFile method)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.Flow">Flow (class in oauth2client.client)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.FlowExchangeError">FlowExchangeError</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.AccessTokenCredentials.from_json">from_json() (oauth2client.client.AccessTokenCredentials class method)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="source/oauth2client.html#oauth2client.client.Credentials.from_json">(oauth2client.client.Credentials class method)</a>
+  </dt>
+
+        
+  <dt><a href="source/oauth2client.html#oauth2client.client.OAuth2Credentials.from_json">(oauth2client.client.OAuth2Credentials class method)</a>
+  </dt>
+
+        
+  <dt><a href="source/oauth2client.html#oauth2client.client.SignedJwtAssertionCredentials.from_json">(oauth2client.client.SignedJwtAssertionCredentials class method)</a>
+  </dt>
+
+        
+  <dt><a href="source/oauth2client.html#oauth2client.gce.AppAssertionCredentials.from_json">(oauth2client.gce.AppAssertionCredentials class method)</a>
+  </dt>
+
+      </dl></dd>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.GoogleCredentials.from_stream">from_stream() (oauth2client.client.GoogleCredentials static method)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.crypt.OpenSSLSigner.from_string">from_string() (oauth2client.crypt.OpenSSLSigner static method)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="source/oauth2client.html#oauth2client.crypt.OpenSSLVerifier.from_string">(oauth2client.crypt.OpenSSLVerifier static method)</a>
+  </dt>
+
+        
+  <dt><a href="source/oauth2client.html#oauth2client.crypt.PyCryptoSigner.from_string">(oauth2client.crypt.PyCryptoSigner static method)</a>
+  </dt>
+
+        
+  <dt><a href="source/oauth2client.html#oauth2client.crypt.PyCryptoVerifier.from_string">(oauth2client.crypt.PyCryptoVerifier static method)</a>
+  </dt>
+
+      </dl></dd>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.DeviceFlowInfo.FromResponse">FromResponse() (oauth2client.client.DeviceFlowInfo class method)</a>
+  </dt>
+
+  </dl></td>
+</tr></table>
+
+<h2 id="G">G</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.MemoryCache.get">get() (oauth2client.client.MemoryCache method)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="source/oauth2client.html#oauth2client.client.Storage.get">(oauth2client.client.Storage method)</a>
+  </dt>
+
+      </dl></dd>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.OAuth2Credentials.get_access_token">get_access_token() (oauth2client.client.OAuth2Credentials method)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.GoogleCredentials.get_application_default">get_application_default() (oauth2client.client.GoogleCredentials static method)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.GoogleCredentials">GoogleCredentials (class in oauth2client.client)</a>
+  </dt>
+
+  </dl></td>
+</tr></table>
+
+<h2 id="I">I</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.clientsecrets.InvalidClientSecretsError">InvalidClientSecretsError</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.locked_file.LockedFile.is_locked">is_locked() (oauth2client.locked_file.LockedFile method)</a>
+  </dt>
+
+  </dl></td>
+</tr></table>
+
+<h2 id="L">L</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.clientsecrets.load">load() (in module oauth2client.clientsecrets)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.clientsecrets.loadfile">loadfile() (in module oauth2client.clientsecrets)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.clientsecrets.loads">loads() (in module oauth2client.clientsecrets)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.Storage.locked_delete">locked_delete() (oauth2client.client.Storage method)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="source/oauth2client.html#oauth2client.file.Storage.locked_delete">(oauth2client.file.Storage method)</a>
+  </dt>
+
+        
+  <dt><a href="source/oauth2client.html#oauth2client.keyring_storage.Storage.locked_delete">(oauth2client.keyring_storage.Storage method)</a>
+  </dt>
+
+      </dl></dd>
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.Storage.locked_get">locked_get() (oauth2client.client.Storage method)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="source/oauth2client.html#oauth2client.file.Storage.locked_get">(oauth2client.file.Storage method)</a>
+  </dt>
+
+        
+  <dt><a href="source/oauth2client.html#oauth2client.keyring_storage.Storage.locked_get">(oauth2client.keyring_storage.Storage method)</a>
+  </dt>
+
+      </dl></dd>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.Storage.locked_put">locked_put() (oauth2client.client.Storage method)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="source/oauth2client.html#oauth2client.file.Storage.locked_put">(oauth2client.file.Storage method)</a>
+  </dt>
+
+        
+  <dt><a href="source/oauth2client.html#oauth2client.keyring_storage.Storage.locked_put">(oauth2client.keyring_storage.Storage method)</a>
+  </dt>
+
+      </dl></dd>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.locked_file.LockedFile">LockedFile (class in oauth2client.locked_file)</a>
+  </dt>
+
+  </dl></td>
+</tr></table>
+
+<h2 id="M">M</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.crypt.make_signed_jwt">make_signed_jwt() (in module oauth2client.crypt)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.SignedJwtAssertionCredentials.MAX_TOKEN_LIFETIME_SECS">MAX_TOKEN_LIFETIME_SECS (oauth2client.client.SignedJwtAssertionCredentials attribute)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.MemoryCache">MemoryCache (class in oauth2client.client)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.tools.message_if_missing">message_if_missing() (in module oauth2client.tools)</a>
+  </dt>
+
+  </dl></td>
+</tr></table>
+
+<h2 id="N">N</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.Credentials.new_from_json">new_from_json() (oauth2client.client.Credentials class method)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.multistore_file.NewerCredentialStoreError">NewerCredentialStoreError</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.Credentials.NON_SERIALIZED_MEMBERS">NON_SERIALIZED_MEMBERS (oauth2client.client.Credentials attribute)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.NonAsciiHeaderError">NonAsciiHeaderError</a>
+  </dt>
+
+  </dl></td>
+</tr></table>
+
+<h2 id="O">O</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="source/oauth2client.html#module-oauth2client">oauth2client (module)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#module-oauth2client.client">oauth2client.client (module)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#module-oauth2client.clientsecrets">oauth2client.clientsecrets (module)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#module-oauth2client.crypt">oauth2client.crypt (module)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#module-oauth2client.file">oauth2client.file (module)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#module-oauth2client.gce">oauth2client.gce (module)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#module-oauth2client.keyring_storage">oauth2client.keyring_storage (module)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#module-oauth2client.locked_file">oauth2client.locked_file (module)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#module-oauth2client.multistore_file">oauth2client.multistore_file (module)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#module-oauth2client.old_run">oauth2client.old_run (module)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="source/oauth2client.html#module-oauth2client.service_account">oauth2client.service_account (module)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#module-oauth2client.tools">oauth2client.tools (module)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#module-oauth2client.util">oauth2client.util (module)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#module-oauth2client.xsrfutil">oauth2client.xsrfutil (module)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.OAuth2Credentials">OAuth2Credentials (class in oauth2client.client)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.OAuth2DeviceCodeError">OAuth2DeviceCodeError</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.OAuth2WebServerFlow">OAuth2WebServerFlow (class in oauth2client.client)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.locked_file.LockedFile.open_and_lock">open_and_lock() (oauth2client.locked_file.LockedFile method)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.crypt.OpenSSLSigner">OpenSSLSigner (class in oauth2client.crypt)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.crypt.OpenSSLVerifier">OpenSSLVerifier (class in oauth2client.crypt)</a>
+  </dt>
+
+  </dl></td>
+</tr></table>
+
+<h2 id="P">P</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.util.positional">positional() (in module oauth2client.util)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.Storage.put">put() (oauth2client.client.Storage method)</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.crypt.PyCryptoSigner">PyCryptoSigner (class in oauth2client.crypt)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.crypt.PyCryptoVerifier">PyCryptoVerifier (class in oauth2client.crypt)</a>
+  </dt>
+
+  </dl></td>
+</tr></table>
+
+<h2 id="R">R</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.Credentials.refresh">refresh() (oauth2client.client.Credentials method)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="source/oauth2client.html#oauth2client.client.OAuth2Credentials.refresh">(oauth2client.client.OAuth2Credentials method)</a>
+  </dt>
+
+      </dl></dd>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.Storage.release_lock">release_lock() (oauth2client.client.Storage method)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="source/oauth2client.html#oauth2client.file.Storage.release_lock">(oauth2client.file.Storage method)</a>
+  </dt>
+
+        
+  <dt><a href="source/oauth2client.html#oauth2client.keyring_storage.Storage.release_lock">(oauth2client.keyring_storage.Storage method)</a>
+  </dt>
+
+      </dl></dd>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.Credentials.revoke">revoke() (oauth2client.client.Credentials method)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="source/oauth2client.html#oauth2client.client.OAuth2Credentials.revoke">(oauth2client.client.OAuth2Credentials method)</a>
+  </dt>
+
+      </dl></dd>
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.tools.run">run() (in module oauth2client.tools)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.tools.run_flow">run_flow() (in module oauth2client.tools)</a>
+  </dt>
+
+  </dl></td>
+</tr></table>
+
+<h2 id="S">S</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.save_to_well_known_file">save_to_well_known_file() (in module oauth2client.client)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.GoogleCredentials.serialization_data">serialization_data (oauth2client.client.GoogleCredentials attribute)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="source/oauth2client.html#oauth2client.gce.AppAssertionCredentials.serialization_data">(oauth2client.gce.AppAssertionCredentials attribute)</a>
+  </dt>
+
+      </dl></dd>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.MemoryCache.set">set() (oauth2client.client.MemoryCache method)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.OAuth2Credentials.set_store">set_store() (oauth2client.client.OAuth2Credentials method)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.SETTINGS">SETTINGS (class in oauth2client.client)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.crypt.OpenSSLSigner.sign">sign() (oauth2client.crypt.OpenSSLSigner method)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="source/oauth2client.html#oauth2client.crypt.PyCryptoSigner.sign">(oauth2client.crypt.PyCryptoSigner method)</a>
+  </dt>
+
+      </dl></dd>
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.SignedJwtAssertionCredentials">SignedJwtAssertionCredentials (class in oauth2client.client)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.crypt.Signer">Signer (in module oauth2client.crypt)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.OAuth2WebServerFlow.step1_get_authorize_url">step1_get_authorize_url() (oauth2client.client.OAuth2WebServerFlow method)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.OAuth2WebServerFlow.step1_get_device_and_user_codes">step1_get_device_and_user_codes() (oauth2client.client.OAuth2WebServerFlow method)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.OAuth2WebServerFlow.step2_exchange">step2_exchange() (oauth2client.client.OAuth2WebServerFlow method)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.Storage">Storage (class in oauth2client.client)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="source/oauth2client.html#oauth2client.file.Storage">(class in oauth2client.file)</a>
+  </dt>
+
+        
+  <dt><a href="source/oauth2client.html#oauth2client.keyring_storage.Storage">(class in oauth2client.keyring_storage)</a>
+  </dt>
+
+      </dl></dd>
+  </dl></td>
+</tr></table>
+
+<h2 id="T">T</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.Credentials.to_json">to_json() (oauth2client.client.Credentials method)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="source/oauth2client.html#oauth2client.client.OAuth2Credentials.to_json">(oauth2client.client.OAuth2Credentials method)</a>
+  </dt>
+
+      </dl></dd>
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.TokenRevokeError">TokenRevokeError</a>
+  </dt>
+
+  </dl></td>
+</tr></table>
+
+<h2 id="U">U</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.UnknownClientSecretsFlowError">UnknownClientSecretsFlowError</a>
+  </dt>
+
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.locked_file.LockedFile.unlock_and_close">unlock_and_close() (oauth2client.locked_file.LockedFile method)</a>
+  </dt>
+
+  </dl></td>
+</tr></table>
+
+<h2 id="V">V</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.locked_file.validate_file">validate_file() (in module oauth2client.locked_file)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.crypt.Verifier">Verifier (in module oauth2client.crypt)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.crypt.OpenSSLVerifier.verify">verify() (oauth2client.crypt.OpenSSLVerifier method)</a>
+  </dt>
+
+      <dd><dl>
+        
+  <dt><a href="source/oauth2client.html#oauth2client.crypt.PyCryptoVerifier.verify">(oauth2client.crypt.PyCryptoVerifier method)</a>
+  </dt>
+
+      </dl></dd>
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="source/oauth2client.html#oauth2client.crypt.verify_signed_jwt_with_certs">verify_signed_jwt_with_certs() (in module oauth2client.crypt)</a>
+  </dt>
+
+      
+  <dt><a href="source/oauth2client.html#oauth2client.client.VerifyJwtTokenError">VerifyJwtTokenError</a>
+  </dt>
+
+  </dl></td>
+</tr></table>
+
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2014, Google, Inc.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.3.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

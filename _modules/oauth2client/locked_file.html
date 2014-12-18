@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>oauth2client.locked_file &mdash; oauth2client 1.4.4 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/bootswatch-3.2.0/flatly/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.4.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-3.2.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
+    <link rel="top" title="oauth2client 1.4.4 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body>
+  
+
+  <a href="https://github.com/google/oauth2client"
+     class="visible-desktop hidden-xs">
+    <img id="gh-banner"
+         style="position:absolute; right:0; border:0; width:149px; height:149px;"
+         src="http://aral.github.com/fork-me-on-github-retina-ribbons/right-grey@2x.png"
+         alt="Fork me on GitHub">
+  </a>
+  <script>
+    // Adjust banner height.
+    $(function () {
+      var navHeight = $(".navbar .container").css("height");
+      $("#gh-banner").css("top", navHeight);
+      var navZ = $(".container").css("z-index");
+      navZ = (navZ === "auto") ? 10 : navZ + 10;
+      $("#gh-banner").css("z-index", navZ);
+    });
+  </script>
+
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../index.html"><img src="../../_static/google_logo.png">
+          oauth2client</a>
+        <span class="navbar-text navbar-version pull-left"><b>1.4.4</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"></ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      
+  <h1>Source code for oauth2client.locked_file</h1><div class="highlight"><pre>
+<span class="c"># Copyright 2014 Google Inc. All rights reserved.</span>
+<span class="c">#</span>
+<span class="c"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c"># you may not use this file except in compliance with the License.</span>
+<span class="c"># You may obtain a copy of the License at</span>
+<span class="c">#</span>
+<span class="c">#      http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c">#</span>
+<span class="c"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c"># See the License for the specific language governing permissions and</span>
+<span class="c"># limitations under the License.</span>
+
+<span class="sd">&quot;&quot;&quot;Locked file interface that should work on Unix and Windows pythons.</span>
+
+<span class="sd">This module first tries to use fcntl locking to ensure serialized access</span>
+<span class="sd">to a file, then falls back on a lock file if that is unavialable.</span>
+
+<span class="sd">Usage:</span>
+<span class="sd">    f = LockedFile(&#39;filename&#39;, &#39;r+b&#39;, &#39;rb&#39;)</span>
+<span class="sd">    f.open_and_lock()</span>
+<span class="sd">    if f.is_locked():</span>
+<span class="sd">      print(&#39;Acquired filename with r+b mode&#39;)</span>
+<span class="sd">      f.file_handle().write(&#39;locked data&#39;)</span>
+<span class="sd">    else:</span>
+<span class="sd">      print(&#39;Acquired filename with rb mode&#39;)</span>
+<span class="sd">    f.unlock_and_close()</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;cache@google.com (David T McWherter)&#39;</span>
+
+<span class="kn">import</span> <span class="nn">errno</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">from</span> <span class="nn">oauth2client</span> <span class="kn">import</span> <span class="n">util</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="CredentialsFileSymbolicLinkError"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.locked_file.CredentialsFileSymbolicLinkError">[docs]</a><span class="k">class</span> <span class="nc">CredentialsFileSymbolicLinkError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Credentials files must not be symbolic links.&quot;&quot;&quot;</span>
+
+</div>
+<div class="viewcode-block" id="AlreadyLockedException"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.locked_file.AlreadyLockedException">[docs]</a><span class="k">class</span> <span class="nc">AlreadyLockedException</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Trying to lock a file that has already been locked by the LockedFile.&quot;&quot;&quot;</span>
+  <span class="k">pass</span>
+
+</div>
+<div class="viewcode-block" id="validate_file"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.locked_file.validate_file">[docs]</a><span class="k">def</span> <span class="nf">validate_file</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+  <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">islink</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="n">CredentialsFileSymbolicLinkError</span><span class="p">(</span>
+        <span class="s">&#39;File: </span><span class="si">%s</span><span class="s"> is a symbolic link.&#39;</span> <span class="o">%</span> <span class="n">filename</span><span class="p">)</span>
+</div>
+<span class="k">class</span> <span class="nc">_Opener</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Base class for different locking primitives.&quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">fallback_mode</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create an Opener.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      filename: string, The pathname of the file.</span>
+<span class="sd">      mode: string, The preferred mode to access the file with.</span>
+<span class="sd">      fallback_mode: string, The mode to use if locking fails.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_locked</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_filename</span> <span class="o">=</span> <span class="n">filename</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span> <span class="o">=</span> <span class="n">mode</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_fallback_mode</span> <span class="o">=</span> <span class="n">fallback_mode</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_fh</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_lock_fd</span> <span class="o">=</span> <span class="bp">None</span>
+
+  <span class="k">def</span> <span class="nf">is_locked</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Was the file locked.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_locked</span>
+
+  <span class="k">def</span> <span class="nf">file_handle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The file handle to the file. Valid only after opened.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fh</span>
+
+  <span class="k">def</span> <span class="nf">filename</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The filename that is being locked.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filename</span>
+
+  <span class="k">def</span> <span class="nf">open_and_lock</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">,</span> <span class="n">delay</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Open the file and lock it.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      timeout: float, How long to try to lock for.</span>
+<span class="sd">      delay: float, How long to wait between retries.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+  <span class="k">def</span> <span class="nf">unlock_and_close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Unlock and close the file.&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+
+<span class="k">class</span> <span class="nc">_PosixOpener</span><span class="p">(</span><span class="n">_Opener</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Lock files using Posix advisory lock files.&quot;&quot;&quot;</span>
+
+  <span class="k">def</span> <span class="nf">open_and_lock</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">,</span> <span class="n">delay</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Open the file and lock it.</span>
+
+<span class="sd">    Tries to create a .lock file next to the file we&#39;re trying to open.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      timeout: float, How long to try to lock for.</span>
+<span class="sd">      delay: float, How long to wait between retries.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      AlreadyLockedException: if the lock is already acquired.</span>
+<span class="sd">      IOError: if the open fails.</span>
+<span class="sd">      CredentialsFileSymbolicLinkError if the file is a symbolic link.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_locked</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="n">AlreadyLockedException</span><span class="p">(</span><span class="s">&#39;File </span><span class="si">%s</span><span class="s"> is already locked&#39;</span> <span class="o">%</span>
+                                   <span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_locked</span> <span class="o">=</span> <span class="bp">False</span>
+
+    <span class="n">validate_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_fh</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">IOError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+      <span class="c"># If we can&#39;t access with _mode, try _fallback_mode and don&#39;t lock.</span>
+      <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">errno</span> <span class="o">==</span> <span class="n">errno</span><span class="o">.</span><span class="n">EACCES</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fh</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fallback_mode</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">lock_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_posix_lockfile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">)</span>
+    <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+      <span class="k">try</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lock_fd</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">lock_filename</span><span class="p">,</span>
+                                <span class="n">os</span><span class="o">.</span><span class="n">O_CREAT</span><span class="o">|</span><span class="n">os</span><span class="o">.</span><span class="n">O_EXCL</span><span class="o">|</span><span class="n">os</span><span class="o">.</span><span class="n">O_RDWR</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_locked</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">break</span>
+
+      <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">errno</span> <span class="o">!=</span> <span class="n">errno</span><span class="o">.</span><span class="n">EEXIST</span><span class="p">:</span>
+          <span class="k">raise</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">timeout</span><span class="p">:</span>
+          <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&#39;Could not acquire lock </span><span class="si">%s</span><span class="s"> in </span><span class="si">%s</span><span class="s"> seconds&#39;</span><span class="p">,</span>
+                      <span class="n">lock_filename</span><span class="p">,</span> <span class="n">timeout</span><span class="p">)</span>
+          <span class="c"># Close the file and open in fallback_mode.</span>
+          <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fh</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fh</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">_fh</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fallback_mode</span><span class="p">)</span>
+          <span class="k">return</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">delay</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">unlock_and_close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Unlock a file by removing the .lock file, and close the handle.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_locked</span><span class="p">:</span>
+      <span class="n">lock_filename</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_posix_lockfile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">)</span>
+      <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lock_fd</span><span class="p">)</span>
+      <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">lock_filename</span><span class="p">)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_locked</span> <span class="o">=</span> <span class="bp">False</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_lock_fd</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fh</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_fh</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+  <span class="k">def</span> <span class="nf">_posix_lockfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The name of the lock file to use for posix locking.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="s">&#39;</span><span class="si">%s</span><span class="s">.lock&#39;</span> <span class="o">%</span> <span class="n">filename</span>
+
+
+<span class="k">try</span><span class="p">:</span>
+  <span class="kn">import</span> <span class="nn">fcntl</span>
+
+  <span class="k">class</span> <span class="nc">_FcntlOpener</span><span class="p">(</span><span class="n">_Opener</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Open, lock, and unlock a file using fcntl.lockf.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">open_and_lock</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">,</span> <span class="n">delay</span><span class="p">):</span>
+      <span class="sd">&quot;&quot;&quot;Open the file and lock it.</span>
+
+<span class="sd">      Args:</span>
+<span class="sd">        timeout: float, How long to try to lock for.</span>
+<span class="sd">        delay: float, How long to wait between retries</span>
+
+<span class="sd">      Raises:</span>
+<span class="sd">        AlreadyLockedException: if the lock is already acquired.</span>
+<span class="sd">        IOError: if the open fails.</span>
+<span class="sd">        CredentialsFileSymbolicLinkError if the file is a symbolic link.</span>
+<span class="sd">      &quot;&quot;&quot;</span>
+      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_locked</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">AlreadyLockedException</span><span class="p">(</span><span class="s">&#39;File </span><span class="si">%s</span><span class="s"> is already locked&#39;</span> <span class="o">%</span>
+                                     <span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">)</span>
+      <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+      <span class="n">validate_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">)</span>
+      <span class="k">try</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fh</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span><span class="p">)</span>
+      <span class="k">except</span> <span class="ne">IOError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="c"># If we can&#39;t access with _mode, try _fallback_mode and don&#39;t lock.</span>
+        <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">errno</span> <span class="ow">in</span> <span class="p">(</span><span class="n">errno</span><span class="o">.</span><span class="n">EPERM</span><span class="p">,</span> <span class="n">errno</span><span class="o">.</span><span class="n">EACCES</span><span class="p">):</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">_fh</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fallback_mode</span><span class="p">)</span>
+          <span class="k">return</span>
+
+      <span class="c"># We opened in _mode, try to lock the file.</span>
+      <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+          <span class="n">fcntl</span><span class="o">.</span><span class="n">lockf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fh</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="n">fcntl</span><span class="o">.</span><span class="n">LOCK_EX</span><span class="p">)</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">_locked</span> <span class="o">=</span> <span class="bp">True</span>
+          <span class="k">return</span>
+        <span class="k">except</span> <span class="ne">IOError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+          <span class="c"># If not retrying, then just pass on the error.</span>
+          <span class="k">if</span> <span class="n">timeout</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span>
+          <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">errno</span> <span class="o">!=</span> <span class="n">errno</span><span class="o">.</span><span class="n">EACCES</span><span class="p">:</span>
+            <span class="k">raise</span>
+          <span class="c"># We could not acquire the lock. Try again.</span>
+          <span class="k">if</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">timeout</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&#39;Could not lock </span><span class="si">%s</span><span class="s"> in </span><span class="si">%s</span><span class="s"> seconds&#39;</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">,</span> <span class="n">timeout</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fh</span><span class="p">:</span>
+              <span class="bp">self</span><span class="o">.</span><span class="n">_fh</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fh</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fallback_mode</span><span class="p">)</span>
+            <span class="k">return</span>
+          <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">delay</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">unlock_and_close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+      <span class="sd">&quot;&quot;&quot;Close and unlock the file using the fcntl.lockf primitive.&quot;&quot;&quot;</span>
+      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_locked</span><span class="p">:</span>
+        <span class="n">fcntl</span><span class="o">.</span><span class="n">lockf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fh</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="n">fcntl</span><span class="o">.</span><span class="n">LOCK_UN</span><span class="p">)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_locked</span> <span class="o">=</span> <span class="bp">False</span>
+      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fh</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fh</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+  <span class="n">_FcntlOpener</span> <span class="o">=</span> <span class="bp">None</span>
+
+
+<span class="k">try</span><span class="p">:</span>
+  <span class="kn">import</span> <span class="nn">pywintypes</span>
+  <span class="kn">import</span> <span class="nn">win32con</span>
+  <span class="kn">import</span> <span class="nn">win32file</span>
+
+  <span class="k">class</span> <span class="nc">_Win32Opener</span><span class="p">(</span><span class="n">_Opener</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Open, lock, and unlock a file using windows primitives.&quot;&quot;&quot;</span>
+
+    <span class="c"># Error #33:</span>
+    <span class="c">#  &#39;The process cannot access the file because another process&#39;</span>
+    <span class="n">FILE_IN_USE_ERROR</span> <span class="o">=</span> <span class="mi">33</span>
+
+    <span class="c"># Error #158:</span>
+    <span class="c">#  &#39;The segment is already unlocked.&#39;</span>
+    <span class="n">FILE_ALREADY_UNLOCKED_ERROR</span> <span class="o">=</span> <span class="mi">158</span>
+
+    <span class="k">def</span> <span class="nf">open_and_lock</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">,</span> <span class="n">delay</span><span class="p">):</span>
+      <span class="sd">&quot;&quot;&quot;Open the file and lock it.</span>
+
+<span class="sd">      Args:</span>
+<span class="sd">        timeout: float, How long to try to lock for.</span>
+<span class="sd">        delay: float, How long to wait between retries</span>
+
+<span class="sd">      Raises:</span>
+<span class="sd">        AlreadyLockedException: if the lock is already acquired.</span>
+<span class="sd">        IOError: if the open fails.</span>
+<span class="sd">        CredentialsFileSymbolicLinkError if the file is a symbolic link.</span>
+<span class="sd">      &quot;&quot;&quot;</span>
+      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_locked</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">AlreadyLockedException</span><span class="p">(</span><span class="s">&#39;File </span><span class="si">%s</span><span class="s"> is already locked&#39;</span> <span class="o">%</span>
+                                     <span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">)</span>
+      <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+      <span class="n">validate_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">)</span>
+      <span class="k">try</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fh</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span><span class="p">)</span>
+      <span class="k">except</span> <span class="ne">IOError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="c"># If we can&#39;t access with _mode, try _fallback_mode and don&#39;t lock.</span>
+        <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">errno</span> <span class="o">==</span> <span class="n">errno</span><span class="o">.</span><span class="n">EACCES</span><span class="p">:</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">_fh</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fallback_mode</span><span class="p">)</span>
+          <span class="k">return</span>
+
+      <span class="c"># We opened in _mode, try to lock the file.</span>
+      <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+          <span class="n">hfile</span> <span class="o">=</span> <span class="n">win32file</span><span class="o">.</span><span class="n">_get_osfhandle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fh</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span>
+          <span class="n">win32file</span><span class="o">.</span><span class="n">LockFileEx</span><span class="p">(</span>
+              <span class="n">hfile</span><span class="p">,</span>
+              <span class="p">(</span><span class="n">win32con</span><span class="o">.</span><span class="n">LOCKFILE_FAIL_IMMEDIATELY</span><span class="o">|</span>
+               <span class="n">win32con</span><span class="o">.</span><span class="n">LOCKFILE_EXCLUSIVE_LOCK</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mh">0x10000</span><span class="p">,</span>
+              <span class="n">pywintypes</span><span class="o">.</span><span class="n">OVERLAPPED</span><span class="p">())</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">_locked</span> <span class="o">=</span> <span class="bp">True</span>
+          <span class="k">return</span>
+        <span class="k">except</span> <span class="n">pywintypes</span><span class="o">.</span><span class="n">error</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+          <span class="k">if</span> <span class="n">timeout</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span>
+
+          <span class="c"># If the error is not that the file is already in use, raise.</span>
+          <span class="k">if</span> <span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">_Win32Opener</span><span class="o">.</span><span class="n">FILE_IN_USE_ERROR</span><span class="p">:</span>
+            <span class="k">raise</span>
+
+          <span class="c"># We could not acquire the lock. Try again.</span>
+          <span class="k">if</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">timeout</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&#39;Could not lock </span><span class="si">%s</span><span class="s"> in </span><span class="si">%s</span><span class="s"> seconds&#39;</span> <span class="o">%</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">,</span> <span class="n">timeout</span><span class="p">))</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fh</span><span class="p">:</span>
+              <span class="bp">self</span><span class="o">.</span><span class="n">_fh</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fh</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_filename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fallback_mode</span><span class="p">)</span>
+            <span class="k">return</span>
+          <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">delay</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">unlock_and_close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+      <span class="sd">&quot;&quot;&quot;Close and unlock the file using the win32 primitive.&quot;&quot;&quot;</span>
+      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_locked</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+          <span class="n">hfile</span> <span class="o">=</span> <span class="n">win32file</span><span class="o">.</span><span class="n">_get_osfhandle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fh</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span>
+          <span class="n">win32file</span><span class="o">.</span><span class="n">UnlockFileEx</span><span class="p">(</span><span class="n">hfile</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mh">0x10000</span><span class="p">,</span> <span class="n">pywintypes</span><span class="o">.</span><span class="n">OVERLAPPED</span><span class="p">())</span>
+        <span class="k">except</span> <span class="n">pywintypes</span><span class="o">.</span><span class="n">error</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+          <span class="k">if</span> <span class="n">e</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">_Win32Opener</span><span class="o">.</span><span class="n">FILE_ALREADY_UNLOCKED_ERROR</span><span class="p">:</span>
+            <span class="k">raise</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_locked</span> <span class="o">=</span> <span class="bp">False</span>
+      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fh</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fh</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+  <span class="n">_Win32Opener</span> <span class="o">=</span> <span class="bp">None</span>
+
+
+<div class="viewcode-block" id="LockedFile"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.locked_file.LockedFile">[docs]</a><span class="k">class</span> <span class="nc">LockedFile</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Represent a file that has exclusive access.&quot;&quot;&quot;</span>
+
+  <span class="nd">@util.positional</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">fallback_mode</span><span class="p">,</span> <span class="n">use_native_locking</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Construct a LockedFile.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      filename: string, The path of the file to open.</span>
+<span class="sd">      mode: string, The mode to try to open the file with.</span>
+<span class="sd">      fallback_mode: string, The mode to use if locking fails.</span>
+<span class="sd">      use_native_locking: bool, Whether or not fcntl/win32 locking is used.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">opener</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">opener</span> <span class="ow">and</span> <span class="n">use_native_locking</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">_Win32Opener</span><span class="p">:</span>
+        <span class="n">opener</span> <span class="o">=</span> <span class="n">_Win32Opener</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">fallback_mode</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">_FcntlOpener</span><span class="p">:</span>
+        <span class="n">opener</span> <span class="o">=</span> <span class="n">_FcntlOpener</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">fallback_mode</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">opener</span><span class="p">:</span>
+      <span class="n">opener</span> <span class="o">=</span> <span class="n">_PosixOpener</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">fallback_mode</span><span class="p">)</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">_opener</span> <span class="o">=</span> <span class="n">opener</span>
+
+<div class="viewcode-block" id="LockedFile.filename"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.locked_file.LockedFile.filename">[docs]</a>  <span class="k">def</span> <span class="nf">filename</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return the filename we were constructed with.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_opener</span><span class="o">.</span><span class="n">_filename</span>
+</div>
+<div class="viewcode-block" id="LockedFile.file_handle"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.locked_file.LockedFile.file_handle">[docs]</a>  <span class="k">def</span> <span class="nf">file_handle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return the file_handle to the opened file.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_opener</span><span class="o">.</span><span class="n">file_handle</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="LockedFile.is_locked"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.locked_file.LockedFile.is_locked">[docs]</a>  <span class="k">def</span> <span class="nf">is_locked</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return whether we successfully locked the file.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_opener</span><span class="o">.</span><span class="n">is_locked</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="LockedFile.open_and_lock"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.locked_file.LockedFile.open_and_lock">[docs]</a>  <span class="k">def</span> <span class="nf">open_and_lock</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Open the file, trying to lock it.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      timeout: float, The number of seconds to try to acquire the lock.</span>
+<span class="sd">      delay: float, The number of seconds to wait between retry attempts.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      AlreadyLockedException: if the lock is already acquired.</span>
+<span class="sd">      IOError: if the open fails.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_opener</span><span class="o">.</span><span class="n">open_and_lock</span><span class="p">(</span><span class="n">timeout</span><span class="p">,</span> <span class="n">delay</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="LockedFile.unlock_and_close"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.locked_file.LockedFile.unlock_and_close">[docs]</a>  <span class="k">def</span> <span class="nf">unlock_and_close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Unlock and close a file.&quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_opener</span><span class="o">.</span><span class="n">unlock_and_close</span><span class="p">()</span></div></div>
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2014, Google, Inc.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.3.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>
