@@ -40,8 +40,7 @@ Library Documentation
 Contributing
 ------------
 
-Please see the `contributing page
-<http://google.github.io/oauth2client/contributing.html>`_ for more
-information. In particular, we love pull requests -- but please make sure to
-sign the contributor license agreement.
+Please see the `contributing page <contributing.html>`_ for more information.
+In particular, we love pull requests -- but please make sure to sign the
+contributor license agreement.
 
