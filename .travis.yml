@@ -13,4 +13,4 @@ script:
 after_success:
   - tox -e coveralls
 notifications:
-  - email: false
+  email: false
