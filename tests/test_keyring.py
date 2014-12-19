@@ -23,10 +23,8 @@ __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 import datetime
 import keyring
 import unittest
-try:
-  from mox3 import mox
-except ImportError:
-  import mox
+
+import mock
 
 from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client.client import OAuth2Credentials
@@ -36,32 +34,22 @@ from oauth2client.keyring_storage import Storage
 class OAuth2ClientKeyringTests(unittest.TestCase):
 
   def test_non_existent_credentials_storage(self):
-    m = mox.Mox()
-    m.StubOutWithMock(keyring, 'get_password')
-    m.StubOutWithMock(keyring, 'set_password')
-    keyring.get_password('my_unit_test', 'me').AndReturn(None)
-    m.ReplayAll()
-
-    s = Storage('my_unit_test', 'me')
-    credentials = s.get()
-    self.assertEquals(None, credentials)
-
-    m.UnsetStubs()
-    m.VerifyAll()
+    with mock.patch.object(keyring, 'get_password',
+                           return_value=None,
+                           autospec=True) as get_password:
+      s = Storage('my_unit_test', 'me')
+      credentials = s.get()
+      self.assertEquals(None, credentials)
+      get_password.assert_called_once_with('my_unit_test', 'me')
 
   def test_malformed_credentials_in_storage(self):
-    m = mox.Mox()
-    m.StubOutWithMock(keyring, 'get_password')
-    m.StubOutWithMock(keyring, 'set_password')
-    keyring.get_password('my_unit_test', 'me').AndReturn('{')
-    m.ReplayAll()
-
-    s = Storage('my_unit_test', 'me')
-    credentials = s.get()
-    self.assertEquals(None, credentials)
-
-    m.UnsetStubs()
-    m.VerifyAll()
+    with mock.patch.object(keyring, 'get_password',
+                           return_value='{',
+                           autospec=True) as get_password:
+      s = Storage('my_unit_test', 'me')
+      credentials = s.get()
+      self.assertEquals(None, credentials)
+      get_password.assert_called_once_with('my_unit_test', 'me')
 
   def test_json_credentials_storage(self):
     access_token = 'foo'
@@ -76,22 +64,28 @@ class OAuth2ClientKeyringTests(unittest.TestCase):
         refresh_token, token_expiry, GOOGLE_TOKEN_URI,
         user_agent)
 
-    m = mox.Mox()
-    m.StubOutWithMock(keyring, 'get_password')
-    m.StubOutWithMock(keyring, 'set_password')
-    keyring.get_password('my_unit_test', 'me').AndReturn(None)
-    keyring.set_password('my_unit_test', 'me', credentials.to_json())
-    keyring.get_password('my_unit_test', 'me').AndReturn(credentials.to_json())
-    m.ReplayAll()
+    # Setting autospec on a mock with an iterable side_effect is
+    # currently broken (http://bugs.python.org/issue17826), so instead
+    # we patch twice.
+    with mock.patch.object(keyring, 'get_password',
+                           return_value=None,
+                           autospec=True) as get_password:
+      with mock.patch.object(keyring, 'set_password',
+                             return_value=None,
+                             autospec=True) as set_password:
+        s = Storage('my_unit_test', 'me')
+        self.assertEquals(None, s.get())
 
-    s = Storage('my_unit_test', 'me')
-    self.assertEquals(None, s.get())
+        s.put(credentials)
 
-    s.put(credentials)
+        set_password.assert_called_once_with(
+            'my_unit_test', 'me', credentials.to_json())
+        get_password.assert_called_once_with('my_unit_test', 'me')
 
-    restored = s.get()
-    self.assertEqual('foo', restored.access_token)
-    self.assertEqual('some_client_id', restored.client_id)
-
-    m.UnsetStubs()
-    m.VerifyAll()
+    with mock.patch.object(keyring, 'get_password',
+                           return_value=credentials.to_json(),
+                           autospec=True) as get_password:
+      restored = s.get()
+      self.assertEqual('foo', restored.access_token)
+      self.assertEqual('some_client_id', restored.client_id)
+      get_password.assert_called_once_with('my_unit_test', 'me')
