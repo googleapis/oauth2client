@@ -25,13 +25,11 @@ __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 import base64
 import datetime
 import json
-try:
-  from mox3 import mox
-except ImportError:
-  import mox
 import os
 import time
 import unittest
+
+import mock
 import six
 from six.moves import urllib
 
@@ -208,37 +206,19 @@ class GoogleCredentialsTests(unittest.TestCase):
 
   def test_get_environment_gce_production(self):
     os.environ['SERVER_SOFTWARE'] = ''
-    mockResponse = MockResponse(['Metadata-Flavor: Google\r\n'])
-
-    m = mox.Mox()
-
-    urllib2_urlopen = m.CreateMock(object)
-    urllib2_urlopen.__call__(('http://metadata.google.internal'
-                             )).AndReturn(mockResponse)
-
-    m.ReplayAll()
-
-    self.assertEqual('GCE_PRODUCTION', _get_environment(urllib2_urlopen))
-
-    m.UnsetStubs()
-    m.VerifyAll()
+    with mock.patch.object(urllib.request, 'urlopen') as urlopen:
+      urlopen.return_value = MockResponse(['Metadata-Flavor: Google\r\n'])
+      self.assertEqual('GCE_PRODUCTION', _get_environment())
+      urlopen.assert_called_once_with(
+          'http://metadata.google.internal/', timeout=1)
 
   def test_get_environment_unknown(self):
     os.environ['SERVER_SOFTWARE'] = ''
-    mockResponse = MockResponse([])
-
-    m = mox.Mox()
-
-    urllib2_urlopen = m.CreateMock(object)
-    urllib2_urlopen.__call__(('http://metadata.google.internal'
-                             )).AndReturn(mockResponse)
-
-    m.ReplayAll()
-
-    self.assertEqual(DEFAULT_ENV_NAME, _get_environment(urllib2_urlopen))
-
-    m.UnsetStubs()
-    m.VerifyAll()
+    with mock.patch.object(urllib.request, 'urlopen') as urlopen:
+      urlopen.return_value = MockResponse([])
+      self.assertEqual(DEFAULT_ENV_NAME, _get_environment())
+      urlopen.assert_called_once_with(
+          'http://metadata.google.internal/', timeout=1)
 
   def test_get_environment_variable_file(self):
     environment_variable_file = datafile(

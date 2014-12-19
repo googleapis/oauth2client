@@ -26,6 +26,7 @@ import datetime
 import json
 import logging
 import os
+import socket
 import sys
 import time
 import six
@@ -930,12 +931,22 @@ def _detect_gce_environment(urlopen=None):
           Compute Engine.
   """
   urlopen = urlopen or urllib.request.urlopen
-
+  # Note: the explicit `timeout` below is a workaround. The underlying
+  # issue is that resolving an unknown host on some networks will take
+  # 20-30 seconds; making this timeout short fixes the issue, but
+  # could lead to false negatives in the event that we are on GCE, but
+  # the metadata resolution was particularly slow. The latter case is
+  # "unlikely".
   try:
-    response = urlopen('http://metadata.google.internal')
+    response = urlopen('http://metadata.google.internal/', timeout=1)
     return any('Metadata-Flavor: Google' in header
                for header in response.info().headers)
-  except urllib.error.URLError:
+  except socket.timeout:
+    logger.info('Timeout attempting to reach GCE metadata service.')
+    return False
+  except urllib.error.URLError as e:
+    if isinstance(getattr(e, 'reason', None), socket.timeout):
+      logger.info('Timeout attempting to reach GCE metadata service.')
     return False
 
 
