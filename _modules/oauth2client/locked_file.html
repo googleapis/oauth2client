@@ -84,7 +84,15 @@
      href="../../index.html">Site <b class="caret"></b></a>
   <ul class="dropdown-menu globaltoc"
       role="menu"
-      aria-labelledby="dLabelGlobalToc"></ul>
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../source/modules.html">oauth2client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributor License Agreements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html#before-writing-code-file-an-issue">Before writing code, file an issue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html#fork-oauth2client">Fork oauth2client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html#include-tests">Include tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html#make-the-pull-request">Make the pull request</a></li>
+</ul>
+</ul>
 </li>
               
                 <li class="dropdown">
@@ -149,7 +157,8 @@
 <span class="sd">This module first tries to use fcntl locking to ensure serialized access</span>
 <span class="sd">to a file, then falls back on a lock file if that is unavialable.</span>
 
-<span class="sd">Usage:</span>
+<span class="sd">Usage::</span>
+
 <span class="sd">    f = LockedFile(&#39;filename&#39;, &#39;r+b&#39;, &#39;rb&#39;)</span>
 <span class="sd">    f.open_and_lock()</span>
 <span class="sd">    if f.is_locked():</span>
@@ -158,6 +167,7 @@
 <span class="sd">    else:</span>
 <span class="sd">      print(&#39;Acquired filename with rb mode&#39;)</span>
 <span class="sd">    f.unlock_and_close()</span>
+
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>

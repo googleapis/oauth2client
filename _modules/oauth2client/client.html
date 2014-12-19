@@ -84,7 +84,15 @@
      href="../../index.html">Site <b class="caret"></b></a>
   <ul class="dropdown-menu globaltoc"
       role="menu"
-      aria-labelledby="dLabelGlobalToc"></ul>
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../source/modules.html">oauth2client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributor License Agreements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html#before-writing-code-file-an-issue">Before writing code, file an issue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html#fork-oauth2client">Fork oauth2client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html#include-tests">Include tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html#make-the-pull-request">Make the pull request</a></li>
+</ul>
+</ul>
 </li>
               
                 <li class="dropdown">
@@ -631,13 +639,13 @@
 <span class="sd">    it.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">       http: An instance of httplib2.Http</span>
-<span class="sd">         or something that acts like it.</span>
+<span class="sd">       http: An instance of ``httplib2.Http`` or something that acts</span>
+<span class="sd">         like it.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">       A modified instance of http that was passed in.</span>
 
-<span class="sd">    Example:</span>
+<span class="sd">    Example::</span>
 
 <span class="sd">      h = httplib2.Http()</span>
 <span class="sd">      h = credentials.authorize(h)</span>
@@ -647,6 +655,7 @@
 <span class="sd">    signing. So instead we have to overload &#39;request&#39; with a closure</span>
 <span class="sd">    that adds in the Authorization header and then calls the original</span>
 <span class="sd">    version of &#39;request()&#39;.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">request_orig</span> <span class="o">=</span> <span class="n">http</span><span class="o">.</span><span class="n">request</span>
 
@@ -991,7 +1000,8 @@
 
 <span class="sd">  AccessTokenCredentials objects may be safely pickled and unpickled.</span>
 
-<span class="sd">  Usage:</span>
+<span class="sd">  Usage::</span>
+
 <span class="sd">    credentials = AccessTokenCredentials(&#39;&lt;an access token&gt;&#39;,</span>
 <span class="sd">      &#39;my-user-agent/1.0&#39;)</span>
 <span class="sd">    http = httplib2.Http()</span>
@@ -1820,8 +1830,8 @@
 <div class="viewcode-block" id="DeviceFlowInfo.FromResponse"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.DeviceFlowInfo.FromResponse">[docs]</a>  <span class="k">def</span> <span class="nf">FromResponse</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Create a DeviceFlowInfo from a server response.</span>
 
-<span class="sd">    The response should be a dict containing entries as described</span>
-<span class="sd">    here:</span>
+<span class="sd">    The response should be a dict containing entries as described here:</span>
+
 <span class="sd">      http://tools.ietf.org/html/draft-ietf-oauth-v2-05#section-3.7.1</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c"># device_code, user_code, and verification_url are required.</span>

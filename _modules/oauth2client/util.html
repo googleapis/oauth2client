@@ -84,7 +84,15 @@
      href="../../index.html">Site <b class="caret"></b></a>
   <ul class="dropdown-menu globaltoc"
       role="menu"
-      aria-labelledby="dLabelGlobalToc"></ul>
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../source/modules.html">oauth2client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributor License Agreements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html#before-writing-code-file-an-issue">Before writing code, file an issue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html#fork-oauth2client">Fork oauth2client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html#include-tests">Include tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html#make-the-pull-request">Make the pull request</a></li>
+</ul>
+</ul>
 </li>
               
                 <li class="dropdown">
@@ -183,56 +191,58 @@
 <div class="viewcode-block" id="positional"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.util.positional">[docs]</a><span class="k">def</span> <span class="nf">positional</span><span class="p">(</span><span class="n">max_positional_args</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;A decorator to declare that only the first N arguments my be positional.</span>
 
-<span class="sd">  This decorator makes it easy to support Python 3 style key-word only</span>
-<span class="sd">  parameters. For example, in Python 3 it is possible to write:</span>
+<span class="sd">  This decorator makes it easy to support Python 3 style keyword-only</span>
+<span class="sd">  parameters. For example, in Python 3 it is possible to write::</span>
 
 <span class="sd">    def fn(pos1, *, kwonly1=None, kwonly1=None):</span>
 <span class="sd">      ...</span>
 
-<span class="sd">  All named parameters after * must be a keyword:</span>
+<span class="sd">  All named parameters after ``*`` must be a keyword::</span>
 
 <span class="sd">    fn(10, &#39;kw1&#39;, &#39;kw2&#39;)  # Raises exception.</span>
 <span class="sd">    fn(10, kwonly1=&#39;kw1&#39;)  # Ok.</span>
 
-<span class="sd">  Example:</span>
-<span class="sd">    To define a function like above, do:</span>
+<span class="sd">  Example</span>
+<span class="sd">  ^^^^^^^</span>
 
-<span class="sd">      @positional(1)</span>
-<span class="sd">      def fn(pos1, kwonly1=None, kwonly2=None):</span>
+<span class="sd">  To define a function like above, do::</span>
+
+<span class="sd">    @positional(1)</span>
+<span class="sd">    def fn(pos1, kwonly1=None, kwonly2=None):</span>
+<span class="sd">      ...</span>
+
+<span class="sd">  If no default value is provided to a keyword argument, it becomes a required</span>
+<span class="sd">  keyword argument::</span>
+
+<span class="sd">    @positional(0)</span>
+<span class="sd">    def fn(required_kw):</span>
+<span class="sd">      ...</span>
+
+<span class="sd">  This must be called with the keyword parameter::</span>
+
+<span class="sd">    fn()  # Raises exception.</span>
+<span class="sd">    fn(10)  # Raises exception.</span>
+<span class="sd">    fn(required_kw=10)  # Ok.</span>
+
+<span class="sd">  When defining instance or class methods always remember to account for</span>
+<span class="sd">  ``self`` and ``cls``::</span>
+
+<span class="sd">    class MyClass(object):</span>
+
+<span class="sd">      @positional(2)</span>
+<span class="sd">      def my_method(self, pos1, kwonly1=None):</span>
 <span class="sd">        ...</span>
 
-<span class="sd">    If no default value is provided to a keyword argument, it becomes a required</span>
-<span class="sd">    keyword argument:</span>
-
-<span class="sd">      @positional(0)</span>
-<span class="sd">      def fn(required_kw):</span>
+<span class="sd">      @classmethod</span>
+<span class="sd">      @positional(2)</span>
+<span class="sd">      def my_method(cls, pos1, kwonly1=None):</span>
 <span class="sd">        ...</span>
-
-<span class="sd">    This must be called with the keyword parameter:</span>
-
-<span class="sd">      fn()  # Raises exception.</span>
-<span class="sd">      fn(10)  # Raises exception.</span>
-<span class="sd">      fn(required_kw=10)  # Ok.</span>
-
-<span class="sd">    When defining instance or class methods always remember to account for</span>
-<span class="sd">    &#39;self&#39; and &#39;cls&#39;:</span>
-
-<span class="sd">      class MyClass(object):</span>
-
-<span class="sd">        @positional(2)</span>
-<span class="sd">        def my_method(self, pos1, kwonly1=None):</span>
-<span class="sd">          ...</span>
-
-<span class="sd">        @classmethod</span>
-<span class="sd">        @positional(2)</span>
-<span class="sd">        def my_method(cls, pos1, kwonly1=None):</span>
-<span class="sd">          ...</span>
 
 <span class="sd">  The positional decorator behavior is controlled by</span>
-<span class="sd">  util.positional_parameters_enforcement, which may be set to</span>
-<span class="sd">  POSITIONAL_EXCEPTION, POSITIONAL_WARNING or POSITIONAL_IGNORE to raise an</span>
-<span class="sd">  exception, log a warning, or do nothing, respectively, if a declaration is</span>
-<span class="sd">  violated.</span>
+<span class="sd">  ``util.positional_parameters_enforcement``, which may be set to</span>
+<span class="sd">  ``POSITIONAL_EXCEPTION``, ``POSITIONAL_WARNING`` or</span>
+<span class="sd">  ``POSITIONAL_IGNORE`` to raise an exception, log a warning, or do</span>
+<span class="sd">  nothing, respectively, if a declaration is violated.</span>
 
 <span class="sd">  Args:</span>
 <span class="sd">    max_positional_arguments: Maximum number of positional arguments. All</span>
@@ -246,6 +256,7 @@
 <span class="sd">    TypeError if a key-word only argument is provided as a positional</span>
 <span class="sd">    parameter, but only if util.positional_parameters_enforcement is set to</span>
 <span class="sd">    POSITIONAL_EXCEPTION.</span>
+
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="k">def</span> <span class="nf">positional_decorator</span><span class="p">(</span><span class="n">wrapped</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">positional_wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>

@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>oauth2client.appengine &mdash; oauth2client 1.4.4 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/bootswatch-3.2.0/flatly/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.4.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-3.2.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
+    <link rel="top" title="oauth2client 1.4.4 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head>
+  <body>
+  
+
+  <a href="https://github.com/google/oauth2client"
+     class="visible-desktop hidden-xs">
+    <img id="gh-banner"
+         style="position:absolute; right:0; border:0; width:149px; height:149px;"
+         src="http://aral.github.com/fork-me-on-github-retina-ribbons/right-grey@2x.png"
+         alt="Fork me on GitHub">
+  </a>
+  <script>
+    // Adjust banner height.
+    $(function () {
+      var navHeight = $(".navbar .container").css("height");
+      $("#gh-banner").css("top", navHeight);
+      var navZ = $(".container").css("z-index");
+      navZ = (navZ === "auto") ? 10 : navZ + 10;
+      $("#gh-banner").css("z-index", navZ);
+    });
+  </script>
+
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="../../index.html"><img src="../../_static/google_logo.png">
+          oauth2client</a>
+        <span class="navbar-text navbar-version pull-left"><b>1.4.4</b></span>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav">
+            
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="../../index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../source/modules.html">oauth2client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributor License Agreements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html#before-writing-code-file-an-issue">Before writing code, file an issue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html#fork-oauth2client">Fork oauth2client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html#include-tests">Include tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html#make-the-pull-request">Make the pull request</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"></ul>
+</li>
+              
+            
+            
+              
+                
+              
+            
+            
+            
+            
+              <li class="hidden-sm"></li>
+            
+          </ul>
+
+          
+            
+<form class="navbar-form navbar-right" action="../../search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      
+  <h1>Source code for oauth2client.appengine</h1><div class="highlight"><pre>
+<span class="c"># Copyright 2014 Google Inc. All rights reserved.</span>
+<span class="c">#</span>
+<span class="c"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c"># you may not use this file except in compliance with the License.</span>
+<span class="c"># You may obtain a copy of the License at</span>
+<span class="c">#</span>
+<span class="c">#      http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c">#</span>
+<span class="c"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c"># See the License for the specific language governing permissions and</span>
+<span class="c"># limitations under the License.</span>
+
+<span class="sd">&quot;&quot;&quot;Utilities for Google App Engine</span>
+
+<span class="sd">Utilities for making it easier to use OAuth 2.0 on Google App Engine.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;jcgregorio@google.com (Joe Gregorio)&#39;</span>
+
+<span class="kn">import</span> <span class="nn">cgi</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">threading</span>
+
+<span class="kn">import</span> <span class="nn">httplib2</span>
+
+<span class="kn">from</span> <span class="nn">google.appengine.api</span> <span class="kn">import</span> <span class="n">app_identity</span>
+<span class="kn">from</span> <span class="nn">google.appengine.api</span> <span class="kn">import</span> <span class="n">memcache</span>
+<span class="kn">from</span> <span class="nn">google.appengine.api</span> <span class="kn">import</span> <span class="n">users</span>
+<span class="kn">from</span> <span class="nn">google.appengine.ext</span> <span class="kn">import</span> <span class="n">db</span>
+<span class="kn">from</span> <span class="nn">google.appengine.ext</span> <span class="kn">import</span> <span class="n">webapp</span>
+<span class="kn">from</span> <span class="nn">google.appengine.ext.webapp.util</span> <span class="kn">import</span> <span class="n">login_required</span>
+<span class="kn">from</span> <span class="nn">google.appengine.ext.webapp.util</span> <span class="kn">import</span> <span class="n">run_wsgi_app</span>
+<span class="kn">from</span> <span class="nn">oauth2client</span> <span class="kn">import</span> <span class="n">GOOGLE_AUTH_URI</span>
+<span class="kn">from</span> <span class="nn">oauth2client</span> <span class="kn">import</span> <span class="n">GOOGLE_REVOKE_URI</span>
+<span class="kn">from</span> <span class="nn">oauth2client</span> <span class="kn">import</span> <span class="n">GOOGLE_TOKEN_URI</span>
+<span class="kn">from</span> <span class="nn">oauth2client</span> <span class="kn">import</span> <span class="n">clientsecrets</span>
+<span class="kn">from</span> <span class="nn">oauth2client</span> <span class="kn">import</span> <span class="n">util</span>
+<span class="kn">from</span> <span class="nn">oauth2client</span> <span class="kn">import</span> <span class="n">xsrfutil</span>
+<span class="kn">from</span> <span class="nn">oauth2client.client</span> <span class="kn">import</span> <span class="n">AccessTokenRefreshError</span>
+<span class="kn">from</span> <span class="nn">oauth2client.client</span> <span class="kn">import</span> <span class="n">AssertionCredentials</span>
+<span class="kn">from</span> <span class="nn">oauth2client.client</span> <span class="kn">import</span> <span class="n">Credentials</span>
+<span class="kn">from</span> <span class="nn">oauth2client.client</span> <span class="kn">import</span> <span class="n">Flow</span>
+<span class="kn">from</span> <span class="nn">oauth2client.client</span> <span class="kn">import</span> <span class="n">OAuth2WebServerFlow</span>
+<span class="kn">from</span> <span class="nn">oauth2client.client</span> <span class="kn">import</span> <span class="n">Storage</span>
+
+<span class="c"># TODO(dhermes): Resolve import issue.</span>
+<span class="c"># This is a temporary fix for a Google internal issue.</span>
+<span class="k">try</span><span class="p">:</span>
+  <span class="kn">from</span> <span class="nn">google.appengine.ext</span> <span class="kn">import</span> <span class="n">ndb</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+  <span class="n">ndb</span> <span class="o">=</span> <span class="bp">None</span>
+
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+<span class="n">OAUTH2CLIENT_NAMESPACE</span> <span class="o">=</span> <span class="s">&#39;oauth2client#ns&#39;</span>
+
+<span class="n">XSRF_MEMCACHE_ID</span> <span class="o">=</span> <span class="s">&#39;xsrf_secret_key&#39;</span>
+
+
+<span class="k">def</span> <span class="nf">_safe_html</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Escape text to make it safe to display.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    s: string, The text to escape.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    The escaped text as a string.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">return</span> <span class="n">cgi</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">quote</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s">&#39;&amp;#39;&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="InvalidClientSecretsError"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.InvalidClientSecretsError">[docs]</a><span class="k">class</span> <span class="nc">InvalidClientSecretsError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;The client_secrets.json file is malformed or missing required fields.&quot;&quot;&quot;</span>
+
+</div>
+<div class="viewcode-block" id="InvalidXsrfTokenError"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.InvalidXsrfTokenError">[docs]</a><span class="k">class</span> <span class="nc">InvalidXsrfTokenError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;The XSRF token is invalid or expired.&quot;&quot;&quot;</span>
+
+</div>
+<div class="viewcode-block" id="SiteXsrfSecretKey"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.SiteXsrfSecretKey">[docs]</a><span class="k">class</span> <span class="nc">SiteXsrfSecretKey</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Storage for the sites XSRF secret key.</span>
+
+<span class="sd">  There will only be one instance stored of this model, the one used for the</span>
+<span class="sd">  site.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">secret</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">StringProperty</span><span class="p">()</span>
+</div>
+<span class="k">if</span> <span class="n">ndb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+<div class="viewcode-block" id="SiteXsrfSecretKeyNDB"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.SiteXsrfSecretKeyNDB">[docs]</a>  <span class="k">class</span> <span class="nc">SiteXsrfSecretKeyNDB</span><span class="p">(</span><span class="n">ndb</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;NDB Model for storage for the sites XSRF secret key.</span>
+
+<span class="sd">    Since this model uses the same kind as SiteXsrfSecretKey, it can be used</span>
+<span class="sd">    interchangeably. This simply provides an NDB model for interacting with the</span>
+<span class="sd">    same data the DB model interacts with.</span>
+
+<span class="sd">    There should only be one instance stored of this model, the one used for the</span>
+<span class="sd">    site.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">secret</span> <span class="o">=</span> <span class="n">ndb</span><span class="o">.</span><span class="n">StringProperty</span><span class="p">()</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_get_kind</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
+      <span class="sd">&quot;&quot;&quot;Return the kind name for this class.&quot;&quot;&quot;</span>
+      <span class="k">return</span> <span class="s">&#39;SiteXsrfSecretKey&#39;</span>
+
+</div>
+<span class="k">def</span> <span class="nf">_generate_new_xsrf_secret_key</span><span class="p">():</span>
+  <span class="sd">&quot;&quot;&quot;Returns a random XSRF secret key.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">urandom</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&quot;hex&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="xsrf_secret_key"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.xsrf_secret_key">[docs]</a><span class="k">def</span> <span class="nf">xsrf_secret_key</span><span class="p">():</span>
+  <span class="sd">&quot;&quot;&quot;Return the secret key for use for XSRF protection.</span>
+
+<span class="sd">  If the Site entity does not have a secret key, this method will also create</span>
+<span class="sd">  one and persist it.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    The secret key.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">secret</span> <span class="o">=</span> <span class="n">memcache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">XSRF_MEMCACHE_ID</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="n">OAUTH2CLIENT_NAMESPACE</span><span class="p">)</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="n">secret</span><span class="p">:</span>
+    <span class="c"># Load the one and only instance of SiteXsrfSecretKey.</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">SiteXsrfSecretKey</span><span class="o">.</span><span class="n">get_or_insert</span><span class="p">(</span><span class="n">key_name</span><span class="o">=</span><span class="s">&#39;site&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">model</span><span class="o">.</span><span class="n">secret</span><span class="p">:</span>
+      <span class="n">model</span><span class="o">.</span><span class="n">secret</span> <span class="o">=</span> <span class="n">_generate_new_xsrf_secret_key</span><span class="p">()</span>
+      <span class="n">model</span><span class="o">.</span><span class="n">put</span><span class="p">()</span>
+    <span class="n">secret</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">secret</span>
+    <span class="n">memcache</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">XSRF_MEMCACHE_ID</span><span class="p">,</span> <span class="n">secret</span><span class="p">,</span> <span class="n">namespace</span><span class="o">=</span><span class="n">OAUTH2CLIENT_NAMESPACE</span><span class="p">)</span>
+
+  <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">secret</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="AppAssertionCredentials"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.AppAssertionCredentials">[docs]</a><span class="k">class</span> <span class="nc">AppAssertionCredentials</span><span class="p">(</span><span class="n">AssertionCredentials</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Credentials object for App Engine Assertion Grants</span>
+
+<span class="sd">  This object will allow an App Engine application to identify itself to Google</span>
+<span class="sd">  and other OAuth 2.0 servers that can verify assertions. It can be used for the</span>
+<span class="sd">  purpose of accessing data stored under an account assigned to the App Engine</span>
+<span class="sd">  application itself.</span>
+
+<span class="sd">  This credential does not require a flow to instantiate because it represents</span>
+<span class="sd">  a two legged flow, and therefore has all of the required information to</span>
+<span class="sd">  generate and refresh its own access tokens.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="nd">@util.positional</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scope</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Constructor for AppAssertionCredentials</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      scope: string or iterable of strings, scope(s) of the credentials being</span>
+<span class="sd">        requested.</span>
+<span class="sd">      **kwargs: optional keyword args, including:</span>
+<span class="sd">        service_account_id: service account id of the application. If None or</span>
+<span class="sd">          unspecified, the default service account for the app is used.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">scope</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">scopes_to_string</span><span class="p">(</span><span class="n">scope</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">service_account_id</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;service_account_id&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+
+    <span class="c"># Assertion type is no longer used, but still in the parent class signature.</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">AppAssertionCredentials</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+
+  <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="AppAssertionCredentials.from_json"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.AppAssertionCredentials.from_json">[docs]</a>  <span class="k">def</span> <span class="nf">from_json</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">json_data</span><span class="p">):</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json_data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">AppAssertionCredentials</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;scope&#39;</span><span class="p">])</span>
+</div>
+  <span class="k">def</span> <span class="nf">_refresh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">http_request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Refreshes the access_token.</span>
+
+<span class="sd">    Since the underlying App Engine app_identity implementation does its own</span>
+<span class="sd">    caching we can skip all the storage hoops and just to a refresh using the</span>
+<span class="sd">    API.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      http_request: callable, a callable that matches the method signature of</span>
+<span class="sd">        httplib2.Http.request, used to make the refresh request.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">      AccessTokenRefreshError: When the refresh fails.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+      <span class="n">scopes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scope</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+      <span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="o">=</span> <span class="n">app_identity</span><span class="o">.</span><span class="n">get_access_token</span><span class="p">(</span>
+          <span class="n">scopes</span><span class="p">,</span> <span class="n">service_account_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">service_account_id</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">app_identity</span><span class="o">.</span><span class="n">Error</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="n">AccessTokenRefreshError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span> <span class="o">=</span> <span class="n">token</span>
+
+  <span class="nd">@property</span>
+<div class="viewcode-block" id="AppAssertionCredentials.serialization_data"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.AppAssertionCredentials.serialization_data">[docs]</a>  <span class="k">def</span> <span class="nf">serialization_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&#39;Cannot serialize credentials for AppEngine.&#39;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="AppAssertionCredentials.create_scoped_required"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.AppAssertionCredentials.create_scoped_required">[docs]</a>  <span class="k">def</span> <span class="nf">create_scoped_required</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">scope</span>
+</div>
+<div class="viewcode-block" id="AppAssertionCredentials.create_scoped"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.AppAssertionCredentials.create_scoped">[docs]</a>  <span class="k">def</span> <span class="nf">create_scoped</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scopes</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">AppAssertionCredentials</span><span class="p">(</span><span class="n">scopes</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_kwargs</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="FlowProperty"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.FlowProperty">[docs]</a><span class="k">class</span> <span class="nc">FlowProperty</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">Property</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;App Engine datastore Property for Flow.</span>
+
+<span class="sd">  Utility property that allows easy storage and retrieval of an</span>
+<span class="sd">  oauth2client.Flow&quot;&quot;&quot;</span>
+
+  <span class="c"># Tell what the user type is.</span>
+  <span class="n">data_type</span> <span class="o">=</span> <span class="n">Flow</span>
+
+  <span class="c"># For writing to datastore.</span>
+<div class="viewcode-block" id="FlowProperty.get_value_for_datastore"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.FlowProperty.get_value_for_datastore">[docs]</a>  <span class="k">def</span> <span class="nf">get_value_for_datastore</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_instance</span><span class="p">):</span>
+    <span class="n">flow</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">FlowProperty</span><span class="p">,</span>
+                 <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_value_for_datastore</span><span class="p">(</span><span class="n">model_instance</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">db</span><span class="o">.</span><span class="n">Blob</span><span class="p">(</span><span class="n">pickle</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">flow</span><span class="p">))</span>
+
+  <span class="c"># For reading from datastore.</span></div>
+<div class="viewcode-block" id="FlowProperty.make_value_from_datastore"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.FlowProperty.make_value_from_datastore">[docs]</a>  <span class="k">def</span> <span class="nf">make_value_from_datastore</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="k">return</span> <span class="bp">None</span>
+    <span class="k">return</span> <span class="n">pickle</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="FlowProperty.validate"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.FlowProperty.validate">[docs]</a>  <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Flow</span><span class="p">):</span>
+      <span class="k">raise</span> <span class="n">db</span><span class="o">.</span><span class="n">BadValueError</span><span class="p">(</span><span class="s">&#39;Property </span><span class="si">%s</span><span class="s"> must be convertible &#39;</span>
+                          <span class="s">&#39;to a FlowThreeLegged instance (</span><span class="si">%s</span><span class="s">)&#39;</span> <span class="o">%</span>
+                          <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+    <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">FlowProperty</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="FlowProperty.empty"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.FlowProperty.empty">[docs]</a>  <span class="k">def</span> <span class="nf">empty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">return</span> <span class="ow">not</span> <span class="n">value</span>
+
+</div></div>
+<span class="k">if</span> <span class="n">ndb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+<div class="viewcode-block" id="FlowNDBProperty"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.FlowNDBProperty">[docs]</a>  <span class="k">class</span> <span class="nc">FlowNDBProperty</span><span class="p">(</span><span class="n">ndb</span><span class="o">.</span><span class="n">PickleProperty</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;App Engine NDB datastore Property for Flow.</span>
+
+<span class="sd">    Serves the same purpose as the DB FlowProperty, but for NDB models. Since</span>
+<span class="sd">    PickleProperty inherits from BlobProperty, the underlying representation of</span>
+<span class="sd">    the data in the datastore will be the same as in the DB case.</span>
+
+<span class="sd">    Utility property that allows easy storage and retrieval of an</span>
+<span class="sd">    oauth2client.Flow</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+      <span class="sd">&quot;&quot;&quot;Validates a value as a proper Flow object.</span>
+
+<span class="sd">      Args:</span>
+<span class="sd">        value: A value to be set on the property.</span>
+
+<span class="sd">      Raises:</span>
+<span class="sd">        TypeError if the value is not an instance of Flow.</span>
+<span class="sd">      &quot;&quot;&quot;</span>
+      <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;validate: Got type </span><span class="si">%s</span><span class="s">&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+      <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Flow</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&#39;Property </span><span class="si">%s</span><span class="s"> must be convertible to a flow &#39;</span>
+                        <span class="s">&#39;instance; received: </span><span class="si">%s</span><span class="s">.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+
+</div>
+<div class="viewcode-block" id="CredentialsProperty"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.CredentialsProperty">[docs]</a><span class="k">class</span> <span class="nc">CredentialsProperty</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">Property</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;App Engine datastore Property for Credentials.</span>
+
+<span class="sd">  Utility property that allows easy storage and retrieval of</span>
+<span class="sd">  oath2client.Credentials</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="c"># Tell what the user type is.</span>
+  <span class="n">data_type</span> <span class="o">=</span> <span class="n">Credentials</span>
+
+  <span class="c"># For writing to datastore.</span>
+<div class="viewcode-block" id="CredentialsProperty.get_value_for_datastore"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.CredentialsProperty.get_value_for_datastore">[docs]</a>  <span class="k">def</span> <span class="nf">get_value_for_datastore</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_instance</span><span class="p">):</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;get: Got type &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">model_instance</span><span class="p">)))</span>
+    <span class="n">cred</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">CredentialsProperty</span><span class="p">,</span>
+                 <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_value_for_datastore</span><span class="p">(</span><span class="n">model_instance</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">cred</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="n">cred</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">cred</span> <span class="o">=</span> <span class="n">cred</span><span class="o">.</span><span class="n">to_json</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">db</span><span class="o">.</span><span class="n">Blob</span><span class="p">(</span><span class="n">cred</span><span class="p">)</span>
+
+  <span class="c"># For reading from datastore.</span></div>
+<div class="viewcode-block" id="CredentialsProperty.make_value_from_datastore"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.CredentialsProperty.make_value_from_datastore">[docs]</a>  <span class="k">def</span> <span class="nf">make_value_from_datastore</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;make: Got type &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)))</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="k">return</span> <span class="bp">None</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+      <span class="k">return</span> <span class="bp">None</span>
+    <span class="k">try</span><span class="p">:</span>
+      <span class="n">credentials</span> <span class="o">=</span> <span class="n">Credentials</span><span class="o">.</span><span class="n">new_from_json</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+      <span class="n">credentials</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">return</span> <span class="n">credentials</span>
+</div>
+<div class="viewcode-block" id="CredentialsProperty.validate"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.CredentialsProperty.validate">[docs]</a>  <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">CredentialsProperty</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;validate: Got type &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)))</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Credentials</span><span class="p">):</span>
+      <span class="k">raise</span> <span class="n">db</span><span class="o">.</span><span class="n">BadValueError</span><span class="p">(</span><span class="s">&#39;Property </span><span class="si">%s</span><span class="s"> must be convertible &#39;</span>
+                          <span class="s">&#39;to a Credentials instance (</span><span class="si">%s</span><span class="s">)&#39;</span> <span class="o">%</span>
+                            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+    <span class="c">#if value is not None and not isinstance(value, Credentials):</span>
+    <span class="c">#  return None</span>
+    <span class="k">return</span> <span class="n">value</span>
+
+</div></div>
+<span class="k">if</span> <span class="n">ndb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+  <span class="c"># TODO(dhermes): Turn this into a JsonProperty and overhaul the Credentials</span>
+  <span class="c">#                and subclass mechanics to use new_from_dict, to_dict,</span>
+  <span class="c">#                from_dict, etc.</span>
+<div class="viewcode-block" id="CredentialsNDBProperty"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.CredentialsNDBProperty">[docs]</a>  <span class="k">class</span> <span class="nc">CredentialsNDBProperty</span><span class="p">(</span><span class="n">ndb</span><span class="o">.</span><span class="n">BlobProperty</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;App Engine NDB datastore Property for Credentials.</span>
+
+<span class="sd">    Serves the same purpose as the DB CredentialsProperty, but for NDB models.</span>
+<span class="sd">    Since CredentialsProperty stores data as a blob and this inherits from</span>
+<span class="sd">    BlobProperty, the data in the datastore will be the same as in the DB case.</span>
+
+<span class="sd">    Utility property that allows easy storage and retrieval of Credentials and</span>
+<span class="sd">    subclasses.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">_validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+      <span class="sd">&quot;&quot;&quot;Validates a value as a proper credentials object.</span>
+
+<span class="sd">      Args:</span>
+<span class="sd">        value: A value to be set on the property.</span>
+
+<span class="sd">      Raises:</span>
+<span class="sd">        TypeError if the value is not an instance of Credentials.</span>
+<span class="sd">      &quot;&quot;&quot;</span>
+      <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;validate: Got type </span><span class="si">%s</span><span class="s">&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+      <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Credentials</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&#39;Property </span><span class="si">%s</span><span class="s"> must be convertible to a credentials &#39;</span>
+                        <span class="s">&#39;instance; received: </span><span class="si">%s</span><span class="s">.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_to_base_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+      <span class="sd">&quot;&quot;&quot;Converts our validated value to a JSON serialized string.</span>
+
+<span class="sd">      Args:</span>
+<span class="sd">        value: A value to be set in the datastore.</span>
+
+<span class="sd">      Returns:</span>
+<span class="sd">        A JSON serialized version of the credential, else &#39;&#39; if value is None.</span>
+<span class="sd">      &quot;&quot;&quot;</span>
+      <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s">&#39;&#39;</span>
+      <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">to_json</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_from_base_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+      <span class="sd">&quot;&quot;&quot;Converts our stored JSON string back to the desired type.</span>
+
+<span class="sd">      Args:</span>
+<span class="sd">        value: A value from the datastore to be converted to the desired type.</span>
+
+<span class="sd">      Returns:</span>
+<span class="sd">        A deserialized Credentials (or subclass) object, else None if the</span>
+<span class="sd">            value can&#39;t be parsed.</span>
+<span class="sd">      &quot;&quot;&quot;</span>
+      <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">None</span>
+      <span class="k">try</span><span class="p">:</span>
+        <span class="c"># Uses the from_json method of the implied class of value</span>
+        <span class="n">credentials</span> <span class="o">=</span> <span class="n">Credentials</span><span class="o">.</span><span class="n">new_from_json</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+      <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="n">credentials</span> <span class="o">=</span> <span class="bp">None</span>
+      <span class="k">return</span> <span class="n">credentials</span>
+
+</div>
+<div class="viewcode-block" id="StorageByKeyName"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.StorageByKeyName">[docs]</a><span class="k">class</span> <span class="nc">StorageByKeyName</span><span class="p">(</span><span class="n">Storage</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Store and retrieve a credential to and from the App Engine datastore.</span>
+
+<span class="sd">  This Storage helper presumes the Credentials have been stored as a</span>
+<span class="sd">  CredentialsProperty or CredentialsNDBProperty on a datastore model class, and</span>
+<span class="sd">  that entities are stored by key_name.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="nd">@util.positional</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">key_name</span><span class="p">,</span> <span class="n">property_name</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Constructor for Storage.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      model: db.Model or ndb.Model, model class</span>
+<span class="sd">      key_name: string, key name for the entity that has the credentials</span>
+<span class="sd">      property_name: string, name of the property that is a CredentialsProperty</span>
+<span class="sd">        or CredentialsNDBProperty.</span>
+<span class="sd">      cache: memcache, a write-through cache to put in front of the datastore.</span>
+<span class="sd">        If the model you are using is an NDB model, using a cache will be</span>
+<span class="sd">        redundant since the model uses an instance cache and memcache for you.</span>
+<span class="sd">      user: users.User object, optional. Can be used to grab user ID as a</span>
+<span class="sd">        key_name if no key name is specified.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">key_name</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="k">if</span> <span class="n">user</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;StorageByKeyName called with no key name or user.&#39;</span><span class="p">)</span>
+      <span class="n">key_name</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">user_id</span><span class="p">()</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">model</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_key_name</span> <span class="o">=</span> <span class="n">key_name</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_property_name</span> <span class="o">=</span> <span class="n">property_name</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span> <span class="o">=</span> <span class="n">cache</span>
+
+  <span class="k">def</span> <span class="nf">_is_ndb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Determine whether the model of the instance is an NDB model.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      Boolean indicating whether or not the model is an NDB or DB model.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># issubclass will fail if one of the arguments is not a class, only need</span>
+    <span class="c"># worry about new-style classes since ndb and db models are new-style</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
+      <span class="k">if</span> <span class="n">ndb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="nb">issubclass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">,</span> <span class="n">ndb</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">True</span>
+      <span class="k">elif</span> <span class="nb">issubclass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">,</span> <span class="n">db</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">False</span>
+
+    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&#39;Model class not an NDB or DB model: </span><span class="si">%s</span><span class="s">.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">,))</span>
+
+  <span class="k">def</span> <span class="nf">_get_entity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Retrieve entity from datastore.</span>
+
+<span class="sd">    Uses a different model method for db or ndb models.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      Instance of the model corresponding to the current storage object</span>
+<span class="sd">          and stored using the key name of the storage object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_ndb</span><span class="p">():</span>
+      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">get_by_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_key_name</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">get_by_key_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_key_name</span><span class="p">)</span>
+
+  <span class="k">def</span> <span class="nf">_delete_entity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Delete entity from datastore.</span>
+
+<span class="sd">    Attempts to delete using the key_name stored on the object, whether or not</span>
+<span class="sd">    the given key is in the datastore.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_ndb</span><span class="p">():</span>
+      <span class="n">ndb</span><span class="o">.</span><span class="n">Key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_key_name</span><span class="p">)</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">entity_key</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">Key</span><span class="o">.</span><span class="n">from_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">kind</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_key_name</span><span class="p">)</span>
+      <span class="n">db</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">entity_key</span><span class="p">)</span>
+
+  <span class="nd">@db.non_transactional</span><span class="p">(</span><span class="n">allow_existing</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<div class="viewcode-block" id="StorageByKeyName.locked_get"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.StorageByKeyName.locked_get">[docs]</a>  <span class="k">def</span> <span class="nf">locked_get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Retrieve Credential from datastore.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      oauth2client.Credentials</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">credentials</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">:</span>
+      <span class="n">json</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_key_name</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">json</span><span class="p">:</span>
+        <span class="n">credentials</span> <span class="o">=</span> <span class="n">Credentials</span><span class="o">.</span><span class="n">new_from_json</span><span class="p">(</span><span class="n">json</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">credentials</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="n">entity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_entity</span><span class="p">()</span>
+      <span class="k">if</span> <span class="n">entity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">credentials</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_property_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">:</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_key_name</span><span class="p">,</span> <span class="n">credentials</span><span class="o">.</span><span class="n">to_json</span><span class="p">())</span>
+
+    <span class="k">if</span> <span class="n">credentials</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">credentials</span><span class="p">,</span> <span class="s">&#39;set_store&#39;</span><span class="p">):</span>
+      <span class="n">credentials</span><span class="o">.</span><span class="n">set_store</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">credentials</span>
+</div>
+  <span class="nd">@db.non_transactional</span><span class="p">(</span><span class="n">allow_existing</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<div class="viewcode-block" id="StorageByKeyName.locked_put"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.StorageByKeyName.locked_put">[docs]</a>  <span class="k">def</span> <span class="nf">locked_put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">credentials</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Write a Credentials to the datastore.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      credentials: Credentials, the credentials to store.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">entity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">get_or_insert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_key_name</span><span class="p">)</span>
+    <span class="nb">setattr</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_property_name</span><span class="p">,</span> <span class="n">credentials</span><span class="p">)</span>
+    <span class="n">entity</span><span class="o">.</span><span class="n">put</span><span class="p">()</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_key_name</span><span class="p">,</span> <span class="n">credentials</span><span class="o">.</span><span class="n">to_json</span><span class="p">())</span>
+</div>
+  <span class="nd">@db.non_transactional</span><span class="p">(</span><span class="n">allow_existing</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<div class="viewcode-block" id="StorageByKeyName.locked_delete"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.StorageByKeyName.locked_delete">[docs]</a>  <span class="k">def</span> <span class="nf">locked_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Delete Credential from datastore.&quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_key_name</span><span class="p">)</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">_delete_entity</span><span class="p">()</span>
+
+</div></div>
+<div class="viewcode-block" id="CredentialsModel"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.CredentialsModel">[docs]</a><span class="k">class</span> <span class="nc">CredentialsModel</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Storage for OAuth 2.0 Credentials</span>
+
+<span class="sd">  Storage of the model is keyed by the user.user_id().</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">credentials</span> <span class="o">=</span> <span class="n">CredentialsProperty</span><span class="p">()</span>
+
+</div>
+<span class="k">if</span> <span class="n">ndb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+<div class="viewcode-block" id="CredentialsNDBModel"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.CredentialsNDBModel">[docs]</a>  <span class="k">class</span> <span class="nc">CredentialsNDBModel</span><span class="p">(</span><span class="n">ndb</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;NDB Model for storage of OAuth 2.0 Credentials</span>
+
+<span class="sd">    Since this model uses the same kind as CredentialsModel and has a property</span>
+<span class="sd">    which can serialize and deserialize Credentials correctly, it can be used</span>
+<span class="sd">    interchangeably with a CredentialsModel to access, insert and delete the</span>
+<span class="sd">    same entities. This simply provides an NDB model for interacting with the</span>
+<span class="sd">    same data the DB model interacts with.</span>
+
+<span class="sd">    Storage of the model is keyed by the user.user_id().</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">credentials</span> <span class="o">=</span> <span class="n">CredentialsNDBProperty</span><span class="p">()</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_get_kind</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
+      <span class="sd">&quot;&quot;&quot;Return the kind name for this class.&quot;&quot;&quot;</span>
+      <span class="k">return</span> <span class="s">&#39;CredentialsModel&#39;</span>
+
+</div>
+<span class="k">def</span> <span class="nf">_build_state_value</span><span class="p">(</span><span class="n">request_handler</span><span class="p">,</span> <span class="n">user</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Composes the value for the &#39;state&#39; parameter.</span>
+
+<span class="sd">  Packs the current request URI and an XSRF token into an opaque string that</span>
+<span class="sd">  can be passed to the authentication server via the &#39;state&#39; parameter.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    request_handler: webapp.RequestHandler, The request.</span>
+<span class="sd">    user: google.appengine.api.users.User, The current user.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    The state value as a string.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">uri</span> <span class="o">=</span> <span class="n">request_handler</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">url</span>
+  <span class="n">token</span> <span class="o">=</span> <span class="n">xsrfutil</span><span class="o">.</span><span class="n">generate_token</span><span class="p">(</span><span class="n">xsrf_secret_key</span><span class="p">(),</span> <span class="n">user</span><span class="o">.</span><span class="n">user_id</span><span class="p">(),</span>
+                                  <span class="n">action_id</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">uri</span><span class="p">))</span>
+  <span class="k">return</span>  <span class="n">uri</span> <span class="o">+</span> <span class="s">&#39;:&#39;</span> <span class="o">+</span> <span class="n">token</span>
+
+
+<span class="k">def</span> <span class="nf">_parse_state_value</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">user</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Parse the value of the &#39;state&#39; parameter.</span>
+
+<span class="sd">  Parses the value and validates the XSRF token in the state parameter.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    state: string, The value of the state parameter.</span>
+<span class="sd">    user: google.appengine.api.users.User, The current user.</span>
+
+<span class="sd">  Raises:</span>
+<span class="sd">    InvalidXsrfTokenError: if the XSRF token is invalid.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    The redirect URI.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">uri</span><span class="p">,</span> <span class="n">token</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s">&#39;:&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="n">xsrfutil</span><span class="o">.</span><span class="n">validate_token</span><span class="p">(</span><span class="n">xsrf_secret_key</span><span class="p">(),</span> <span class="n">token</span><span class="p">,</span> <span class="n">user</span><span class="o">.</span><span class="n">user_id</span><span class="p">(),</span>
+                                 <span class="n">action_id</span><span class="o">=</span><span class="n">uri</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="n">InvalidXsrfTokenError</span><span class="p">()</span>
+
+  <span class="k">return</span> <span class="n">uri</span>
+
+
+<div class="viewcode-block" id="OAuth2Decorator"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.OAuth2Decorator">[docs]</a><span class="k">class</span> <span class="nc">OAuth2Decorator</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Utility for making OAuth 2.0 easier.</span>
+
+<span class="sd">  Instantiate and then use with oauth_required or oauth_aware</span>
+<span class="sd">  as decorators on webapp.RequestHandler methods.</span>
+
+<span class="sd">  ::</span>
+
+<span class="sd">    decorator = OAuth2Decorator(</span>
+<span class="sd">        client_id=&#39;837...ent.com&#39;,</span>
+<span class="sd">        client_secret=&#39;Qh...wwI&#39;,</span>
+<span class="sd">        scope=&#39;https://www.googleapis.com/auth/plus&#39;)</span>
+
+<span class="sd">    class MainHandler(webapp.RequestHandler):</span>
+<span class="sd">      @decorator.oauth_required</span>
+<span class="sd">      def get(self):</span>
+<span class="sd">        http = decorator.http()</span>
+<span class="sd">        # http is authorized with the user&#39;s Credentials and can be used</span>
+<span class="sd">        # in API calls</span>
+
+<span class="sd">  &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="OAuth2Decorator.set_credentials"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.OAuth2Decorator.set_credentials">[docs]</a>  <span class="k">def</span> <span class="nf">set_credentials</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">credentials</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_tls</span><span class="o">.</span><span class="n">credentials</span> <span class="o">=</span> <span class="n">credentials</span>
+</div>
+<div class="viewcode-block" id="OAuth2Decorator.get_credentials"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.OAuth2Decorator.get_credentials">[docs]</a>  <span class="k">def</span> <span class="nf">get_credentials</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A thread local Credentials object.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A client.Credentials object, or None if credentials hasn&#39;t been set in</span>
+<span class="sd">      this thread yet, which may happen when calling has_credentials inside</span>
+<span class="sd">      oauth_aware.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tls</span><span class="p">,</span> <span class="s">&#39;credentials&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+</div>
+  <span class="n">credentials</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">get_credentials</span><span class="p">,</span> <span class="n">set_credentials</span><span class="p">)</span>
+
+<div class="viewcode-block" id="OAuth2Decorator.set_flow"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.OAuth2Decorator.set_flow">[docs]</a>  <span class="k">def</span> <span class="nf">set_flow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flow</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_tls</span><span class="o">.</span><span class="n">flow</span> <span class="o">=</span> <span class="n">flow</span>
+</div>
+<div class="viewcode-block" id="OAuth2Decorator.get_flow"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.OAuth2Decorator.get_flow">[docs]</a>  <span class="k">def</span> <span class="nf">get_flow</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A thread local Flow object.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A credentials.Flow object, or None if the flow hasn&#39;t been set in this</span>
+<span class="sd">      thread yet, which happens in _create_flow() since Flows are created</span>
+<span class="sd">      lazily.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_tls</span><span class="p">,</span> <span class="s">&#39;flow&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+</div>
+  <span class="n">flow</span> <span class="o">=</span> <span class="nb">property</span><span class="p">(</span><span class="n">get_flow</span><span class="p">,</span> <span class="n">set_flow</span><span class="p">)</span>
+
+
+  <span class="nd">@util.positional</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client_id</span><span class="p">,</span> <span class="n">client_secret</span><span class="p">,</span> <span class="n">scope</span><span class="p">,</span>
+               <span class="n">auth_uri</span><span class="o">=</span><span class="n">GOOGLE_AUTH_URI</span><span class="p">,</span>
+               <span class="n">token_uri</span><span class="o">=</span><span class="n">GOOGLE_TOKEN_URI</span><span class="p">,</span>
+               <span class="n">revoke_uri</span><span class="o">=</span><span class="n">GOOGLE_REVOKE_URI</span><span class="p">,</span>
+               <span class="n">user_agent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+               <span class="n">message</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+               <span class="n">callback_path</span><span class="o">=</span><span class="s">&#39;/oauth2callback&#39;</span><span class="p">,</span>
+               <span class="n">token_response_param</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+               <span class="n">_storage_class</span><span class="o">=</span><span class="n">StorageByKeyName</span><span class="p">,</span>
+               <span class="n">_credentials_class</span><span class="o">=</span><span class="n">CredentialsModel</span><span class="p">,</span>
+               <span class="n">_credentials_property_name</span><span class="o">=</span><span class="s">&#39;credentials&#39;</span><span class="p">,</span>
+               <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;Constructor for OAuth2Decorator</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      client_id: string, client identifier.</span>
+<span class="sd">      client_secret: string client secret.</span>
+<span class="sd">      scope: string or iterable of strings, scope(s) of the credentials being</span>
+<span class="sd">        requested.</span>
+<span class="sd">      auth_uri: string, URI for authorization endpoint. For convenience</span>
+<span class="sd">        defaults to Google&#39;s endpoints but any OAuth 2.0 provider can be used.</span>
+<span class="sd">      token_uri: string, URI for token endpoint. For convenience</span>
+<span class="sd">        defaults to Google&#39;s endpoints but any OAuth 2.0 provider can be used.</span>
+<span class="sd">      revoke_uri: string, URI for revoke endpoint. For convenience</span>
+<span class="sd">        defaults to Google&#39;s endpoints but any OAuth 2.0 provider can be used.</span>
+<span class="sd">      user_agent: string, User agent of your application, default to None.</span>
+<span class="sd">      message: Message to display if there are problems with the OAuth 2.0</span>
+<span class="sd">        configuration. The message may contain HTML and will be presented on the</span>
+<span class="sd">        web interface for any method that uses the decorator.</span>
+<span class="sd">      callback_path: string, The absolute path to use as the callback URI. Note</span>
+<span class="sd">        that this must match up with the URI given when registering the</span>
+<span class="sd">        application in the APIs Console.</span>
+<span class="sd">      token_response_param: string. If provided, the full JSON response</span>
+<span class="sd">        to the access token request will be encoded and included in this query</span>
+<span class="sd">        parameter in the callback URI. This is useful with providers (e.g.</span>
+<span class="sd">        wordpress.com) that include extra fields that the client may want.</span>
+<span class="sd">      _storage_class: &quot;Protected&quot; keyword argument not typically provided to</span>
+<span class="sd">        this constructor. A storage class to aid in storing a Credentials object</span>
+<span class="sd">        for a user in the datastore. Defaults to StorageByKeyName.</span>
+<span class="sd">      _credentials_class: &quot;Protected&quot; keyword argument not typically provided to</span>
+<span class="sd">        this constructor. A db or ndb Model class to hold credentials. Defaults</span>
+<span class="sd">        to CredentialsModel.</span>
+<span class="sd">      _credentials_property_name: &quot;Protected&quot; keyword argument not typically</span>
+<span class="sd">        provided to this constructor. A string indicating the name of the field</span>
+<span class="sd">        on the _credentials_class where a Credentials object will be stored.</span>
+<span class="sd">        Defaults to &#39;credentials&#39;.</span>
+<span class="sd">      **kwargs: dict, Keyword arguments are passed along as kwargs to</span>
+<span class="sd">        the OAuth2WebServerFlow constructor.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_tls</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">local</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">flow</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">credentials</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_client_id</span> <span class="o">=</span> <span class="n">client_id</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_client_secret</span> <span class="o">=</span> <span class="n">client_secret</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_scope</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">scopes_to_string</span><span class="p">(</span><span class="n">scope</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_auth_uri</span> <span class="o">=</span> <span class="n">auth_uri</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_token_uri</span> <span class="o">=</span> <span class="n">token_uri</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_revoke_uri</span> <span class="o">=</span> <span class="n">revoke_uri</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_user_agent</span> <span class="o">=</span> <span class="n">user_agent</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_message</span> <span class="o">=</span> <span class="n">message</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_in_error</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_callback_path</span> <span class="o">=</span> <span class="n">callback_path</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_token_response_param</span> <span class="o">=</span> <span class="n">token_response_param</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_storage_class</span> <span class="o">=</span> <span class="n">_storage_class</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_credentials_class</span> <span class="o">=</span> <span class="n">_credentials_class</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_credentials_property_name</span> <span class="o">=</span> <span class="n">_credentials_property_name</span>
+
+  <span class="k">def</span> <span class="nf">_display_error_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request_handler</span><span class="p">):</span>
+    <span class="n">request_handler</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;&lt;html&gt;&lt;body&gt;&#39;</span><span class="p">)</span>
+    <span class="n">request_handler</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">_safe_html</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_message</span><span class="p">))</span>
+    <span class="n">request_handler</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;&lt;/body&gt;&lt;/html&gt;&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="OAuth2Decorator.oauth_required"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.OAuth2Decorator.oauth_required">[docs]</a>  <span class="k">def</span> <span class="nf">oauth_required</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Decorator that starts the OAuth 2.0 dance.</span>
+
+<span class="sd">    Starts the OAuth dance for the logged in user if they haven&#39;t already</span>
+<span class="sd">    granted access for this application.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      method: callable, to be decorated method of a webapp.RequestHandler</span>
+<span class="sd">        instance.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">check_oauth</span><span class="p">(</span><span class="n">request_handler</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_in_error</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_display_error_message</span><span class="p">(</span><span class="n">request_handler</span><span class="p">)</span>
+        <span class="k">return</span>
+
+      <span class="n">user</span> <span class="o">=</span> <span class="n">users</span><span class="o">.</span><span class="n">get_current_user</span><span class="p">()</span>
+      <span class="c"># Don&#39;t use @login_decorator as this could be used in a POST request.</span>
+      <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span><span class="p">:</span>
+        <span class="n">request_handler</span><span class="o">.</span><span class="n">redirect</span><span class="p">(</span><span class="n">users</span><span class="o">.</span><span class="n">create_login_url</span><span class="p">(</span>
+            <span class="n">request_handler</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">uri</span><span class="p">))</span>
+        <span class="k">return</span>
+
+      <span class="bp">self</span><span class="o">.</span><span class="n">_create_flow</span><span class="p">(</span><span class="n">request_handler</span><span class="p">)</span>
+
+      <span class="c"># Store the request URI in &#39;state&#39; so we can use it later</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s">&#39;state&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_build_state_value</span><span class="p">(</span><span class="n">request_handler</span><span class="p">,</span> <span class="n">user</span><span class="p">)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">credentials</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_storage_class</span><span class="p">(</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">_credentials_class</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">_credentials_property_name</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+
+      <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_credentials</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">request_handler</span><span class="o">.</span><span class="n">redirect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">authorize_url</span><span class="p">())</span>
+      <span class="k">try</span><span class="p">:</span>
+        <span class="n">resp</span> <span class="o">=</span> <span class="n">method</span><span class="p">(</span><span class="n">request_handler</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+      <span class="k">except</span> <span class="n">AccessTokenRefreshError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">request_handler</span><span class="o">.</span><span class="n">redirect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">authorize_url</span><span class="p">())</span>
+      <span class="k">finally</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">credentials</span> <span class="o">=</span> <span class="bp">None</span>
+      <span class="k">return</span> <span class="n">resp</span>
+
+    <span class="k">return</span> <span class="n">check_oauth</span>
+</div>
+  <span class="k">def</span> <span class="nf">_create_flow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request_handler</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create the Flow object.</span>
+
+<span class="sd">    The Flow is calculated lazily since we don&#39;t know where this app is</span>
+<span class="sd">    running until it receives a request, at which point redirect_uri can be</span>
+<span class="sd">    calculated and then the Flow object can be constructed.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      request_handler: webapp.RequestHandler, the request handler.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="n">redirect_uri</span> <span class="o">=</span> <span class="n">request_handler</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">relative_url</span><span class="p">(</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">_callback_path</span><span class="p">)</span> <span class="c"># Usually /oauth2callback</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">flow</span> <span class="o">=</span> <span class="n">OAuth2WebServerFlow</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_client_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_client_secret</span><span class="p">,</span>
+                                      <span class="bp">self</span><span class="o">.</span><span class="n">_scope</span><span class="p">,</span> <span class="n">redirect_uri</span><span class="o">=</span><span class="n">redirect_uri</span><span class="p">,</span>
+                                      <span class="n">user_agent</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_user_agent</span><span class="p">,</span>
+                                      <span class="n">auth_uri</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_auth_uri</span><span class="p">,</span>
+                                      <span class="n">token_uri</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_token_uri</span><span class="p">,</span>
+                                      <span class="n">revoke_uri</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_revoke_uri</span><span class="p">,</span>
+                                      <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="OAuth2Decorator.oauth_aware"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.OAuth2Decorator.oauth_aware">[docs]</a>  <span class="k">def</span> <span class="nf">oauth_aware</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Decorator that sets up for OAuth 2.0 dance, but doesn&#39;t do it.</span>
+
+<span class="sd">    Does all the setup for the OAuth dance, but doesn&#39;t initiate it.</span>
+<span class="sd">    This decorator is useful if you want to create a page that knows</span>
+<span class="sd">    whether or not the user has granted access to this application.</span>
+<span class="sd">    From within a method decorated with @oauth_aware the has_credentials()</span>
+<span class="sd">    and authorize_url() methods can be called.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      method: callable, to be decorated method of a webapp.RequestHandler</span>
+<span class="sd">        instance.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">setup_oauth</span><span class="p">(</span><span class="n">request_handler</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+      <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_in_error</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_display_error_message</span><span class="p">(</span><span class="n">request_handler</span><span class="p">)</span>
+        <span class="k">return</span>
+
+      <span class="n">user</span> <span class="o">=</span> <span class="n">users</span><span class="o">.</span><span class="n">get_current_user</span><span class="p">()</span>
+      <span class="c"># Don&#39;t use @login_decorator as this could be used in a POST request.</span>
+      <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span><span class="p">:</span>
+        <span class="n">request_handler</span><span class="o">.</span><span class="n">redirect</span><span class="p">(</span><span class="n">users</span><span class="o">.</span><span class="n">create_login_url</span><span class="p">(</span>
+            <span class="n">request_handler</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">uri</span><span class="p">))</span>
+        <span class="k">return</span>
+
+      <span class="bp">self</span><span class="o">.</span><span class="n">_create_flow</span><span class="p">(</span><span class="n">request_handler</span><span class="p">)</span>
+
+      <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s">&#39;state&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_build_state_value</span><span class="p">(</span><span class="n">request_handler</span><span class="p">,</span> <span class="n">user</span><span class="p">)</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">credentials</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_storage_class</span><span class="p">(</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">_credentials_class</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">_credentials_property_name</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+      <span class="k">try</span><span class="p">:</span>
+        <span class="n">resp</span> <span class="o">=</span> <span class="n">method</span><span class="p">(</span><span class="n">request_handler</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+      <span class="k">finally</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">credentials</span> <span class="o">=</span> <span class="bp">None</span>
+      <span class="k">return</span> <span class="n">resp</span>
+    <span class="k">return</span> <span class="n">setup_oauth</span>
+
+</div>
+<div class="viewcode-block" id="OAuth2Decorator.has_credentials"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.OAuth2Decorator.has_credentials">[docs]</a>  <span class="k">def</span> <span class="nf">has_credentials</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;True if for the logged in user there are valid access Credentials.</span>
+
+<span class="sd">    Must only be called from with a webapp.RequestHandler subclassed method</span>
+<span class="sd">    that had been decorated with either @oauth_required or @oauth_aware.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">credentials</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">credentials</span><span class="o">.</span><span class="n">invalid</span>
+</div>
+<div class="viewcode-block" id="OAuth2Decorator.authorize_url"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.OAuth2Decorator.authorize_url">[docs]</a>  <span class="k">def</span> <span class="nf">authorize_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the URL to start the OAuth dance.</span>
+
+<span class="sd">    Must only be called from with a webapp.RequestHandler subclassed method</span>
+<span class="sd">    that had been decorated with either @oauth_required or @oauth_aware.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">step1_get_authorize_url</span><span class="p">()</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="OAuth2Decorator.http"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.OAuth2Decorator.http">[docs]</a>  <span class="k">def</span> <span class="nf">http</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns an authorized http instance.</span>
+
+<span class="sd">    Must only be called from within an @oauth_required decorated method, or</span>
+<span class="sd">    from within an @oauth_aware decorated method where has_credentials()</span>
+<span class="sd">    returns True.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        *args: Positional arguments passed to httplib2.Http constructor.</span>
+<span class="sd">        **kwargs: Positional arguments passed to httplib2.Http constructor.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">credentials</span><span class="o">.</span><span class="n">authorize</span><span class="p">(</span><span class="n">httplib2</span><span class="o">.</span><span class="n">Http</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+</div>
+  <span class="nd">@property</span>
+<div class="viewcode-block" id="OAuth2Decorator.callback_path"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.OAuth2Decorator.callback_path">[docs]</a>  <span class="k">def</span> <span class="nf">callback_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The absolute path where the callback will occur.</span>
+
+<span class="sd">    Note this is the absolute path, not the absolute URI, that will be</span>
+<span class="sd">    calculated by the decorator at runtime. See callback_handler() for how this</span>
+<span class="sd">    should be used.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      The callback path as a string.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback_path</span>
+
+</div>
+<div class="viewcode-block" id="OAuth2Decorator.callback_handler"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.OAuth2Decorator.callback_handler">[docs]</a>  <span class="k">def</span> <span class="nf">callback_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;RequestHandler for the OAuth 2.0 redirect callback.</span>
+
+<span class="sd">    Usage::</span>
+
+<span class="sd">       app = webapp.WSGIApplication([</span>
+<span class="sd">         (&#39;/index&#39;, MyIndexHandler),</span>
+<span class="sd">         ...,</span>
+<span class="sd">         (decorator.callback_path, decorator.callback_handler())</span>
+<span class="sd">       ])</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A webapp.RequestHandler that handles the redirect back from the</span>
+<span class="sd">      server during the OAuth 2.0 dance.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">decorator</span> <span class="o">=</span> <span class="bp">self</span>
+
+    <span class="k">class</span> <span class="nc">OAuth2Handler</span><span class="p">(</span><span class="n">webapp</span><span class="o">.</span><span class="n">RequestHandler</span><span class="p">):</span>
+      <span class="sd">&quot;&quot;&quot;Handler for the redirect_uri of the OAuth 2.0 dance.&quot;&quot;&quot;</span>
+
+      <span class="nd">@login_required</span>
+      <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;error&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">error</span><span class="p">:</span>
+          <span class="n">errormsg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;error_description&#39;</span><span class="p">,</span> <span class="n">error</span><span class="p">)</span>
+          <span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+              <span class="s">&#39;The authorization request failed: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">_safe_html</span><span class="p">(</span><span class="n">errormsg</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+          <span class="n">user</span> <span class="o">=</span> <span class="n">users</span><span class="o">.</span><span class="n">get_current_user</span><span class="p">()</span>
+          <span class="n">decorator</span><span class="o">.</span><span class="n">_create_flow</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+          <span class="n">credentials</span> <span class="o">=</span> <span class="n">decorator</span><span class="o">.</span><span class="n">flow</span><span class="o">.</span><span class="n">step2_exchange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+          <span class="n">decorator</span><span class="o">.</span><span class="n">_storage_class</span><span class="p">(</span>
+              <span class="n">decorator</span><span class="o">.</span><span class="n">_credentials_class</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span>
+              <span class="n">decorator</span><span class="o">.</span><span class="n">_credentials_property_name</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">)</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">credentials</span><span class="p">)</span>
+          <span class="n">redirect_uri</span> <span class="o">=</span> <span class="n">_parse_state_value</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;state&#39;</span><span class="p">)),</span>
+                                            <span class="n">user</span><span class="p">)</span>
+
+          <span class="k">if</span> <span class="n">decorator</span><span class="o">.</span><span class="n">_token_response_param</span> <span class="ow">and</span> <span class="n">credentials</span><span class="o">.</span><span class="n">token_response</span><span class="p">:</span>
+            <span class="n">resp_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">credentials</span><span class="o">.</span><span class="n">token_response</span><span class="p">)</span>
+            <span class="n">redirect_uri</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">_add_query_parameter</span><span class="p">(</span>
+                <span class="n">redirect_uri</span><span class="p">,</span> <span class="n">decorator</span><span class="o">.</span><span class="n">_token_response_param</span><span class="p">,</span> <span class="n">resp_json</span><span class="p">)</span>
+
+          <span class="bp">self</span><span class="o">.</span><span class="n">redirect</span><span class="p">(</span><span class="n">redirect_uri</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">OAuth2Handler</span>
+</div>
+<div class="viewcode-block" id="OAuth2Decorator.callback_application"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.OAuth2Decorator.callback_application">[docs]</a>  <span class="k">def</span> <span class="nf">callback_application</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;WSGI application for handling the OAuth 2.0 redirect callback.</span>
+
+<span class="sd">    If you need finer grained control use `callback_handler` which returns just</span>
+<span class="sd">    the webapp.RequestHandler.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      A webapp.WSGIApplication that handles the redirect back from the</span>
+<span class="sd">      server during the OAuth 2.0 dance.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">webapp</span><span class="o">.</span><span class="n">WSGIApplication</span><span class="p">([</span>
+        <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">callback_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">callback_handler</span><span class="p">())</span>
+        <span class="p">])</span>
+
+</div></div>
+<div class="viewcode-block" id="OAuth2DecoratorFromClientSecrets"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.OAuth2DecoratorFromClientSecrets">[docs]</a><span class="k">class</span> <span class="nc">OAuth2DecoratorFromClientSecrets</span><span class="p">(</span><span class="n">OAuth2Decorator</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;An OAuth2Decorator that builds from a clientsecrets file.</span>
+
+<span class="sd">  Uses a clientsecrets file as the source for all the information when</span>
+<span class="sd">  constructing an OAuth2Decorator.</span>
+
+<span class="sd">  ::</span>
+
+<span class="sd">    decorator = OAuth2DecoratorFromClientSecrets(</span>
+<span class="sd">      os.path.join(os.path.dirname(__file__), &#39;client_secrets.json&#39;)</span>
+<span class="sd">      scope=&#39;https://www.googleapis.com/auth/plus&#39;)</span>
+
+<span class="sd">    class MainHandler(webapp.RequestHandler):</span>
+<span class="sd">      @decorator.oauth_required</span>
+<span class="sd">      def get(self):</span>
+<span class="sd">        http = decorator.http()</span>
+<span class="sd">        # http is authorized with the user&#39;s Credentials and can be used</span>
+<span class="sd">        # in API calls</span>
+
+<span class="sd">  &quot;&quot;&quot;</span>
+
+  <span class="nd">@util.positional</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">scope</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Constructor</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      filename: string, File name of client secrets.</span>
+<span class="sd">      scope: string or iterable of strings, scope(s) of the credentials being</span>
+<span class="sd">        requested.</span>
+<span class="sd">      message: string, A friendly string to display to the user if the</span>
+<span class="sd">        clientsecrets file is missing or invalid. The message may contain HTML</span>
+<span class="sd">        and will be presented on the web interface for any method that uses the</span>
+<span class="sd">        decorator.</span>
+<span class="sd">      cache: An optional cache service client that implements get() and set()</span>
+<span class="sd">        methods. See clientsecrets.loadfile() for details.</span>
+<span class="sd">      **kwargs: dict, Keyword arguments are passed along as kwargs to</span>
+<span class="sd">        the OAuth2WebServerFlow constructor.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">client_type</span><span class="p">,</span> <span class="n">client_info</span> <span class="o">=</span> <span class="n">clientsecrets</span><span class="o">.</span><span class="n">loadfile</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">client_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span>
+        <span class="n">clientsecrets</span><span class="o">.</span><span class="n">TYPE_WEB</span><span class="p">,</span> <span class="n">clientsecrets</span><span class="o">.</span><span class="n">TYPE_INSTALLED</span><span class="p">]:</span>
+      <span class="k">raise</span> <span class="n">InvalidClientSecretsError</span><span class="p">(</span>
+          <span class="s">&quot;OAuth2Decorator doesn&#39;t support this OAuth 2.0 flow.&quot;</span><span class="p">)</span>
+    <span class="n">constructor_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">constructor_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+        <span class="s">&#39;auth_uri&#39;</span><span class="p">:</span> <span class="n">client_info</span><span class="p">[</span><span class="s">&#39;auth_uri&#39;</span><span class="p">],</span>
+        <span class="s">&#39;token_uri&#39;</span><span class="p">:</span> <span class="n">client_info</span><span class="p">[</span><span class="s">&#39;token_uri&#39;</span><span class="p">],</span>
+        <span class="s">&#39;message&#39;</span><span class="p">:</span> <span class="n">message</span><span class="p">,</span>
+    <span class="p">})</span>
+    <span class="n">revoke_uri</span> <span class="o">=</span> <span class="n">client_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;revoke_uri&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">revoke_uri</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="n">constructor_kwargs</span><span class="p">[</span><span class="s">&#39;revoke_uri&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">revoke_uri</span>
+    <span class="nb">super</span><span class="p">(</span><span class="n">OAuth2DecoratorFromClientSecrets</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span>
+        <span class="n">client_info</span><span class="p">[</span><span class="s">&#39;client_id&#39;</span><span class="p">],</span> <span class="n">client_info</span><span class="p">[</span><span class="s">&#39;client_secret&#39;</span><span class="p">],</span>
+        <span class="n">scope</span><span class="p">,</span> <span class="o">**</span><span class="n">constructor_kwargs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">message</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_message</span> <span class="o">=</span> <span class="n">message</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">_message</span> <span class="o">=</span> <span class="s">&#39;Please configure your application for OAuth 2.0.&#39;</span>
+
+</div>
+<span class="nd">@util.positional</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">oauth2decorator_from_clientsecrets</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">scope</span><span class="p">,</span>
+                                       <span class="n">message</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Creates an OAuth2Decorator populated from a clientsecrets file.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    filename: string, File name of client secrets.</span>
+<span class="sd">    scope: string or list of strings, scope(s) of the credentials being</span>
+<span class="sd">      requested.</span>
+<span class="sd">    message: string, A friendly string to display to the user if the</span>
+<span class="sd">      clientsecrets file is missing or invalid. The message may contain HTML and</span>
+<span class="sd">      will be presented on the web interface for any method that uses the</span>
+<span class="sd">      decorator.</span>
+<span class="sd">    cache: An optional cache service client that implements get() and set()</span>
+<span class="sd">      methods. See clientsecrets.loadfile() for details.</span>
+
+<span class="sd">  Returns: An OAuth2Decorator</span>
+
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">return</span> <span class="n">OAuth2DecoratorFromClientSecrets</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">scope</span><span class="p">,</span>
+                                          <span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">cache</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <p class="pull-right">
+      <a href="#">Back to top</a>
+      
+    </p>
+    <p>
+        &copy; Copyright 2014, Google, Inc.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.3.<br/>
+    </p>
+  </div>
+</footer>
+  </body>
+</html>

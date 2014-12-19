@@ -29,6 +29,9 @@
     <script type="text/javascript" src="../_static/bootstrap-3.2.0/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../_static/bootstrap-sphinx.js"></script>
     <link rel="top" title="oauth2client 1.4.4 documentation" href="../index.html" />
+    <link rel="up" title="oauth2client" href="modules.html" />
+    <link rel="next" title="Contributor License Agreements" href="../contributing.html" />
+    <link rel="prev" title="oauth2client" href="modules.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
 <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
@@ -83,7 +86,15 @@
      href="../index.html">Site <b class="caret"></b></a>
   <ul class="dropdown-menu globaltoc"
       role="menu"
-      aria-labelledby="dLabelGlobalToc"></ul>
+      aria-labelledby="dLabelGlobalToc"><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">oauth2client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributor License Agreements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html#before-writing-code-file-an-issue">Before writing code, file an issue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html#fork-oauth2client">Fork oauth2client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html#include-tests">Include tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html#make-the-pull-request">Make the pull request</a></li>
+</ul>
+</ul>
 </li>
               
                 <li class="dropdown">
@@ -97,11 +108,11 @@
       aria-labelledby="dLabelLocalToc"><ul>
 <li><a class="reference internal" href="#">oauth2client package</a><ul>
 <li><a class="reference internal" href="#submodules">Submodules</a></li>
-<li><a class="reference internal" href="#oauth2client-appengine-module">oauth2client.appengine module</a></li>
+<li><a class="reference internal" href="#module-oauth2client.appengine">oauth2client.appengine module</a></li>
 <li><a class="reference internal" href="#module-oauth2client.client">oauth2client.client module</a></li>
 <li><a class="reference internal" href="#module-oauth2client.clientsecrets">oauth2client.clientsecrets module</a></li>
 <li><a class="reference internal" href="#module-oauth2client.crypt">oauth2client.crypt module</a></li>
-<li><a class="reference internal" href="#oauth2client-django-orm-module">oauth2client.django_orm module</a></li>
+<li><a class="reference internal" href="#module-oauth2client.django_orm">oauth2client.django_orm module</a></li>
 <li><a class="reference internal" href="#module-oauth2client.file">oauth2client.file module</a></li>
 <li><a class="reference internal" href="#module-oauth2client.gce">oauth2client.gce module</a></li>
 <li><a class="reference internal" href="#module-oauth2client.keyring_storage">oauth2client.keyring_storage module</a></li>
@@ -123,6 +134,14 @@
             
               
                 
+  <li>
+    <a href="modules.html" title="Previous Chapter: oauth2client"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; oauth2client</span>
+    </a>
+  </li>
+  <li>
+    <a href="../contributing.html" title="Next Chapter: Contributor License Agreements"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">Contributor Lice... &raquo;</span>
+    </a>
+  </li>
               
             
             
@@ -159,8 +178,497 @@
 <div class="section" id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
 </div>
-<div class="section" id="oauth2client-appengine-module">
-<h2>oauth2client.appengine module<a class="headerlink" href="#oauth2client-appengine-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-oauth2client.appengine">
+<span id="oauth2client-appengine-module"></span><h2>oauth2client.appengine module<a class="headerlink" href="#module-oauth2client.appengine" title="Permalink to this headline">¶</a></h2>
+<p>Utilities for Google App Engine</p>
+<p>Utilities for making it easier to use OAuth 2.0 on Google App Engine.</p>
+<dl class="class">
+<dt id="oauth2client.appengine.AppAssertionCredentials">
+<em class="property">class </em><tt class="descclassname">oauth2client.appengine.</tt><tt class="descname">AppAssertionCredentials</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/appengine.html#AppAssertionCredentials"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.appengine.AppAssertionCredentials" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#oauth2client.client.AssertionCredentials" title="oauth2client.client.AssertionCredentials"><tt class="xref py py-class docutils literal"><span class="pre">oauth2client.client.AssertionCredentials</span></tt></a></p>
+<p>Credentials object for App Engine Assertion Grants</p>
+<p>This object will allow an App Engine application to identify itself to Google
+and other OAuth 2.0 servers that can verify assertions. It can be used for the
+purpose of accessing data stored under an account assigned to the App Engine
+application itself.</p>
+<p>This credential does not require a flow to instantiate because it represents
+a two legged flow, and therefore has all of the required information to
+generate and refresh its own access tokens.</p>
+<dl class="method">
+<dt id="oauth2client.appengine.AppAssertionCredentials.create_scoped">
+<tt class="descname">create_scoped</tt><big>(</big><em>scopes</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/appengine.html#AppAssertionCredentials.create_scoped"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.appengine.AppAssertionCredentials.create_scoped" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.appengine.AppAssertionCredentials.create_scoped_required">
+<tt class="descname">create_scoped_required</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/oauth2client/appengine.html#AppAssertionCredentials.create_scoped_required"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.appengine.AppAssertionCredentials.create_scoped_required" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="oauth2client.appengine.AppAssertionCredentials.from_json">
+<em class="property">classmethod </em><tt class="descname">from_json</tt><big>(</big><em>json_data</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/appengine.html#AppAssertionCredentials.from_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.appengine.AppAssertionCredentials.from_json" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="oauth2client.appengine.AppAssertionCredentials.serialization_data">
+<tt class="descname">serialization_data</tt><a class="reference internal" href="../_modules/oauth2client/appengine.html#AppAssertionCredentials.serialization_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.appengine.AppAssertionCredentials.serialization_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="oauth2client.appengine.CredentialsModel">
+<em class="property">class </em><tt class="descclassname">oauth2client.appengine.</tt><tt class="descname">CredentialsModel</tt><big>(</big><em>parent=None</em>, <em>key_name=None</em>, <em>_app=None</em>, <em>_from_entity=False</em>, <em>**kwds</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/appengine.html#CredentialsModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.appengine.CredentialsModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">google.appengine.ext.db.Model</span></tt></p>
+<p>Storage for OAuth 2.0 Credentials</p>
+<p>Storage of the model is keyed by the user.user_id().</p>
+<dl class="attribute">
+<dt id="oauth2client.appengine.CredentialsModel.credentials">
+<tt class="descname">credentials</tt><a class="headerlink" href="#oauth2client.appengine.CredentialsModel.credentials" title="Permalink to this definition">¶</a></dt>
+<dd><p>App Engine datastore Property for Credentials.</p>
+<p>Utility property that allows easy storage and retrieval of
+oath2client.Credentials</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="oauth2client.appengine.CredentialsNDBModel">
+<em class="property">class </em><tt class="descclassname">oauth2client.appengine.</tt><tt class="descname">CredentialsNDBModel</tt><big>(</big><em>*args</em>, <em>**kwds</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/appengine.html#CredentialsNDBModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.appengine.CredentialsNDBModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">google.appengine.ext.ndb.model.Model</span></tt></p>
+<p>NDB Model for storage of OAuth 2.0 Credentials</p>
+<p>Since this model uses the same kind as CredentialsModel and has a property
+which can serialize and deserialize Credentials correctly, it can be used
+interchangeably with a CredentialsModel to access, insert and delete the
+same entities. This simply provides an NDB model for interacting with the
+same data the DB model interacts with.</p>
+<p>Storage of the model is keyed by the user.user_id().</p>
+<dl class="attribute">
+<dt id="oauth2client.appengine.CredentialsNDBModel.credentials">
+<tt class="descname">credentials</tt><a class="headerlink" href="#oauth2client.appengine.CredentialsNDBModel.credentials" title="Permalink to this definition">¶</a></dt>
+<dd><p>App Engine NDB datastore Property for Credentials.</p>
+<p>Serves the same purpose as the DB CredentialsProperty, but for NDB models.
+Since CredentialsProperty stores data as a blob and this inherits from
+BlobProperty, the data in the datastore will be the same as in the DB case.</p>
+<p>Utility property that allows easy storage and retrieval of Credentials and
+subclasses.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="oauth2client.appengine.CredentialsNDBProperty">
+<em class="property">class </em><tt class="descclassname">oauth2client.appengine.</tt><tt class="descname">CredentialsNDBProperty</tt><big>(</big><em>*args</em>, <em>**kwds</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/appengine.html#CredentialsNDBProperty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.appengine.CredentialsNDBProperty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">google.appengine.ext.ndb.model.BlobProperty</span></tt></p>
+<p>App Engine NDB datastore Property for Credentials.</p>
+<p>Serves the same purpose as the DB CredentialsProperty, but for NDB models.
+Since CredentialsProperty stores data as a blob and this inherits from
+BlobProperty, the data in the datastore will be the same as in the DB case.</p>
+<p>Utility property that allows easy storage and retrieval of Credentials and
+subclasses.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="oauth2client.appengine.CredentialsProperty">
+<em class="property">class </em><tt class="descclassname">oauth2client.appengine.</tt><tt class="descname">CredentialsProperty</tt><big>(</big><em>verbose_name=None</em>, <em>name=None</em>, <em>default=None</em>, <em>required=False</em>, <em>validator=None</em>, <em>choices=None</em>, <em>indexed=True</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/appengine.html#CredentialsProperty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.appengine.CredentialsProperty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">google.appengine.ext.db.Property</span></tt></p>
+<p>App Engine datastore Property for Credentials.</p>
+<p>Utility property that allows easy storage and retrieval of
+oath2client.Credentials</p>
+<dl class="attribute">
+<dt id="oauth2client.appengine.CredentialsProperty.data_type">
+<tt class="descname">data_type</tt><a class="headerlink" href="#oauth2client.appengine.CredentialsProperty.data_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">Credentials</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.appengine.CredentialsProperty.get_value_for_datastore">
+<tt class="descname">get_value_for_datastore</tt><big>(</big><em>model_instance</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/appengine.html#CredentialsProperty.get_value_for_datastore"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.appengine.CredentialsProperty.get_value_for_datastore" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.appengine.CredentialsProperty.make_value_from_datastore">
+<tt class="descname">make_value_from_datastore</tt><big>(</big><em>value</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/appengine.html#CredentialsProperty.make_value_from_datastore"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.appengine.CredentialsProperty.make_value_from_datastore" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.appengine.CredentialsProperty.validate">
+<tt class="descname">validate</tt><big>(</big><em>value</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/appengine.html#CredentialsProperty.validate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.appengine.CredentialsProperty.validate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="oauth2client.appengine.FlowNDBProperty">
+<em class="property">class </em><tt class="descclassname">oauth2client.appengine.</tt><tt class="descname">FlowNDBProperty</tt><big>(</big><em>*args</em>, <em>**kwds</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/appengine.html#FlowNDBProperty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.appengine.FlowNDBProperty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">google.appengine.ext.ndb.model.PickleProperty</span></tt></p>
+<p>App Engine NDB datastore Property for Flow.</p>
+<p>Serves the same purpose as the DB FlowProperty, but for NDB models. Since
+PickleProperty inherits from BlobProperty, the underlying representation of
+the data in the datastore will be the same as in the DB case.</p>
+<p>Utility property that allows easy storage and retrieval of an
+oauth2client.Flow</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="oauth2client.appengine.FlowProperty">
+<em class="property">class </em><tt class="descclassname">oauth2client.appengine.</tt><tt class="descname">FlowProperty</tt><big>(</big><em>verbose_name=None</em>, <em>name=None</em>, <em>default=None</em>, <em>required=False</em>, <em>validator=None</em>, <em>choices=None</em>, <em>indexed=True</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/appengine.html#FlowProperty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.appengine.FlowProperty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">google.appengine.ext.db.Property</span></tt></p>
+<p>App Engine datastore Property for Flow.</p>
+<p>Utility property that allows easy storage and retrieval of an
+oauth2client.Flow</p>
+<dl class="attribute">
+<dt id="oauth2client.appengine.FlowProperty.data_type">
+<tt class="descname">data_type</tt><a class="headerlink" href="#oauth2client.appengine.FlowProperty.data_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <tt class="xref py py-class docutils literal"><span class="pre">Flow</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.appengine.FlowProperty.empty">
+<tt class="descname">empty</tt><big>(</big><em>value</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/appengine.html#FlowProperty.empty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.appengine.FlowProperty.empty" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.appengine.FlowProperty.get_value_for_datastore">
+<tt class="descname">get_value_for_datastore</tt><big>(</big><em>model_instance</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/appengine.html#FlowProperty.get_value_for_datastore"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.appengine.FlowProperty.get_value_for_datastore" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.appengine.FlowProperty.make_value_from_datastore">
+<tt class="descname">make_value_from_datastore</tt><big>(</big><em>value</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/appengine.html#FlowProperty.make_value_from_datastore"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.appengine.FlowProperty.make_value_from_datastore" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.appengine.FlowProperty.validate">
+<tt class="descname">validate</tt><big>(</big><em>value</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/appengine.html#FlowProperty.validate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.appengine.FlowProperty.validate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="oauth2client.appengine.InvalidClientSecretsError">
+<em class="property">exception </em><tt class="descclassname">oauth2client.appengine.</tt><tt class="descname">InvalidClientSecretsError</tt><a class="reference internal" href="../_modules/oauth2client/appengine.html#InvalidClientSecretsError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.appengine.InvalidClientSecretsError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+<p>The client_secrets.json file is malformed or missing required fields.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="oauth2client.appengine.InvalidXsrfTokenError">
+<em class="property">exception </em><tt class="descclassname">oauth2client.appengine.</tt><tt class="descname">InvalidXsrfTokenError</tt><a class="reference internal" href="../_modules/oauth2client/appengine.html#InvalidXsrfTokenError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.appengine.InvalidXsrfTokenError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+<p>The XSRF token is invalid or expired.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="oauth2client.appengine.OAuth2Decorator">
+<em class="property">class </em><tt class="descclassname">oauth2client.appengine.</tt><tt class="descname">OAuth2Decorator</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/appengine.html#OAuth2Decorator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.appengine.OAuth2Decorator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Utility for making OAuth 2.0 easier.</p>
+<p>Instantiate and then use with oauth_required or oauth_aware
+as decorators on webapp.RequestHandler methods.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">decorator</span> <span class="o">=</span> <span class="n">OAuth2Decorator</span><span class="p">(</span>
+    <span class="n">client_id</span><span class="o">=</span><span class="s">&#39;837...ent.com&#39;</span><span class="p">,</span>
+    <span class="n">client_secret</span><span class="o">=</span><span class="s">&#39;Qh...wwI&#39;</span><span class="p">,</span>
+    <span class="n">scope</span><span class="o">=</span><span class="s">&#39;https://www.googleapis.com/auth/plus&#39;</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">MainHandler</span><span class="p">(</span><span class="n">webapp</span><span class="o">.</span><span class="n">RequestHandler</span><span class="p">):</span>
+  <span class="nd">@decorator.oauth_required</span>
+  <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">http</span> <span class="o">=</span> <span class="n">decorator</span><span class="o">.</span><span class="n">http</span><span class="p">()</span>
+    <span class="c"># http is authorized with the user&#39;s Credentials and can be used</span>
+    <span class="c"># in API calls</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="oauth2client.appengine.OAuth2Decorator.authorize_url">
+<tt class="descname">authorize_url</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/oauth2client/appengine.html#OAuth2Decorator.authorize_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.appengine.OAuth2Decorator.authorize_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the URL to start the OAuth dance.</p>
+<p>Must only be called from with a webapp.RequestHandler subclassed method
+that had been decorated with either &#64;oauth_required or &#64;oauth_aware.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.appengine.OAuth2Decorator.callback_application">
+<tt class="descname">callback_application</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/oauth2client/appengine.html#OAuth2Decorator.callback_application"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.appengine.OAuth2Decorator.callback_application" title="Permalink to this definition">¶</a></dt>
+<dd><p>WSGI application for handling the OAuth 2.0 redirect callback.</p>
+<p>If you need finer grained control use <cite>callback_handler</cite> which returns just
+the webapp.RequestHandler.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A webapp.WSGIApplication that handles the redirect back from the
+server during the OAuth 2.0 dance.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.appengine.OAuth2Decorator.callback_handler">
+<tt class="descname">callback_handler</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/oauth2client/appengine.html#OAuth2Decorator.callback_handler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.appengine.OAuth2Decorator.callback_handler" title="Permalink to this definition">¶</a></dt>
+<dd><p>RequestHandler for the OAuth 2.0 redirect callback.</p>
+<p>Usage:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">app</span> <span class="o">=</span> <span class="n">webapp</span><span class="o">.</span><span class="n">WSGIApplication</span><span class="p">([</span>
+  <span class="p">(</span><span class="s">&#39;/index&#39;</span><span class="p">,</span> <span class="n">MyIndexHandler</span><span class="p">),</span>
+  <span class="o">...</span><span class="p">,</span>
+  <span class="p">(</span><span class="n">decorator</span><span class="o">.</span><span class="n">callback_path</span><span class="p">,</span> <span class="n">decorator</span><span class="o">.</span><span class="n">callback_handler</span><span class="p">())</span>
+<span class="p">])</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A webapp.RequestHandler that handles the redirect back from the
+server during the OAuth 2.0 dance.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="oauth2client.appengine.OAuth2Decorator.callback_path">
+<tt class="descname">callback_path</tt><a class="reference internal" href="../_modules/oauth2client/appengine.html#OAuth2Decorator.callback_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.appengine.OAuth2Decorator.callback_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>The absolute path where the callback will occur.</p>
+<p>Note this is the absolute path, not the absolute URI, that will be
+calculated by the decorator at runtime. See callback_handler() for how this
+should be used.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The callback path as a string.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="oauth2client.appengine.OAuth2Decorator.credentials">
+<tt class="descname">credentials</tt><a class="headerlink" href="#oauth2client.appengine.OAuth2Decorator.credentials" title="Permalink to this definition">¶</a></dt>
+<dd><p>A thread local Credentials object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A client.Credentials object, or None if credentials hasn&#8217;t been set in
+this thread yet, which may happen when calling has_credentials inside
+oauth_aware.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="oauth2client.appengine.OAuth2Decorator.flow">
+<tt class="descname">flow</tt><a class="headerlink" href="#oauth2client.appengine.OAuth2Decorator.flow" title="Permalink to this definition">¶</a></dt>
+<dd><p>A thread local Flow object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A credentials.Flow object, or None if the flow hasn&#8217;t been set in this
+thread yet, which happens in _create_flow() since Flows are created
+lazily.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.appengine.OAuth2Decorator.get_credentials">
+<tt class="descname">get_credentials</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/oauth2client/appengine.html#OAuth2Decorator.get_credentials"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.appengine.OAuth2Decorator.get_credentials" title="Permalink to this definition">¶</a></dt>
+<dd><p>A thread local Credentials object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A client.Credentials object, or None if credentials hasn&#8217;t been set in
+this thread yet, which may happen when calling has_credentials inside
+oauth_aware.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.appengine.OAuth2Decorator.get_flow">
+<tt class="descname">get_flow</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/oauth2client/appengine.html#OAuth2Decorator.get_flow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.appengine.OAuth2Decorator.get_flow" title="Permalink to this definition">¶</a></dt>
+<dd><p>A thread local Flow object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A credentials.Flow object, or None if the flow hasn&#8217;t been set in this
+thread yet, which happens in _create_flow() since Flows are created
+lazily.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.appengine.OAuth2Decorator.has_credentials">
+<tt class="descname">has_credentials</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/oauth2client/appengine.html#OAuth2Decorator.has_credentials"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.appengine.OAuth2Decorator.has_credentials" title="Permalink to this definition">¶</a></dt>
+<dd><p>True if for the logged in user there are valid access Credentials.</p>
+<p>Must only be called from with a webapp.RequestHandler subclassed method
+that had been decorated with either &#64;oauth_required or &#64;oauth_aware.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.appengine.OAuth2Decorator.http">
+<tt class="descname">http</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/appengine.html#OAuth2Decorator.http"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.appengine.OAuth2Decorator.http" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an authorized http instance.</p>
+<p>Must only be called from within an &#64;oauth_required decorated method, or
+from within an &#64;oauth_aware decorated method where has_credentials()
+returns True.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.appengine.OAuth2Decorator.oauth_aware">
+<tt class="descname">oauth_aware</tt><big>(</big><em>method</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/appengine.html#OAuth2Decorator.oauth_aware"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.appengine.OAuth2Decorator.oauth_aware" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator that sets up for OAuth 2.0 dance, but doesn&#8217;t do it.</p>
+<p>Does all the setup for the OAuth dance, but doesn&#8217;t initiate it.
+This decorator is useful if you want to create a page that knows
+whether or not the user has granted access to this application.
+From within a method decorated with &#64;oauth_aware the has_credentials()
+and authorize_url() methods can be called.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>method</strong> &#8211; callable, to be decorated method of a webapp.RequestHandler
+instance.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.appengine.OAuth2Decorator.oauth_required">
+<tt class="descname">oauth_required</tt><big>(</big><em>method</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/appengine.html#OAuth2Decorator.oauth_required"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.appengine.OAuth2Decorator.oauth_required" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator that starts the OAuth 2.0 dance.</p>
+<p>Starts the OAuth dance for the logged in user if they haven&#8217;t already
+granted access for this application.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>method</strong> &#8211; callable, to be decorated method of a webapp.RequestHandler
+instance.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.appengine.OAuth2Decorator.set_credentials">
+<tt class="descname">set_credentials</tt><big>(</big><em>credentials</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/appengine.html#OAuth2Decorator.set_credentials"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.appengine.OAuth2Decorator.set_credentials" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.appengine.OAuth2Decorator.set_flow">
+<tt class="descname">set_flow</tt><big>(</big><em>flow</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/appengine.html#OAuth2Decorator.set_flow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.appengine.OAuth2Decorator.set_flow" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="oauth2client.appengine.OAuth2DecoratorFromClientSecrets">
+<em class="property">class </em><tt class="descclassname">oauth2client.appengine.</tt><tt class="descname">OAuth2DecoratorFromClientSecrets</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/appengine.html#OAuth2DecoratorFromClientSecrets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.appengine.OAuth2DecoratorFromClientSecrets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#oauth2client.appengine.OAuth2Decorator" title="oauth2client.appengine.OAuth2Decorator"><tt class="xref py py-class docutils literal"><span class="pre">oauth2client.appengine.OAuth2Decorator</span></tt></a></p>
+<p>An OAuth2Decorator that builds from a clientsecrets file.</p>
+<p>Uses a clientsecrets file as the source for all the information when
+constructing an OAuth2Decorator.</p>
+<div class="highlight-python"><div class="highlight"><pre>decorator = OAuth2DecoratorFromClientSecrets(
+  os.path.join(os.path.dirname(__file__), &#39;client_secrets.json&#39;)
+  scope=&#39;https://www.googleapis.com/auth/plus&#39;)
+
+class MainHandler(webapp.RequestHandler):
+  @decorator.oauth_required
+  def get(self):
+    http = decorator.http()
+    # http is authorized with the user&#39;s Credentials and can be used
+    # in API calls
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="class">
+<dt id="oauth2client.appengine.SiteXsrfSecretKey">
+<em class="property">class </em><tt class="descclassname">oauth2client.appengine.</tt><tt class="descname">SiteXsrfSecretKey</tt><big>(</big><em>parent=None</em>, <em>key_name=None</em>, <em>_app=None</em>, <em>_from_entity=False</em>, <em>**kwds</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/appengine.html#SiteXsrfSecretKey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.appengine.SiteXsrfSecretKey" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">google.appengine.ext.db.Model</span></tt></p>
+<p>Storage for the sites XSRF secret key.</p>
+<p>There will only be one instance stored of this model, the one used for the
+site.</p>
+<dl class="attribute">
+<dt id="oauth2client.appengine.SiteXsrfSecretKey.secret">
+<tt class="descname">secret</tt><a class="headerlink" href="#oauth2client.appengine.SiteXsrfSecretKey.secret" title="Permalink to this definition">¶</a></dt>
+<dd><p>A textual property, which can be multi- or single-line.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="oauth2client.appengine.SiteXsrfSecretKeyNDB">
+<em class="property">class </em><tt class="descclassname">oauth2client.appengine.</tt><tt class="descname">SiteXsrfSecretKeyNDB</tt><big>(</big><em>*args</em>, <em>**kwds</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/appengine.html#SiteXsrfSecretKeyNDB"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.appengine.SiteXsrfSecretKeyNDB" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">google.appengine.ext.ndb.model.Model</span></tt></p>
+<p>NDB Model for storage for the sites XSRF secret key.</p>
+<p>Since this model uses the same kind as SiteXsrfSecretKey, it can be used
+interchangeably. This simply provides an NDB model for interacting with the
+same data the DB model interacts with.</p>
+<p>There should only be one instance stored of this model, the one used for the
+site.</p>
+<dl class="attribute">
+<dt id="oauth2client.appengine.SiteXsrfSecretKeyNDB.secret">
+<tt class="descname">secret</tt><a class="headerlink" href="#oauth2client.appengine.SiteXsrfSecretKeyNDB.secret" title="Permalink to this definition">¶</a></dt>
+<dd><p>An indexed Property whose value is a text string of limited length.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="oauth2client.appengine.StorageByKeyName">
+<em class="property">class </em><tt class="descclassname">oauth2client.appengine.</tt><tt class="descname">StorageByKeyName</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/appengine.html#StorageByKeyName"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.appengine.StorageByKeyName" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#oauth2client.client.Storage" title="oauth2client.client.Storage"><tt class="xref py py-class docutils literal"><span class="pre">oauth2client.client.Storage</span></tt></a></p>
+<p>Store and retrieve a credential to and from the App Engine datastore.</p>
+<p>This Storage helper presumes the Credentials have been stored as a
+CredentialsProperty or CredentialsNDBProperty on a datastore model class, and
+that entities are stored by key_name.</p>
+<dl class="method">
+<dt id="oauth2client.appengine.StorageByKeyName.locked_delete">
+<tt class="descname">locked_delete</tt><big>(</big><em>*args</em>, <em>**kwds</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/appengine.html#StorageByKeyName.locked_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.appengine.StorageByKeyName.locked_delete" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.appengine.StorageByKeyName.locked_get">
+<tt class="descname">locked_get</tt><big>(</big><em>*args</em>, <em>**kwds</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/appengine.html#StorageByKeyName.locked_get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.appengine.StorageByKeyName.locked_get" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.appengine.StorageByKeyName.locked_put">
+<tt class="descname">locked_put</tt><big>(</big><em>*args</em>, <em>**kwds</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/appengine.html#StorageByKeyName.locked_put"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.appengine.StorageByKeyName.locked_put" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="oauth2client.appengine.xsrf_secret_key">
+<tt class="descclassname">oauth2client.appengine.</tt><tt class="descname">xsrf_secret_key</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/oauth2client/appengine.html#xsrf_secret_key"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.appengine.xsrf_secret_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the secret key for use for XSRF protection.</p>
+<p>If the Site entity does not have a secret key, this method will also create
+one and persist it.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The secret key.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 <div class="section" id="module-oauth2client.client">
 <span id="oauth2client-client-module"></span><h2>oauth2client.client module<a class="headerlink" href="#module-oauth2client.client" title="Permalink to this headline">¶</a></h2>
@@ -180,15 +688,14 @@ application, and wish to use it from Python. Because only the
 access_token is present it can not be refreshed and will in time
 expire.</p>
 <p>AccessTokenCredentials objects may be safely pickled and unpickled.</p>
+<p>Usage:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">credentials</span> <span class="o">=</span> <span class="n">AccessTokenCredentials</span><span class="p">(</span><span class="s">&#39;&lt;an access token&gt;&#39;</span><span class="p">,</span>
+  <span class="s">&#39;my-user-agent/1.0&#39;</span><span class="p">)</span>
+<span class="n">http</span> <span class="o">=</span> <span class="n">httplib2</span><span class="o">.</span><span class="n">Http</span><span class="p">()</span>
+<span class="n">http</span> <span class="o">=</span> <span class="n">credentials</span><span class="o">.</span><span class="n">authorize</span><span class="p">(</span><span class="n">http</span><span class="p">)</span>
+</pre></div>
+</div>
 <dl class="docutils">
-<dt>Usage:</dt>
-<dd><dl class="first docutils">
-<dt>credentials = AccessTokenCredentials(&#8216;&lt;an access token&gt;&#8217;,</dt>
-<dd>&#8216;my-user-agent/1.0&#8217;)</dd>
-</dl>
-<p class="last">http = httplib2.Http()
-http = credentials.authorize(http)</p>
-</dd>
 <dt>Exceptions:</dt>
 <dd><dl class="first last docutils">
 <dt>AccessTokenCredentialsExpired: raised when the access_token expires or is</dt>
@@ -417,8 +924,7 @@ from_json().</td>
 <dt id="oauth2client.client.DeviceFlowInfo.FromResponse">
 <em class="property">classmethod </em><tt class="descname">FromResponse</tt><big>(</big><em>response</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/client.html#DeviceFlowInfo.FromResponse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.DeviceFlowInfo.FromResponse" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a DeviceFlowInfo from a server response.</p>
-<p>The response should be a dict containing entries as described
-here:</p>
+<p>The response should be a dict containing entries as described here:</p>
 <blockquote>
 <div><a class="reference external" href="http://tools.ietf.org/html/draft-ietf-oauth-v2-05#section-3.7.1">http://tools.ietf.org/html/draft-ietf-oauth-v2-05#section-3.7.1</a></div></blockquote>
 </dd></dl>
@@ -612,8 +1118,8 @@ it.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>http</strong> &#8211; An instance of httplib2.Http
-or something that acts like it.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>http</strong> &#8211; An instance of <tt class="docutils literal"><span class="pre">httplib2.Http</span></tt> or something that acts
+like it.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A modified instance of http that was passed in.</td>
 </tr>
@@ -967,20 +1473,18 @@ an OAuth 2.0 protected service.</p>
 <p>Typical cache storage would be App Engine memcache service,
 but you can pass in any other cache client that implements
 these methods:</p>
-<blockquote>
-<div><ul class="simple">
-<li>get(key, namespace=ns)</li>
-<li>set(key, value, namespace=ns)</li>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">get(key,</span> <span class="pre">namespace=ns)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">set(key,</span> <span class="pre">value,</span> <span class="pre">namespace=ns)</span></tt></li>
 </ul>
-</div></blockquote>
-<dl class="docutils">
-<dt>Usage:</dt>
-<dd># without caching
-client_type, client_info = loadfile(&#8216;secrets.json&#8217;)
-# using App Engine memcache service
-from google.appengine.api import memcache
-client_type, client_info = loadfile(&#8216;secrets.json&#8217;, cache=memcache)</dd>
-</dl>
+<p>Usage:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># without caching</span>
+<span class="n">client_type</span><span class="p">,</span> <span class="n">client_info</span> <span class="o">=</span> <span class="n">loadfile</span><span class="p">(</span><span class="s">&#39;secrets.json&#39;</span><span class="p">)</span>
+<span class="c"># using App Engine memcache service</span>
+<span class="kn">from</span> <span class="nn">google.appengine.api</span> <span class="kn">import</span> <span class="n">memcache</span>
+<span class="n">client_type</span><span class="p">,</span> <span class="n">client_info</span> <span class="o">=</span> <span class="n">loadfile</span><span class="p">(</span><span class="s">&#39;secrets.json&#39;</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="n">memcache</span><span class="p">)</span>
+</pre></div>
+</div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1283,8 +1787,113 @@ None then the JWT&#8217;s &#8216;aud&#8217; parameter is not verified.</li>
 </dd></dl>
 
 </div>
-<div class="section" id="oauth2client-django-orm-module">
-<h2>oauth2client.django_orm module<a class="headerlink" href="#oauth2client-django-orm-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-oauth2client.django_orm">
+<span id="oauth2client-django-orm-module"></span><h2>oauth2client.django_orm module<a class="headerlink" href="#module-oauth2client.django_orm" title="Permalink to this headline">¶</a></h2>
+<p>OAuth 2.0 utilities for Django.</p>
+<p>Utilities for using OAuth 2.0 in conjunction with
+the Django datastore.</p>
+<dl class="class">
+<dt id="oauth2client.django_orm.CredentialsField">
+<em class="property">class </em><tt class="descclassname">oauth2client.django_orm.</tt><tt class="descname">CredentialsField</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/django_orm.html#CredentialsField"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.django_orm.CredentialsField" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">django.db.models.fields.Field</span></tt></p>
+<dl class="method">
+<dt id="oauth2client.django_orm.CredentialsField.contribute_to_class">
+<tt class="descname">contribute_to_class</tt><big>(</big><em>cls</em>, <em>name</em><big>)</big><a class="headerlink" href="#oauth2client.django_orm.CredentialsField.contribute_to_class" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.django_orm.CredentialsField.get_db_prep_value">
+<tt class="descname">get_db_prep_value</tt><big>(</big><em>value</em>, <em>connection</em>, <em>prepared=False</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/django_orm.html#CredentialsField.get_db_prep_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.django_orm.CredentialsField.get_db_prep_value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.django_orm.CredentialsField.get_internal_type">
+<tt class="descname">get_internal_type</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/oauth2client/django_orm.html#CredentialsField.get_internal_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.django_orm.CredentialsField.get_internal_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.django_orm.CredentialsField.to_python">
+<tt class="descname">to_python</tt><big>(</big><em>value</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/django_orm.html#CredentialsField.to_python"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.django_orm.CredentialsField.to_python" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="oauth2client.django_orm.FlowField">
+<em class="property">class </em><tt class="descclassname">oauth2client.django_orm.</tt><tt class="descname">FlowField</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/django_orm.html#FlowField"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.django_orm.FlowField" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">django.db.models.fields.Field</span></tt></p>
+<dl class="method">
+<dt id="oauth2client.django_orm.FlowField.contribute_to_class">
+<tt class="descname">contribute_to_class</tt><big>(</big><em>cls</em>, <em>name</em><big>)</big><a class="headerlink" href="#oauth2client.django_orm.FlowField.contribute_to_class" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.django_orm.FlowField.get_db_prep_value">
+<tt class="descname">get_db_prep_value</tt><big>(</big><em>value</em>, <em>connection</em>, <em>prepared=False</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/django_orm.html#FlowField.get_db_prep_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.django_orm.FlowField.get_db_prep_value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.django_orm.FlowField.get_internal_type">
+<tt class="descname">get_internal_type</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/oauth2client/django_orm.html#FlowField.get_internal_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.django_orm.FlowField.get_internal_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.django_orm.FlowField.to_python">
+<tt class="descname">to_python</tt><big>(</big><em>value</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/django_orm.html#FlowField.to_python"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.django_orm.FlowField.to_python" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="oauth2client.django_orm.Storage">
+<em class="property">class </em><tt class="descclassname">oauth2client.django_orm.</tt><tt class="descname">Storage</tt><big>(</big><em>model_class</em>, <em>key_name</em>, <em>key_value</em>, <em>property_name</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/django_orm.html#Storage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.django_orm.Storage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#oauth2client.client.Storage" title="oauth2client.client.Storage"><tt class="xref py py-class docutils literal"><span class="pre">oauth2client.client.Storage</span></tt></a></p>
+<p>Store and retrieve a single credential to and from
+the datastore.</p>
+<p>This Storage helper presumes the Credentials
+have been stored as a CredenialsField
+on a db model class.</p>
+<dl class="method">
+<dt id="oauth2client.django_orm.Storage.locked_delete">
+<tt class="descname">locked_delete</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/oauth2client/django_orm.html#Storage.locked_delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.django_orm.Storage.locked_delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete Credentials from the datastore.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.django_orm.Storage.locked_get">
+<tt class="descname">locked_get</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/oauth2client/django_orm.html#Storage.locked_get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.django_orm.Storage.locked_get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve Credential from datastore.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">oauth2client.Credentials</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="oauth2client.django_orm.Storage.locked_put">
+<tt class="descname">locked_put</tt><big>(</big><em>credentials</em>, <em>overwrite=False</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/django_orm.html#Storage.locked_put"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.django_orm.Storage.locked_put" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a Credentials to the datastore.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>credentials</strong> &#8211; Credentials, the credentials to store.</li>
+<li><strong>overwrite</strong> &#8211; Boolean, indicates whether you would like these credentials to
+overwrite any existing stored credentials.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 <div class="section" id="module-oauth2client.file">
 <span id="oauth2client-file-module"></span><h2>oauth2client.file module<a class="headerlink" href="#module-oauth2client.file" title="Permalink to this headline">¶</a></h2>
@@ -1495,21 +2104,17 @@ RuntimeError.</p>
 <p>Locked file interface that should work on Unix and Windows pythons.</p>
 <p>This module first tries to use fcntl locking to ensure serialized access
 to a file, then falls back on a lock file if that is unavialable.</p>
-<dl class="docutils">
-<dt>Usage:</dt>
-<dd><p class="first">f = LockedFile(&#8216;filename&#8217;, &#8216;r+b&#8217;, &#8216;rb&#8217;)
-f.open_and_lock()
-if f.is_locked():</p>
-<blockquote>
-<div>print(&#8216;Acquired filename with r+b mode&#8217;)
-f.file_handle().write(&#8216;locked data&#8217;)</div></blockquote>
-<dl class="docutils">
-<dt>else:</dt>
-<dd>print(&#8216;Acquired filename with rb mode&#8217;)</dd>
-</dl>
-<p class="last">f.unlock_and_close()</p>
-</dd>
-</dl>
+<p>Usage:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">f</span> <span class="o">=</span> <span class="n">LockedFile</span><span class="p">(</span><span class="s">&#39;filename&#39;</span><span class="p">,</span> <span class="s">&#39;r+b&#39;</span><span class="p">,</span> <span class="s">&#39;rb&#39;</span><span class="p">)</span>
+<span class="n">f</span><span class="o">.</span><span class="n">open_and_lock</span><span class="p">()</span>
+<span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">is_locked</span><span class="p">():</span>
+  <span class="k">print</span><span class="p">(</span><span class="s">&#39;Acquired filename with r+b mode&#39;</span><span class="p">)</span>
+  <span class="n">f</span><span class="o">.</span><span class="n">file_handle</span><span class="p">()</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;locked data&#39;</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+  <span class="k">print</span><span class="p">(</span><span class="s">&#39;Acquired filename with rb mode&#39;</span><span class="p">)</span>
+<span class="n">f</span><span class="o">.</span><span class="n">unlock_and_close</span><span class="p">()</span>
+</pre></div>
+</div>
 <dl class="exception">
 <dt id="oauth2client.locked_file.AlreadyLockedException">
 <em class="property">exception </em><tt class="descclassname">oauth2client.locked_file.</tt><tt class="descname">AlreadyLockedException</tt><a class="reference internal" href="../_modules/oauth2client/locked_file.html#AlreadyLockedException"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.locked_file.AlreadyLockedException" title="Permalink to this definition">¶</a></dt>
@@ -1593,36 +2198,30 @@ if the open fails.</li>
 <p>This module implements a JSON credential store where multiple
 credentials can be stored in one file. That file supports locking
 both in a single process and across processes.</p>
-<p>The credential themselves are keyed off of:
-* client_id
-* user_agent
-* scope</p>
-<p>The format of the stored data is like so:
-{</p>
-<blockquote>
-<div><p>&#8216;file_version&#8217;: 1,
-&#8216;data&#8217;: [</p>
-<blockquote>
-<div><dl class="docutils">
-<dt>{</dt>
-<dd><dl class="first docutils">
-<dt>&#8216;key&#8217;: {</dt>
-<dd>&#8216;clientId&#8217;: &#8216;&lt;client id&gt;&#8217;,
-&#8216;userAgent&#8217;: &#8216;&lt;user agent&gt;&#8217;,
-&#8216;scope&#8217;: &#8216;&lt;scope&gt;&#8217;</dd>
-</dl>
-<p>},
-&#8216;credential&#8217;: {</p>
-<blockquote>
-<div># JSON serialized Credentials.</div></blockquote>
-<p class="last">}</p>
-</dd>
-</dl>
-<p>}</p>
-</div></blockquote>
-<p>]</p>
-</div></blockquote>
-<p>}</p>
+<p>The credential themselves are keyed off of:</p>
+<ul class="simple">
+<li>client_id</li>
+<li>user_agent</li>
+<li>scope</li>
+</ul>
+<p>The format of the stored data is like so:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+  <span class="s">&#39;file_version&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+  <span class="s">&#39;data&#39;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="s">&#39;key&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;clientId&#39;</span><span class="p">:</span> <span class="s">&#39;&lt;client id&gt;&#39;</span><span class="p">,</span>
+        <span class="s">&#39;userAgent&#39;</span><span class="p">:</span> <span class="s">&#39;&lt;user agent&gt;&#39;</span><span class="p">,</span>
+        <span class="s">&#39;scope&#39;</span><span class="p">:</span> <span class="s">&#39;&lt;scope&gt;&#39;</span>
+      <span class="p">},</span>
+      <span class="s">&#39;credential&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="c"># JSON serialized Credentials.</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
 <dl class="exception">
 <dt id="oauth2client.multistore_file.Error">
 <em class="property">exception </em><tt class="descclassname">oauth2client.multistore_file.</tt><tt class="descname">Error</tt><a class="reference internal" href="../_modules/oauth2client/multistore_file.html#Error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.multistore_file.Error" title="Permalink to this definition">¶</a></dt>
@@ -1634,7 +2233,7 @@ both in a single process and across processes.</p>
 <dt id="oauth2client.multistore_file.NewerCredentialStoreError">
 <em class="property">exception </em><tt class="descclassname">oauth2client.multistore_file.</tt><tt class="descname">NewerCredentialStoreError</tt><a class="reference internal" href="../_modules/oauth2client/multistore_file.html#NewerCredentialStoreError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.multistore_file.NewerCredentialStoreError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#oauth2client.multistore_file.Error" title="oauth2client.multistore_file.Error"><tt class="xref py py-class docutils literal"><span class="pre">oauth2client.multistore_file.Error</span></tt></a></p>
-<p>The credential store is a newer version that supported.</p>
+<p>The credential store is a newer version than supported.</p>
 </dd></dl>
 
 </div>
@@ -1678,60 +2277,56 @@ the same directory.</p>
 <dt id="oauth2client.util.positional">
 <tt class="descclassname">oauth2client.util.</tt><tt class="descname">positional</tt><big>(</big><em>max_positional_args</em><big>)</big><a class="reference internal" href="../_modules/oauth2client/util.html#positional"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.util.positional" title="Permalink to this definition">¶</a></dt>
 <dd><p>A decorator to declare that only the first N arguments my be positional.</p>
-<p>This decorator makes it easy to support Python 3 style key-word only
+<p>This decorator makes it easy to support Python 3 style keyword-only
 parameters. For example, in Python 3 it is possible to write:</p>
-<blockquote>
-<div><dl class="docutils">
-<dt>def fn(pos1, <a href="#id1"><span class="problematic" id="id2">*</span></a>, kwonly1=None, kwonly1=None):</dt>
-<dd>...</dd>
-</dl>
-</div></blockquote>
-<p>All named parameters after * must be a keyword:</p>
-<blockquote>
-<div>fn(10, &#8216;kw1&#8217;, &#8216;kw2&#8217;)  # Raises exception.
-fn(10, kwonly1=&#8217;kw1&#8217;)  # Ok.</div></blockquote>
+<div class="highlight-python"><div class="highlight"><pre>def fn(pos1, *, kwonly1=None, kwonly1=None):
+  ...
+</pre></div>
+</div>
+<p>All named parameters after <tt class="docutils literal"><span class="pre">*</span></tt> must be a keyword:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">fn</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="s">&#39;kw1&#39;</span><span class="p">,</span> <span class="s">&#39;kw2&#39;</span><span class="p">)</span>  <span class="c"># Raises exception.</span>
+<span class="n">fn</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">kwonly1</span><span class="o">=</span><span class="s">&#39;kw1&#39;</span><span class="p">)</span>  <span class="c"># Ok.</span>
+</pre></div>
+</div>
 <p class="rubric">Example</p>
 <p>To define a function like above, do:</p>
-<blockquote>
-<div><p>&#64;positional(1)
-def fn(pos1, kwonly1=None, kwonly2=None):</p>
-<blockquote>
-<div>...</div></blockquote>
-</div></blockquote>
+<div class="highlight-python"><div class="highlight"><pre><span class="nd">@positional</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">fn</span><span class="p">(</span><span class="n">pos1</span><span class="p">,</span> <span class="n">kwonly1</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">kwonly2</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+  <span class="o">...</span>
+</pre></div>
+</div>
 <p>If no default value is provided to a keyword argument, it becomes a required
 keyword argument:</p>
-<blockquote>
-<div><p>&#64;positional(0)
-def fn(required_kw):</p>
-<blockquote>
-<div>...</div></blockquote>
-</div></blockquote>
+<div class="highlight-python"><div class="highlight"><pre><span class="nd">@positional</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">fn</span><span class="p">(</span><span class="n">required_kw</span><span class="p">):</span>
+  <span class="o">...</span>
+</pre></div>
+</div>
 <p>This must be called with the keyword parameter:</p>
-<blockquote>
-<div>fn()  # Raises exception.
-fn(10)  # Raises exception.
-fn(required_kw=10)  # Ok.</div></blockquote>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">fn</span><span class="p">()</span>  <span class="c"># Raises exception.</span>
+<span class="n">fn</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>  <span class="c"># Raises exception.</span>
+<span class="n">fn</span><span class="p">(</span><span class="n">required_kw</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>  <span class="c"># Ok.</span>
+</pre></div>
+</div>
 <p>When defining instance or class methods always remember to account for
-&#8216;self&#8217; and &#8216;cls&#8217;:</p>
-<blockquote>
-<div><p>class MyClass(object):</p>
-<blockquote>
-<div><p>&#64;positional(2)
-def my_method(self, pos1, kwonly1=None):</p>
-<blockquote>
-<div>...</div></blockquote>
-<p>&#64;classmethod
-&#64;positional(2)
-def my_method(cls, pos1, kwonly1=None):</p>
-<blockquote>
-<div>...</div></blockquote>
-</div></blockquote>
-</div></blockquote>
+<tt class="docutils literal"><span class="pre">self</span></tt> and <tt class="docutils literal"><span class="pre">cls</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">MyClass</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+  <span class="nd">@positional</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+  <span class="k">def</span> <span class="nf">my_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos1</span><span class="p">,</span> <span class="n">kwonly1</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="o">...</span>
+
+  <span class="nd">@classmethod</span>
+  <span class="nd">@positional</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+  <span class="k">def</span> <span class="nf">my_method</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">pos1</span><span class="p">,</span> <span class="n">kwonly1</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
 <p>The positional decorator behavior is controlled by
-util.positional_parameters_enforcement, which may be set to
-POSITIONAL_EXCEPTION, POSITIONAL_WARNING or POSITIONAL_IGNORE to raise an
-exception, log a warning, or do nothing, respectively, if a declaration is
-violated.</p>
+<tt class="docutils literal"><span class="pre">util.positional_parameters_enforcement</span></tt>, which may be set to
+<tt class="docutils literal"><span class="pre">POSITIONAL_EXCEPTION</span></tt>, <tt class="docutils literal"><span class="pre">POSITIONAL_WARNING</span></tt> or
+<tt class="docutils literal"><span class="pre">POSITIONAL_IGNORE</span></tt> to raise an exception, log a warning, or do
+nothing, respectively, if a declaration is violated.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />

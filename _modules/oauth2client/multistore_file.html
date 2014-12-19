@@ -84,7 +84,15 @@
      href="../../index.html">Site <b class="caret"></b></a>
   <ul class="dropdown-menu globaltoc"
       role="menu"
-      aria-labelledby="dLabelGlobalToc"></ul>
+      aria-labelledby="dLabelGlobalToc"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../../source/modules.html">oauth2client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributor License Agreements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html#before-writing-code-file-an-issue">Before writing code, file an issue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html#fork-oauth2client">Fork oauth2client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html#include-tests">Include tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html#make-the-pull-request">Make the pull request</a></li>
+</ul>
+</ul>
 </li>
               
                 <li class="dropdown">
@@ -151,26 +159,29 @@
 <span class="sd">both in a single process and across processes.</span>
 
 <span class="sd">The credential themselves are keyed off of:</span>
+
 <span class="sd">* client_id</span>
 <span class="sd">* user_agent</span>
 <span class="sd">* scope</span>
 
-<span class="sd">The format of the stored data is like so:</span>
-<span class="sd">{</span>
-<span class="sd">  &#39;file_version&#39;: 1,</span>
-<span class="sd">  &#39;data&#39;: [</span>
-<span class="sd">    {</span>
-<span class="sd">      &#39;key&#39;: {</span>
-<span class="sd">        &#39;clientId&#39;: &#39;&lt;client id&gt;&#39;,</span>
-<span class="sd">        &#39;userAgent&#39;: &#39;&lt;user agent&gt;&#39;,</span>
-<span class="sd">        &#39;scope&#39;: &#39;&lt;scope&gt;&#39;</span>
-<span class="sd">      },</span>
-<span class="sd">      &#39;credential&#39;: {</span>
-<span class="sd">        # JSON serialized Credentials.</span>
+<span class="sd">The format of the stored data is like so::</span>
+
+<span class="sd">  {</span>
+<span class="sd">    &#39;file_version&#39;: 1,</span>
+<span class="sd">    &#39;data&#39;: [</span>
+<span class="sd">      {</span>
+<span class="sd">        &#39;key&#39;: {</span>
+<span class="sd">          &#39;clientId&#39;: &#39;&lt;client id&gt;&#39;,</span>
+<span class="sd">          &#39;userAgent&#39;: &#39;&lt;user agent&gt;&#39;,</span>
+<span class="sd">          &#39;scope&#39;: &#39;&lt;scope&gt;&#39;</span>
+<span class="sd">        },</span>
+<span class="sd">        &#39;credential&#39;: {</span>
+<span class="sd">          # JSON serialized Credentials.</span>
+<span class="sd">        }</span>
 <span class="sd">      }</span>
-<span class="sd">    }</span>
-<span class="sd">  ]</span>
-<span class="sd">}</span>
+<span class="sd">    ]</span>
+<span class="sd">  }</span>
+
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s">&#39;jbeda@google.com (Joe Beda)&#39;</span>
@@ -194,12 +205,10 @@
 
 <div class="viewcode-block" id="Error"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.multistore_file.Error">[docs]</a><span class="k">class</span> <span class="nc">Error</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Base error for this module.&quot;&quot;&quot;</span>
-  <span class="k">pass</span>
 
 </div>
 <div class="viewcode-block" id="NewerCredentialStoreError"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.multistore_file.NewerCredentialStoreError">[docs]</a><span class="k">class</span> <span class="nc">NewerCredentialStoreError</span><span class="p">(</span><span class="n">Error</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;The credential store is a newer version that supported.&quot;&quot;&quot;</span>
-  <span class="k">pass</span>
+  <span class="sd">&quot;&quot;&quot;The credential store is a newer version than supported.&quot;&quot;&quot;</span>
 
 </div>
 <span class="nd">@util.positional</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
