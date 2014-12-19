@@ -19,26 +19,29 @@ credentials can be stored in one file. That file supports locking
 both in a single process and across processes.
 
 The credential themselves are keyed off of:
+
 * client_id
 * user_agent
 * scope
 
-The format of the stored data is like so:
-{
-  'file_version': 1,
-  'data': [
-    {
-      'key': {
-        'clientId': '<client id>',
-        'userAgent': '<user agent>',
-        'scope': '<scope>'
-      },
-      'credential': {
-        # JSON serialized Credentials.
+The format of the stored data is like so::
+
+  {
+    'file_version': 1,
+    'data': [
+      {
+        'key': {
+          'clientId': '<client id>',
+          'userAgent': '<user agent>',
+          'scope': '<scope>'
+        },
+        'credential': {
+          # JSON serialized Credentials.
+        }
       }
-    }
-  ]
-}
+    ]
+  }
+
 """
 
 __author__ = 'jbeda@google.com (Joe Beda)'
@@ -62,12 +65,10 @@ _multistores_lock = threading.Lock()
 
 class Error(Exception):
   """Base error for this module."""
-  pass
 
 
 class NewerCredentialStoreError(Error):
-  """The credential store is a newer version that supported."""
-  pass
+  """The credential store is a newer version than supported."""
 
 
 @util.positional(4)

@@ -17,7 +17,8 @@
 This module first tries to use fcntl locking to ensure serialized access
 to a file, then falls back on a lock file if that is unavialable.
 
-Usage:
+Usage::
+
     f = LockedFile('filename', 'r+b', 'rb')
     f.open_and_lock()
     if f.is_locked():
@@ -26,6 +27,7 @@ Usage:
     else:
       print('Acquired filename with rb mode')
     f.unlock_and_close()
+
 """
 
 from __future__ import print_function

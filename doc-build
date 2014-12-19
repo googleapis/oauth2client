@@ -22,8 +22,5 @@
 # Notes: You may have to update the location of the
 #        App Engine library for your local system.
 
-[[ -d docs ]] || mkdir -p docs
 cd docs
-export DJANGO_SETTINGS_MODULE=fakesettings
-export PYTHONPATH=$(pwd)/..
-epydoc --output epy --graph all --parse-only --docformat plaintext oauth2client
+make html

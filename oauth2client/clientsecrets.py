@@ -112,10 +112,12 @@ def loadfile(filename, cache=None):
   Typical cache storage would be App Engine memcache service,
   but you can pass in any other cache client that implements
   these methods:
-    - get(key, namespace=ns)
-    - set(key, value, namespace=ns)
 
-  Usage:
+  * ``get(key, namespace=ns)``
+  * ``set(key, value, namespace=ns)``
+
+  Usage::
+
     # without caching
     client_type, client_info = loadfile('secrets.json')
     # using App Engine memcache service

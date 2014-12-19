@@ -499,13 +499,13 @@ class OAuth2Credentials(Credentials):
     it.
 
     Args:
-       http: An instance of httplib2.Http
-         or something that acts like it.
+       http: An instance of ``httplib2.Http`` or something that acts
+         like it.
 
     Returns:
        A modified instance of http that was passed in.
 
-    Example:
+    Example::
 
       h = httplib2.Http()
       h = credentials.authorize(h)
@@ -515,6 +515,7 @@ class OAuth2Credentials(Credentials):
     signing. So instead we have to overload 'request' with a closure
     that adds in the Authorization header and then calls the original
     version of 'request()'.
+
     """
     request_orig = http.request
 
@@ -859,7 +860,8 @@ class AccessTokenCredentials(OAuth2Credentials):
 
   AccessTokenCredentials objects may be safely pickled and unpickled.
 
-  Usage:
+  Usage::
+
     credentials = AccessTokenCredentials('<an access token>',
       'my-user-agent/1.0')
     http = httplib2.Http()
@@ -1688,8 +1690,8 @@ class DeviceFlowInfo(collections.namedtuple('DeviceFlowInfo', (
   def FromResponse(cls, response):
     """Create a DeviceFlowInfo from a server response.
 
-    The response should be a dict containing entries as described
-    here:
+    The response should be a dict containing entries as described here:
+
       http://tools.ietf.org/html/draft-ietf-oauth-v2-05#section-3.7.1
     """
     # device_code, user_code, and verification_url are required.
