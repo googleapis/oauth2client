@@ -33,7 +33,7 @@ import urlparse
 
 import dev_appserver
 dev_appserver.fix_sys_path()
-import mox
+import mock
 import webapp2
 
 from google.appengine.api import apiproxy_stub
@@ -159,13 +159,9 @@ class TestAppAssertionCredentials(unittest.TestCase):
       'memcache', memcache_stub.MemcacheServiceStub())
 
     scope = 'http://www.googleapis.com/scope'
-    try:
-      credentials = AppAssertionCredentials(scope)
-      http = httplib2.Http()
-      credentials.refresh(http)
-      self.fail('Should have raised an AccessTokenRefreshError')
-    except AccessTokenRefreshError:
-      pass
+    credentials = AppAssertionCredentials(scope)
+    http = httplib2.Http()
+    self.assertRaises(AccessTokenRefreshError, credentials.refresh, http)
 
   def test_get_access_token_on_refresh(self):
     app_identity_stub = self.AppIdentityStubImpl()
@@ -201,19 +197,19 @@ class TestAppAssertionCredentials(unittest.TestCase):
   def test_custom_service_account(self):
     scope = "http://www.googleapis.com/scope"
     account_id = "service_account_name_2@appspot.com"
-    m = mox.Mox()
-    m.StubOutWithMock(app_identity, 'get_access_token')
-    app_identity.get_access_token(
-        [scope], service_account_id=account_id).AndReturn(('a_token_456', None))
-    m.ReplayAll()
 
-    credentials = AppAssertionCredentials(scope, service_account_id=account_id)
-    http = httplib2.Http()
-    credentials.refresh(http)
-    m.VerifyAll()
-    m.UnsetStubs()
-    self.assertEqual('a_token_456', credentials.access_token)
-    self.assertEqual(scope, credentials.scope)
+    with mock.patch.object(app_identity, 'get_access_token',
+                           return_value=('a_token_456', None),
+                           autospec=True) as get_access_token:
+      credentials = AppAssertionCredentials(
+          scope, service_account_id=account_id)
+      http = httplib2.Http()
+      credentials.refresh(http)
+
+      self.assertEqual('a_token_456', credentials.access_token)
+      self.assertEqual(scope, credentials.scope)
+      get_access_token.assert_called_once_with(
+          [scope], service_account_id=account_id)
 
   def test_create_scoped_required_without_scopes(self):
     credentials = AppAssertionCredentials([])
@@ -538,7 +534,8 @@ class DecoratorTests(unittest.TestCase):
         'wsgi.url_scheme': 'http',
         'HTTP_HOST': 'localhost',
         })
-    users.get_current_user = user_mock()
+    self.current_user = user_mock()
+    users.get_current_user = self.current_user
     self.httplib2_orig = httplib2.Http
     httplib2.Http = Http2Mock
 
@@ -562,30 +559,28 @@ class DecoratorTests(unittest.TestCase):
     self.assertEqual('code', q['response_type'][0])
     self.assertEqual(False, self.decorator.has_credentials())
 
-    m = mox.Mox()
-    m.StubOutWithMock(appengine, '_parse_state_value')
-    appengine._parse_state_value('foo_path:xsrfkey123',
-                       mox.IgnoreArg()).AndReturn('foo_path')
-    m.ReplayAll()
+    with mock.patch.object(appengine, '_parse_state_value',
+                           return_value='foo_path',
+                           autospec=True) as parse_state_value:
+      # Now simulate the callback to /oauth2callback.
+      response = self.app.get('/oauth2callback', {
+          'code': 'foo_access_code',
+          'state': 'foo_path:xsrfkey123',
+          })
+      parts = response.headers['Location'].split('?', 1)
+      self.assertEqual('http://localhost/foo_path', parts[0])
+      self.assertEqual(None, self.decorator.credentials)
+      if self.decorator._token_response_param:
+        response_query = urlparse.parse_qs(parts[1])
+        response = response_query[self.decorator._token_response_param][0]
+        self.assertEqual(Http2Mock.content,
+                         json.loads(urllib.unquote(response)))
+      self.assertEqual(self.decorator.flow, self.decorator._tls.flow)
+      self.assertEqual(self.decorator.credentials,
+                       self.decorator._tls.credentials)
 
-    # Now simulate the callback to /oauth2callback.
-    response = self.app.get('/oauth2callback', {
-        'code': 'foo_access_code',
-        'state': 'foo_path:xsrfkey123',
-        })
-    parts = response.headers['Location'].split('?', 1)
-    self.assertEqual('http://localhost/foo_path', parts[0])
-    self.assertEqual(None, self.decorator.credentials)
-    if self.decorator._token_response_param:
-      response = urlparse.parse_qs(
-          parts[1])[self.decorator._token_response_param][0]
-      self.assertEqual(Http2Mock.content, json.loads(urllib.unquote(response)))
-    self.assertEqual(self.decorator.flow, self.decorator._tls.flow)
-    self.assertEqual(self.decorator.credentials,
-                     self.decorator._tls.credentials)
-
-    m.UnsetStubs()
-    m.VerifyAll()
+      parse_state_value.assert_called_once_with(
+          'foo_path:xsrfkey123', self.current_user)
 
     # Now requesting the decorated path should work.
     response = self.app.get('/foo_path')
@@ -599,13 +594,9 @@ class DecoratorTests(unittest.TestCase):
 
     # Raising an exception still clears the Credentials.
     self.should_raise = True
-    try:
-      response = self.app.get('/foo_path')
-      self.fail('Should have raised an exception.')
-    except Exception:
-      pass
-    self.assertEqual(None, self.decorator.credentials)
+    self.assertRaises(Exception, self.app.get, '/foo_path')
     self.should_raise = False
+    self.assertEqual(None, self.decorator.credentials)
 
     # Invalidate the stored Credentials.
     self.found_credentials.invalid = True
@@ -623,37 +614,34 @@ class DecoratorTests(unittest.TestCase):
     response = self.app.get('/foo_path')
     self.assertTrue(response.status.startswith('302'))
 
-    m = mox.Mox()
-    m.StubOutWithMock(appengine, '_parse_state_value')
-    appengine._parse_state_value('foo_path:xsrfkey123',
-                       mox.IgnoreArg()).AndReturn('foo_path')
-    m.ReplayAll()
+    with mock.patch.object(appengine, '_parse_state_value',
+                           return_value='foo_path',
+                           autospec=True) as parse_state_value:
+      # Now simulate the callback to /oauth2callback.
+      response = self.app.get('/oauth2callback', {
+          'code': 'foo_access_code',
+          'state': 'foo_path:xsrfkey123',
+      })
+      self.assertEqual('http://localhost/foo_path', response.headers['Location'])
+      self.assertEqual(None, self.decorator.credentials)
 
-    # Now simulate the callback to /oauth2callback.
-    response = self.app.get('/oauth2callback', {
-        'code': 'foo_access_code',
-        'state': 'foo_path:xsrfkey123',
-        })
-    self.assertEqual('http://localhost/foo_path', response.headers['Location'])
-    self.assertEqual(None, self.decorator.credentials)
+      # Now requesting the decorated path should work.
+      response = self.app.get('/foo_path')
 
-    # Now requesting the decorated path should work.
-    response = self.app.get('/foo_path')
+      self.assertTrue(self.had_credentials)
 
-    self.assertTrue(self.had_credentials)
+      # Credentials should be cleared after each call.
+      self.assertEqual(None, self.decorator.credentials)
 
-    # Credentials should be cleared after each call.
-    self.assertEqual(None, self.decorator.credentials)
+      # Invalidate the stored Credentials.
+      self.found_credentials.store.delete()
 
-    # Invalidate the stored Credentials.
-    self.found_credentials.store.delete()
+      # Invalid Credentials should start the OAuth dance again.
+      response = self.app.get('/foo_path')
+      self.assertTrue(response.status.startswith('302'))
 
-    # Invalid Credentials should start the OAuth dance again.
-    response = self.app.get('/foo_path')
-    self.assertTrue(response.status.startswith('302'))
-
-    m.UnsetStubs()
-    m.VerifyAll()
+      parse_state_value.assert_called_once_with(
+          'foo_path:xsrfkey123', self.current_user)
 
   def test_aware(self):
     # An initial request to an oauth_aware decorated path should not redirect.
@@ -670,23 +658,20 @@ class DecoratorTests(unittest.TestCase):
                      q['state'][0].rsplit(':', 1)[0])
     self.assertEqual('code', q['response_type'][0])
 
-    m = mox.Mox()
-    m.StubOutWithMock(appengine, '_parse_state_value')
-    appengine._parse_state_value('bar_path:xsrfkey456',
-                       mox.IgnoreArg()).AndReturn('bar_path')
-    m.ReplayAll()
+    with mock.patch.object(appengine, '_parse_state_value',
+                           return_value='bar_path',
+                           autospec=True) as parse_state_value:
+      # Now simulate the callback to /oauth2callback.
+      url = self.decorator.authorize_url()
+      response = self.app.get('/oauth2callback', {
+          'code': 'foo_access_code',
+          'state': 'bar_path:xsrfkey456',
+          })
 
-    # Now simulate the callback to /oauth2callback.
-    url = self.decorator.authorize_url()
-    response = self.app.get('/oauth2callback', {
-        'code': 'foo_access_code',
-        'state': 'bar_path:xsrfkey456',
-        })
-    self.assertEqual('http://localhost/bar_path', response.headers['Location'])
-    self.assertEqual(False, self.decorator.has_credentials())
-
-    m.UnsetStubs()
-    m.VerifyAll()
+      self.assertEqual('http://localhost/bar_path', response.headers['Location'])
+      self.assertEqual(False, self.decorator.has_credentials())
+      parse_state_value.assert_called_once_with(
+          'bar_path:xsrfkey456', self.current_user)
 
     # Now requesting the decorated path will have credentials.
     response = self.app.get('/bar_path/2012/01')
@@ -703,13 +688,9 @@ class DecoratorTests(unittest.TestCase):
 
     # Raising an exception still clears the Credentials.
     self.should_raise = True
-    try:
-      response = self.app.get('/bar_path/2012/01')
-      self.fail('Should have raised an exception.')
-    except Exception:
-      pass
-    self.assertEqual(None, self.decorator.credentials)
+    self.assertRaises(Exception, self.app.get, '/bar_path/2012/01')
     self.should_raise = False
+    self.assertEqual(None, self.decorator.credentials)
 
 
   def test_error_in_step2(self):

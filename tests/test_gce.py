@@ -20,12 +20,10 @@ Unit tests for oauth2client.gce.
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
-import httplib2
-try:
-  from mox3 import mox
-except ImportError:
-  import mox
 import unittest
+
+import httplib2
+import mock
 
 from oauth2client.client import AccessTokenRefreshError
 from oauth2client.client import Credentials
@@ -36,56 +34,29 @@ from oauth2client.gce import AppAssertionCredentials
 class AssertionCredentialsTests(unittest.TestCase):
 
   def test_good_refresh(self):
-    m = mox.Mox()
-
-    httplib2_response = m.CreateMock(object)
-    httplib2_response.status = 200
-
-    httplib2_request = m.CreateMock(object)
-    httplib2_request.__call__(
-        ('http://metadata.google.internal/0.1/meta-data/service-accounts/'
-         'default/acquire'
-         '?scope=http%3A%2F%2Fexample.com%2Fa%20http%3A%2F%2Fexample.com%2Fb'
-        )).AndReturn((httplib2_response, '{"accessToken": "this-is-a-token"}'))
-
-    m.ReplayAll()
+    http = mock.MagicMock()
+    http.request = mock.MagicMock(
+        return_value=(mock.Mock(status=200),
+                      '{"accessToken": "this-is-a-token"}'))
 
     c = AppAssertionCredentials(scope=['http://example.com/a',
                                        'http://example.com/b'])
-
-    c._refresh(httplib2_request)
-
+    self.assertEquals(None, c.access_token)
+    c.refresh(http)
     self.assertEquals('this-is-a-token', c.access_token)
 
-    m.UnsetStubs()
-    m.VerifyAll()
+    http.request.assert_called_exactly_once_with(
+        'http://metadata.google.internal/0.1/meta-data/service-accounts/'
+        'default/acquire'
+        '?scope=http%3A%2F%2Fexample.com%2Fa%20http%3A%2F%2Fexample.com%2Fb')
 
   def test_fail_refresh(self):
-    m = mox.Mox()
-
-    httplib2_response = m.CreateMock(object)
-    httplib2_response.status = 400
-
-    httplib2_request = m.CreateMock(object)
-    httplib2_request.__call__(
-        ('http://metadata.google.internal/0.1/meta-data/service-accounts/'
-         'default/acquire'
-         '?scope=http%3A%2F%2Fexample.com%2Fa%20http%3A%2F%2Fexample.com%2Fb'
-        )).AndReturn((httplib2_response, '{"accessToken": "this-is-a-token"}'))
-
-    m.ReplayAll()
+    http = mock.MagicMock()
+    http.request = mock.MagicMock(return_value=(mock.Mock(status=400), '{}'))
 
     c = AppAssertionCredentials(scope=['http://example.com/a',
                                        'http://example.com/b'])
-
-    try:
-      c._refresh(httplib2_request)
-      self.fail('Should have raised exception on 400')
-    except AccessTokenRefreshError:
-      pass
-
-    m.UnsetStubs()
-    m.VerifyAll()
+    self.assertRaises(AccessTokenRefreshError, c.refresh, http)
 
   def test_to_from_json(self):
     c = AppAssertionCredentials(scope=['http://example.com/a',
@@ -111,30 +82,19 @@ class AssertionCredentialsTests(unittest.TestCase):
     self.assertEqual('dummy_scope', new_credentials.scope)
 
   def test_get_access_token(self):
-    m = mox.Mox()
-
-    httplib2_response = m.CreateMock(object)
-    httplib2_response.status = 200
-
-    httplib2_request = m.CreateMock(object)
-    httplib2_request.__call__(
-        ('http://metadata.google.internal/0.1/meta-data/service-accounts/'
-         'default/acquire?scope=dummy_scope'
-        )).AndReturn((httplib2_response, '{"accessToken": "this-is-a-token"}'))
-
-    m.ReplayAll()
+    http = mock.MagicMock()
+    http.request = mock.MagicMock(
+        return_value=(mock.Mock(status=200),
+                      '{"accessToken": "this-is-a-token"}'))
 
     credentials = AppAssertionCredentials(['dummy_scope'])
-
-    http = httplib2.Http()
-    http.request = httplib2_request
-
     token = credentials.get_access_token(http=http)
     self.assertEqual('this-is-a-token', token.access_token)
     self.assertEqual(None, token.expires_in)
 
-    m.UnsetStubs()
-    m.VerifyAll()
+    http.request.assert_called_exactly_once_with(
+        'http://metadata.google.internal/0.1/meta-data/service-accounts/'
+        'default/acquire?scope=dummy_scope')
 
   def test_save_to_well_known_file(self):
     credentials = AppAssertionCredentials([])

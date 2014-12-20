@@ -206,16 +206,19 @@ class GoogleCredentialsTests(unittest.TestCase):
 
   def test_get_environment_gce_production(self):
     os.environ['SERVER_SOFTWARE'] = ''
-    with mock.patch.object(urllib.request, 'urlopen') as urlopen:
-      urlopen.return_value = MockResponse(['Metadata-Flavor: Google\r\n'])
+    response = MockResponse(['Metadata-Flavor: Google\r\n'])
+    with mock.patch.object(urllib.request, 'urlopen',
+                           return_value=response,
+                           autospec=True) as urlopen:
       self.assertEqual('GCE_PRODUCTION', _get_environment())
       urlopen.assert_called_once_with(
           'http://metadata.google.internal/', timeout=1)
 
   def test_get_environment_unknown(self):
     os.environ['SERVER_SOFTWARE'] = ''
-    with mock.patch.object(urllib.request, 'urlopen') as urlopen:
-      urlopen.return_value = MockResponse([])
+    with mock.patch.object(urllib.request, 'urlopen',
+                           return_value=MockResponse([]),
+                           autospec=True) as urlopen:
       self.assertEqual(DEFAULT_ENV_NAME, _get_environment())
       urlopen.assert_called_once_with(
           'http://metadata.google.internal/', timeout=1)
