@@ -5,7 +5,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>oauth2client.client &mdash; oauth2client 1.4.4 documentation</title>
+    <title>oauth2client.client &mdash; oauth2client 1.4.5 documentation</title>
     
     <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -15,7 +15,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '1.4.4',
+        VERSION:     '1.4.5',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -28,7 +28,7 @@
     <script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
     <script type="text/javascript" src="../../_static/bootstrap-3.2.0/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="oauth2client 1.4.4 documentation" href="../../index.html" />
+    <link rel="top" title="oauth2client 1.4.5 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
 <meta charset='utf-8'>
 <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
@@ -69,7 +69,7 @@
         </button>
         <a class="navbar-brand" href="../../index.html"><img src="../../_static/google_logo.png">
           oauth2client</a>
-        <span class="navbar-text navbar-version pull-left"><b>1.4.4</b></span>
+        <span class="navbar-text navbar-version pull-left"><b>1.4.5</b></span>
       </div>
 
         <div class="collapse navbar-collapse nav-collapse">
@@ -166,6 +166,7 @@
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">socket</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">six</span>
@@ -1070,12 +1071,22 @@
 <span class="sd">          Compute Engine.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="n">urlopen</span> <span class="o">=</span> <span class="n">urlopen</span> <span class="ow">or</span> <span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span>
-
+  <span class="c"># Note: the explicit `timeout` below is a workaround. The underlying</span>
+  <span class="c"># issue is that resolving an unknown host on some networks will take</span>
+  <span class="c"># 20-30 seconds; making this timeout short fixes the issue, but</span>
+  <span class="c"># could lead to false negatives in the event that we are on GCE, but</span>
+  <span class="c"># the metadata resolution was particularly slow. The latter case is</span>
+  <span class="c"># &quot;unlikely&quot;.</span>
   <span class="k">try</span><span class="p">:</span>
-    <span class="n">response</span> <span class="o">=</span> <span class="n">urlopen</span><span class="p">(</span><span class="s">&#39;http://metadata.google.internal&#39;</span><span class="p">)</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">urlopen</span><span class="p">(</span><span class="s">&#39;http://metadata.google.internal/&#39;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="s">&#39;Metadata-Flavor: Google&#39;</span> <span class="ow">in</span> <span class="n">header</span>
                <span class="k">for</span> <span class="n">header</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">info</span><span class="p">()</span><span class="o">.</span><span class="n">headers</span><span class="p">)</span>
-  <span class="k">except</span> <span class="n">urllib</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">URLError</span><span class="p">:</span>
+  <span class="k">except</span> <span class="n">socket</span><span class="o">.</span><span class="n">timeout</span><span class="p">:</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;Timeout attempting to reach GCE metadata service.&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="bp">False</span>
+  <span class="k">except</span> <span class="n">urllib</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">URLError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="s">&#39;reason&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span> <span class="n">socket</span><span class="o">.</span><span class="n">timeout</span><span class="p">):</span>
+      <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;Timeout attempting to reach GCE metadata service.&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="bp">False</span>
 
 
