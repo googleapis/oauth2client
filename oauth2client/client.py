@@ -1617,7 +1617,7 @@ def credentials_from_code(client_id, client_secret, scope, code,
     client_id: string, client identifier.
     client_secret: string, client secret.
     scope: string or iterable of strings, scope(s) to request.
-    code: string, An authroization code, most likely passed down from
+    code: string, An authorization code, most likely passed down from
       the client
     redirect_uri: string, this is generally set to 'postmessage' to match the
       redirect_uri that the client specified
