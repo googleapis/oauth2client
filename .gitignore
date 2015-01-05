@@ -4,8 +4,9 @@ oauth2client.egg-info/
 build/
 dist/
 
-# Built documentation
+# Documentation-related
 docs/_build
+/google_appengine/
 
 # Test files
 .tox/

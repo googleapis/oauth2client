@@ -14,13 +14,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Author: jcgregorio@google.com (Joe Gregorio)
-#
-# Creates the documentation set for the library by
-# running pydoc on all the files in apiclient.
-#
-# Notes: You may have to update the location of the
-#        App Engine library for your local system.
+# Build the oauth2client docs, installing the GAE SDK as needed.
 
+set -e
+
+if [[ -z "${SKIP_GAE_SDK}" ]]; then
+  docs/fetch_gae_sdk.py
+  export PYTHONPATH="${PWD}/google_appengine:${PYTHONPATH}"
+fi
+
+rm -rf docs/_build/* docs/source/*
+sphinx-apidoc -f -o docs/source oauth2client
 cd docs
 make html
+cd ..
+ghp-import -n docs/_build/html

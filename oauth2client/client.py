@@ -93,7 +93,7 @@ AccessTokenInfo = collections.namedtuple(
 
 DEFAULT_ENV_NAME = 'UNKNOWN'
 class SETTINGS(object):
-  """Settings namespace for globally."""
+  """Settings namespace for globally defined values."""
   env_name = None
 
 

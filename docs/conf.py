@@ -31,8 +31,8 @@ import os
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.coverage',
+    'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
-    'sphinxcontrib.napoleon',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -100,6 +100,11 @@ pygments_style = 'sphinx'
 # If true, keep warnings as "system message" paragraphs in the built documents.
 #keep_warnings = False
 
+# In order to load django before 1.7, we need
+import django
+if django.VERSION[1] < 7:
+  sys.path.insert(0, '.')
+  os.environ['DJANGO_SETTINGS_MODULE'] = 'django_settings'
 
 # -- Options for HTML output ----------------------------------------------
 
