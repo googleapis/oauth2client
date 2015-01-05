@@ -27,7 +27,6 @@ __all__ = ['argparser', 'run_flow', 'run', 'message_if_missing']
 import logging
 import socket
 import sys
-import webbrowser
 
 from six.moves import BaseHTTPServer
 from six.moves import urllib
@@ -187,6 +186,7 @@ def run_flow(flow, storage, flags, http=None):
   authorize_url = flow.step1_get_authorize_url()
 
   if not flags.noauth_local_webserver:
+    import webbrowser
     webbrowser.open(authorize_url, new=1, autoraise=True)
     print('Your browser has been opened to visit:')
     print()
