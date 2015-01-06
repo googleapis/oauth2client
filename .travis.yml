@@ -14,7 +14,7 @@ install:
 - pip install tox
 script:
 - tox -e $TOX_ENV
-- [ $TRAVIS_BRANCH = master ] && tox -e pushdocs
+- tox -e pushdocs
 after_success:
 - tox -e coveralls
 notifications:

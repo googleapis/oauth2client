@@ -18,6 +18,13 @@
 
 set -e
 
+if [[ "${TRAVIS}" == "true" ]] && \
+     ([[ "${TRAVIS_BRANCH}" != "master" ]] ||
+        [[ "${TRAVIS_PULL_REQUEST}" != "false" ]]); then
+  echo 'Detected non-master push in travis, exiting.'
+  exit 0
+fi
+
 if [[ -z "${SKIP_GAE_SDK}" ]]; then
   scripts/fetch_gae_sdk.py
   export PYTHONPATH="${PWD}/google_appengine:${PYTHONPATH}"
