@@ -14,7 +14,6 @@ install:
 - pip install tox
 script:
 - tox -e $TOX_ENV
-- tox -e pushdocs
 after_success:
 - tox -e coveralls
 notifications:

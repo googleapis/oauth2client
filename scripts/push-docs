@@ -16,8 +16,5 @@
 #
 # Push a new version of the docs.
 
-if [[ "${TRAVIS_BRANCH}" == "master" ]] && \
-     [[ "${TRAVIS_PULL_REQUEST}" == "false" ]]; then
-  ghp-import -n docs/_build/html
-  git push -fq https://${GH_OAUTH_TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git gh-pages
-fi
+REPO=${REPO:-'origin'}
+ghp-import -n docs/_build/html -r "${REPO}" -p
