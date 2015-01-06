@@ -1,142 +1,105 @@
+
+
 <!DOCTYPE html>
-
-
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>oauth2client.tools &mdash; oauth2client 1.4.5 documentation</title>
-    
-    <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/bootswatch-3.2.0/flatly/bootstrap.min.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/bootstrap-sphinx.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../',
-        VERSION:     '1.4.5',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../_static/js/jquery-1.11.0.min.js"></script>
-    <script type="text/javascript" src="../../_static/js/jquery-fix.js"></script>
-    <script type="text/javascript" src="../../_static/bootstrap-3.2.0/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="../../_static/bootstrap-sphinx.js"></script>
-    <link rel="top" title="oauth2client 1.4.5 documentation" href="../../index.html" />
-    <link rel="up" title="Module code" href="../index.html" />
-<meta charset='utf-8'>
-<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
-<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
-<meta name="apple-mobile-web-app-capable" content="yes">
-
-  </head>
-  <body role="document">
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>oauth2client.tools &mdash; oauth2client 1.4.5 documentation</title>
   
 
-  <a href="https://github.com/google/oauth2client"
-     class="visible-desktop hidden-xs">
-    <img id="gh-banner"
-         style="position:absolute; right:0; border:0; width:149px; height:149px;"
-         src="http://aral.github.com/fork-me-on-github-retina-ribbons/right-grey@2x.png"
-         alt="Fork me on GitHub">
-  </a>
-  <script>
-    // Adjust banner height.
-    $(function () {
-      var navHeight = $(".navbar .container").css("height");
-      $("#gh-banner").css("top", navHeight);
-      var navZ = $(".container").css("z-index");
-      navZ = (navZ === "auto") ? 10 : navZ + 10;
-      $("#gh-banner").css("z-index", navZ);
-    });
-  </script>
+  
+  
 
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
-  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
-    <div class="container">
-      <div class="navbar-header">
-        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
-        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand" href="../../index.html"><img src="../../_static/google_logo.png">
-          oauth2client</a>
-        <span class="navbar-text navbar-version pull-left"><b>1.4.5</b></span>
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="oauth2client 1.4.5 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="../../index.html" class="fa fa-home"> oauth2client</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
       </div>
 
-        <div class="collapse navbar-collapse nav-collapse">
-          <ul class="nav navbar-nav">
-            
-            
-              <li class="dropdown globaltoc-container">
-  <a role="button"
-     id="dLabelGlobalToc"
-     data-toggle="dropdown"
-     data-target="#"
-     href="../../index.html">Site <b class="caret"></b></a>
-  <ul class="dropdown-menu globaltoc"
-      role="menu"
-      aria-labelledby="dLabelGlobalToc"><ul>
-<li class="toctree-l1"><a class="reference internal" href="../../source/modules.html">oauth2client</a></li>
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../source/modules.html">oauth2client</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../source/oauth2client.html">oauth2client package</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributor License Agreements</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../contributing.html#before-writing-code-file-an-issue">Before writing code, file an issue</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../contributing.html#fork-oauth2client">Fork oauth2client</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../contributing.html#include-tests">Include tests</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../contributing.html#make-the-pull-request">Make the pull request</a></li>
 </ul>
-</ul>
-</li>
-              
-                <li class="dropdown">
-  <a role="button"
-     id="dLabelLocalToc"
-     data-toggle="dropdown"
-     data-target="#"
-     href="#">Page <b class="caret"></b></a>
-  <ul class="dropdown-menu localtoc"
-      role="menu"
-      aria-labelledby="dLabelLocalToc"></ul>
-</li>
-              
-            
-            
-              
-                
-              
-            
-            
-            
-            
-              <li class="hidden-sm"></li>
-            
-          </ul>
 
-          
-            
-<form class="navbar-form navbar-right" action="../../search.html" method="get">
- <div class="form-group">
-  <input type="text" name="q" class="form-control" placeholder="Search" />
- </div>
-  <input type="hidden" name="check_keywords" value="yes" />
-  <input type="hidden" name="area" value="default" />
-</form>
-          
-        </div>
-    </div>
-  </div>
+        
+      </div>
+      &nbsp;
+    </nav>
 
-<div class="container">
-  <div class="row">
-    <div class="col-md-12">
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
       
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">oauth2client</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+    <li>oauth2client.tools</li>
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
   <h1>Source code for oauth2client.tools</h1><div class="highlight"><pre>
 <span class="c"># Copyright 2014 Google Inc. All rights reserved.</span>
 <span class="c">#</span>
@@ -167,7 +130,6 @@
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">socket</span>
 <span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">webbrowser</span>
 
 <span class="kn">from</span> <span class="nn">six.moves</span> <span class="kn">import</span> <span class="n">BaseHTTPServer</span>
 <span class="kn">from</span> <span class="nn">six.moves</span> <span class="kn">import</span> <span class="n">urllib</span>
@@ -327,6 +289,7 @@
   <span class="n">authorize_url</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">step1_get_authorize_url</span><span class="p">()</span>
 
   <span class="k">if</span> <span class="ow">not</span> <span class="n">flags</span><span class="o">.</span><span class="n">noauth_local_webserver</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">webbrowser</span>
     <span class="n">webbrowser</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">authorize_url</span><span class="p">,</span> <span class="n">new</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">autoraise</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
     <span class="k">print</span><span class="p">(</span><span class="s">&#39;Your browser has been opened to visit:&#39;</span><span class="p">)</span>
     <span class="k">print</span><span class="p">()</span>
@@ -384,21 +347,59 @@
         <span class="s">&#39;tools.run_flow().&#39;</span><span class="p">)</span></div>
 </pre></div>
 
-    </div>
-      
-  </div>
-</div>
-<footer class="footer">
-  <div class="container">
-    <p class="pull-right">
-      <a href="#">Back to top</a>
-      
-    </p>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
     <p>
-        &copy; Copyright 2014, Google, Inc.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3b2.<br/>
+        &copy; Copyright 2014, Google, Inc.
     </p>
   </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
 </footer>
-  </body>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.4.5',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
 </html>
