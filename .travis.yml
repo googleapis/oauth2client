@@ -2,16 +2,20 @@ language: python
 python: 2.7
 sudo: false
 env:
+  matrix:
   - TOX_ENV=py26
   - TOX_ENV=py27
   - TOX_ENV=py33
   - TOX_ENV=py34
   - TOX_ENV=pypy
+  global:
+    secure: Dxq/BYQ9e2GVyQQifNGhw3R1AHhUAiJuS4L/ow23IAYWO6wd9ZPGSjyn6C+VJRwlEXXwhkYSzOuJdfr+FR5sENMRAwIx1z2gOzOjxaLZRxm1bLDnUlP0wld+0m4UwLMZuLzA30gSR6RZo+S6IGhYCiFYmpDqSgwQihIM2vOmUz4=
 install:
-  - pip install tox
+- pip install tox
 script:
-  - tox -e $TOX_ENV
+- tox -e $TOX_ENV
+- [ $TRAVIS_BRANCH = master ] && tox -e pushdocs
 after_success:
-  - tox -e coveralls
+- tox -e coveralls
 notifications:
   email: false
