@@ -28,4 +28,4 @@ sphinx-apidoc -f -o docs/source oauth2client
 cd docs
 make html
 cd ..
-ghp-import -n docs/_build/html
+

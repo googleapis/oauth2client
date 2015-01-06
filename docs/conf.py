@@ -39,12 +39,11 @@ if django.VERSION[1] < 7:
 
 # -- Options for HTML output ----------------------------------------------
 
-import sphinx_bootstrap_theme
-html_theme = 'bootstrap'
-html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
-html_theme_options = {
-    'bootswatch_theme': 'flatly',
-}
+# We want to set the RTD theme, but not if we're on RTD.
+if os.environ.get('READTHEDOCS', '') != 'True':
+  import sphinx_rtd_theme
+  html_theme = 'sphinx_rtd_theme'
+  html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 html_static_path = ['_static']
 html_logo = '_static/google_logo.png'
