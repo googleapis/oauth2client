@@ -36,7 +36,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body>
+  <body role="document">
   
 
   <a href="https://github.com/google/oauth2client"
@@ -232,52 +232,52 @@
     <span class="s">&#39;AccessTokenInfo&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;access_token&#39;</span><span class="p">,</span> <span class="s">&#39;expires_in&#39;</span><span class="p">])</span>
 
 <span class="n">DEFAULT_ENV_NAME</span> <span class="o">=</span> <span class="s">&#39;UNKNOWN&#39;</span>
-<div class="viewcode-block" id="SETTINGS"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.SETTINGS">[docs]</a><span class="k">class</span> <span class="nc">SETTINGS</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Settings namespace for globally.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="SETTINGS"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.SETTINGS">[docs]</a><span class="k">class</span> <span class="nc">SETTINGS</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Settings namespace for globally defined values.&quot;&quot;&quot;</span>
   <span class="n">env_name</span> <span class="o">=</span> <span class="bp">None</span>
 
 </div>
-<div class="viewcode-block" id="Error"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.Error">[docs]</a><span class="k">class</span> <span class="nc">Error</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="Error"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.Error">[docs]</a><span class="k">class</span> <span class="nc">Error</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Base error for this module.&quot;&quot;&quot;</span>
 
 </div>
-<div class="viewcode-block" id="FlowExchangeError"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.FlowExchangeError">[docs]</a><span class="k">class</span> <span class="nc">FlowExchangeError</span><span class="p">(</span><span class="n">Error</span><span class="p">):</span>
+<div class="viewcode-block" id="FlowExchangeError"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.FlowExchangeError">[docs]</a><span class="k">class</span> <span class="nc">FlowExchangeError</span><span class="p">(</span><span class="n">Error</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Error trying to exchange an authorization grant for an access token.&quot;&quot;&quot;</span>
 
 </div>
-<div class="viewcode-block" id="AccessTokenRefreshError"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.AccessTokenRefreshError">[docs]</a><span class="k">class</span> <span class="nc">AccessTokenRefreshError</span><span class="p">(</span><span class="n">Error</span><span class="p">):</span>
+<div class="viewcode-block" id="AccessTokenRefreshError"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.AccessTokenRefreshError">[docs]</a><span class="k">class</span> <span class="nc">AccessTokenRefreshError</span><span class="p">(</span><span class="n">Error</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Error trying to refresh an expired access token.&quot;&quot;&quot;</span>
 
 </div>
-<div class="viewcode-block" id="TokenRevokeError"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.TokenRevokeError">[docs]</a><span class="k">class</span> <span class="nc">TokenRevokeError</span><span class="p">(</span><span class="n">Error</span><span class="p">):</span>
+<div class="viewcode-block" id="TokenRevokeError"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.TokenRevokeError">[docs]</a><span class="k">class</span> <span class="nc">TokenRevokeError</span><span class="p">(</span><span class="n">Error</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Error trying to revoke a token.&quot;&quot;&quot;</span>
 
 </div>
-<div class="viewcode-block" id="UnknownClientSecretsFlowError"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.UnknownClientSecretsFlowError">[docs]</a><span class="k">class</span> <span class="nc">UnknownClientSecretsFlowError</span><span class="p">(</span><span class="n">Error</span><span class="p">):</span>
+<div class="viewcode-block" id="UnknownClientSecretsFlowError"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.UnknownClientSecretsFlowError">[docs]</a><span class="k">class</span> <span class="nc">UnknownClientSecretsFlowError</span><span class="p">(</span><span class="n">Error</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;The client secrets file called for an unknown type of OAuth 2.0 flow. &quot;&quot;&quot;</span>
 
 </div>
-<div class="viewcode-block" id="AccessTokenCredentialsError"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.AccessTokenCredentialsError">[docs]</a><span class="k">class</span> <span class="nc">AccessTokenCredentialsError</span><span class="p">(</span><span class="n">Error</span><span class="p">):</span>
+<div class="viewcode-block" id="AccessTokenCredentialsError"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.AccessTokenCredentialsError">[docs]</a><span class="k">class</span> <span class="nc">AccessTokenCredentialsError</span><span class="p">(</span><span class="n">Error</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Having only the access_token means no refresh is possible.&quot;&quot;&quot;</span>
 
 </div>
-<div class="viewcode-block" id="VerifyJwtTokenError"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.VerifyJwtTokenError">[docs]</a><span class="k">class</span> <span class="nc">VerifyJwtTokenError</span><span class="p">(</span><span class="n">Error</span><span class="p">):</span>
+<div class="viewcode-block" id="VerifyJwtTokenError"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.VerifyJwtTokenError">[docs]</a><span class="k">class</span> <span class="nc">VerifyJwtTokenError</span><span class="p">(</span><span class="n">Error</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Could not retrieve certificates for validation.&quot;&quot;&quot;</span>
 
 </div>
-<div class="viewcode-block" id="NonAsciiHeaderError"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.NonAsciiHeaderError">[docs]</a><span class="k">class</span> <span class="nc">NonAsciiHeaderError</span><span class="p">(</span><span class="n">Error</span><span class="p">):</span>
+<div class="viewcode-block" id="NonAsciiHeaderError"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.NonAsciiHeaderError">[docs]</a><span class="k">class</span> <span class="nc">NonAsciiHeaderError</span><span class="p">(</span><span class="n">Error</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Header names and values must be ASCII strings.&quot;&quot;&quot;</span>
 
 </div>
-<div class="viewcode-block" id="ApplicationDefaultCredentialsError"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.ApplicationDefaultCredentialsError">[docs]</a><span class="k">class</span> <span class="nc">ApplicationDefaultCredentialsError</span><span class="p">(</span><span class="n">Error</span><span class="p">):</span>
+<div class="viewcode-block" id="ApplicationDefaultCredentialsError"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.ApplicationDefaultCredentialsError">[docs]</a><span class="k">class</span> <span class="nc">ApplicationDefaultCredentialsError</span><span class="p">(</span><span class="n">Error</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Error retrieving the Application Default Credentials.&quot;&quot;&quot;</span>
 
 </div>
-<div class="viewcode-block" id="OAuth2DeviceCodeError"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.OAuth2DeviceCodeError">[docs]</a><span class="k">class</span> <span class="nc">OAuth2DeviceCodeError</span><span class="p">(</span><span class="n">Error</span><span class="p">):</span>
+<div class="viewcode-block" id="OAuth2DeviceCodeError"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.OAuth2DeviceCodeError">[docs]</a><span class="k">class</span> <span class="nc">OAuth2DeviceCodeError</span><span class="p">(</span><span class="n">Error</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Error trying to retrieve a device code.&quot;&quot;&quot;</span>
 
 </div>
-<div class="viewcode-block" id="CryptoUnavailableError"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.CryptoUnavailableError">[docs]</a><span class="k">class</span> <span class="nc">CryptoUnavailableError</span><span class="p">(</span><span class="n">Error</span><span class="p">,</span> <span class="ne">NotImplementedError</span><span class="p">):</span>
+<div class="viewcode-block" id="CryptoUnavailableError"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.CryptoUnavailableError">[docs]</a><span class="k">class</span> <span class="nc">CryptoUnavailableError</span><span class="p">(</span><span class="n">Error</span><span class="p">,</span> <span class="ne">NotImplementedError</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Raised when a crypto library is required, but none is available.&quot;&quot;&quot;</span>
 
 </div>
@@ -285,23 +285,23 @@
   <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&#39;You need to override this function&#39;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="MemoryCache"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.MemoryCache">[docs]</a><span class="k">class</span> <span class="nc">MemoryCache</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="MemoryCache"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.MemoryCache">[docs]</a><span class="k">class</span> <span class="nc">MemoryCache</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;httplib2 Cache implementation which only caches locally.&quot;&quot;&quot;</span>
 
   <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">cache</span> <span class="o">=</span> <span class="p">{}</span>
 
-<div class="viewcode-block" id="MemoryCache.get"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.MemoryCache.get">[docs]</a>  <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+<div class="viewcode-block" id="MemoryCache.get"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.MemoryCache.get">[docs]</a>  <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="MemoryCache.set"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.MemoryCache.set">[docs]</a>  <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<div class="viewcode-block" id="MemoryCache.set"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.MemoryCache.set">[docs]</a>  <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
 </div>
-<div class="viewcode-block" id="MemoryCache.delete"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.MemoryCache.delete">[docs]</a>  <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+<div class="viewcode-block" id="MemoryCache.delete"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.MemoryCache.delete">[docs]</a>  <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
 
 </div></div>
-<div class="viewcode-block" id="Credentials"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.Credentials">[docs]</a><span class="k">class</span> <span class="nc">Credentials</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Credentials"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.Credentials">[docs]</a><span class="k">class</span> <span class="nc">Credentials</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Base class for all Credentials objects.</span>
 
 <span class="sd">  Subclasses must define an authorize() method that applies the credentials to</span>
@@ -314,7 +314,7 @@
   <span class="n">NON_SERIALIZED_MEMBERS</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;store&#39;</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="Credentials.authorize"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.Credentials.authorize">[docs]</a>  <span class="k">def</span> <span class="nf">authorize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">http</span><span class="p">):</span>
+<div class="viewcode-block" id="Credentials.authorize"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.Credentials.authorize">[docs]</a>  <span class="k">def</span> <span class="nf">authorize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">http</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Take an httplib2.Http instance (or equivalent) and authorizes it.</span>
 
 <span class="sd">    Authorizes it for the set of credentials, usually by replacing</span>
@@ -328,7 +328,7 @@
     <span class="n">_abstract</span><span class="p">()</span>
 
 </div>
-<div class="viewcode-block" id="Credentials.refresh"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.Credentials.refresh">[docs]</a>  <span class="k">def</span> <span class="nf">refresh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">http</span><span class="p">):</span>
+<div class="viewcode-block" id="Credentials.refresh"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.Credentials.refresh">[docs]</a>  <span class="k">def</span> <span class="nf">refresh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">http</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Forces a refresh of the access_token.</span>
 
 <span class="sd">    Args:</span>
@@ -338,7 +338,7 @@
     <span class="n">_abstract</span><span class="p">()</span>
 
 </div>
-<div class="viewcode-block" id="Credentials.revoke"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.Credentials.revoke">[docs]</a>  <span class="k">def</span> <span class="nf">revoke</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">http</span><span class="p">):</span>
+<div class="viewcode-block" id="Credentials.revoke"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.Credentials.revoke">[docs]</a>  <span class="k">def</span> <span class="nf">revoke</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">http</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Revokes a refresh_token and makes the credentials void.</span>
 
 <span class="sd">    Args:</span>
@@ -348,7 +348,7 @@
     <span class="n">_abstract</span><span class="p">()</span>
 
 </div>
-<div class="viewcode-block" id="Credentials.apply"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.Credentials.apply">[docs]</a>  <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">headers</span><span class="p">):</span>
+<div class="viewcode-block" id="Credentials.apply"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.Credentials.apply">[docs]</a>  <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">headers</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Add the authorization to the headers.</span>
 
 <span class="sd">    Args:</span>
@@ -382,7 +382,7 @@
         <span class="n">d</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Credentials.to_json"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.Credentials.to_json">[docs]</a>  <span class="k">def</span> <span class="nf">to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Credentials.to_json"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.Credentials.to_json">[docs]</a>  <span class="k">def</span> <span class="nf">to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Creating a JSON representation of an instance of Credentials.</span>
 
 <span class="sd">    Returns:</span>
@@ -392,7 +392,7 @@
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_to_json</span><span class="p">(</span><span class="n">Credentials</span><span class="o">.</span><span class="n">NON_SERIALIZED_MEMBERS</span><span class="p">)</span>
 </div>
   <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="Credentials.new_from_json"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.Credentials.new_from_json">[docs]</a>  <span class="k">def</span> <span class="nf">new_from_json</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+<div class="viewcode-block" id="Credentials.new_from_json"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.Credentials.new_from_json">[docs]</a>  <span class="k">def</span> <span class="nf">new_from_json</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Utility class method to instantiate a Credentials subclass from a JSON</span>
 <span class="sd">    representation produced by to_json().</span>
 
@@ -421,7 +421,7 @@
     <span class="k">return</span> <span class="n">from_json</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
 </div>
   <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="Credentials.from_json"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.Credentials.from_json">[docs]</a>  <span class="k">def</span> <span class="nf">from_json</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">unused_data</span><span class="p">):</span>
+<div class="viewcode-block" id="Credentials.from_json"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.Credentials.from_json">[docs]</a>  <span class="k">def</span> <span class="nf">from_json</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">unused_data</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Instantiate a Credentials object from a JSON description of it.</span>
 
 <span class="sd">    The JSON should have been produced by calling .to_json() on the object.</span>
@@ -435,12 +435,12 @@
     <span class="k">return</span> <span class="n">Credentials</span><span class="p">()</span>
 
 </div></div>
-<div class="viewcode-block" id="Flow"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.Flow">[docs]</a><span class="k">class</span> <span class="nc">Flow</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Flow"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.Flow">[docs]</a><span class="k">class</span> <span class="nc">Flow</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Base class for all Flow objects.&quot;&quot;&quot;</span>
   <span class="k">pass</span>
 
 </div>
-<div class="viewcode-block" id="Storage"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.Storage">[docs]</a><span class="k">class</span> <span class="nc">Storage</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Storage"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.Storage">[docs]</a><span class="k">class</span> <span class="nc">Storage</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Base class for all Storage objects.</span>
 
 <span class="sd">  Store and retrieve a single credential. This class supports locking</span>
@@ -448,14 +448,14 @@
 <span class="sd">  store.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="Storage.acquire_lock"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.Storage.acquire_lock">[docs]</a>  <span class="k">def</span> <span class="nf">acquire_lock</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Storage.acquire_lock"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.Storage.acquire_lock">[docs]</a>  <span class="k">def</span> <span class="nf">acquire_lock</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Acquires any lock necessary to access this Storage.</span>
 
 <span class="sd">    This lock is not reentrant.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">pass</span>
 </div>
-<div class="viewcode-block" id="Storage.release_lock"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.Storage.release_lock">[docs]</a>  <span class="k">def</span> <span class="nf">release_lock</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Storage.release_lock"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.Storage.release_lock">[docs]</a>  <span class="k">def</span> <span class="nf">release_lock</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Release the Storage lock.</span>
 
 <span class="sd">    Trying to release a lock that isn&#39;t held will result in a</span>
@@ -463,7 +463,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">pass</span>
 </div>
-<div class="viewcode-block" id="Storage.locked_get"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.Storage.locked_get">[docs]</a>  <span class="k">def</span> <span class="nf">locked_get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Storage.locked_get"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.Storage.locked_get">[docs]</a>  <span class="k">def</span> <span class="nf">locked_get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Retrieve credential.</span>
 
 <span class="sd">    The Storage lock must be held when this is called.</span>
@@ -473,7 +473,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">_abstract</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="Storage.locked_put"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.Storage.locked_put">[docs]</a>  <span class="k">def</span> <span class="nf">locked_put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">credentials</span><span class="p">):</span>
+<div class="viewcode-block" id="Storage.locked_put"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.Storage.locked_put">[docs]</a>  <span class="k">def</span> <span class="nf">locked_put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">credentials</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Write a credential.</span>
 
 <span class="sd">    The Storage lock must be held when this is called.</span>
@@ -483,14 +483,14 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">_abstract</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="Storage.locked_delete"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.Storage.locked_delete">[docs]</a>  <span class="k">def</span> <span class="nf">locked_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Storage.locked_delete"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.Storage.locked_delete">[docs]</a>  <span class="k">def</span> <span class="nf">locked_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Delete a credential.</span>
 
 <span class="sd">    The Storage lock must be held when this is called.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">_abstract</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="Storage.get"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.Storage.get">[docs]</a>  <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Storage.get"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.Storage.get">[docs]</a>  <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Retrieve credential.</span>
 
 <span class="sd">    The Storage lock must *not* be held when this is called.</span>
@@ -504,7 +504,7 @@
     <span class="k">finally</span><span class="p">:</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">release_lock</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="Storage.put"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.Storage.put">[docs]</a>  <span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">credentials</span><span class="p">):</span>
+<div class="viewcode-block" id="Storage.put"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.Storage.put">[docs]</a>  <span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">credentials</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Write a credential.</span>
 
 <span class="sd">    The Storage lock must be held when this is called.</span>
@@ -518,7 +518,7 @@
     <span class="k">finally</span><span class="p">:</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">release_lock</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="Storage.delete"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.Storage.delete">[docs]</a>  <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Storage.delete"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.Storage.delete">[docs]</a>  <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Delete credential.</span>
 
 <span class="sd">    Frees any resources associated with storing the credential.</span>
@@ -534,7 +534,7 @@
       <span class="bp">self</span><span class="o">.</span><span class="n">release_lock</span><span class="p">()</span>
 
 </div></div>
-<div class="viewcode-block" id="clean_headers"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.clean_headers">[docs]</a><span class="k">def</span> <span class="nf">clean_headers</span><span class="p">(</span><span class="n">headers</span><span class="p">):</span>
+<div class="viewcode-block" id="clean_headers"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.clean_headers">[docs]</a><span class="k">def</span> <span class="nf">clean_headers</span><span class="p">(</span><span class="n">headers</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Forces header keys and values to be strings, i.e not unicode.</span>
 
 <span class="sd">  The httplib module just concats the header keys and values in a way that may</span>
@@ -575,7 +575,7 @@
   <span class="k">return</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlunparse</span><span class="p">(</span><span class="n">new_parts</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="OAuth2Credentials"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.OAuth2Credentials">[docs]</a><span class="k">class</span> <span class="nc">OAuth2Credentials</span><span class="p">(</span><span class="n">Credentials</span><span class="p">):</span>
+<div class="viewcode-block" id="OAuth2Credentials"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.OAuth2Credentials">[docs]</a><span class="k">class</span> <span class="nc">OAuth2Credentials</span><span class="p">(</span><span class="n">Credentials</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Credentials object for OAuth 2.0.</span>
 
 <span class="sd">  Credentials can be applied to an httplib2.Http object using the authorize()</span>
@@ -630,7 +630,7 @@
     <span class="c"># refreshed.</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">invalid</span> <span class="o">=</span> <span class="bp">False</span>
 
-<div class="viewcode-block" id="OAuth2Credentials.authorize"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.OAuth2Credentials.authorize">[docs]</a>  <span class="k">def</span> <span class="nf">authorize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">http</span><span class="p">):</span>
+<div class="viewcode-block" id="OAuth2Credentials.authorize"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.OAuth2Credentials.authorize">[docs]</a>  <span class="k">def</span> <span class="nf">authorize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">http</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Authorize an httplib2.Http instance with these credentials.</span>
 
 <span class="sd">    The modified http.request method will add authentication headers to each</span>
@@ -703,7 +703,7 @@
 
     <span class="k">return</span> <span class="n">http</span>
 </div>
-<div class="viewcode-block" id="OAuth2Credentials.refresh"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.OAuth2Credentials.refresh">[docs]</a>  <span class="k">def</span> <span class="nf">refresh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">http</span><span class="p">):</span>
+<div class="viewcode-block" id="OAuth2Credentials.refresh"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.OAuth2Credentials.refresh">[docs]</a>  <span class="k">def</span> <span class="nf">refresh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">http</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Forces a refresh of the access_token.</span>
 
 <span class="sd">    Args:</span>
@@ -712,7 +712,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_refresh</span><span class="p">(</span><span class="n">http</span><span class="o">.</span><span class="n">request</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="OAuth2Credentials.revoke"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.OAuth2Credentials.revoke">[docs]</a>  <span class="k">def</span> <span class="nf">revoke</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">http</span><span class="p">):</span>
+<div class="viewcode-block" id="OAuth2Credentials.revoke"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.OAuth2Credentials.revoke">[docs]</a>  <span class="k">def</span> <span class="nf">revoke</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">http</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Revokes a refresh_token and makes the credentials void.</span>
 
 <span class="sd">    Args:</span>
@@ -721,7 +721,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_revoke</span><span class="p">(</span><span class="n">http</span><span class="o">.</span><span class="n">request</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="OAuth2Credentials.apply"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.OAuth2Credentials.apply">[docs]</a>  <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">headers</span><span class="p">):</span>
+<div class="viewcode-block" id="OAuth2Credentials.apply"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.OAuth2Credentials.apply">[docs]</a>  <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">headers</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Add the authorization to the headers.</span>
 
 <span class="sd">    Args:</span>
@@ -729,11 +729,11 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">headers</span><span class="p">[</span><span class="s">&#39;Authorization&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;Bearer &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span>
 </div>
-<div class="viewcode-block" id="OAuth2Credentials.to_json"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.OAuth2Credentials.to_json">[docs]</a>  <span class="k">def</span> <span class="nf">to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="OAuth2Credentials.to_json"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.OAuth2Credentials.to_json">[docs]</a>  <span class="k">def</span> <span class="nf">to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_to_json</span><span class="p">(</span><span class="n">Credentials</span><span class="o">.</span><span class="n">NON_SERIALIZED_MEMBERS</span><span class="p">)</span>
 </div>
   <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="OAuth2Credentials.from_json"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.OAuth2Credentials.from_json">[docs]</a>  <span class="k">def</span> <span class="nf">from_json</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+<div class="viewcode-block" id="OAuth2Credentials.from_json"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.OAuth2Credentials.from_json">[docs]</a>  <span class="k">def</span> <span class="nf">from_json</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Instantiate a Credentials object from a JSON description of it. The JSON</span>
 <span class="sd">    should have been produced by calling .to_json() on the object.</span>
 
@@ -768,7 +768,7 @@
     <span class="k">return</span> <span class="n">retval</span>
 </div>
   <span class="nd">@property</span>
-<div class="viewcode-block" id="OAuth2Credentials.access_token_expired"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.OAuth2Credentials.access_token_expired">[docs]</a>  <span class="k">def</span> <span class="nf">access_token_expired</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">access_token_expired</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;True if the credential is expired or invalid.</span>
 
 <span class="sd">    If the token_expiry isn&#39;t set, we assume the token doesn&#39;t expire.</span>
@@ -785,8 +785,8 @@
                   <span class="n">now</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">token_expiry</span><span class="p">)</span>
       <span class="k">return</span> <span class="bp">True</span>
     <span class="k">return</span> <span class="bp">False</span>
-</div>
-<div class="viewcode-block" id="OAuth2Credentials.get_access_token"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.OAuth2Credentials.get_access_token">[docs]</a>  <span class="k">def</span> <span class="nf">get_access_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">http</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+
+<div class="viewcode-block" id="OAuth2Credentials.get_access_token"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.OAuth2Credentials.get_access_token">[docs]</a>  <span class="k">def</span> <span class="nf">get_access_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">http</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Return the access token and its expiration information.</span>
 
 <span class="sd">    If the token does not exist, get one.</span>
@@ -799,7 +799,7 @@
     <span class="k">return</span> <span class="n">AccessTokenInfo</span><span class="p">(</span><span class="n">access_token</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">access_token</span><span class="p">,</span>
                            <span class="n">expires_in</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_expires_in</span><span class="p">())</span>
 </div>
-<div class="viewcode-block" id="OAuth2Credentials.set_store"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.OAuth2Credentials.set_store">[docs]</a>  <span class="k">def</span> <span class="nf">set_store</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">store</span><span class="p">):</span>
+<div class="viewcode-block" id="OAuth2Credentials.set_store"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.OAuth2Credentials.set_store">[docs]</a>  <span class="k">def</span> <span class="nf">set_store</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">store</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Set the Storage for the credential.</span>
 
 <span class="sd">    Args:</span>
@@ -834,13 +834,13 @@
     <span class="sd">&quot;&quot;&quot;Update this Credential from another instance.&quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">__getstate__</span><span class="p">())</span>
 
-<div class="viewcode-block" id="OAuth2Credentials.__getstate__"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.OAuth2Credentials.__getstate__">[docs]</a>  <span class="k">def</span> <span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="OAuth2Credentials.__getstate__"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.OAuth2Credentials.__getstate__">[docs]</a>  <span class="k">def</span> <span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Trim the state down to something that can be pickled.&quot;&quot;&quot;</span>
     <span class="n">d</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">)</span>
     <span class="k">del</span> <span class="n">d</span><span class="p">[</span><span class="s">&#39;store&#39;</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">d</span>
 </div>
-<div class="viewcode-block" id="OAuth2Credentials.__setstate__"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.OAuth2Credentials.__setstate__">[docs]</a>  <span class="k">def</span> <span class="nf">__setstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+<div class="viewcode-block" id="OAuth2Credentials.__setstate__"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.OAuth2Credentials.__setstate__">[docs]</a>  <span class="k">def</span> <span class="nf">__setstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Reconstitute the state of the object from being pickled.&quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">store</span> <span class="o">=</span> <span class="bp">None</span>
@@ -987,7 +987,7 @@
       <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
 
 </div>
-<div class="viewcode-block" id="AccessTokenCredentials"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.AccessTokenCredentials">[docs]</a><span class="k">class</span> <span class="nc">AccessTokenCredentials</span><span class="p">(</span><span class="n">OAuth2Credentials</span><span class="p">):</span>
+<div class="viewcode-block" id="AccessTokenCredentials"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.AccessTokenCredentials">[docs]</a><span class="k">class</span> <span class="nc">AccessTokenCredentials</span><span class="p">(</span><span class="n">OAuth2Credentials</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Credentials object for OAuth 2.0.</span>
 
 <span class="sd">  Credentials can be applied to an httplib2.Http object using the</span>
@@ -1037,7 +1037,7 @@
 
 
   <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="AccessTokenCredentials.from_json"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.AccessTokenCredentials.from_json">[docs]</a>  <span class="k">def</span> <span class="nf">from_json</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+<div class="viewcode-block" id="AccessTokenCredentials.from_json"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.AccessTokenCredentials.from_json">[docs]</a>  <span class="k">def</span> <span class="nf">from_json</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">six</span><span class="o">.</span><span class="n">PY3</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
       <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">)</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
@@ -1117,7 +1117,7 @@
   <span class="k">return</span> <span class="n">SETTINGS</span><span class="o">.</span><span class="n">env_name</span>
 
 
-<div class="viewcode-block" id="GoogleCredentials"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.GoogleCredentials">[docs]</a><span class="k">class</span> <span class="nc">GoogleCredentials</span><span class="p">(</span><span class="n">OAuth2Credentials</span><span class="p">):</span>
+<div class="viewcode-block" id="GoogleCredentials"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.GoogleCredentials">[docs]</a><span class="k">class</span> <span class="nc">GoogleCredentials</span><span class="p">(</span><span class="n">OAuth2Credentials</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Application Default Credentials for use in calling Google APIs.</span>
 
 <span class="sd">  The Application Default Credentials are being constructed as a function of</span>
@@ -1167,7 +1167,7 @@
         <span class="n">access_token</span><span class="p">,</span> <span class="n">client_id</span><span class="p">,</span> <span class="n">client_secret</span><span class="p">,</span> <span class="n">refresh_token</span><span class="p">,</span> <span class="n">token_expiry</span><span class="p">,</span>
         <span class="n">token_uri</span><span class="p">,</span> <span class="n">user_agent</span><span class="p">,</span> <span class="n">revoke_uri</span><span class="o">=</span><span class="n">revoke_uri</span><span class="p">)</span>
 
-<div class="viewcode-block" id="GoogleCredentials.create_scoped_required"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.GoogleCredentials.create_scoped_required">[docs]</a>  <span class="k">def</span> <span class="nf">create_scoped_required</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="GoogleCredentials.create_scoped_required"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.GoogleCredentials.create_scoped_required">[docs]</a>  <span class="k">def</span> <span class="nf">create_scoped_required</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Whether this Credentials object is scopeless.</span>
 
 <span class="sd">    create_scoped(scopes) method needs to be called in order to create</span>
@@ -1175,7 +1175,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="bp">False</span>
 </div>
-<div class="viewcode-block" id="GoogleCredentials.create_scoped"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.GoogleCredentials.create_scoped">[docs]</a>  <span class="k">def</span> <span class="nf">create_scoped</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scopes</span><span class="p">):</span>
+<div class="viewcode-block" id="GoogleCredentials.create_scoped"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.GoogleCredentials.create_scoped">[docs]</a>  <span class="k">def</span> <span class="nf">create_scoped</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scopes</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Create a Credentials object for the given scopes.</span>
 
 <span class="sd">    The Credentials type is preserved.</span>
@@ -1183,7 +1183,7 @@
     <span class="k">return</span> <span class="bp">self</span>
 </div>
   <span class="nd">@property</span>
-<div class="viewcode-block" id="GoogleCredentials.serialization_data"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.GoogleCredentials.serialization_data">[docs]</a>  <span class="k">def</span> <span class="nf">serialization_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">serialization_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Get the fields and their values identifying the current credentials.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">{</span>
         <span class="s">&#39;type&#39;</span><span class="p">:</span> <span class="s">&#39;authorized_user&#39;</span><span class="p">,</span>
@@ -1191,7 +1191,7 @@
         <span class="s">&#39;client_secret&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_secret</span><span class="p">,</span>
         <span class="s">&#39;refresh_token&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">refresh_token</span>
     <span class="p">}</span>
-</div>
+
   <span class="nd">@staticmethod</span>
   <span class="k">def</span> <span class="nf">_implicit_credentials_from_gae</span><span class="p">(</span><span class="n">env_name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Attempts to get implicit credentials in Google App Engine env.</span>
@@ -1303,7 +1303,7 @@
     <span class="k">raise</span> <span class="n">ApplicationDefaultCredentialsError</span><span class="p">(</span><span class="n">ADC_HELP_MSG</span><span class="p">)</span>
 
   <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="GoogleCredentials.get_application_default"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.GoogleCredentials.get_application_default">[docs]</a>  <span class="k">def</span> <span class="nf">get_application_default</span><span class="p">():</span>
+<div class="viewcode-block" id="GoogleCredentials.get_application_default"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.GoogleCredentials.get_application_default">[docs]</a>  <span class="k">def</span> <span class="nf">get_application_default</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Get the Application Default Credentials for the current environment.</span>
 
 <span class="sd">    Exceptions:</span>
@@ -1313,7 +1313,7 @@
     <span class="k">return</span> <span class="n">GoogleCredentials</span><span class="o">.</span><span class="n">_get_implicit_credentials</span><span class="p">()</span>
 </div>
   <span class="nd">@staticmethod</span>
-<div class="viewcode-block" id="GoogleCredentials.from_stream"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.GoogleCredentials.from_stream">[docs]</a>  <span class="k">def</span> <span class="nf">from_stream</span><span class="p">(</span><span class="n">credential_filename</span><span class="p">):</span>
+<div class="viewcode-block" id="GoogleCredentials.from_stream"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.GoogleCredentials.from_stream">[docs]</a>  <span class="k">def</span> <span class="nf">from_stream</span><span class="p">(</span><span class="n">credential_filename</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Create a Credentials object by reading the information from a given file.</span>
 
 <span class="sd">    It returns an object of type GoogleCredentials.</span>
@@ -1342,7 +1342,7 @@
           <span class="s">&#39;method should point to a file.&#39;</span><span class="p">)</span>
 
 </div></div>
-<div class="viewcode-block" id="save_to_well_known_file"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.save_to_well_known_file">[docs]</a><span class="k">def</span> <span class="nf">save_to_well_known_file</span><span class="p">(</span><span class="n">credentials</span><span class="p">,</span> <span class="n">well_known_file</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="save_to_well_known_file"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.save_to_well_known_file">[docs]</a><span class="k">def</span> <span class="nf">save_to_well_known_file</span><span class="p">(</span><span class="n">credentials</span><span class="p">,</span> <span class="n">well_known_file</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Save the provided GoogleCredentials to the well known file.</span>
 
 <span class="sd">  Args:</span>
@@ -1475,7 +1475,7 @@
   <span class="k">return</span> <span class="n">AppAssertionCredentials</span><span class="p">([])</span>
 
 
-<div class="viewcode-block" id="AssertionCredentials"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.AssertionCredentials">[docs]</a><span class="k">class</span> <span class="nc">AssertionCredentials</span><span class="p">(</span><span class="n">GoogleCredentials</span><span class="p">):</span>
+<div class="viewcode-block" id="AssertionCredentials"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.AssertionCredentials">[docs]</a><span class="k">class</span> <span class="nc">AssertionCredentials</span><span class="p">(</span><span class="n">GoogleCredentials</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Abstract Credentials object used for OAuth 2.0 assertion grants.</span>
 
 <span class="sd">  This credential does not require a flow to instantiate because it</span>
@@ -1549,7 +1549,7 @@
     <span class="k">raise</span> <span class="n">CryptoUnavailableError</span><span class="p">(</span><span class="s">&#39;No crypto library available&#39;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="SignedJwtAssertionCredentials"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.SignedJwtAssertionCredentials">[docs]</a><span class="k">class</span> <span class="nc">SignedJwtAssertionCredentials</span><span class="p">(</span><span class="n">AssertionCredentials</span><span class="p">):</span>
+<div class="viewcode-block" id="SignedJwtAssertionCredentials"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.SignedJwtAssertionCredentials">[docs]</a><span class="k">class</span> <span class="nc">SignedJwtAssertionCredentials</span><span class="p">(</span><span class="n">AssertionCredentials</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Credentials object used for OAuth 2.0 Signed JWT assertion grants.</span>
 
 <span class="sd">  This credential does not require a flow to instantiate because it</span>
@@ -1612,7 +1612,7 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
 
   <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="SignedJwtAssertionCredentials.from_json"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.SignedJwtAssertionCredentials.from_json">[docs]</a>  <span class="k">def</span> <span class="nf">from_json</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+<div class="viewcode-block" id="SignedJwtAssertionCredentials.from_json"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.SignedJwtAssertionCredentials.from_json">[docs]</a>  <span class="k">def</span> <span class="nf">from_json</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
     <span class="n">retval</span> <span class="o">=</span> <span class="n">SignedJwtAssertionCredentials</span><span class="p">(</span>
         <span class="n">data</span><span class="p">[</span><span class="s">&#39;service_account_name&#39;</span><span class="p">],</span>
@@ -1757,7 +1757,7 @@
 <span class="sd">    client_id: string, client identifier.</span>
 <span class="sd">    client_secret: string, client secret.</span>
 <span class="sd">    scope: string or iterable of strings, scope(s) to request.</span>
-<span class="sd">    code: string, An authroization code, most likely passed down from</span>
+<span class="sd">    code: string, An authorization code, most likely passed down from</span>
 <span class="sd">      the client</span>
 <span class="sd">    redirect_uri: string, this is generally set to &#39;postmessage&#39; to match the</span>
 <span class="sd">      redirect_uri that the client specified</span>
@@ -1832,13 +1832,13 @@
   <span class="k">return</span> <span class="n">credentials</span>
 
 
-<div class="viewcode-block" id="DeviceFlowInfo"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.DeviceFlowInfo">[docs]</a><span class="k">class</span> <span class="nc">DeviceFlowInfo</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">namedtuple</span><span class="p">(</span><span class="s">&#39;DeviceFlowInfo&#39;</span><span class="p">,</span> <span class="p">(</span>
+<div class="viewcode-block" id="DeviceFlowInfo"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.DeviceFlowInfo">[docs]</a><span class="k">class</span> <span class="nc">DeviceFlowInfo</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">namedtuple</span><span class="p">(</span><span class="s">&#39;DeviceFlowInfo&#39;</span><span class="p">,</span> <span class="p">(</span>
     <span class="s">&#39;device_code&#39;</span><span class="p">,</span> <span class="s">&#39;user_code&#39;</span><span class="p">,</span> <span class="s">&#39;interval&#39;</span><span class="p">,</span> <span class="s">&#39;verification_url&#39;</span><span class="p">,</span>
     <span class="s">&#39;user_code_expiry&#39;</span><span class="p">))):</span>
   <span class="sd">&quot;&quot;&quot;Intermediate information the OAuth2 for devices flow.&quot;&quot;&quot;</span>
 
   <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="DeviceFlowInfo.FromResponse"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.DeviceFlowInfo.FromResponse">[docs]</a>  <span class="k">def</span> <span class="nf">FromResponse</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
+<div class="viewcode-block" id="DeviceFlowInfo.FromResponse"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.DeviceFlowInfo.FromResponse">[docs]</a>  <span class="k">def</span> <span class="nf">FromResponse</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Create a DeviceFlowInfo from a server response.</span>
 
 <span class="sd">    The response should be a dict containing entries as described here:</span>
@@ -1869,7 +1869,7 @@
 
     <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </div></div>
-<div class="viewcode-block" id="OAuth2WebServerFlow"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.OAuth2WebServerFlow">[docs]</a><span class="k">class</span> <span class="nc">OAuth2WebServerFlow</span><span class="p">(</span><span class="n">Flow</span><span class="p">):</span>
+<div class="viewcode-block" id="OAuth2WebServerFlow"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.OAuth2WebServerFlow">[docs]</a><span class="k">class</span> <span class="nc">OAuth2WebServerFlow</span><span class="p">(</span><span class="n">Flow</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Does the Web Server Flow for OAuth 2.0.</span>
 
 <span class="sd">  OAuth2WebServerFlow objects may be safely pickled and unpickled.</span>
@@ -1931,7 +1931,7 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
 
   <span class="nd">@util.positional</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-<div class="viewcode-block" id="OAuth2WebServerFlow.step1_get_authorize_url"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.OAuth2WebServerFlow.step1_get_authorize_url">[docs]</a>  <span class="k">def</span> <span class="nf">step1_get_authorize_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">redirect_uri</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">step1_get_authorize_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">redirect_uri</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Returns a URI to redirect to the provider.</span>
 
 <span class="sd">    Args:</span>
@@ -1962,9 +1962,9 @@
       <span class="n">query_params</span><span class="p">[</span><span class="s">&#39;login_hint&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">login_hint</span>
     <span class="n">query_params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">_update_query_params</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">auth_uri</span><span class="p">,</span> <span class="n">query_params</span><span class="p">)</span>
-</div>
+
   <span class="nd">@util.positional</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-<div class="viewcode-block" id="OAuth2WebServerFlow.step1_get_device_and_user_codes"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.OAuth2WebServerFlow.step1_get_device_and_user_codes">[docs]</a>  <span class="k">def</span> <span class="nf">step1_get_device_and_user_codes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">http</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">step1_get_device_and_user_codes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">http</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Returns a user code and the verification URL where to enter it</span>
 
 <span class="sd">    Returns:</span>
@@ -2008,9 +2008,9 @@
         <span class="c"># Couldn&#39;t decode a JSON response, stick with the default message.</span>
         <span class="k">pass</span>
       <span class="k">raise</span> <span class="n">OAuth2DeviceCodeError</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
-</div>
+
   <span class="nd">@util.positional</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-<div class="viewcode-block" id="OAuth2WebServerFlow.step2_exchange"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.OAuth2WebServerFlow.step2_exchange">[docs]</a>  <span class="k">def</span> <span class="nf">step2_exchange</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">code</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">http</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">device_flow_info</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">step2_exchange</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">code</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">http</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">device_flow_info</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Exchanges a code for OAuth2Credentials.</span>
 
 <span class="sd">    Args:</span>
@@ -2104,7 +2104,7 @@
         <span class="n">error_msg</span> <span class="o">=</span> <span class="s">&#39;Invalid response: </span><span class="si">%s</span><span class="s">.&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">status</span><span class="p">)</span>
       <span class="k">raise</span> <span class="n">FlowExchangeError</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
 
-</div></div>
+</div>
 <span class="nd">@util.positional</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 <span class="k">def</span> <span class="nf">flow_from_clientsecrets</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">scope</span><span class="p">,</span> <span class="n">redirect_uri</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                             <span class="n">message</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">login_hint</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
@@ -2180,7 +2180,7 @@
     </p>
     <p>
         &copy; Copyright 2014, Google, Inc.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.3.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3b2.<br/>
     </p>
   </div>
 </footer>

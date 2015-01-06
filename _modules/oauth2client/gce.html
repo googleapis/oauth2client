@@ -36,7 +36,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body>
+  <body role="document">
   
 
   <a href="https://github.com/google/oauth2client"
@@ -234,10 +234,10 @@
       <span class="k">raise</span> <span class="n">AccessTokenRefreshError</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
 
   <span class="nd">@property</span>
-<div class="viewcode-block" id="AppAssertionCredentials.serialization_data"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.gce.AppAssertionCredentials.serialization_data">[docs]</a>  <span class="k">def</span> <span class="nf">serialization_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">serialization_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
         <span class="s">&#39;Cannot serialize credentials for GCE service accounts.&#39;</span><span class="p">)</span>
-</div>
+
 <div class="viewcode-block" id="AppAssertionCredentials.create_scoped_required"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.gce.AppAssertionCredentials.create_scoped_required">[docs]</a>  <span class="k">def</span> <span class="nf">create_scoped_required</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">scope</span>
 </div>
@@ -257,7 +257,7 @@
     </p>
     <p>
         &copy; Copyright 2014, Google, Inc.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.3.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3b2.<br/>
     </p>
   </div>
 </footer>

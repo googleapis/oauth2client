@@ -36,7 +36,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 
   </head>
-  <body>
+  <body role="document">
   
 
   <a href="https://github.com/google/oauth2client"
@@ -337,9 +337,9 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span> <span class="o">=</span> <span class="n">token</span>
 
   <span class="nd">@property</span>
-<div class="viewcode-block" id="AppAssertionCredentials.serialization_data"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.AppAssertionCredentials.serialization_data">[docs]</a>  <span class="k">def</span> <span class="nf">serialization_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">serialization_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&#39;Cannot serialize credentials for AppEngine.&#39;</span><span class="p">)</span>
-</div>
+
 <div class="viewcode-block" id="AppAssertionCredentials.create_scoped_required"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.AppAssertionCredentials.create_scoped_required">[docs]</a>  <span class="k">def</span> <span class="nf">create_scoped_required</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">scope</span>
 </div>
@@ -590,7 +590,7 @@
       <span class="n">db</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">entity_key</span><span class="p">)</span>
 
   <span class="nd">@db.non_transactional</span><span class="p">(</span><span class="n">allow_existing</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-<div class="viewcode-block" id="StorageByKeyName.locked_get"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.StorageByKeyName.locked_get">[docs]</a>  <span class="k">def</span> <span class="nf">locked_get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">locked_get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Retrieve Credential from datastore.</span>
 
 <span class="sd">    Returns:</span>
@@ -611,9 +611,9 @@
     <span class="k">if</span> <span class="n">credentials</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">credentials</span><span class="p">,</span> <span class="s">&#39;set_store&#39;</span><span class="p">):</span>
       <span class="n">credentials</span><span class="o">.</span><span class="n">set_store</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">credentials</span>
-</div>
+
   <span class="nd">@db.non_transactional</span><span class="p">(</span><span class="n">allow_existing</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-<div class="viewcode-block" id="StorageByKeyName.locked_put"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.StorageByKeyName.locked_put">[docs]</a>  <span class="k">def</span> <span class="nf">locked_put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">credentials</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">locked_put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">credentials</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Write a Credentials to the datastore.</span>
 
 <span class="sd">    Args:</span>
@@ -624,9 +624,9 @@
     <span class="n">entity</span><span class="o">.</span><span class="n">put</span><span class="p">()</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">:</span>
       <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_key_name</span><span class="p">,</span> <span class="n">credentials</span><span class="o">.</span><span class="n">to_json</span><span class="p">())</span>
-</div>
+
   <span class="nd">@db.non_transactional</span><span class="p">(</span><span class="n">allow_existing</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-<div class="viewcode-block" id="StorageByKeyName.locked_delete"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.StorageByKeyName.locked_delete">[docs]</a>  <span class="k">def</span> <span class="nf">locked_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">locked_delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Delete Credential from datastore.&quot;&quot;&quot;</span>
 
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cache</span><span class="p">:</span>
@@ -634,7 +634,7 @@
 
     <span class="bp">self</span><span class="o">.</span><span class="n">_delete_entity</span><span class="p">()</span>
 
-</div></div>
+</div>
 <div class="viewcode-block" id="CredentialsModel"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.CredentialsModel">[docs]</a><span class="k">class</span> <span class="nc">CredentialsModel</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Storage for OAuth 2.0 Credentials</span>
 
@@ -969,7 +969,7 @@
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">credentials</span><span class="o">.</span><span class="n">authorize</span><span class="p">(</span><span class="n">httplib2</span><span class="o">.</span><span class="n">Http</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
 </div>
   <span class="nd">@property</span>
-<div class="viewcode-block" id="OAuth2Decorator.callback_path"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.OAuth2Decorator.callback_path">[docs]</a>  <span class="k">def</span> <span class="nf">callback_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">callback_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;The absolute path where the callback will occur.</span>
 
 <span class="sd">    Note this is the absolute path, not the absolute URI, that will be</span>
@@ -981,7 +981,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callback_path</span>
 
-</div>
+
 <div class="viewcode-block" id="OAuth2Decorator.callback_handler"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.OAuth2Decorator.callback_handler">[docs]</a>  <span class="k">def</span> <span class="nf">callback_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;RequestHandler for the OAuth 2.0 redirect callback.</span>
 
@@ -1139,7 +1139,7 @@
     </p>
     <p>
         &copy; Copyright 2014, Google, Inc.<br/>
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.2.3.<br/>
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.3b2.<br/>
     </p>
   </div>
 </footer>
