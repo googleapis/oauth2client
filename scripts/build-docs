@@ -19,7 +19,7 @@
 set -e
 
 if [[ -z "${SKIP_GAE_SDK}" ]]; then
-  docs/fetch_gae_sdk.py
+  scripts/fetch_gae_sdk.py
   export PYTHONPATH="${PWD}/google_appengine:${PYTHONPATH}"
 fi
 
