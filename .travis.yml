@@ -8,13 +8,12 @@ env:
   - TOX_ENV=py33
   - TOX_ENV=py34
   - TOX_ENV=pypy
-  global:
-    secure: Dxq/BYQ9e2GVyQQifNGhw3R1AHhUAiJuS4L/ow23IAYWO6wd9ZPGSjyn6C+VJRwlEXXwhkYSzOuJdfr+FR5sENMRAwIx1z2gOzOjxaLZRxm1bLDnUlP0wld+0m4UwLMZuLzA30gSR6RZo+S6IGhYCiFYmpDqSgwQihIM2vOmUz4=
+  - TOX_ENV=docs
 install:
 - pip install tox
 script:
 - tox -e $TOX_ENV
 after_success:
-- tox -e coveralls
+- if [[ "${TOX_ENV}" == "py27" ]]; then tox -e coveralls; fi
 notifications:
   email: false
