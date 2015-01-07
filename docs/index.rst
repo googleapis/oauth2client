@@ -50,3 +50,22 @@ contributor license agreement.
 
    source/modules
    contributing
+
+Supported Python Versions
+-------------------------
+
+We support Python 2.6, 2.7, 3.3+. (Whatever this file says, the truth is
+always represented by our `tox.ini`_).
+
+.. _tox.ini: https://github.com/google/oauth2client/blob/master/tox.ini
+
+We explicitly decided to support Python 3 beginning with version
+3.3. Reasons for this include:
+
+* Encouraging use of newest versions of Python 3
+* Following the lead of prominent `open-source projects`_
+* Unicode literal support which
+  allows for a cleaner codebase that works in both Python 2 and Python 3
+
+.. _open-source projects: http://docs.python-requests.org/en/latest/
+.. _Unicode literal support: https://www.python.org/dev/peps/pep-0414/
