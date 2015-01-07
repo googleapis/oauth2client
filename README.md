@@ -13,14 +13,6 @@ To install, simply say
 
     $ pip install --upgrade oauth2client
 
-
-Third Party Libraries
-=====================
-
-These libraries will be installed when you install the client library:
-
-* https://github.com/jcgregorio/httplib2
-
 Contributing
 ============
 
@@ -28,3 +20,9 @@ Please see the
 [contributing page](http://google.github.io/oauth2client/contributing.html)
 for more information. In particular, we love pull requests -- but please make
 sure to sign the contributor license agreement.
+
+Supported Python Versions
+=========================
+
+We support Python 2.6, 2.7, 3.3+. More information
+[in the docs](http://google.github.io/oauth2client/#supported-python-versions).
