@@ -939,8 +939,7 @@ def _detect_gce_environment(urlopen=None):
   # "unlikely".
   try:
     response = urlopen('http://169.254.169.254/', timeout=0.1)
-    return any('Metadata-Flavor: Google' in header
-               for header in response.info().headers)
+    return response.info().get('Metadata-Flavor', '') == 'Google'
   except socket.timeout:
     logger.info('Timeout attempting to reach GCE metadata service.')
     return False
