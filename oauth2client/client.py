@@ -938,7 +938,7 @@ def _detect_gce_environment(urlopen=None):
   # the metadata resolution was particularly slow. The latter case is
   # "unlikely".
   try:
-    response = urlopen('http://169.254.169.254/', timeout=0.1)
+    response = urlopen('http://169.254.169.254/', timeout=1)
     return response.info().get('Metadata-Flavor', '') == 'Google'
   except socket.timeout:
     logger.info('Timeout attempting to reach GCE metadata service.')
