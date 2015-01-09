@@ -92,6 +92,10 @@ AccessTokenInfo = collections.namedtuple(
     'AccessTokenInfo', ['access_token', 'expires_in'])
 
 DEFAULT_ENV_NAME = 'UNKNOWN'
+
+# If set to True will avoid Google Cloud Engine checking
+NO_GCE_CHECK = False
+
 class SETTINGS(object):
   """Settings namespace for globally defined values."""
   env_name = None
@@ -970,7 +974,7 @@ def _get_environment(urlopen=None):
     SETTINGS.env_name = 'GAE_PRODUCTION'
   elif server_software.startswith('Development/'):
     SETTINGS.env_name = 'GAE_LOCAL'
-  elif _detect_gce_environment(urlopen=urlopen):
+  elif NO_GCE_CHECK is not True and _detect_gce_environment(urlopen=urlopen):
     SETTINGS.env_name = 'GCE_PRODUCTION'
 
   return SETTINGS.env_name
