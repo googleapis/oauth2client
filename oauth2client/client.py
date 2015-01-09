@@ -93,7 +93,7 @@ AccessTokenInfo = collections.namedtuple(
 
 DEFAULT_ENV_NAME = 'UNKNOWN'
 
-# If set to True will avoid Google Cloud Engine checking
+# If set to True _get_environment avoid GCE check (_detect_gce_environment)
 NO_GCE_CHECK = False
 
 class SETTINGS(object):
