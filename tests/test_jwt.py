@@ -188,51 +188,6 @@ class CryptTests(unittest.TestCase):
     self._check_jwt_failure(jwt, 'Wrong recipient')
 
 
-class Test_crypt_private_key_as_pem(unittest.TestCase):
-
-  def _make_signed_jwt_creds(self, private_key_file='privatekey.p12',
-                             private_key=None):
-    private_key = private_key or datafile(private_key_file)
-    return SignedJwtAssertionCredentials(
-        'some_account@example.com',
-        private_key,
-        scope='read+write',
-        sub='joe@example.org')
-
-  def test_succeeds(self):
-    self.assertEqual(True, HAS_OPENSSL)
-
-    credentials = self._make_signed_jwt_creds()
-    pem_contents = crypt.private_key_as_pem(
-      credentials.private_key,
-      private_key_password=credentials.private_key_password)
-
-    private_key_as_pem = datafile('pem_from_pkcs12.pem')
-    private_key_as_pem = crypt._parse_pem_key(private_key_as_pem)
-    self.assertEqual(pem_contents, private_key_as_pem)
-
-  def test_without_openssl(self):
-    credentials = self._make_signed_jwt_creds()
-    with mock.patch('oauth2client.crypt.OpenSSLSigner', None):
-      self.assertRaises(ImportError, crypt.private_key_as_pem,
-                        credentials.private_key,
-                        private_key_password=credentials.private_key_password)
-
-  def test_with_pem_key(self):
-    credentials = self._make_signed_jwt_creds(private_key_file='privatekey.pem')
-    pem_contents = crypt.private_key_as_pem(
-      credentials.private_key,
-      private_key_password=credentials.private_key_password)
-    expected_pem_key = datafile('privatekey.pem')
-    self.assertEqual(pem_contents, expected_pem_key)
-
-  def test_with_nonsense_key(self):
-    credentials = self._make_signed_jwt_creds(private_key=b'NOT_A_KEY')
-    self.assertRaises(crypt.crypto.Error, crypt.private_key_as_pem,
-                      credentials.private_key,
-                      private_key_password=credentials.private_key_password)
-
-
 class PEMCryptTestsPyCrypto(CryptTests):
   def setUp(self):
     self.format = 'pem'

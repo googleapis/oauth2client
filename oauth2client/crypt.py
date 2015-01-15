@@ -137,9 +137,30 @@ try:
           password = password.encode('utf-8')
         pkey = crypto.load_pkcs12(key, password).get_privatekey()
       return OpenSSLSigner(pkey)
+
+
+  def pkcs12_key_as_pem(private_key_text, private_key_password):
+    """Convert the contents of a PKCS12 key to PEM using OpenSSL.
+
+    Args:
+      private_key_text: String. Private key.
+      private_key_password: String. Password for PKCS12.
+
+    Returns:
+      String. PEM contents of ``private_key_text``.
+    """
+    decoded_body = base64.b64decode(private_key_text)
+    if isinstance(private_key_password, six.string_types):
+      private_key_password = private_key_password.encode('ascii')
+
+    pkcs12 = crypto.load_pkcs12(decoded_body, private_key_password)
+    return crypto.dump_privatekey(crypto.FILETYPE_PEM,
+                                  pkcs12.get_privatekey())
 except ImportError:
   OpenSSLVerifier = None
   OpenSSLSigner = None
+  def pkcs12_key_as_pem(*args, **kwargs):
+    raise NotImplementedError('pkcs12_key_as_pem requires OpenSSL.')
 
 
 try:
@@ -284,39 +305,6 @@ def _parse_pem_key(raw_key_input):
   offset = raw_key_input.find(b'-----BEGIN ')
   if offset != -1:
     return raw_key_input[offset:]
-
-
-def private_key_as_pem(private_key_text, private_key_password=None):
-  """Convert the contents of a key to PEM.
-
-  First tries to determine if the current key is PEM, then tries to
-  use OpenSSL to convert from PKCS12 to PEM.
-
-  Args:
-    private_key_text: String. Private key.
-    private_key_password: Optional string. Password for PKCS12.
-
-  Returns:
-    String. PEM contents of ``private_key_text``.
-
-  Raises:
-    ImportError: If key is PKCS12 and OpenSSL is not installed.
-  """
-  decoded_body = base64.b64decode(private_key_text)
-  pem_contents = _parse_pem_key(decoded_body)
-  if pem_contents is None:
-    if OpenSSLVerifier is None or OpenSSLSigner is None:
-      raise ImportError('OpenSSL not installed. Required to convert '
-                        'PKCS12 key to PEM.')
-
-    if isinstance(private_key_password, six.string_types):
-      private_key_password = private_key_password.encode('ascii')
-
-    pkcs12 = crypto.load_pkcs12(decoded_body, private_key_password)
-    pem_contents = crypto.dump_privatekey(crypto.FILETYPE_PEM,
-                                          pkcs12.get_privatekey())
-
-  return pem_contents
 
 
 def _urlsafe_b64encode(raw_bytes):
