@@ -138,9 +138,29 @@ try:
         pkey = crypto.load_pkcs12(key, password).get_privatekey()
       return OpenSSLSigner(pkey)
 
+
+  def pkcs12_key_as_pem(private_key_text, private_key_password):
+    """Convert the contents of a PKCS12 key to PEM using OpenSSL.
+
+    Args:
+      private_key_text: String. Private key.
+      private_key_password: String. Password for PKCS12.
+
+    Returns:
+      String. PEM contents of ``private_key_text``.
+    """
+    decoded_body = base64.b64decode(private_key_text)
+    if isinstance(private_key_password, six.string_types):
+      private_key_password = private_key_password.encode('ascii')
+
+    pkcs12 = crypto.load_pkcs12(decoded_body, private_key_password)
+    return crypto.dump_privatekey(crypto.FILETYPE_PEM,
+                                  pkcs12.get_privatekey())
 except ImportError:
   OpenSSLVerifier = None
   OpenSSLSigner = None
+  def pkcs12_key_as_pem(*args, **kwargs):
+    raise NotImplementedError('pkcs12_key_as_pem requires OpenSSL.')
 
 
 try:
