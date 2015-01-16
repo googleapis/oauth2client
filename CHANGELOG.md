@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v1.4.6
+
+* Add utility function to convert PKCS12 key to PEM. (#115)
+* Change GCE detection logic. (#93)
+* Add a tox env for doc generation.
+
 ## v1.4.5
 
 * Set a shorter timeout for an Application Default Credentials issue on some
