@@ -147,7 +147,9 @@ def run_flow(flow, storage, flags, http=None):
   Args:
     flow: Flow, an OAuth 2.0 Flow to step through.
     storage: Storage, a Storage to store the credential in.
-    flags: argparse.ArgumentParser, the command-line flags.
+    flags: argparse.Namespace, The command-line flags. This is the object
+        returned from calling parse_args() on
+        argparse.ArgumentParser as described above.
     http: An instance of httplib2.Http.request
          or something that acts like it.
 
