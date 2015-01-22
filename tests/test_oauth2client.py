@@ -215,7 +215,7 @@ class GoogleCredentialsTests(unittest.TestCase):
                            autospec=True) as urlopen:
       self.assertEqual('GCE_PRODUCTION', _get_environment())
       urlopen.assert_called_once_with(
-          'http://169.254.169.254/', timeout=0.1)
+          'http://169.254.169.254/', timeout=1)
 
   def test_get_environment_unknown(self):
     os.environ['SERVER_SOFTWARE'] = ''
@@ -224,7 +224,7 @@ class GoogleCredentialsTests(unittest.TestCase):
                            autospec=True) as urlopen:
       self.assertEqual(DEFAULT_ENV_NAME, _get_environment())
       urlopen.assert_called_once_with(
-          'http://169.254.169.254/', timeout=0.1)
+          'http://169.254.169.254/', timeout=1)
 
   def test_get_environment_variable_file(self):
     environment_variable_file = datafile(
