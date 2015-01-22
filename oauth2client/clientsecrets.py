@@ -69,8 +69,18 @@ class InvalidClientSecretsError(Error):
 
 
 def _validate_clientsecrets(obj):
-  if obj is None or len(obj) != 1:
-    raise InvalidClientSecretsError('Invalid file format.')
+  _INVALID_FILE_FORMAT_MSG = (
+    'Invalid file format. See '
+    'https://developers.google.com/api-client-library/'
+    'python/guide/aaa_client_secrets')
+
+  if obj is None:
+    raise InvalidClientSecretsError(_INVALID_FILE_FORMAT_MSG)
+  if len(obj) != 1:
+    raise InvalidClientSecretsError(
+      _INVALID_FILE_FORMAT_MSG + ' '
+      'Expected a JSON object with a single property for a "web" or '
+      '"installed" application')
   client_type = tuple(obj)[0]
   if client_type not in VALID_CLIENT:
     raise InvalidClientSecretsError('Unknown client type: %s.' % (client_type,))
