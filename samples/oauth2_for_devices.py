@@ -3,6 +3,7 @@
 # See:  https://developers.google.com/accounts/docs/OAuth2ForDevices
 
 import httplib2
+from six.moves import input
 from oauth2client.client import OAuth2WebServerFlow
 from googleapiclient.discovery import build
 
@@ -18,7 +19,7 @@ flow_info = flow.step1_get_device_and_user_codes()
 print "Enter the following code at %s: %s" % (flow_info.verification_url,
                                               flow_info.user_code)
 print "Then press Enter."
-raw_input()
+input()
 
 # Step 2: get credentials
 # https://developers.google.com/accounts/docs/OAuth2ForDevices#obtainingatoken

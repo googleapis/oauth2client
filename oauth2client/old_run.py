@@ -23,6 +23,7 @@ import sys
 import webbrowser
 
 import gflags
+from six.moves import input
 
 from oauth2client import client
 from oauth2client import util
@@ -147,7 +148,7 @@ def run(flow, storage, http=None):
       print('Failed to find "code" in the query parameters of the redirect.')
       sys.exit('Try running with --noauth_local_webserver.')
   else:
-    code = raw_input('Enter verification code: ').strip()
+    code = input('Enter verification code: ').strip()
 
   try:
     credential = flow.step2_exchange(code, http=http)
