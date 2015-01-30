@@ -974,7 +974,7 @@ def _get_environment(urlopen=None):
     SETTINGS.env_name = 'GAE_PRODUCTION'
   elif server_software.startswith('Development/'):
     SETTINGS.env_name = 'GAE_LOCAL'
-  elif NO_GCE_CHECK is not 'True' and _detect_gce_environment(urlopen=urlopen):
+  elif NO_GCE_CHECK != 'True' and _detect_gce_environment(urlopen=urlopen):
     SETTINGS.env_name = 'GCE_PRODUCTION'
 
   return SETTINGS.env_name
