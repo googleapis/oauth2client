@@ -99,9 +99,9 @@ class ClientRedirectHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     query = self.path.split('?', 1)[-1]
     query = dict(urllib.parse.parse_qsl(query))
     self.server.query_params = query
-    self.wfile.write("<html><head><title>Authentication Status</title></head>")
-    self.wfile.write("<body><p>The authentication flow has completed.</p>")
-    self.wfile.write("</body></html>")
+    self.wfile.write(b"<html><head><title>Authentication Status</title></head>")
+    self.wfile.write(b"<body><p>The authentication flow has completed.</p>")
+    self.wfile.write(b"</body></html>")
 
   def log_message(self, format, *args):
     """Do not log messages to stdout while running as command line program."""
