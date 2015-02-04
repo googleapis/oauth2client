@@ -75,16 +75,14 @@ class _ServiceAccountCredentials(AssertionCredentials):
     }
     payload.update(self._kwargs)
 
-    assertion_input = '%s.%s' % (
-        _urlsafe_b64encode(header),
-        _urlsafe_b64encode(payload))
-    assertion_input = assertion_input.encode('utf-8')
+    assertion_input = (_urlsafe_b64encode(header) + b'.' +
+                       _urlsafe_b64encode(payload))
 
     # Sign the assertion.
-    signature = bytes.decode(base64.urlsafe_b64encode(rsa.pkcs1.sign(
-        assertion_input, self._private_key, 'SHA-256'))).rstrip('=')
+    rsa_bytes = rsa.pkcs1.sign(assertion_input, self._private_key, 'SHA-256')
+    signature = base64.urlsafe_b64encode(rsa_bytes).rstrip(b'=')
 
-    return '%s.%s' % (assertion_input, signature)
+    return assertion_input + b'.' + signature
 
   def sign_blob(self, blob):
     # Ensure that it is bytes
