@@ -54,7 +54,8 @@ class Test_pkcs12_key_as_pem(unittest.TestCase):
                                            credentials.private_key_password)
     pkcs12_key_as_pem = datafile('pem_from_pkcs12.pem')
     pkcs12_key_as_pem = crypt._parse_pem_key(pkcs12_key_as_pem)
-    self.assertEqual(pem_contents, pkcs12_key_as_pem)
+    alternate_pem = datafile('pem_from_pkcs12_alternate.pem')
+    self.assertTrue(pem_contents in [pkcs12_key_as_pem, alternate_pem])
 
   def test_without_openssl(self):
     openssl_mod = sys.modules['OpenSSL']
