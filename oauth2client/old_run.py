@@ -50,39 +50,38 @@ gflags.DEFINE_multi_int('auth_host_port', [8080, 8090],
 def run(flow, storage, http=None):
   """Core code for a command-line application.
 
-  The run() function is called from your application and runs through all
-  the steps to obtain credentials. It takes a Flow argument and attempts to
-  open an authorization server page in the user's default web browser. The
-  server asks the user to grant your application access to the user's data.
-  If the user grants access, the run() function returns new credentials. The
-  new credentials are also stored in the Storage argument, which updates the
-  file associated with the Storage object.
+  The ``run()`` function is called from your application and runs
+  through all the steps to obtain credentials. It takes a ``Flow``
+  argument and attempts to open an authorization server page in the
+  user's default web browser. The server asks the user to grant your
+  application access to the user's data. If the user grants access,
+  the ``run()`` function returns new credentials. The new credentials
+  are also stored in the ``storage`` argument, which updates the file
+  associated with the ``Storage`` object.
 
   It presumes it is run from a command-line application and supports the
   following flags:
 
-    --auth_host_name: Host name to use when running a local web server
-      to handle redirects during OAuth authorization.
-      (default: 'localhost')
+    ``--auth_host_name`` (string, default: ``localhost``)
+       Host name to use when running a local web server to handle
+       redirects during OAuth authorization.
 
-    --auth_host_port: Port to use when running a local web server to handle
-    redirects during OAuth authorization.;
-      repeat this option to specify a list of values
-      (default: '[8080, 8090]')
-      (an integer)
+    ``--auth_host_port`` (integer, default: ``[8080, 8090]``)
+       Port to use when running a local web server to handle redirects
+       during OAuth authorization. Repeat this option to specify a list
+       of values.
 
-    --[no]auth_local_webserver: Run a local web server to handle redirects
-      during OAuth authorization.
-      (default: 'true')
+    ``--[no]auth_local_webserver`` (boolean, default: ``True``)
+       Run a local web server to handle redirects during OAuth authorization.
 
-  Since it uses flags make sure to initialize the gflags module before
-  calling run().
+  Since it uses flags make sure to initialize the ``gflags`` module before
+  calling ``run()``.
 
   Args:
     flow: Flow, an OAuth 2.0 Flow to step through.
-    storage: Storage, a Storage to store the credential in.
-    http: An instance of httplib2.Http.request
-         or something that acts like it.
+    storage: Storage, a ``Storage`` to store the credential in.
+    http: An instance of ``httplib2.Http.request`` or something that acts
+        like it.
 
   Returns:
     Credentials, the obtained credential.
