@@ -46,6 +46,7 @@ The format of the stored data is like so::
 
 __author__ = 'jbeda@google.com (Joe Beda)'
 
+import errno
 import json
 import logging
 import os
@@ -279,7 +280,17 @@ class _MultiStore(object):
   def _lock(self):
     """Lock the entire multistore."""
     self._thread_lock.acquire()
-    self._file.open_and_lock()
+    try:
+      self._file.open_and_lock()
+    except IOError as e:
+      if e.errno == errno.ENOSYS:
+        logger.warn('File system does not support locking the credentials '
+                    'file.')
+      elif e.errno ==  errno.ENOLCK:
+        logger.warn('File system is out of resources for writing the '
+                    'credentials file (is your disk full?).')
+      else:
+        raise
     if not self._file.is_locked():
       self._read_only = True
       if self._warn_on_readonly:
