@@ -7,7 +7,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>oauth2client.tools &mdash; oauth2client 1.4.5 documentation</title>
+  <title>oauth2client.tools &mdash; oauth2client 1.4.6 documentation</title>
   
 
   
@@ -28,7 +28,7 @@
   
 
   
-    <link rel="top" title="oauth2client 1.4.5 documentation" href="../../index.html"/>
+    <link rel="top" title="oauth2client 1.4.6 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -133,6 +133,7 @@
 
 <span class="kn">from</span> <span class="nn">six.moves</span> <span class="kn">import</span> <span class="n">BaseHTTPServer</span>
 <span class="kn">from</span> <span class="nn">six.moves</span> <span class="kn">import</span> <span class="n">urllib</span>
+<span class="kn">from</span> <span class="nn">six.moves</span> <span class="kn">import</span> <span class="nb">input</span>
 
 <span class="kn">from</span> <span class="nn">oauth2client</span> <span class="kn">import</span> <span class="n">client</span>
 <span class="kn">from</span> <span class="nn">oauth2client</span> <span class="kn">import</span> <span class="n">util</span>
@@ -201,61 +202,66 @@
     <span class="n">query</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;?&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">query</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">parse_qsl</span><span class="p">(</span><span class="n">query</span><span class="p">))</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="o">.</span><span class="n">query_params</span> <span class="o">=</span> <span class="n">query</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">wfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;&lt;html&gt;&lt;head&gt;&lt;title&gt;Authentication Status&lt;/title&gt;&lt;/head&gt;&quot;</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">wfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;&lt;body&gt;&lt;p&gt;The authentication flow has completed.&lt;/p&gt;&quot;</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">wfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;&lt;/body&gt;&lt;/html&gt;&quot;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">wfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">b</span><span class="s">&quot;&lt;html&gt;&lt;head&gt;&lt;title&gt;Authentication Status&lt;/title&gt;&lt;/head&gt;&quot;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">wfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">b</span><span class="s">&quot;&lt;body&gt;&lt;p&gt;The authentication flow has completed.&lt;/p&gt;&quot;</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">wfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">b</span><span class="s">&quot;&lt;/body&gt;&lt;/html&gt;&quot;</span><span class="p">)</span>
 
   <span class="k">def</span> <span class="nf">log_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">format</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Do not log messages to stdout while running as command line program.&quot;&quot;&quot;</span>
 
 
 <span class="nd">@util.positional</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">run_flow</span><span class="p">(</span><span class="n">flow</span><span class="p">,</span> <span class="n">storage</span><span class="p">,</span> <span class="n">flags</span><span class="p">,</span> <span class="n">http</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="run_flow"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.tools.run_flow">[docs]</a><span class="k">def</span> <span class="nf">run_flow</span><span class="p">(</span><span class="n">flow</span><span class="p">,</span> <span class="n">storage</span><span class="p">,</span> <span class="n">flags</span><span class="p">,</span> <span class="n">http</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Core code for a command-line application.</span>
 
-<span class="sd">  The run() function is called from your application and runs through all the</span>
-<span class="sd">  steps to obtain credentials. It takes a Flow argument and attempts to open an</span>
-<span class="sd">  authorization server page in the user&#39;s default web browser. The server asks</span>
-<span class="sd">  the user to grant your application access to the user&#39;s data. If the user</span>
-<span class="sd">  grants access, the run() function returns new credentials. The new credentials</span>
-<span class="sd">  are also stored in the Storage argument, which updates the file associated</span>
-<span class="sd">  with the Storage object.</span>
+<span class="sd">  The ``run()`` function is called from your application and runs</span>
+<span class="sd">  through all the steps to obtain credentials. It takes a ``Flow``</span>
+<span class="sd">  argument and attempts to open an authorization server page in the</span>
+<span class="sd">  user&#39;s default web browser. The server asks the user to grant your</span>
+<span class="sd">  application access to the user&#39;s data. If the user grants access,</span>
+<span class="sd">  the ``run()`` function returns new credentials. The new credentials</span>
+<span class="sd">  are also stored in the ``storage`` argument, which updates the file</span>
+<span class="sd">  associated with the ``Storage`` object.</span>
 
 <span class="sd">  It presumes it is run from a command-line application and supports the</span>
 <span class="sd">  following flags:</span>
 
-<span class="sd">    --auth_host_name: Host name to use when running a local web server</span>
-<span class="sd">      to handle redirects during OAuth authorization.</span>
-<span class="sd">      (default: &#39;localhost&#39;)</span>
+<span class="sd">    ``--auth_host_name`` (string, default: ``localhost``)</span>
+<span class="sd">       Host name to use when running a local web server to handle</span>
+<span class="sd">       redirects during OAuth authorization.</span>
 
-<span class="sd">    --auth_host_port: Port to use when running a local web server to handle</span>
-<span class="sd">      redirects during OAuth authorization.;</span>
-<span class="sd">      repeat this option to specify a list of values</span>
-<span class="sd">      (default: &#39;[8080, 8090]&#39;)</span>
-<span class="sd">      (an integer)</span>
+<span class="sd">    ``--auth_host_port`` (integer, default: ``[8080, 8090]``)</span>
+<span class="sd">       Port to use when running a local web server to handle redirects</span>
+<span class="sd">       during OAuth authorization. Repeat this option to specify a list</span>
+<span class="sd">       of values.</span>
 
-<span class="sd">    --[no]auth_local_webserver: Run a local web server to handle redirects</span>
-<span class="sd">      during OAuth authorization.</span>
-<span class="sd">      (default: &#39;true&#39;)</span>
+<span class="sd">    ``--[no]auth_local_webserver`` (boolean, default: ``True``)</span>
+<span class="sd">       Run a local web server to handle redirects during OAuth authorization.</span>
 
-<span class="sd">  The tools module defines an ArgumentParser the already contains the flag</span>
-<span class="sd">  definitions that run() requires. You can pass that ArgumentParser to your</span>
-<span class="sd">  ArgumentParser constructor:</span>
 
-<span class="sd">    parser = argparse.ArgumentParser(description=__doc__,</span>
-<span class="sd">        formatter_class=argparse.RawDescriptionHelpFormatter,</span>
-<span class="sd">        parents=[tools.argparser])</span>
-<span class="sd">    flags = parser.parse_args(argv)</span>
+
+
+<span class="sd">  The tools module defines an ``ArgumentParser`` the already contains the flag</span>
+<span class="sd">  definitions that ``run()`` requires. You can pass that ``ArgumentParser`` to your</span>
+<span class="sd">  ``ArgumentParser`` constructor::</span>
+
+<span class="sd">      parser = argparse.ArgumentParser(description=__doc__,</span>
+<span class="sd">          formatter_class=argparse.RawDescriptionHelpFormatter,</span>
+<span class="sd">          parents=[tools.argparser])</span>
+<span class="sd">      flags = parser.parse_args(argv)</span>
 
 <span class="sd">  Args:</span>
 <span class="sd">    flow: Flow, an OAuth 2.0 Flow to step through.</span>
-<span class="sd">    storage: Storage, a Storage to store the credential in.</span>
-<span class="sd">    flags: argparse.ArgumentParser, the command-line flags.</span>
-<span class="sd">    http: An instance of httplib2.Http.request</span>
-<span class="sd">         or something that acts like it.</span>
+<span class="sd">    storage: Storage, a ``Storage`` to store the credential in.</span>
+<span class="sd">    flags: ``argparse.Namespace``, The command-line flags. This is the</span>
+<span class="sd">        object returned from calling ``parse_args()`` on</span>
+<span class="sd">        ``argparse.ArgumentParser`` as described above.</span>
+<span class="sd">    http: An instance of ``httplib2.Http.request`` or something that</span>
+<span class="sd">        acts like it.</span>
 
 <span class="sd">  Returns:</span>
 <span class="sd">    Credentials, the obtained credential.</span>
+
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">logging</span><span class="p">,</span> <span class="n">flags</span><span class="o">.</span><span class="n">logging_level</span><span class="p">))</span>
   <span class="k">if</span> <span class="ow">not</span> <span class="n">flags</span><span class="o">.</span><span class="n">noauth_local_webserver</span><span class="p">:</span>
@@ -317,7 +323,7 @@
       <span class="k">print</span><span class="p">(</span><span class="s">&#39;Failed to find &quot;code&quot; in the query parameters of the redirect.&#39;</span><span class="p">)</span>
       <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="s">&#39;Try running with --noauth_local_webserver.&#39;</span><span class="p">)</span>
   <span class="k">else</span><span class="p">:</span>
-    <span class="n">code</span> <span class="o">=</span> <span class="nb">raw_input</span><span class="p">(</span><span class="s">&#39;Enter verification code: &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="n">code</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s">&#39;Enter verification code: &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
 
   <span class="k">try</span><span class="p">:</span>
     <span class="n">credential</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">step2_exchange</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">http</span><span class="o">=</span><span class="n">http</span><span class="p">)</span>
@@ -330,7 +336,7 @@
 
   <span class="k">return</span> <span class="n">credential</span>
 
-
+</div>
 <div class="viewcode-block" id="message_if_missing"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.tools.message_if_missing">[docs]</a><span class="k">def</span> <span class="nf">message_if_missing</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Helpful message to display if the CLIENT_SECRETS file is missing.&quot;&quot;&quot;</span>
 
@@ -375,7 +381,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../',
-            VERSION:'1.4.5',
+            VERSION:'1.4.6',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

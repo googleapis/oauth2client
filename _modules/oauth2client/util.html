@@ -7,7 +7,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>oauth2client.util &mdash; oauth2client 1.4.5 documentation</title>
+  <title>oauth2client.util &mdash; oauth2client 1.4.6 documentation</title>
   
 
   
@@ -28,7 +28,7 @@
   
 
   
-    <link rel="top" title="oauth2client 1.4.5 documentation" href="../../index.html"/>
+    <link rel="top" title="oauth2client 1.4.6 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -132,6 +132,7 @@
     <span class="s">&#39;POSITIONAL_IGNORE&#39;</span><span class="p">,</span>
 <span class="p">]</span>
 
+<span class="kn">import</span> <span class="nn">functools</span>
 <span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">sys</span>
@@ -151,7 +152,7 @@
 
 <span class="n">positional_parameters_enforcement</span> <span class="o">=</span> <span class="n">POSITIONAL_WARNING</span>
 
-<div class="viewcode-block" id="positional"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.client.positional">[docs]</a><span class="k">def</span> <span class="nf">positional</span><span class="p">(</span><span class="n">max_positional_args</span><span class="p">):</span>
+<div class="viewcode-block" id="positional"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.util.positional">[docs]</a><span class="k">def</span> <span class="nf">positional</span><span class="p">(</span><span class="n">max_positional_args</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;A decorator to declare that only the first N arguments my be positional.</span>
 
 <span class="sd">  This decorator makes it easy to support Python 3 style keyword-only</span>
@@ -222,6 +223,7 @@
 
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="k">def</span> <span class="nf">positional_decorator</span><span class="p">(</span><span class="n">wrapped</span><span class="p">):</span>
+    <span class="nd">@functools.wraps</span><span class="p">(</span><span class="n">wrapped</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">positional_wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
       <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">max_positional_args</span><span class="p">:</span>
         <span class="n">plural_s</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
@@ -330,7 +332,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../',
-            VERSION:'1.4.5',
+            VERSION:'1.4.6',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

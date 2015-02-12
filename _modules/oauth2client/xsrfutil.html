@@ -1,0 +1,279 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>oauth2client.xsrfutil &mdash; oauth2client 1.4.6 documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="oauth2client 1.4.6 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="../../index.html" class="fa fa-home"> oauth2client</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../source/modules.html">oauth2client</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../source/oauth2client.html">oauth2client package</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributor License Agreements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html#before-writing-code-file-an-issue">Before writing code, file an issue</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html#fork-oauth2client">Fork oauth2client</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html#include-tests">Include tests</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html#make-the-pull-request">Make the pull request</a></li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">oauth2client</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+    <li>oauth2client.xsrfutil</li>
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <h1>Source code for oauth2client.xsrfutil</h1><div class="highlight"><pre>
+<span class="c">#</span>
+<span class="c"># Copyright 2014 the Melange authors.</span>
+<span class="c">#</span>
+<span class="c"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c"># you may not use this file except in compliance with the License.</span>
+<span class="c"># You may obtain a copy of the License at</span>
+<span class="c">#</span>
+<span class="c">#   http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c">#</span>
+<span class="c"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c"># See the License for the specific language governing permissions and</span>
+<span class="c"># limitations under the License.</span>
+
+<span class="sd">&quot;&quot;&quot;Helper methods for creating &amp; verifying XSRF tokens.&quot;&quot;&quot;</span>
+
+<span class="n">__authors__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s">&#39;&quot;Doug Coker&quot; &lt;dcoker@google.com&gt;&#39;</span><span class="p">,</span>
+    <span class="s">&#39;&quot;Joe Gregorio&quot; &lt;jcgregorio@google.com&gt;&#39;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<span class="kn">import</span> <span class="nn">base64</span>
+<span class="kn">import</span> <span class="nn">hmac</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">import</span> <span class="nn">six</span>
+<span class="kn">from</span> <span class="nn">oauth2client</span> <span class="kn">import</span> <span class="n">util</span>
+
+
+<span class="c"># Delimiter character</span>
+<span class="n">DELIMITER</span> <span class="o">=</span> <span class="n">b</span><span class="s">&#39;:&#39;</span>
+
+
+<span class="c"># 1 hour in seconds</span>
+<span class="n">DEFAULT_TIMEOUT_SECS</span> <span class="o">=</span> <span class="mi">1</span><span class="o">*</span><span class="mi">60</span><span class="o">*</span><span class="mi">60</span>
+
+
+<span class="k">def</span> <span class="nf">_force_bytes</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">s</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">text_type</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">s</span>
+
+
+<span class="nd">@util.positional</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<div class="viewcode-block" id="generate_token"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.xsrfutil.generate_token">[docs]</a><span class="k">def</span> <span class="nf">generate_token</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">action_id</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">,</span> <span class="n">when</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Generates a URL-safe token for the given user, action, time tuple.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    key: secret key to use.</span>
+<span class="sd">    user_id: the user ID of the authenticated user.</span>
+<span class="sd">    action_id: a string identifier of the action they requested</span>
+<span class="sd">      authorization for.</span>
+<span class="sd">    when: the time in seconds since the epoch at which the user was</span>
+<span class="sd">      authorized for this action. If not set the current time is used.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    A string XSRF protection token.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="n">when</span> <span class="o">=</span> <span class="n">_force_bytes</span><span class="p">(</span><span class="n">when</span> <span class="ow">or</span> <span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()))</span>
+  <span class="n">digester</span> <span class="o">=</span> <span class="n">hmac</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">_force_bytes</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+  <span class="n">digester</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_force_bytes</span><span class="p">(</span><span class="n">user_id</span><span class="p">))</span>
+  <span class="n">digester</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">DELIMITER</span><span class="p">)</span>
+  <span class="n">digester</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_force_bytes</span><span class="p">(</span><span class="n">action_id</span><span class="p">))</span>
+  <span class="n">digester</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">DELIMITER</span><span class="p">)</span>
+  <span class="n">digester</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">when</span><span class="p">)</span>
+  <span class="n">digest</span> <span class="o">=</span> <span class="n">digester</span><span class="o">.</span><span class="n">digest</span><span class="p">()</span>
+
+  <span class="n">token</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">urlsafe_b64encode</span><span class="p">(</span><span class="n">digest</span> <span class="o">+</span> <span class="n">DELIMITER</span> <span class="o">+</span> <span class="n">when</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">token</span>
+
+</div>
+<span class="nd">@util.positional</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<div class="viewcode-block" id="validate_token"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.xsrfutil.validate_token">[docs]</a><span class="k">def</span> <span class="nf">validate_token</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">token</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">action_id</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">,</span> <span class="n">current_time</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Validates that the given token authorizes the user for the action.</span>
+
+<span class="sd">  Tokens are invalid if the time of issue is too old or if the token</span>
+<span class="sd">  does not match what generateToken outputs (i.e. the token was forged).</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    key: secret key to use.</span>
+<span class="sd">    token: a string of the token generated by generateToken.</span>
+<span class="sd">    user_id: the user ID of the authenticated user.</span>
+<span class="sd">    action_id: a string identifier of the action they requested</span>
+<span class="sd">      authorization for.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">    A boolean - True if the user is authorized for the action, False</span>
+<span class="sd">    otherwise.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="n">token</span><span class="p">:</span>
+    <span class="k">return</span> <span class="bp">False</span>
+  <span class="k">try</span><span class="p">:</span>
+    <span class="n">decoded</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">urlsafe_b64decode</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+    <span class="n">token_time</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">decoded</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">DELIMITER</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+  <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">False</span>
+  <span class="k">if</span> <span class="n">current_time</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="n">current_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+  <span class="c"># If the token is too old it&#39;s not valid.</span>
+  <span class="k">if</span> <span class="n">current_time</span> <span class="o">-</span> <span class="n">token_time</span> <span class="o">&gt;</span> <span class="n">DEFAULT_TIMEOUT_SECS</span><span class="p">:</span>
+    <span class="k">return</span> <span class="bp">False</span>
+
+  <span class="c"># The given token should match the generated one with the same time.</span>
+  <span class="n">expected_token</span> <span class="o">=</span> <span class="n">generate_token</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">action_id</span><span class="o">=</span><span class="n">action_id</span><span class="p">,</span>
+                                  <span class="n">when</span><span class="o">=</span><span class="n">token_time</span><span class="p">)</span>
+  <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">token</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">expected_token</span><span class="p">):</span>
+    <span class="k">return</span> <span class="bp">False</span>
+
+  <span class="c"># Perform constant time comparison to avoid timing attacks</span>
+  <span class="n">different</span> <span class="o">=</span> <span class="mi">0</span>
+  <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="nb">bytearray</span><span class="p">(</span><span class="n">token</span><span class="p">),</span> <span class="nb">bytearray</span><span class="p">(</span><span class="n">expected_token</span><span class="p">)):</span>
+    <span class="n">different</span> <span class="o">|=</span> <span class="n">x</span> <span class="o">^</span> <span class="n">y</span>
+  <span class="k">return</span> <span class="ow">not</span> <span class="n">different</span></div>
+</pre></div>
+
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Google, Inc.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.4.6',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -7,7 +7,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>oauth2client.client &mdash; oauth2client 1.4.5 documentation</title>
+  <title>oauth2client.client &mdash; oauth2client 1.4.6 documentation</title>
   
 
   
@@ -28,7 +28,7 @@
   
 
   
-    <link rel="top" title="oauth2client 1.4.5 documentation" href="../../index.html"/>
+    <link rel="top" title="oauth2client 1.4.6 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -195,6 +195,10 @@
     <span class="s">&#39;AccessTokenInfo&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;access_token&#39;</span><span class="p">,</span> <span class="s">&#39;expires_in&#39;</span><span class="p">])</span>
 
 <span class="n">DEFAULT_ENV_NAME</span> <span class="o">=</span> <span class="s">&#39;UNKNOWN&#39;</span>
+
+<span class="c"># If set to True _get_environment avoid GCE check (_detect_gce_environment)</span>
+<span class="n">NO_GCE_CHECK</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s">&#39;NO_GCE_CHECK&#39;</span><span class="p">,</span> <span class="s">&#39;False&#39;</span><span class="p">)</span>
+
 <div class="viewcode-block" id="SETTINGS"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.SETTINGS">[docs]</a><span class="k">class</span> <span class="nc">SETTINGS</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Settings namespace for globally defined values.&quot;&quot;&quot;</span>
   <span class="n">env_name</span> <span class="o">=</span> <span class="bp">None</span>
@@ -1041,9 +1045,8 @@
   <span class="c"># the metadata resolution was particularly slow. The latter case is</span>
   <span class="c"># &quot;unlikely&quot;.</span>
   <span class="k">try</span><span class="p">:</span>
-    <span class="n">response</span> <span class="o">=</span> <span class="n">urlopen</span><span class="p">(</span><span class="s">&#39;http://metadata.google.internal/&#39;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="s">&#39;Metadata-Flavor: Google&#39;</span> <span class="ow">in</span> <span class="n">header</span>
-               <span class="k">for</span> <span class="n">header</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">info</span><span class="p">()</span><span class="o">.</span><span class="n">headers</span><span class="p">)</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">urlopen</span><span class="p">(</span><span class="s">&#39;http://169.254.169.254/&#39;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">info</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;Metadata-Flavor&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s">&#39;Google&#39;</span>
   <span class="k">except</span> <span class="n">socket</span><span class="o">.</span><span class="n">timeout</span><span class="p">:</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&#39;Timeout attempting to reach GCE metadata service.&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="bp">False</span>
@@ -1074,7 +1077,7 @@
     <span class="n">SETTINGS</span><span class="o">.</span><span class="n">env_name</span> <span class="o">=</span> <span class="s">&#39;GAE_PRODUCTION&#39;</span>
   <span class="k">elif</span> <span class="n">server_software</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;Development/&#39;</span><span class="p">):</span>
     <span class="n">SETTINGS</span><span class="o">.</span><span class="n">env_name</span> <span class="o">=</span> <span class="s">&#39;GAE_LOCAL&#39;</span>
-  <span class="k">elif</span> <span class="n">_detect_gce_environment</span><span class="p">(</span><span class="n">urlopen</span><span class="o">=</span><span class="n">urlopen</span><span class="p">):</span>
+  <span class="k">elif</span> <span class="n">NO_GCE_CHECK</span> <span class="o">!=</span> <span class="s">&#39;True&#39;</span> <span class="ow">and</span> <span class="n">_detect_gce_environment</span><span class="p">(</span><span class="n">urlopen</span><span class="o">=</span><span class="n">urlopen</span><span class="p">):</span>
     <span class="n">SETTINGS</span><span class="o">.</span><span class="n">env_name</span> <span class="o">=</span> <span class="s">&#39;GCE_PRODUCTION&#39;</span>
 
   <span class="k">return</span> <span class="n">SETTINGS</span><span class="o">.</span><span class="n">env_name</span>
@@ -1612,7 +1615,7 @@
 <span class="n">_cached_http</span> <span class="o">=</span> <span class="n">httplib2</span><span class="o">.</span><span class="n">Http</span><span class="p">(</span><span class="n">MemoryCache</span><span class="p">())</span>
 
 <span class="nd">@util.positional</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">verify_id_token</span><span class="p">(</span><span class="n">id_token</span><span class="p">,</span> <span class="n">audience</span><span class="p">,</span> <span class="n">http</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+<div class="viewcode-block" id="verify_id_token"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.verify_id_token">[docs]</a><span class="k">def</span> <span class="nf">verify_id_token</span><span class="p">(</span><span class="n">id_token</span><span class="p">,</span> <span class="n">audience</span><span class="p">,</span> <span class="n">http</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                     <span class="n">cert_uri</span><span class="o">=</span><span class="n">ID_TOKEN_VERIFICATION_CERTS</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Verifies a signed JWT id_token.</span>
 
@@ -1646,7 +1649,7 @@
   <span class="k">else</span><span class="p">:</span>
     <span class="k">raise</span> <span class="n">VerifyJwtTokenError</span><span class="p">(</span><span class="s">&#39;Status code: </span><span class="si">%d</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">resp</span><span class="o">.</span><span class="n">status</span><span class="p">)</span>
 
-
+</div>
 <span class="k">def</span> <span class="nf">_urlsafe_b64decode</span><span class="p">(</span><span class="n">b64string</span><span class="p">):</span>
   <span class="c"># Guard against unicode strings, which base64 can&#39;t handle.</span>
   <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">b64string</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">text_type</span><span class="p">):</span>
@@ -1708,7 +1711,7 @@
 
 
 <span class="nd">@util.positional</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">credentials_from_code</span><span class="p">(</span><span class="n">client_id</span><span class="p">,</span> <span class="n">client_secret</span><span class="p">,</span> <span class="n">scope</span><span class="p">,</span> <span class="n">code</span><span class="p">,</span>
+<div class="viewcode-block" id="credentials_from_code"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.credentials_from_code">[docs]</a><span class="k">def</span> <span class="nf">credentials_from_code</span><span class="p">(</span><span class="n">client_id</span><span class="p">,</span> <span class="n">client_secret</span><span class="p">,</span> <span class="n">scope</span><span class="p">,</span> <span class="n">code</span><span class="p">,</span>
                           <span class="n">redirect_uri</span><span class="o">=</span><span class="s">&#39;postmessage&#39;</span><span class="p">,</span> <span class="n">http</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                           <span class="n">user_agent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">token_uri</span><span class="o">=</span><span class="n">GOOGLE_TOKEN_URI</span><span class="p">,</span>
                           <span class="n">auth_uri</span><span class="o">=</span><span class="n">GOOGLE_AUTH_URI</span><span class="p">,</span>
@@ -1749,9 +1752,9 @@
   <span class="n">credentials</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">step2_exchange</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">http</span><span class="o">=</span><span class="n">http</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">credentials</span>
 
-
+</div>
 <span class="nd">@util.positional</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">credentials_from_clientsecrets_and_code</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">scope</span><span class="p">,</span> <span class="n">code</span><span class="p">,</span>
+<div class="viewcode-block" id="credentials_from_clientsecrets_and_code"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.credentials_from_clientsecrets_and_code">[docs]</a><span class="k">def</span> <span class="nf">credentials_from_clientsecrets_and_code</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">scope</span><span class="p">,</span> <span class="n">code</span><span class="p">,</span>
                                             <span class="n">message</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
                                             <span class="n">redirect_uri</span><span class="o">=</span><span class="s">&#39;postmessage&#39;</span><span class="p">,</span>
                                             <span class="n">http</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
@@ -1794,7 +1797,7 @@
   <span class="n">credentials</span> <span class="o">=</span> <span class="n">flow</span><span class="o">.</span><span class="n">step2_exchange</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">http</span><span class="o">=</span><span class="n">http</span><span class="p">)</span>
   <span class="k">return</span> <span class="n">credentials</span>
 
-
+</div>
 <div class="viewcode-block" id="DeviceFlowInfo"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.DeviceFlowInfo">[docs]</a><span class="k">class</span> <span class="nc">DeviceFlowInfo</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">namedtuple</span><span class="p">(</span><span class="s">&#39;DeviceFlowInfo&#39;</span><span class="p">,</span> <span class="p">(</span>
     <span class="s">&#39;device_code&#39;</span><span class="p">,</span> <span class="s">&#39;user_code&#39;</span><span class="p">,</span> <span class="s">&#39;interval&#39;</span><span class="p">,</span> <span class="s">&#39;verification_url&#39;</span><span class="p">,</span>
     <span class="s">&#39;user_code_expiry&#39;</span><span class="p">))):</span>
@@ -1894,7 +1897,7 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
 
   <span class="nd">@util.positional</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-  <span class="k">def</span> <span class="nf">step1_get_authorize_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">redirect_uri</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="OAuth2WebServerFlow.step1_get_authorize_url"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.OAuth2WebServerFlow.step1_get_authorize_url">[docs]</a>  <span class="k">def</span> <span class="nf">step1_get_authorize_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">redirect_uri</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Returns a URI to redirect to the provider.</span>
 
 <span class="sd">    Args:</span>
@@ -1925,9 +1928,9 @@
       <span class="n">query_params</span><span class="p">[</span><span class="s">&#39;login_hint&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">login_hint</span>
     <span class="n">query_params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">_update_query_params</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">auth_uri</span><span class="p">,</span> <span class="n">query_params</span><span class="p">)</span>
-
+</div>
   <span class="nd">@util.positional</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-  <span class="k">def</span> <span class="nf">step1_get_device_and_user_codes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">http</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="OAuth2WebServerFlow.step1_get_device_and_user_codes"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.OAuth2WebServerFlow.step1_get_device_and_user_codes">[docs]</a>  <span class="k">def</span> <span class="nf">step1_get_device_and_user_codes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">http</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Returns a user code and the verification URL where to enter it</span>
 
 <span class="sd">    Returns:</span>
@@ -1971,9 +1974,9 @@
         <span class="c"># Couldn&#39;t decode a JSON response, stick with the default message.</span>
         <span class="k">pass</span>
       <span class="k">raise</span> <span class="n">OAuth2DeviceCodeError</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
-
+</div>
   <span class="nd">@util.positional</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-  <span class="k">def</span> <span class="nf">step2_exchange</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">code</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">http</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">device_flow_info</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="OAuth2WebServerFlow.step2_exchange"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.OAuth2WebServerFlow.step2_exchange">[docs]</a>  <span class="k">def</span> <span class="nf">step2_exchange</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">code</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">http</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">device_flow_info</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Exchanges a code for OAuth2Credentials.</span>
 
 <span class="sd">    Args:</span>
@@ -2067,9 +2070,9 @@
         <span class="n">error_msg</span> <span class="o">=</span> <span class="s">&#39;Invalid response: </span><span class="si">%s</span><span class="s">.&#39;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">status</span><span class="p">)</span>
       <span class="k">raise</span> <span class="n">FlowExchangeError</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
 
-</div>
+</div></div>
 <span class="nd">@util.positional</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">flow_from_clientsecrets</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">scope</span><span class="p">,</span> <span class="n">redirect_uri</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+<div class="viewcode-block" id="flow_from_clientsecrets"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.flow_from_clientsecrets">[docs]</a><span class="k">def</span> <span class="nf">flow_from_clientsecrets</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">scope</span><span class="p">,</span> <span class="n">redirect_uri</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                             <span class="n">message</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">login_hint</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                             <span class="n">device_uri</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
   <span class="sd">&quot;&quot;&quot;Create a Flow from a clientsecrets file.</span>
@@ -2128,7 +2131,7 @@
       <span class="k">raise</span>
   <span class="k">else</span><span class="p">:</span>
     <span class="k">raise</span> <span class="n">UnknownClientSecretsFlowError</span><span class="p">(</span>
-        <span class="s">&#39;This OAuth 2.0 flow is unsupported: </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">client_type</span><span class="p">)</span>
+        <span class="s">&#39;This OAuth 2.0 flow is unsupported: </span><span class="si">%r</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">client_type</span><span class="p">)</span></div>
 </pre></div>
 
           </div>
@@ -2159,7 +2162,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../',
-            VERSION:'1.4.5',
+            VERSION:'1.4.6',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

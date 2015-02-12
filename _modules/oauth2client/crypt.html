@@ -7,7 +7,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>oauth2client.crypt &mdash; oauth2client 1.4.5 documentation</title>
+  <title>oauth2client.crypt &mdash; oauth2client 1.4.6 documentation</title>
   
 
   
@@ -28,7 +28,7 @@
   
 
   
-    <link rel="top" title="oauth2client 1.4.5 documentation" href="../../index.html"/>
+    <link rel="top" title="oauth2client 1.4.6 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -240,12 +240,32 @@
           <span class="n">password</span> <span class="o">=</span> <span class="n">password</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">)</span>
         <span class="n">pkey</span> <span class="o">=</span> <span class="n">crypto</span><span class="o">.</span><span class="n">load_pkcs12</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span><span class="o">.</span><span class="n">get_privatekey</span><span class="p">()</span>
       <span class="k">return</span> <span class="n">OpenSSLSigner</span><span class="p">(</span><span class="n">pkey</span><span class="p">)</span>
+
 </div></div>
+  <span class="k">def</span> <span class="nf">pkcs12_key_as_pem</span><span class="p">(</span><span class="n">private_key_text</span><span class="p">,</span> <span class="n">private_key_password</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert the contents of a PKCS12 key to PEM using OpenSSL.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">      private_key_text: String. Private key.</span>
+<span class="sd">      private_key_password: String. Password for PKCS12.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      String. PEM contents of ``private_key_text``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">decoded_body</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64decode</span><span class="p">(</span><span class="n">private_key_text</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">private_key_password</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+      <span class="n">private_key_password</span> <span class="o">=</span> <span class="n">private_key_password</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;ascii&#39;</span><span class="p">)</span>
+
+    <span class="n">pkcs12</span> <span class="o">=</span> <span class="n">crypto</span><span class="o">.</span><span class="n">load_pkcs12</span><span class="p">(</span><span class="n">decoded_body</span><span class="p">,</span> <span class="n">private_key_password</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">crypto</span><span class="o">.</span><span class="n">dump_privatekey</span><span class="p">(</span><span class="n">crypto</span><span class="o">.</span><span class="n">FILETYPE_PEM</span><span class="p">,</span>
+                                  <span class="n">pkcs12</span><span class="o">.</span><span class="n">get_privatekey</span><span class="p">())</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
   <span class="n">OpenSSLVerifier</span> <span class="o">=</span> <span class="bp">None</span>
   <span class="n">OpenSSLSigner</span> <span class="o">=</span> <span class="bp">None</span>
+<div class="viewcode-block" id="pkcs12_key_as_pem"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.crypt.pkcs12_key_as_pem">[docs]</a>  <span class="k">def</span> <span class="nf">pkcs12_key_as_pem</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&#39;pkcs12_key_as_pem requires OpenSSL.&#39;</span><span class="p">)</span>
 
-
+</div>
 <span class="k">try</span><span class="p">:</span>
   <span class="kn">from</span> <span class="nn">Crypto.PublicKey</span> <span class="kn">import</span> <span class="n">RSA</span>
   <span class="kn">from</span> <span class="nn">Crypto.Hash</span> <span class="kn">import</span> <span class="n">SHA256</span>
@@ -540,7 +560,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../',
-            VERSION:'1.4.5',
+            VERSION:'1.4.6',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

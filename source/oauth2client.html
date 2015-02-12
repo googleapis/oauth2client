@@ -7,7 +7,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>oauth2client package &mdash; oauth2client 1.4.5 documentation</title>
+  <title>oauth2client package &mdash; oauth2client 1.4.6 documentation</title>
   
 
   
@@ -28,7 +28,7 @@
   
 
   
-    <link rel="top" title="oauth2client 1.4.5 documentation" href="../index.html"/>
+    <link rel="top" title="oauth2client 1.4.6 documentation" href="../index.html"/>
         <link rel="up" title="oauth2client" href="modules.html"/>
         <link rel="next" title="Contributor License Agreements" href="../contributing.html"/>
         <link rel="prev" title="oauth2client" href="modules.html"/> 
@@ -582,6 +582,32 @@ that entities are stored by key_name.</p>
 <code class="descname">locked_put</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwds</em><span class="sig-paren">)</span><a class="headerlink" href="#oauth2client.appengine.StorageByKeyName.locked_put" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+</dd></dl>
+
+<dl class="function">
+<dt id="oauth2client.appengine.oauth2decorator_from_clientsecrets">
+<code class="descclassname">oauth2client.appengine.</code><code class="descname">oauth2decorator_from_clientsecrets</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/oauth2client/appengine.html#oauth2decorator_from_clientsecrets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.appengine.oauth2decorator_from_clientsecrets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates an OAuth2Decorator populated from a clientsecrets file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>filename</strong> &#8211; string, File name of client secrets.</li>
+<li><strong>scope</strong> &#8211; string or list of strings, scope(s) of the credentials being
+requested.</li>
+<li><strong>message</strong> &#8211; string, A friendly string to display to the user if the
+clientsecrets file is missing or invalid. The message may contain HTML and
+will be presented on the web interface for any method that uses the
+decorator.</li>
+<li><strong>cache</strong> &#8211; An optional cache service client that implements get() and set()
+methods. See clientsecrets.loadfile() for details.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Returns: An OAuth2Decorator</p>
 </dd></dl>
 
 <dl class="function">
@@ -1160,18 +1186,74 @@ access_token.</td>
 <p>OAuth2WebServerFlow objects may be safely pickled and unpickled.</p>
 <dl class="method">
 <dt id="oauth2client.client.OAuth2WebServerFlow.step1_get_authorize_url">
-<code class="descname">step1_get_authorize_url</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#oauth2client.client.OAuth2WebServerFlow.step1_get_authorize_url" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="descname">step1_get_authorize_url</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/oauth2client/client.html#OAuth2WebServerFlow.step1_get_authorize_url"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.OAuth2WebServerFlow.step1_get_authorize_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a URI to redirect to the provider.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>redirect_uri</strong> &#8211; string, Either the string &#8216;<a class="reference external" href="urn:ietf:wg:oauth:2.0:oob">urn:ietf:wg:oauth:2.0:oob</a>&#8216; for
+a non-web-based application, or a URI that handles the callback from
+the authorization server. This parameter is deprecated, please move to
+passing the redirect_uri in via the constructor.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A URI as a string to redirect the user to begin the authorization flow.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="oauth2client.client.OAuth2WebServerFlow.step1_get_device_and_user_codes">
-<code class="descname">step1_get_device_and_user_codes</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#oauth2client.client.OAuth2WebServerFlow.step1_get_device_and_user_codes" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="descname">step1_get_device_and_user_codes</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/oauth2client/client.html#OAuth2WebServerFlow.step1_get_device_and_user_codes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.OAuth2WebServerFlow.step1_get_device_and_user_codes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a user code and the verification URL where to enter it</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A user code as a string for the user to authorize the application
+An URL as a string where the user has to enter the code</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="oauth2client.client.OAuth2WebServerFlow.step2_exchange">
-<code class="descname">step2_exchange</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#oauth2client.client.OAuth2WebServerFlow.step2_exchange" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="descname">step2_exchange</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/oauth2client/client.html#OAuth2WebServerFlow.step2_exchange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.OAuth2WebServerFlow.step2_exchange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exchanges a code for OAuth2Credentials.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>code</strong> &#8211; string, a dict-like object, or None. For a non-device
+flow, this is either the response code as a string, or a
+dictionary of query parameters to the redirect_uri. For a
+device flow, this should be None.</li>
+<li><strong>http</strong> &#8211; httplib2.Http, optional http instance to use when fetching
+credentials.</li>
+<li><strong>device_flow_info</strong> &#8211; DeviceFlowInfo, return value from step1 in the
+case of a device flow.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">An OAuth2Credentials object that can be used to authorize requests.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference internal" href="#oauth2client.client.FlowExchangeError" title="oauth2client.client.FlowExchangeError"><code class="xref py py-exc docutils literal"><span class="pre">FlowExchangeError</span></code></a> &#8211; 
+if a problem occurred exchanging the code for a
+refresh_token.</li>
+<li><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> &#8211; 
+if code and device_flow_info are both provided or both
+missing.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
@@ -1359,6 +1441,138 @@ contatenate to a binary request body may result in a unicode decode error.</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="oauth2client.client.credentials_from_clientsecrets_and_code">
+<code class="descclassname">oauth2client.client.</code><code class="descname">credentials_from_clientsecrets_and_code</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/oauth2client/client.html#credentials_from_clientsecrets_and_code"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.credentials_from_clientsecrets_and_code" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns OAuth2Credentials from a clientsecrets file and an auth code.</p>
+<p>Will create the right kind of Flow based on the contents of the clientsecrets
+file or will raise InvalidClientSecretsError for unknown types of Flows.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>filename</strong> &#8211; string, File name of clientsecrets.</li>
+<li><strong>scope</strong> &#8211; string or iterable of strings, scope(s) to request.</li>
+<li><strong>code</strong> &#8211; string, An authorization code, most likely passed down from
+the client</li>
+<li><strong>message</strong> &#8211; string, A friendly string to display to the user if the
+clientsecrets file is missing or invalid. If message is provided then
+sys.exit will be called in the case of an error. If message in not
+provided then clientsecrets.InvalidClientSecretsError will be raised.</li>
+<li><strong>redirect_uri</strong> &#8211; string, this is generally set to &#8216;postmessage&#8217; to match the
+redirect_uri that the client specified</li>
+<li><strong>http</strong> &#8211; httplib2.Http, optional http instance to use to do the fetch</li>
+<li><strong>cache</strong> &#8211; An optional cache service client that implements get() and set()
+methods. See clientsecrets.loadfile() for details.</li>
+<li><strong>device_uri</strong> &#8211; string, OAuth 2.0 device authorization endpoint</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">An OAuth2Credentials object.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last">
+<li><p class="first"><strong>FlowExchangeError if the authorization code cannot be exchanged for an</strong> &#8211;</p>
+<p>access token</p>
+</li>
+<li><p class="first"><strong>UnknownClientSecretsFlowError if the file describes an unknown kind of Flow.</strong> &#8211;</p>
+</li>
+<li><p class="first"><strong>clientsecrets.InvalidClientSecretsError if the clientsecrets file is</strong> &#8211;</p>
+<p>invalid.</p>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="oauth2client.client.credentials_from_code">
+<code class="descclassname">oauth2client.client.</code><code class="descname">credentials_from_code</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/oauth2client/client.html#credentials_from_code"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.credentials_from_code" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exchanges an authorization code for an OAuth2Credentials object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>client_id</strong> &#8211; string, client identifier.</li>
+<li><strong>client_secret</strong> &#8211; string, client secret.</li>
+<li><strong>scope</strong> &#8211; string or iterable of strings, scope(s) to request.</li>
+<li><strong>code</strong> &#8211; string, An authorization code, most likely passed down from
+the client</li>
+<li><strong>redirect_uri</strong> &#8211; string, this is generally set to &#8216;postmessage&#8217; to match the
+redirect_uri that the client specified</li>
+<li><strong>http</strong> &#8211; httplib2.Http, optional http instance to use to do the fetch</li>
+<li><strong>token_uri</strong> &#8211; string, URI for token endpoint. For convenience
+defaults to Google&#8217;s endpoints but any OAuth 2.0 provider can be used.</li>
+<li><strong>auth_uri</strong> &#8211; string, URI for authorization endpoint. For convenience
+defaults to Google&#8217;s endpoints but any OAuth 2.0 provider can be used.</li>
+<li><strong>revoke_uri</strong> &#8211; string, URI for revoke endpoint. For convenience
+defaults to Google&#8217;s endpoints but any OAuth 2.0 provider can be used.</li>
+<li><strong>device_uri</strong> &#8211; string, URI for device authorization endpoint. For convenience
+defaults to Google&#8217;s endpoints but any OAuth 2.0 provider can be used.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">An OAuth2Credentials object.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><strong>FlowExchangeError if the authorization code cannot be exchanged for an</strong> &#8211;</p>
+<p class="last">access token</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="oauth2client.client.flow_from_clientsecrets">
+<code class="descclassname">oauth2client.client.</code><code class="descname">flow_from_clientsecrets</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/oauth2client/client.html#flow_from_clientsecrets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.flow_from_clientsecrets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a Flow from a clientsecrets file.</p>
+<p>Will create the right kind of Flow based on the contents of the clientsecrets
+file or will raise InvalidClientSecretsError for unknown types of Flows.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>filename</strong> &#8211; string, File name of client secrets.</li>
+<li><strong>scope</strong> &#8211; string or iterable of strings, scope(s) to request.</li>
+<li><strong>redirect_uri</strong> &#8211; string, Either the string &#8216;<a class="reference external" href="urn:ietf:wg:oauth:2.0:oob">urn:ietf:wg:oauth:2.0:oob</a>&#8216; for
+a non-web-based application, or a URI that handles the callback from
+the authorization server.</li>
+<li><strong>message</strong> &#8211; string, A friendly string to display to the user if the
+clientsecrets file is missing or invalid. If message is provided then
+sys.exit will be called in the case of an error. If message in not
+provided then clientsecrets.InvalidClientSecretsError will be raised.</li>
+<li><strong>cache</strong> &#8211; An optional cache service client that implements get() and set()
+methods. See clientsecrets.loadfile() for details.</li>
+<li><strong>login_hint</strong> &#8211; string, Either an email address or domain. Passing this hint
+will either pre-fill the email box on the sign-in form or select the
+proper multi-login session, thereby simplifying the login flow.</li>
+<li><strong>device_uri</strong> &#8211; string, URI for device authorization endpoint. For convenience
+defaults to Google&#8217;s endpoints but any OAuth 2.0 provider can be used.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A Flow object.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last">
+<li><p class="first"><strong>UnknownClientSecretsFlowError if the file describes an unknown kind of Flow.</strong> &#8211;</p>
+</li>
+<li><p class="first"><strong>clientsecrets.InvalidClientSecretsError if the clientsecrets file is</strong> &#8211;</p>
+<p>invalid.</p>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
 <dt id="oauth2client.client.save_to_well_known_file">
 <code class="descclassname">oauth2client.client.</code><code class="descname">save_to_well_known_file</code><span class="sig-paren">(</span><em>credentials</em>, <em>well_known_file=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/oauth2client/client.html#save_to_well_known_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.save_to_well_known_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save the provided GoogleCredentials to the well known file.</p>
@@ -1369,6 +1583,40 @@ it should be an instance of GoogleCredentials</p>
 <div>the name of the file where the credentials are to be saved;
 this parameter is supposed to be used for testing only</div></blockquote>
 </div></blockquote>
+</dd></dl>
+
+<dl class="function">
+<dt id="oauth2client.client.verify_id_token">
+<code class="descclassname">oauth2client.client.</code><code class="descname">verify_id_token</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/oauth2client/client.html#verify_id_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.verify_id_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Verifies a signed JWT id_token.</p>
+<p>This function requires PyOpenSSL and because of that it does not work on
+App Engine.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>id_token</strong> &#8211; string, A Signed JWT.</li>
+<li><strong>audience</strong> &#8211; string, The audience &#8216;aud&#8217; that the token should be for.</li>
+<li><strong>http</strong> &#8211; httplib2.Http, instance to use to make the HTTP request. Callers
+should supply an instance that has caching enabled.</li>
+<li><strong>cert_uri</strong> &#8211; string, URI of the certificates in JSON format to
+verify the JWT against.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The deserialized JSON in the JWT.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
+<li><strong>oauth2client.crypt.AppIdentityError: if the JWT fails to verify.</strong> &#8211;</li>
+<li><a class="reference internal" href="#oauth2client.client.CryptoUnavailableError" title="oauth2client.client.CryptoUnavailableError"><code class="xref py py-exc docutils literal"><span class="pre">CryptoUnavailableError</span></code></a> &#8211; 
+if no crypto library is available.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
@@ -1683,6 +1931,27 @@ key that this object was constructed with.</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">string, The JWT for the payload.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="oauth2client.crypt.pkcs12_key_as_pem">
+<code class="descclassname">oauth2client.crypt.</code><code class="descname">pkcs12_key_as_pem</code><span class="sig-paren">(</span><em>private_key_text</em>, <em>private_key_password</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/oauth2client/crypt.html#pkcs12_key_as_pem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.crypt.pkcs12_key_as_pem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert the contents of a PKCS12 key to PEM using OpenSSL.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>private_key_text</strong> &#8211; String. Private key.</li>
+<li><strong>private_key_password</strong> &#8211; String. Password for PKCS12.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">String. PEM contents of <code class="docutils literal"><span class="pre">private_key_text</span></code>.</p>
 </td>
 </tr>
 </tbody>
@@ -2166,11 +2435,159 @@ both in a single process and across processes.</p>
 <p>The credential store is a newer version than supported.</p>
 </dd></dl>
 
+<dl class="function">
+<dt id="oauth2client.multistore_file.get_all_credential_keys">
+<code class="descclassname">oauth2client.multistore_file.</code><code class="descname">get_all_credential_keys</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/oauth2client/multistore_file.html#get_all_credential_keys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.multistore_file.get_all_credential_keys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets all the registered credential keys in the given Multistore.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>filename</strong> &#8211; The JSON file storing a set of credentials</li>
+<li><strong>warn_on_readonly</strong> &#8211; if True, log a warning if the store is readonly</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A list of the credential keys present in the file.  They are returned as
+dictionaries that can be passed into get_credential_storage_custom_key to
+get the actual credentials.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="oauth2client.multistore_file.get_credential_storage">
+<code class="descclassname">oauth2client.multistore_file.</code><code class="descname">get_credential_storage</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/oauth2client/multistore_file.html#get_credential_storage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.multistore_file.get_credential_storage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a Storage instance for a credential.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>filename</strong> &#8211; The JSON file storing a set of credentials</li>
+<li><strong>client_id</strong> &#8211; The client_id for the credential</li>
+<li><strong>user_agent</strong> &#8211; The user agent for the credential</li>
+<li><strong>scope</strong> &#8211; string or iterable of strings, Scope(s) being requested</li>
+<li><strong>warn_on_readonly</strong> &#8211; if True, log a warning if the store is readonly</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">An object derived from client.Storage for getting/setting the
+credential.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="oauth2client.multistore_file.get_credential_storage_custom_key">
+<code class="descclassname">oauth2client.multistore_file.</code><code class="descname">get_credential_storage_custom_key</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/oauth2client/multistore_file.html#get_credential_storage_custom_key"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.multistore_file.get_credential_storage_custom_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a Storage instance for a credential using a dictionary as a key.</p>
+<p>Allows you to provide a dictionary as a custom key that will be used for
+credential storage and retrieval.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>filename</strong> &#8211; The JSON file storing a set of credentials</li>
+<li><strong>key_dict</strong> &#8211; A dictionary to use as the key for storing this credential. There
+is no ordering of the keys in the dictionary. Logically equivalent
+dictionaries will produce equivalent storage keys.</li>
+<li><strong>warn_on_readonly</strong> &#8211; if True, log a warning if the store is readonly</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">An object derived from client.Storage for getting/setting the
+credential.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="oauth2client.multistore_file.get_credential_storage_custom_string_key">
+<code class="descclassname">oauth2client.multistore_file.</code><code class="descname">get_credential_storage_custom_string_key</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/oauth2client/multistore_file.html#get_credential_storage_custom_string_key"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.multistore_file.get_credential_storage_custom_string_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a Storage instance for a credential using a single string as a key.</p>
+<p>Allows you to provide a string as a custom key that will be used for
+credential storage and retrieval.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>filename</strong> &#8211; The JSON file storing a set of credentials</li>
+<li><strong>key_string</strong> &#8211; A string to use as the key for storing this credential.</li>
+<li><strong>warn_on_readonly</strong> &#8211; if True, log a warning if the store is readonly</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">An object derived from client.Storage for getting/setting the
+credential.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 <div class="section" id="module-oauth2client.old_run">
 <span id="oauth2client-old-run-module"></span><h2>oauth2client.old_run module<a class="headerlink" href="#module-oauth2client.old_run" title="Permalink to this headline">¶</a></h2>
 <p>This module holds the old run() function which is deprecated, the
 tools.run_flow() function should be used in its place.</p>
+<dl class="function">
+<dt id="oauth2client.old_run.run">
+<code class="descclassname">oauth2client.old_run.</code><code class="descname">run</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/oauth2client/old_run.html#run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.old_run.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Core code for a command-line application.</p>
+<p>The <code class="docutils literal"><span class="pre">run()</span></code> function is called from your application and runs
+through all the steps to obtain credentials. It takes a <code class="docutils literal"><span class="pre">Flow</span></code>
+argument and attempts to open an authorization server page in the
+user&#8217;s default web browser. The server asks the user to grant your
+application access to the user&#8217;s data. If the user grants access,
+the <code class="docutils literal"><span class="pre">run()</span></code> function returns new credentials. The new credentials
+are also stored in the <code class="docutils literal"><span class="pre">storage</span></code> argument, which updates the file
+associated with the <code class="docutils literal"><span class="pre">Storage</span></code> object.</p>
+<p>It presumes it is run from a command-line application and supports the
+following flags:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt><code class="docutils literal"><span class="pre">--auth_host_name</span></code> (string, default: <code class="docutils literal"><span class="pre">localhost</span></code>)</dt>
+<dd>Host name to use when running a local web server to handle
+redirects during OAuth authorization.</dd>
+<dt><code class="docutils literal"><span class="pre">--auth_host_port</span></code> (integer, default: <code class="docutils literal"><span class="pre">[8080,</span> <span class="pre">8090]</span></code>)</dt>
+<dd>Port to use when running a local web server to handle redirects
+during OAuth authorization. Repeat this option to specify a list
+of values.</dd>
+<dt><code class="docutils literal"><span class="pre">--[no]auth_local_webserver</span></code> (boolean, default: <code class="docutils literal"><span class="pre">True</span></code>)</dt>
+<dd>Run a local web server to handle redirects during OAuth authorization.</dd>
+</dl>
+</div></blockquote>
+<p>Since it uses flags make sure to initialize the <code class="docutils literal"><span class="pre">gflags</span></code> module before
+calling <code class="docutils literal"><span class="pre">run()</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>flow</strong> &#8211; Flow, an OAuth 2.0 Flow to step through.</li>
+<li><strong>storage</strong> &#8211; Storage, a <code class="docutils literal"><span class="pre">Storage</span></code> to store the credential in.</li>
+<li><strong>http</strong> &#8211; An instance of <code class="docutils literal"><span class="pre">httplib2.Http.request</span></code> or something that acts
+like it.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Credentials, the obtained credential.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 <div class="section" id="module-oauth2client.service_account">
 <span id="oauth2client-service-account-module"></span><h2>oauth2client.service_account module<a class="headerlink" href="#module-oauth2client.service_account" title="Permalink to this headline">¶</a></h2>
@@ -2185,8 +2602,61 @@ generated credentials in a common file that is used by other example apps in
 the same directory.</p>
 <dl class="function">
 <dt id="oauth2client.tools.run_flow">
-<code class="descclassname">oauth2client.tools.</code><code class="descname">run_flow</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#oauth2client.tools.run_flow" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="descclassname">oauth2client.tools.</code><code class="descname">run_flow</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/oauth2client/tools.html#run_flow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.tools.run_flow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Core code for a command-line application.</p>
+<p>The <code class="docutils literal"><span class="pre">run()</span></code> function is called from your application and runs
+through all the steps to obtain credentials. It takes a <code class="docutils literal"><span class="pre">Flow</span></code>
+argument and attempts to open an authorization server page in the
+user&#8217;s default web browser. The server asks the user to grant your
+application access to the user&#8217;s data. If the user grants access,
+the <code class="docutils literal"><span class="pre">run()</span></code> function returns new credentials. The new credentials
+are also stored in the <code class="docutils literal"><span class="pre">storage</span></code> argument, which updates the file
+associated with the <code class="docutils literal"><span class="pre">Storage</span></code> object.</p>
+<p>It presumes it is run from a command-line application and supports the
+following flags:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt><code class="docutils literal"><span class="pre">--auth_host_name</span></code> (string, default: <code class="docutils literal"><span class="pre">localhost</span></code>)</dt>
+<dd>Host name to use when running a local web server to handle
+redirects during OAuth authorization.</dd>
+<dt><code class="docutils literal"><span class="pre">--auth_host_port</span></code> (integer, default: <code class="docutils literal"><span class="pre">[8080,</span> <span class="pre">8090]</span></code>)</dt>
+<dd>Port to use when running a local web server to handle redirects
+during OAuth authorization. Repeat this option to specify a list
+of values.</dd>
+<dt><code class="docutils literal"><span class="pre">--[no]auth_local_webserver</span></code> (boolean, default: <code class="docutils literal"><span class="pre">True</span></code>)</dt>
+<dd>Run a local web server to handle redirects during OAuth authorization.</dd>
+</dl>
+</div></blockquote>
+<p>The tools module defines an <code class="docutils literal"><span class="pre">ArgumentParser</span></code> the already contains the flag
+definitions that <code class="docutils literal"><span class="pre">run()</span></code> requires. You can pass that <code class="docutils literal"><span class="pre">ArgumentParser</span></code> to your
+<code class="docutils literal"><span class="pre">ArgumentParser</span></code> constructor:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="n">__doc__</span><span class="p">,</span>
+    <span class="n">formatter_class</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">RawDescriptionHelpFormatter</span><span class="p">,</span>
+    <span class="n">parents</span><span class="o">=</span><span class="p">[</span><span class="n">tools</span><span class="o">.</span><span class="n">argparser</span><span class="p">])</span>
+<span class="n">flags</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>flow</strong> &#8211; Flow, an OAuth 2.0 Flow to step through.</li>
+<li><strong>storage</strong> &#8211; Storage, a <code class="docutils literal"><span class="pre">Storage</span></code> to store the credential in.</li>
+<li><strong>flags</strong> &#8211; <code class="docutils literal"><span class="pre">argparse.Namespace</span></code>, The command-line flags. This is the
+object returned from calling <code class="docutils literal"><span class="pre">parse_args()</span></code> on
+<code class="docutils literal"><span class="pre">argparse.ArgumentParser</span></code> as described above.</li>
+<li><strong>http</strong> &#8211; An instance of <code class="docutils literal"><span class="pre">httplib2.Http.request</span></code> or something that
+acts like it.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Credentials, the obtained credential.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="function">
 <dt id="oauth2client.tools.run">
@@ -2284,6 +2754,58 @@ being used as positional parameters.</p>
 <div class="section" id="module-oauth2client.xsrfutil">
 <span id="oauth2client-xsrfutil-module"></span><h2>oauth2client.xsrfutil module<a class="headerlink" href="#module-oauth2client.xsrfutil" title="Permalink to this headline">¶</a></h2>
 <p>Helper methods for creating &amp; verifying XSRF tokens.</p>
+<dl class="function">
+<dt id="oauth2client.xsrfutil.generate_token">
+<code class="descclassname">oauth2client.xsrfutil.</code><code class="descname">generate_token</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/oauth2client/xsrfutil.html#generate_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.xsrfutil.generate_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a URL-safe token for the given user, action, time tuple.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>key</strong> &#8211; secret key to use.</li>
+<li><strong>user_id</strong> &#8211; the user ID of the authenticated user.</li>
+<li><strong>action_id</strong> &#8211; a string identifier of the action they requested
+authorization for.</li>
+<li><strong>when</strong> &#8211; the time in seconds since the epoch at which the user was
+authorized for this action. If not set the current time is used.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A string XSRF protection token.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="oauth2client.xsrfutil.validate_token">
+<code class="descclassname">oauth2client.xsrfutil.</code><code class="descname">validate_token</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/oauth2client/xsrfutil.html#validate_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.xsrfutil.validate_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validates that the given token authorizes the user for the action.</p>
+<p>Tokens are invalid if the time of issue is too old or if the token
+does not match what generateToken outputs (i.e. the token was forged).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>key</strong> &#8211; secret key to use.</li>
+<li><strong>token</strong> &#8211; a string of the token generated by generateToken.</li>
+<li><strong>user_id</strong> &#8211; the user ID of the authenticated user.</li>
+<li><strong>action_id</strong> &#8211; a string identifier of the action they requested
+authorization for.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A boolean - True if the user is authorized for the action, False
+otherwise.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 <div class="section" id="module-oauth2client">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-oauth2client" title="Permalink to this headline">¶</a></h2>
@@ -2329,7 +2851,7 @@ being used as positional parameters.</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../',
-            VERSION:'1.4.5',
+            VERSION:'1.4.6',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true
