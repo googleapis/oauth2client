@@ -111,48 +111,50 @@ class ClientRedirectHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 def run_flow(flow, storage, flags, http=None):
   """Core code for a command-line application.
 
-  The run() function is called from your application and runs through all the
-  steps to obtain credentials. It takes a Flow argument and attempts to open an
-  authorization server page in the user's default web browser. The server asks
-  the user to grant your application access to the user's data. If the user
-  grants access, the run() function returns new credentials. The new credentials
-  are also stored in the Storage argument, which updates the file associated
-  with the Storage object.
+  The ``run()`` function is called from your application and runs
+  through all the steps to obtain credentials. It takes a ``Flow``
+  argument and attempts to open an authorization server page in the
+  user's default web browser. The server asks the user to grant your
+  application access to the user's data. If the user grants access,
+  the ``run()`` function returns new credentials. The new credentials
+  are also stored in the ``storage`` argument, which updates the file
+  associated with the ``Storage`` object.
 
   It presumes it is run from a command-line application and supports the
   following flags:
 
-    --auth_host_name: Host name to use when running a local web server
-      to handle redirects during OAuth authorization.
-      (default: 'localhost')
+    ``--auth_host_name`` (string, default: ``localhost``)
+       Host name to use when running a local web server to handle
+       redirects during OAuth authorization.
 
-    --auth_host_port: Port to use when running a local web server to handle
-      redirects during OAuth authorization.;
-      repeat this option to specify a list of values
-      (default: '[8080, 8090]')
-      (an integer)
+    ``--auth_host_port`` (integer, default: ``[8080, 8090]``)
+       Port to use when running a local web server to handle redirects
+       during OAuth authorization. Repeat this option to specify a list
+       of values.
 
-    --[no]auth_local_webserver: Run a local web server to handle redirects
-      during OAuth authorization.
-      (default: 'true')
+    ``--[no]auth_local_webserver`` (boolean, default: ``True``)
+       Run a local web server to handle redirects during OAuth authorization.
 
-  The tools module defines an ArgumentParser the already contains the flag
-  definitions that run() requires. You can pass that ArgumentParser to your
-  ArgumentParser constructor:
 
-    parser = argparse.ArgumentParser(description=__doc__,
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        parents=[tools.argparser])
-    flags = parser.parse_args(argv)
+
+
+  The tools module defines an ``ArgumentParser`` the already contains the flag
+  definitions that ``run()`` requires. You can pass that ``ArgumentParser`` to your
+  ``ArgumentParser`` constructor::
+
+      parser = argparse.ArgumentParser(description=__doc__,
+          formatter_class=argparse.RawDescriptionHelpFormatter,
+          parents=[tools.argparser])
+      flags = parser.parse_args(argv)
 
   Args:
     flow: Flow, an OAuth 2.0 Flow to step through.
-    storage: Storage, a Storage to store the credential in.
-    flags: argparse.Namespace, The command-line flags. This is the object
-        returned from calling parse_args() on
-        argparse.ArgumentParser as described above.
-    http: An instance of httplib2.Http.request
-         or something that acts like it.
+    storage: Storage, a ``Storage`` to store the credential in.
+    flags: ``argparse.Namespace``, The command-line flags. This is the
+        object returned from calling ``parse_args()`` on
+        ``argparse.ArgumentParser`` as described above.
+    http: An instance of ``httplib2.Http.request`` or something that
+        acts like it.
 
   Returns:
     Credentials, the obtained credential.
