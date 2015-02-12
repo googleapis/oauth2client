@@ -34,11 +34,11 @@ def _version_tuple(v):
   version_string = os.path.splitext(v['name'])[0].rpartition('_')[2]
   return tuple(int(x) for x in version_string.split('.'))
 
-def get_sdk_url(sdk_versions):
+def get_sdk_urls(sdk_versions):
   python_releases = [v for v in sdk_versions
                      if v['name'].startswith('featured/google_appengine')]
-  current_release = sorted(python_releases, key=_version_tuple)[-1]
-  return current_release['mediaLink']
+  current_releases = sorted(python_releases, key=_version_tuple, reverse=True)
+  return [release['mediaLink'] for release in current_releases]
 
 def main(argv):
   if len(argv) > 2:
@@ -56,11 +56,15 @@ def main(argv):
   if not sdk_versions:
     print 'Error fetching GAE SDK version info'
     return 1
-  sdk_url = get_sdk_url(sdk_versions)
-  try:
-    sdk_contents = StringIO.StringIO(urllib2.urlopen(sdk_url).read())
-  except:
-    print 'Could not read SDK from', sdk_url
+  sdk_urls = get_sdk_urls(sdk_versions)
+  for sdk_url in sdk_urls:
+    try:
+      sdk_contents = StringIO.StringIO(urllib2.urlopen(sdk_url).read())
+      break
+    except:
+      pass
+  else:
+    print 'Could not read SDK from any of ', sdk_urls
     return 1
   sdk_contents.seek(0)
   try:
