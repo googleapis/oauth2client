@@ -811,16 +811,16 @@ class OAuth2Credentials(Credentials):
       raise AccessTokenRefreshError(error_msg)
 
   def _revoke(self, http_request):
-    """Revokes the refresh_token and deletes the store if available.
+    """Revokes this credential and deletes the stored copy (if it exists).
 
     Args:
       http_request: callable, a callable that matches the method signature of
         httplib2.Http.request, used to make the revoke request.
     """
-    self._do_revoke(http_request, self.refresh_token)
+    self._do_revoke(http_request, self.refresh_token or self.access_token)
 
   def _do_revoke(self, http_request, token):
-    """Revokes the credentials and deletes the store if available.
+    """Revokes this credential and deletes the stored copy (if it exists).
 
     Args:
       http_request: callable, a callable that matches the method signature of
