@@ -45,7 +45,7 @@ class AssertionCredentialsTests(unittest.TestCase):
     c.refresh(http)
     self.assertEquals('this-is-a-token', c.access_token)
 
-    http.request.assert_called_exactly_once_with(
+    http.request.assert_called_once_with(
         'http://metadata.google.internal/0.1/meta-data/service-accounts/'
         'default/acquire'
         '?scope=http%3A%2F%2Fexample.com%2Fa%20http%3A%2F%2Fexample.com%2Fb')
@@ -92,7 +92,7 @@ class AssertionCredentialsTests(unittest.TestCase):
     self.assertEqual('this-is-a-token', token.access_token)
     self.assertEqual(None, token.expires_in)
 
-    http.request.assert_called_exactly_once_with(
+    http.request.assert_called_once_with(
         'http://metadata.google.internal/0.1/meta-data/service-accounts/'
         'default/acquire?scope=dummy_scope')
 
