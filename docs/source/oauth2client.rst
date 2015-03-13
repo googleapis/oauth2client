@@ -36,6 +36,14 @@ oauth2client.crypt module
     :undoc-members:
     :show-inheritance:
 
+oauth2client.devshell module
+----------------------------
+
+.. automodule:: oauth2client.devshell
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 oauth2client.django_orm module
 ------------------------------
 
