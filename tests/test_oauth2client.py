@@ -560,6 +560,14 @@ class BasicCredentialsTests(unittest.TestCase):
         self, '400', revoke_raise=True,
         valid_bool_value=False, token_attr='refresh_token')
 
+  def test_token_revoke_fallback(self):
+    original_credentials = self.credentials.to_json()
+    self.credentials.refresh_token = None
+    _token_revoke_test_helper(
+        self, '200', revoke_raise=False,
+      valid_bool_value=True, token_attr='access_token')
+    self.credentials = self.credentials.from_json(original_credentials)
+
   def test_non_401_error_response(self):
     http = HttpMockSequence([
       ({'status': '400'}, b''),
