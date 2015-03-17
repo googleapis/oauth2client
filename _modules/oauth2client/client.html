@@ -7,14 +7,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>oauth2client.client &mdash; oauth2client 1.4.6 documentation</title>
+  <title>oauth2client.client &mdash; oauth2client 1.4.7 documentation</title>
   
 
   
   
 
   
-  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
   
   
@@ -28,7 +28,9 @@
   
 
   
-    <link rel="top" title="oauth2client 1.4.6 documentation" href="../../index.html"/>
+
+  
+    <link rel="top" title="oauth2client 1.4.7 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -43,9 +45,12 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
-        <a href="../../index.html" class="fa fa-home"> oauth2client</a>
-        <div role="search">
-  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+        
+          <a href="../../index.html" class="fa fa-home"> oauth2client</a>
+        
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -55,8 +60,9 @@
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
         
-        
-            <ul>
+          
+          
+              <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../source/modules.html">oauth2client</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../source/oauth2client.html">oauth2client package</a></li>
 </ul>
@@ -68,6 +74,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../contributing.html#make-the-pull-request">Make the pull request</a></li>
 </ul>
 
+          
         
       </div>
       &nbsp;
@@ -98,7 +105,7 @@
   </ul>
   <hr/>
 </div>
-          <div role="main">
+          <div role="main" class="document">
             
   <h1>Source code for oauth2client.client</h1><div class="highlight"><pre>
 <span class="c"># Copyright 2014 Google Inc. All rights reserved.</span>
@@ -914,16 +921,16 @@
       <span class="k">raise</span> <span class="n">AccessTokenRefreshError</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
 
   <span class="k">def</span> <span class="nf">_revoke</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">http_request</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Revokes the refresh_token and deletes the store if available.</span>
+    <span class="sd">&quot;&quot;&quot;Revokes this credential and deletes the stored copy (if it exists).</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      http_request: callable, a callable that matches the method signature of</span>
 <span class="sd">        httplib2.Http.request, used to make the revoke request.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">_do_revoke</span><span class="p">(</span><span class="n">http_request</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">refresh_token</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_do_revoke</span><span class="p">(</span><span class="n">http_request</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">refresh_token</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span><span class="p">)</span>
 
   <span class="k">def</span> <span class="nf">_do_revoke</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">http_request</span><span class="p">,</span> <span class="n">token</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Revokes the credentials and deletes the store if available.</span>
+    <span class="sd">&quot;&quot;&quot;Revokes this credential and deletes the stored copy (if it exists).</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">      http_request: callable, a callable that matches the method signature of</span>
@@ -2146,7 +2153,8 @@
     </p>
   </div>
 
-  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
 </footer>
         </div>
       </div>
@@ -2162,7 +2170,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../',
-            VERSION:'1.4.6',
+            VERSION:'1.4.7',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

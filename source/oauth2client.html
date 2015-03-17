@@ -7,14 +7,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>oauth2client package &mdash; oauth2client 1.4.6 documentation</title>
+  <title>oauth2client package &mdash; oauth2client 1.4.7 documentation</title>
   
 
   
   
 
   
-  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic|Roboto+Slab:400,700|Inconsolata:400,700&subset=latin,cyrillic' rel='stylesheet' type='text/css'>
 
   
   
@@ -28,7 +28,9 @@
   
 
   
-    <link rel="top" title="oauth2client 1.4.6 documentation" href="../index.html"/>
+
+  
+    <link rel="top" title="oauth2client 1.4.7 documentation" href="../index.html"/>
         <link rel="up" title="oauth2client" href="modules.html"/>
         <link rel="next" title="Contributor License Agreements" href="../contributing.html"/>
         <link rel="prev" title="oauth2client" href="modules.html"/> 
@@ -45,9 +47,12 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-nav-search">
-        <a href="../index.html" class="fa fa-home"> oauth2client</a>
-        <div role="search">
-  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+        
+          <a href="../index.html" class="fa fa-home"> oauth2client</a>
+        
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
@@ -57,8 +62,9 @@
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
         
-        
-            <ul class="current">
+          
+          
+              <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">oauth2client</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="">oauth2client package</a></li>
 </ul>
@@ -70,6 +76,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html#make-the-pull-request">Make the pull request</a></li>
 </ul>
 
+          
         
       </div>
       &nbsp;
@@ -102,7 +109,7 @@
   </ul>
   <hr/>
 </div>
-          <div role="main">
+          <div role="main" class="document">
             
   <div class="section" id="oauth2client-package">
 <h1>oauth2client package<a class="headerlink" href="#oauth2client-package" title="Permalink to this headline">¶</a></h1>
@@ -454,6 +461,18 @@ that had been decorated with either &#64;oauth_required or &#64;oauth_aware.</p>
 <p>Must only be called from within an &#64;oauth_required decorated method, or
 from within an &#64;oauth_aware decorated method where has_credentials()
 returns True.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>*args</strong> &#8211; Positional arguments passed to httplib2.Http constructor.</li>
+<li><strong>**kwargs</strong> &#8211; Positional arguments passed to httplib2.Http constructor.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -1242,10 +1261,10 @@ case of a device flow.</li>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><a class="reference internal" href="#oauth2client.client.FlowExchangeError" title="oauth2client.client.FlowExchangeError"><code class="xref py py-exc docutils literal"><span class="pre">FlowExchangeError</span></code></a> &#8211; 
+<li><a class="reference internal" href="#oauth2client.client.FlowExchangeError" title="oauth2client.client.FlowExchangeError"><code class="xref py py-exc docutils literal"><span class="pre">FlowExchangeError</span></code></a> &#8211;
 if a problem occurred exchanging the code for a
 refresh_token.</li>
-<li><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> &#8211; 
+<li><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code> &#8211;
 if code and device_flow_info are both provided or both
 missing.</li>
 </ul>
@@ -1576,13 +1595,20 @@ defaults to Google&#8217;s endpoints but any OAuth 2.0 provider can be used.</li
 <dt id="oauth2client.client.save_to_well_known_file">
 <code class="descclassname">oauth2client.client.</code><code class="descname">save_to_well_known_file</code><span class="sig-paren">(</span><em>credentials</em>, <em>well_known_file=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/oauth2client/client.html#save_to_well_known_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.client.save_to_well_known_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save the provided GoogleCredentials to the well known file.</p>
-<blockquote>
-<div><p>the credentials to be saved to the well known file;
-it should be an instance of GoogleCredentials</p>
-<blockquote>
-<div>the name of the file where the credentials are to be saved;
-this parameter is supposed to be used for testing only</div></blockquote>
-</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>credentials</strong> &#8211; the credentials to be saved to the well known file;
+it should be an instance of GoogleCredentials</li>
+<li><strong>well_known_file</strong> &#8211; the name of the file where the credentials are to be saved;
+this parameter is supposed to be used for testing only</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -1609,8 +1635,9 @@ verify the JWT against.</li>
 </td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><strong>oauth2client.crypt.AppIdentityError: if the JWT fails to verify.</strong> &#8211;</li>
-<li><a class="reference internal" href="#oauth2client.client.CryptoUnavailableError" title="oauth2client.client.CryptoUnavailableError"><code class="xref py py-exc docutils literal"><span class="pre">CryptoUnavailableError</span></code></a> &#8211; 
+<li><a class="reference internal" href="#oauth2client.crypt.AppIdentityError" title="oauth2client.crypt.AppIdentityError"><code class="xref py py-exc docutils literal"><span class="pre">oauth2client.crypt.AppIdentityError</span></code></a> &#8211;
+if the JWT fails to verify.</li>
+<li><a class="reference internal" href="#oauth2client.client.CryptoUnavailableError" title="oauth2client.client.CryptoUnavailableError"><code class="xref py py-exc docutils literal"><span class="pre">CryptoUnavailableError</span></code></a> &#8211;
 if no crypto library is available.</li>
 </ul>
 </td>
@@ -1675,7 +1702,7 @@ a filesystem.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><a class="reference internal" href="#oauth2client.clientsecrets.InvalidClientSecretsError" title="oauth2client.clientsecrets.InvalidClientSecretsError"><code class="xref py py-exc docutils literal"><span class="pre">InvalidClientSecretsError</span></code></a> &#8211; 
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first"><a class="reference internal" href="#oauth2client.clientsecrets.InvalidClientSecretsError" title="oauth2client.clientsecrets.InvalidClientSecretsError"><code class="xref py py-exc docutils literal"><span class="pre">InvalidClientSecretsError</span></code></a> &#8211;
 In case of a validation error or some
 I/O failure. Can happen only on cache miss.</p>
 </td>
@@ -1986,6 +2013,76 @@ None then the JWT&#8217;s &#8216;aud&#8217; parameter is not verified.</li>
 </dd></dl>
 
 </div>
+<div class="section" id="module-oauth2client.devshell">
+<span id="oauth2client-devshell-module"></span><h2>oauth2client.devshell module<a class="headerlink" href="#module-oauth2client.devshell" title="Permalink to this headline">¶</a></h2>
+<p>OAuth 2.0 utitilies for Google Developer Shell environment.</p>
+<dl class="exception">
+<dt id="oauth2client.devshell.CommunicationError">
+<em class="property">exception </em><code class="descclassname">oauth2client.devshell.</code><code class="descname">CommunicationError</code><a class="reference internal" href="../_modules/oauth2client/devshell.html#CommunicationError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.devshell.CommunicationError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#oauth2client.devshell.Error" title="oauth2client.devshell.Error"><code class="xref py py-class docutils literal"><span class="pre">oauth2client.devshell.Error</span></code></a></p>
+<p>Errors for communication with the Developer Shell server.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="oauth2client.devshell.CredentialInfoResponse">
+<em class="property">class </em><code class="descclassname">oauth2client.devshell.</code><code class="descname">CredentialInfoResponse</code><span class="sig-paren">(</span><em>json_string</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/oauth2client/devshell.html#CredentialInfoResponse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.devshell.CredentialInfoResponse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Credential information response from Developer Shell server.</p>
+<p>The credential information response from Developer Shell socket is a
+PBLite-formatted JSON array with fields encoded by their index in the array:
+* Index 0 - user email
+* Index 1 - default project ID. None if the project context is not known.
+* Index 2 - OAuth2 access token. None if there is no valid auth context.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="oauth2client.devshell.DevshellCredentials">
+<em class="property">class </em><code class="descclassname">oauth2client.devshell.</code><code class="descname">DevshellCredentials</code><span class="sig-paren">(</span><em>user_agent=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/oauth2client/devshell.html#DevshellCredentials"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.devshell.DevshellCredentials" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#oauth2client.client.GoogleCredentials" title="oauth2client.client.GoogleCredentials"><code class="xref py py-class docutils literal"><span class="pre">oauth2client.client.GoogleCredentials</span></code></a></p>
+<p>Credentials object for Google Developer Shell environment.</p>
+<p>This object will allow a Google Developer Shell session to identify its user
+to Google and other OAuth 2.0 servers that can verify assertions. It can be
+used for the purpose of accessing data stored under the user account.</p>
+<p>This credential does not require a flow to instantiate because it represents
+a two legged flow, and therefore has all of the required information to
+generate and refresh its own access tokens.</p>
+<dl class="classmethod">
+<dt id="oauth2client.devshell.DevshellCredentials.from_json">
+<em class="property">classmethod </em><code class="descname">from_json</code><span class="sig-paren">(</span><em>json_data</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/oauth2client/devshell.html#DevshellCredentials.from_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.devshell.DevshellCredentials.from_json" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="oauth2client.devshell.DevshellCredentials.project_id">
+<code class="descname">project_id</code><a class="headerlink" href="#oauth2client.devshell.DevshellCredentials.project_id" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="oauth2client.devshell.DevshellCredentials.serialization_data">
+<code class="descname">serialization_data</code><a class="headerlink" href="#oauth2client.devshell.DevshellCredentials.serialization_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="oauth2client.devshell.DevshellCredentials.user_email">
+<code class="descname">user_email</code><a class="headerlink" href="#oauth2client.devshell.DevshellCredentials.user_email" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="oauth2client.devshell.Error">
+<em class="property">exception </em><code class="descclassname">oauth2client.devshell.</code><code class="descname">Error</code><a class="reference internal" href="../_modules/oauth2client/devshell.html#Error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.devshell.Error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
+<p>Errors for this module.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="oauth2client.devshell.NoDevshellServer">
+<em class="property">exception </em><code class="descclassname">oauth2client.devshell.</code><code class="descname">NoDevshellServer</code><a class="reference internal" href="../_modules/oauth2client/devshell.html#NoDevshellServer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#oauth2client.devshell.NoDevshellServer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#oauth2client.devshell.Error" title="oauth2client.devshell.Error"><code class="xref py py-class docutils literal"><span class="pre">oauth2client.devshell.Error</span></code></a></p>
+<p>Error when no Developer Shell server can be contacted.</p>
+</dd></dl>
+
+</div>
 <div class="section" id="module-oauth2client.django_orm">
 <span id="oauth2client-django-orm-module"></span><h2>oauth2client.django_orm module<a class="headerlink" href="#module-oauth2client.django_orm" title="Permalink to this headline">¶</a></h2>
 <p>OAuth 2.0 utilities for Django.</p>
@@ -1997,7 +2094,7 @@ the Django datastore.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.db.models.fields.Field</span></code></p>
 <dl class="method">
 <dt id="oauth2client.django_orm.CredentialsField.contribute_to_class">
-<code class="descname">contribute_to_class</code><span class="sig-paren">(</span><em>cls</em>, <em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#oauth2client.django_orm.CredentialsField.contribute_to_class" title="Permalink to this definition">¶</a></dt>
+<code class="descname">contribute_to_class</code><span class="sig-paren">(</span><em>cls</em>, <em>name</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#oauth2client.django_orm.CredentialsField.contribute_to_class" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -2023,7 +2120,7 @@ the Django datastore.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">django.db.models.fields.Field</span></code></p>
 <dl class="method">
 <dt id="oauth2client.django_orm.FlowField.contribute_to_class">
-<code class="descname">contribute_to_class</code><span class="sig-paren">(</span><em>cls</em>, <em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#oauth2client.django_orm.FlowField.contribute_to_class" title="Permalink to this definition">¶</a></dt>
+<code class="descname">contribute_to_class</code><span class="sig-paren">(</span><em>cls</em>, <em>name</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#oauth2client.django_orm.FlowField.contribute_to_class" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -2366,9 +2463,9 @@ to a file, then falls back on a lock file if that is unavialable.</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><ul class="first last simple">
-<li><a class="reference internal" href="#oauth2client.locked_file.AlreadyLockedException" title="oauth2client.locked_file.AlreadyLockedException"><code class="xref py py-exc docutils literal"><span class="pre">AlreadyLockedException</span></code></a> &#8211; 
+<li><a class="reference internal" href="#oauth2client.locked_file.AlreadyLockedException" title="oauth2client.locked_file.AlreadyLockedException"><code class="xref py py-exc docutils literal"><span class="pre">AlreadyLockedException</span></code></a> &#8211;
 if the lock is already acquired.</li>
-<li><code class="xref py py-exc docutils literal"><span class="pre">IOError</span></code> &#8211; 
+<li><code class="xref py py-exc docutils literal"><span class="pre">IOError</span></code> &#8211;
 if the open fails.</li>
 </ul>
 </td>
@@ -2819,7 +2916,7 @@ otherwise.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../contributing.html" class="btn btn-neutral float-right" title="Contributor License Agreements"/>Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="../contributing.html" class="btn btn-neutral float-right" title="Contributor License Agreements">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="modules.html" class="btn btn-neutral" title="oauth2client"><span class="fa fa-arrow-circle-left"></span> Previous</a>
@@ -2835,7 +2932,8 @@ otherwise.</p>
     </p>
   </div>
 
-  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+  
 </footer>
         </div>
       </div>
@@ -2851,7 +2949,7 @@ otherwise.</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../',
-            VERSION:'1.4.6',
+            VERSION:'1.4.7',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true
