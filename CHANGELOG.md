@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v1.4.7
+
+* Add support for Google Developer Shell credentials.
+* Better handling of filesystem errors in credential refresh.
+* python3 fixes
+* Add `NO_GCE_CHECK` for skipping GCE detection.
+* Better error messages on `InvalidClientSecretsError`.
+* Comment cleanup on `run_flow`.
+
 ## v1.4.6
 
 * Add utility function to convert PKCS12 key to PEM. (#115)
