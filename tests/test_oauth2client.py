@@ -409,11 +409,15 @@ class GoogleCredentialsTests(unittest.TestCase):
     os.environ[GOOGLE_APPLICATION_CREDENTIALS] = ''
     os.environ['APPDATA'] = ''
     # we can't use self.assertRaisesRegexp() because it is only in Python 2.7+
+    VALID_CONFIG_DIR = client._CLOUDSDK_CONFIG_DIRECTORY
     try:
+      client._CLOUDSDK_CONFIG_DIRECTORY = 'BOGUS_CONFIG_DIR'
       GoogleCredentials.get_application_default()
       self.fail('An exception was expected!')
     except ApplicationDefaultCredentialsError as error:
       self.assertEqual(ADC_HELP_MSG, str(error))
+    finally:
+      client._CLOUDSDK_CONFIG_DIRECTORY = VALID_CONFIG_DIR
 
   def test_from_stream_service_account(self):
     credentials_file = datafile(
