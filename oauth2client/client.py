@@ -28,7 +28,9 @@ import logging
 import os
 import socket
 import sys
+import tempfile
 import time
+import shutil
 import six
 from six.moves import urllib
 
@@ -1208,6 +1210,21 @@ class GoogleCredentials(OAuth2Credentials):
           'method should point to a file.')
 
 
+def _save_private_file(filename, json_contents):
+  """Saves a file with read-write permissions on for the owner.
+
+  Args:
+    filename: String. Absolute path to file.
+    json_contents: JSON serializable object to be saved.
+  """
+  temp_filename = tempfile.mktemp()
+  file_desc = os.open(temp_filename, os.O_WRONLY | os.O_CREAT, 0o600)
+  with os.fdopen(file_desc, 'w') as file_handle:
+    json.dump(json_contents, file_handle, sort_keys=True,
+              indent=2, separators=(',', ': '))
+  shutil.move(temp_filename, filename)
+
+
 def save_to_well_known_file(credentials, well_known_file=None):
   """Save the provided GoogleCredentials to the well known file.
 
@@ -1226,9 +1243,7 @@ def save_to_well_known_file(credentials, well_known_file=None):
     well_known_file = _get_well_known_file()
 
   credentials_data = credentials.serialization_data
-
-  with open(well_known_file, 'w') as f:
-    json.dump(credentials_data, f, sort_keys=True, indent=2, separators=(',', ': '))
+  _save_private_file(well_known_file, credentials_data)
 
 
 def _get_environment_variable_file():

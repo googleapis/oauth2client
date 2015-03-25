@@ -1112,5 +1112,35 @@ class MemoryCacheTests(unittest.TestCase):
     self.assertEqual(None, m.get('foo'))
 
 
+class Test__save_private_file(unittest.TestCase):
+
+  def _save_helper(self, filename):
+    contents = []
+    contents_str = '[]'
+    client._save_private_file(filename, contents)
+    with open(filename, 'r') as f:
+      stored_contents = f.read()
+    self.assertEqual(stored_contents, contents_str)
+
+    stat_mode = os.stat(filename).st_mode
+    # Octal 777, only last 3 positions matter for permissions mask.
+    stat_mode &= 0o777
+    self.assertEqual(stat_mode, 0o600)
+
+  def test_new(self):
+    import tempfile
+    filename = tempfile.mktemp()
+    self.assertFalse(os.path.exists(filename))
+    self._save_helper(filename)
+
+  def test_existing(self):
+    import tempfile
+    filename = tempfile.mktemp()
+    with open(filename, 'w') as f:
+      f.write('a bunch of nonsense longer than []')
+    self.assertTrue(os.path.exists(filename))
+    self._save_helper(filename)
+
+
 if __name__ == '__main__':
   unittest.main()
