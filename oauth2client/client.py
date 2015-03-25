@@ -76,6 +76,9 @@ SERVICE_ACCOUNT = 'service_account'
 # The environment variable pointing the file with local
 # Application Default Credentials.
 GOOGLE_APPLICATION_CREDENTIALS = 'GOOGLE_APPLICATION_CREDENTIALS'
+# The ~/.config subdirectory containing gcloud credentials. Intended
+# to be swapped out in tests.
+_CLOUDSDK_CONFIG_DIRECTORY = 'gcloud'
 
 # The error message we show users when we can't find the Application
 # Default Credentials.
@@ -1249,20 +1252,20 @@ def _get_well_known_file():
   # of pinpointing the exact location of the file.
 
   WELL_KNOWN_CREDENTIALS_FILE = 'application_default_credentials.json'
-  CLOUDSDK_CONFIG_DIRECTORY = 'gcloud'
 
   if os.name == 'nt':
     try:
       default_config_path = os.path.join(os.environ['APPDATA'],
-                                         CLOUDSDK_CONFIG_DIRECTORY)
+                                         _CLOUDSDK_CONFIG_DIRECTORY)
     except KeyError:
       # This should never happen unless someone is really messing with things.
       drive = os.environ.get('SystemDrive', 'C:')
-      default_config_path = os.path.join(drive, '\\', CLOUDSDK_CONFIG_DIRECTORY)
+      default_config_path = os.path.join(drive, '\\',
+                                         _CLOUDSDK_CONFIG_DIRECTORY)
   else:
     default_config_path = os.path.join(os.path.expanduser('~'),
                                        '.config',
-                                       CLOUDSDK_CONFIG_DIRECTORY)
+                                       _CLOUDSDK_CONFIG_DIRECTORY)
 
   default_config_path = os.path.join(default_config_path,
                                      WELL_KNOWN_CREDENTIALS_FILE)
