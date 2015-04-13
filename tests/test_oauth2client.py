@@ -247,11 +247,40 @@ class GoogleCredentialsTests(unittest.TestCase):
                        str(error))
 
   def test_get_well_known_file_on_windows(self):
-    well_known_file = datafile(
-        os.path.join('gcloud', 'application_default_credentials.json'))
-    os.name = 'nt'
-    os.environ['APPDATA'] = DATA_DIR
-    self.assertEqual(well_known_file, _get_well_known_file())
+    ORIGINAL_ISDIR = os.path.isdir
+    try:
+      os.path.isdir = lambda path: True
+      well_known_file = datafile(
+          os.path.join(client._CLOUDSDK_CONFIG_DIRECTORY,
+                       'application_default_credentials.json'))
+      os.name = 'nt'
+      os.environ['APPDATA'] = DATA_DIR
+      self.assertEqual(well_known_file, _get_well_known_file())
+    finally:
+      os.path.isdir = ORIGINAL_ISDIR
+
+  def test_get_well_known_file_with_custom_config_dir(self):
+    ORIGINAL_ENVIRON = os.environ
+    ORIGINAL_ISDIR = os.path.isdir
+    CUSTOM_DIR = 'CUSTOM_DIR'
+    EXPECTED_FILE = os.path.join(CUSTOM_DIR,
+                                 'application_default_credentials.json')
+    try:
+      os.environ = {client._CLOUDSDK_CONFIG_ENV_VAR: CUSTOM_DIR}
+      os.path.isdir = lambda path: True
+      well_known_file = _get_well_known_file()
+      self.assertEqual(well_known_file, EXPECTED_FILE)
+    finally:
+      os.environ = ORIGINAL_ENVIRON
+      os.path.isdir = ORIGINAL_ISDIR
+
+  def test_get_well_known_file_with_non_existent_config_dir(self):
+    ORIGINAL_ISDIR = os.path.isdir
+    try:
+      os.path.isdir = lambda path: False
+      self.assertRaises(OSError, _get_well_known_file)
+    finally:
+      os.path.isdir = ORIGINAL_ISDIR
 
   def test_get_application_default_credential_from_file_service_account(self):
     credentials_file = datafile(
@@ -410,13 +439,16 @@ class GoogleCredentialsTests(unittest.TestCase):
     os.environ['APPDATA'] = ''
     # we can't use self.assertRaisesRegexp() because it is only in Python 2.7+
     VALID_CONFIG_DIR = client._CLOUDSDK_CONFIG_DIRECTORY
+    ORIGINAL_ISDIR = os.path.isdir
     try:
+      os.path.isdir = lambda path: True
       client._CLOUDSDK_CONFIG_DIRECTORY = 'BOGUS_CONFIG_DIR'
       GoogleCredentials.get_application_default()
       self.fail('An exception was expected!')
     except ApplicationDefaultCredentialsError as error:
       self.assertEqual(ADC_HELP_MSG, str(error))
     finally:
+      os.path.isdir = ORIGINAL_ISDIR
       client._CLOUDSDK_CONFIG_DIRECTORY = VALID_CONFIG_DIR
 
   def test_from_stream_service_account(self):

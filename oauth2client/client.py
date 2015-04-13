@@ -81,6 +81,8 @@ GOOGLE_APPLICATION_CREDENTIALS = 'GOOGLE_APPLICATION_CREDENTIALS'
 # The ~/.config subdirectory containing gcloud credentials. Intended
 # to be swapped out in tests.
 _CLOUDSDK_CONFIG_DIRECTORY = 'gcloud'
+# The environment variable name which can replace ~/.config if set.
+_CLOUDSDK_CONFIG_ENV_VAR = 'CLOUDSDK_CONFIG'
 
 # The error message we show users when we can't find the Application
 # Default Credentials.
@@ -1268,24 +1270,26 @@ def _get_well_known_file():
 
   WELL_KNOWN_CREDENTIALS_FILE = 'application_default_credentials.json'
 
-  if os.name == 'nt':
-    try:
-      default_config_path = os.path.join(os.environ['APPDATA'],
-                                         _CLOUDSDK_CONFIG_DIRECTORY)
-    except KeyError:
-      # This should never happen unless someone is really messing with things.
-      drive = os.environ.get('SystemDrive', 'C:')
-      default_config_path = os.path.join(drive, '\\',
-                                         _CLOUDSDK_CONFIG_DIRECTORY)
-  else:
-    default_config_path = os.path.join(os.path.expanduser('~'),
-                                       '.config',
-                                       _CLOUDSDK_CONFIG_DIRECTORY)
+  default_config_dir = os.getenv(_CLOUDSDK_CONFIG_ENV_VAR)
+  if default_config_dir is None:
+    if os.name == 'nt':
+      try:
+        default_config_dir = os.path.join(os.environ['APPDATA'],
+                                          _CLOUDSDK_CONFIG_DIRECTORY)
+      except KeyError:
+        # This should never happen unless someone is really messing with things.
+        drive = os.environ.get('SystemDrive', 'C:')
+        default_config_dir = os.path.join(drive, '\\',
+                                          _CLOUDSDK_CONFIG_DIRECTORY)
+    else:
+      default_config_dir = os.path.join(os.path.expanduser('~'),
+                                        '.config',
+                                        _CLOUDSDK_CONFIG_DIRECTORY)
 
-  default_config_path = os.path.join(default_config_path,
-                                     WELL_KNOWN_CREDENTIALS_FILE)
+  if not os.path.isdir(default_config_dir):
+    raise OSError('Config directory does not exist', default_config_dir)
 
-  return default_config_path
+  return os.path.join(default_config_dir, WELL_KNOWN_CREDENTIALS_FILE)
 
 
 def _get_application_default_credential_from_file(filename):

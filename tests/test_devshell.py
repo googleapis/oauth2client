@@ -125,6 +125,11 @@ class DevshellCredentialsTests(unittest.TestCase):
       self.assertEqual('sometoken', creds.access_token)
 
   def test_refuses_to_save_to_well_known_file(self):
-    with _AuthReferenceServer():
-      creds = DevshellCredentials()
-      self.assertRaises(NotImplementedError, save_to_well_known_file, creds)
+    ORIGINAL_ISDIR = os.path.isdir
+    try:
+      os.path.isdir = lambda path: True
+      with _AuthReferenceServer():
+        creds = DevshellCredentials()
+        self.assertRaises(NotImplementedError, save_to_well_known_file, creds)
+    finally:
+      os.path.isdir = ORIGINAL_ISDIR

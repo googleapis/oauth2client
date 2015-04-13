@@ -97,5 +97,12 @@ class AssertionCredentialsTests(unittest.TestCase):
         'default/acquire?scope=dummy_scope')
 
   def test_save_to_well_known_file(self):
-    credentials = AppAssertionCredentials([])
-    self.assertRaises(NotImplementedError, save_to_well_known_file, credentials)
+    import os
+    ORIGINAL_ISDIR = os.path.isdir
+    try:
+      os.path.isdir = lambda path: True
+      credentials = AppAssertionCredentials([])
+      self.assertRaises(NotImplementedError, save_to_well_known_file,
+                        credentials)
+    finally:
+      os.path.isdir = ORIGINAL_ISDIR
