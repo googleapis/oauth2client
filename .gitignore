@@ -15,3 +15,6 @@ docs/_build
 .coverage
 coverage.xml
 nosetests.xml
+
+# Files with private / local data
+scripts/local_test_setup

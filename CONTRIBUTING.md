@@ -90,6 +90,49 @@ Running Tests
     $ tox
     ```
 
+Running System Tests
+--------------------
+
+-   To run system tests you can execute:
+
+    ```bash
+    $ tox -e system-tests
+    $ tox -e system-tests3
+    ```
+
+    This alone will not run the tests. You'll need to change some local
+    auth settings and download some service account configuration files
+    from your project to run all the tests.
+
+-   System tests will be run against an actual project and so you'll need to
+    provide some environment variables to facilitate this.
+
+    -   `OAUTH2CLIENT_TEST_JSON_KEY_PATH`: The path to a service account JSON
+        key file; see `tests/data/gcloud/application_default_credentials.json`
+        as an example. Such a file can be downloaded directly from the
+        developer's console by clicking "Generate new JSON key". See private
+        key [docs][3] for more details.
+    -   `OAUTH2CLIENT_TEST_P12_KEY_PATH`: The path to a service account
+        P12/PKCS12 key file. You can download this in the same way as a JSON
+        key, just select "P12 Key" as your "Key type" when downloading.
+    -   `OAUTH2CLIENT_TEST_P12_KEY_EMAIL`: The service account email
+        corresponding to the P12/PKCS12 key file.
+    -   `OAUTH2CLIENT_TEST_USER_KEY_PATH`: The path to a JSON key file for a
+        user. If this is not set, the file created by running
+        `gcloud auth login` will be used. See
+        `tests/data/gcloud/application_default_credentials_authorized_user.json`
+        for an example.
+    -   `OAUTH2CLIENT_TEST_USER_KEY_EMAIL`: The user account email
+        corresponding to the user JSON key file.
+
+-   Examples of these can be found in `scripts/local_test_setup.sample`. We
+    recommend copying this to `scripts/local_test_setup`, editing the values
+    and sourcing them into your environment:
+
+    ```bash
+    $ source scripts/local_test_setup
+    ```
+
 Contributor License Agreements
 ------------------------------
 
