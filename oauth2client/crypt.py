@@ -16,8 +16,10 @@
 """Crypto-related routines for oauth2client."""
 
 import base64
+import imp
 import json
 import logging
+import os
 import sys
 import time
 
@@ -37,7 +39,9 @@ class AppIdentityError(Exception):
 
 
 try:
-  from OpenSSL import crypto
+  _, _package_dir, _ = imp.find_module('OpenSSL')
+  if not os.path.isfile(os.path.join(_package_dir, 'crypto.py')):
+    raise ImportError('No module named OpenSSL')
 
   class OpenSSLVerifier(object):
     """Verifies the signature on a message."""
@@ -61,6 +65,7 @@ try:
         True if message was signed by the private key associated with the public
         key that this object was constructed with.
       """
+      from OpenSSL import crypto
       try:
         if isinstance(message, six.text_type):
           message = message.encode('utf-8')
@@ -84,6 +89,7 @@ try:
       Raises:
         OpenSSL.crypto.Error if the key_pem can't be parsed.
       """
+      from OpenSSL import crypto
       if is_x509_cert:
         pubkey = crypto.load_certificate(crypto.FILETYPE_PEM, key_pem)
       else:
@@ -111,6 +117,7 @@ try:
       Returns:
         string, The signature of the message for the given key.
       """
+      from OpenSSL import crypto
       if isinstance(message, six.text_type):
         message = message.encode('utf-8')
       return crypto.sign(self._key, message, 'sha256')
@@ -129,6 +136,7 @@ try:
       Raises:
         OpenSSL.crypto.Error if the key can't be parsed.
       """
+      from OpenSSL import crypto
       parsed_pem_key = _parse_pem_key(key)
       if parsed_pem_key:
         pkey = crypto.load_privatekey(crypto.FILETYPE_PEM, parsed_pem_key)
@@ -149,6 +157,7 @@ try:
     Returns:
       String. PEM contents of ``private_key_text``.
     """
+    from OpenSSL import crypto
     decoded_body = base64.b64decode(private_key_text)
     if isinstance(private_key_password, six.string_types):
       private_key_password = private_key_password.encode('ascii')
