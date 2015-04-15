@@ -58,17 +58,19 @@ class Test_pkcs12_key_as_pem(unittest.TestCase):
     self.assertTrue(pem_contents in [pkcs12_key_as_pem, alternate_pem])
 
   def test_without_openssl(self):
-    openssl_mod = sys.modules['OpenSSL']
+    import os
+    path_isfile = os.path.isfile
     try:
-      sys.modules['OpenSSL'] = None
+      os.path.isfile = lambda value: False
       reload(crypt)
       self.assertRaises(NotImplementedError, crypt.pkcs12_key_as_pem,
                         'FOO', 'BAR')
     finally:
-      sys.modules['OpenSSL'] = openssl_mod
+      os.path.isfile = path_isfile
       reload(crypt)
 
   def test_with_nonsense_key(self):
+    from OpenSSL import crypto
     credentials = self._make_signed_jwt_creds(private_key=b'NOT_A_KEY')
-    self.assertRaises(crypt.crypto.Error, crypt.pkcs12_key_as_pem,
+    self.assertRaises(crypto.Error, crypt.pkcs12_key_as_pem,
                       credentials.private_key, credentials.private_key_password)
