@@ -24,18 +24,18 @@ if [[ "${TRAVIS}" == "true" ]]; then
          [[ "${TRAVIS_PULL_REQUEST}" == "false" ]]; then
     echo "Running in Travis during merge, decrypting stored key file."
     # Convert encrypted JSON key file into decrypted file to be used.
-    openssl aes-256-cbc -K ${encrypted_ae1f2d06db42_key} \
-        -iv ${encrypted_ae1f2d06db42_iv} \
+    openssl aes-256-cbc -K ${encrypted_f2d92020e83e_key} \
+        -iv ${encrypted_f2d92020e83e_iv} \
         -in tests/data/key.json.enc \
         -out ${OAUTH2CLIENT_TEST_JSON_KEY_PATH} -d
     # Convert encrypted P12 key file into decrypted file to be used.
-    openssl aes-256-cbc -K ${encrypted_ae1f2d06db42_key} \
-        -iv ${encrypted_ae1f2d06db42_iv} \
+    openssl aes-256-cbc -K ${encrypted_f2d92020e83e_key} \
+        -iv ${encrypted_f2d92020e83e_iv} \
         -in tests/data/key.p12.enc \
         -out ${OAUTH2CLIENT_TEST_P12_KEY_PATH} -d
     # Convert encrypted User JSON key file into decrypted file to be used.
-    openssl aes-256-cbc -K ${encrypted_ae1f2d06db42_key} \
-        -iv ${encrypted_ae1f2d06db42_iv} \
+    openssl aes-256-cbc -K ${encrypted_f2d92020e83e_key} \
+        -iv ${encrypted_f2d92020e83e_iv} \
         -in tests/data/user-key.json.enc \
         -out ${OAUTH2CLIENT_TEST_USER_KEY_PATH} -d
   else
