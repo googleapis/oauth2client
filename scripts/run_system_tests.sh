@@ -22,8 +22,23 @@ if [[ "${TRAVIS}" == "true" ]]; then
   # If merging to master and not a pull request, run system test.
   if [[ "${TRAVIS_BRANCH}" == "master" ]] && \
          [[ "${TRAVIS_PULL_REQUEST}" == "false" ]]; then
-    echo "Running in Travis during merge, not setup correctly yet."
-    exit 1
+    echo "Running in Travis during merge, decrypting stored key file."
+
+    # Convert encrypted JSON key file into decrypted file to be used.
+    openssl aes-256-cbc -K ${encrypted_a1b222e8c14d_key} \
+        -iv ${encrypted_a1b222e8c14d_iv} \
+        -in tests/data/key.json.enc \
+        -out ${OAUTH2CLIENT_TEST_JSON_KEY_PATH} -d
+    # Convert encrypted P12 key file into decrypted file to be used.
+    openssl aes-256-cbc -K ${encrypted_a1b222e8c14d_key} \
+        -iv ${encrypted_a1b222e8c14d_iv} \
+        -in tests/data/key.p12.enc \
+        -out ${OAUTH2CLIENT_TEST_P12_KEY_PATH} -d
+    # Convert encrypted User JSON key file into decrypted file to be used.
+    openssl aes-256-cbc -K ${encrypted_a1b222e8c14d_key} \
+        -iv ${encrypted_a1b222e8c14d_iv} \
+        -in tests/data/user-key.json.enc \
+        -out ${OAUTH2CLIENT_TEST_USER_KEY_PATH} -d
   else
     echo "Running in Travis during non-merge to master, doing nothing."
     exit
