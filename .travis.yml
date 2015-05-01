@@ -9,6 +9,8 @@ env:
   - TOX_ENV=py34
   - TOX_ENV=pypy
   - TOX_ENV=docs
+  - TOX_ENV=system-tests
+  - TOX_ENV=system-tests3
 install:
 - pip install tox
 script:
