@@ -9,8 +9,7 @@ from oauth2client import service_account
 JSON_KEY_PATH = os.getenv('OAUTH2CLIENT_TEST_JSON_KEY_PATH')
 P12_KEY_PATH = os.getenv('OAUTH2CLIENT_TEST_P12_KEY_PATH')
 P12_KEY_EMAIL = os.getenv('OAUTH2CLIENT_TEST_P12_KEY_EMAIL')
-USER_KEY_PATH = os.getenv('OAUTH2CLIENT_TEST_USER_KEY_PATH',
-                          client._get_well_known_file())
+USER_KEY_PATH = os.getenv('OAUTH2CLIENT_TEST_USER_KEY_PATH')
 USER_KEY_EMAIL = os.getenv('OAUTH2CLIENT_TEST_USER_KEY_EMAIL')
 
 SCOPE = ('https://www.googleapis.com/auth/plus.login',
