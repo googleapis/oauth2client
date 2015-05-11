@@ -557,14 +557,20 @@ class OAuth2Credentials(Credentials):
       resp, content = request_orig(uri, method, body, clean_headers(headers),
                                    redirections, connection_type)
 
-      if resp.status in REFRESH_STATUS_CODES:
-        logger.info('Refreshing due to a %s', resp.status)
+      # A stored token may expire between the time it is retrieved and the time
+      # the request is made, so we may need to try twice.
+      max_refresh_attempts = 2
+      for refresh_attempt in range(max_refresh_attempts):
+        if resp.status not in REFRESH_STATUS_CODES:
+          break
+        logger.info('Refreshing due to a %s (attempt %s/%s)', resp.status,
+                    refresh_attempt + 1, max_refresh_attempts)
         self._refresh(request_orig)
         self.apply(headers)
-        return request_orig(uri, method, body, clean_headers(headers),
-                            redirections, connection_type)
-      else:
-        return (resp, content)
+        resp, content = request_orig(uri, method, body, clean_headers(headers),
+                                     redirections, connection_type)
+
+      return (resp, content)
 
     # Replace the request method with our own closure.
     http.request = new_request
@@ -757,8 +763,10 @@ class OAuth2Credentials(Credentials):
       self.store.acquire_lock()
       try:
         new_cred = self.store.locked_get()
+
         if (new_cred and not new_cred.invalid and
-            new_cred.access_token != self.access_token):
+            new_cred.access_token != self.access_token and
+            not new_cred.access_token_expired):
           logger.info('Updated access_token read from Storage')
           self._updateFromCredential(new_cred)
         else:
