@@ -154,10 +154,10 @@ class OAuth2ClientFileTests(unittest.TestCase):
     access_token = '1/3w'
     token_response = {'access_token': access_token, 'expires_in': 3600}
     http = HttpMockSequence([
-        ({'status': '401'}, 'Initial token expired'),
-        ({'status': '401'}, 'Store token expired'),
+        ({'status': '401'}, b'Initial token expired'),
+        ({'status': '401'}, b'Store token expired'),
         ({'status': '200'}, json.dumps(token_response).encode('utf-8')),
-        ({'status': '200'}, 'Valid response to original request')
+        ({'status': '200'}, b'Valid response to original request')
     ])
 
     credentials.authorize(http)
