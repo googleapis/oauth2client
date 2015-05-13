@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v1.4.8
+
+* Better handling of `body` during token refresh when `body` is a stream.
+* Better handling of expired tokens in storage.
+* Cleanup around `openSSL` import.
+* Allow custom directory for the `well_known_file`.
+* Integration tests for python2 and python3. (!!!)
+* Stricter file permissions when saving the `well_known_file`.
+* Test cleanup around config file locations.
+
 ## v1.4.7
 
 * Add support for Google Developer Shell credentials.
