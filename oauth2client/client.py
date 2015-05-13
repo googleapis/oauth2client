@@ -554,6 +554,11 @@ class OAuth2Credentials(Credentials):
         else:
           headers['user-agent'] = self.user_agent
 
+      body_stream_position = None
+      if all(getattr(body, stream_prop, None) for stream_prop in
+             ('read', 'seek', 'tell')):
+        body_stream_position = body.tell()
+
       resp, content = request_orig(uri, method, body, clean_headers(headers),
                                    redirections, connection_type)
 
@@ -567,6 +572,9 @@ class OAuth2Credentials(Credentials):
                     refresh_attempt + 1, max_refresh_attempts)
         self._refresh(request_orig)
         self.apply(headers)
+        if body_stream_position is not None:
+          body.seek(body_stream_position)
+
         resp, content = request_orig(uri, method, body, clean_headers(headers),
                                      redirections, connection_type)
 

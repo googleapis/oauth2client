@@ -100,17 +100,16 @@ class HttpMockSequence(object):
               connection_type=None):
     resp, content = self._iterable.pop(0)
     self.requests.append({'uri': uri, 'body': body, 'headers': headers})
+    # Read any underlying stream before sending the request.
+    body_stream_content = body.read() if getattr(body, 'read', None) else None
     if content == 'echo_request_headers':
       content = headers
     elif content == 'echo_request_headers_as_json':
       content = json.dumps(headers)
     elif content == 'echo_request_body':
-      if hasattr(body, 'read'):
-        content = body.read()
-      else:
-        content = body
+      content = body if body_stream_content is None else body_stream_content
     elif content == 'echo_request_uri':
       content = uri
     elif not isinstance(content, bytes):
-      raise TypeError("http content should be bytes: %r" % (content,))
+      raise TypeError('http content should be bytes: %r' % (content,))
     return httplib2.Response(resp), content
