@@ -7,7 +7,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>oauth2client.crypt &mdash; oauth2client 1.4.7 documentation</title>
+  <title>oauth2client.crypt &mdash; oauth2client 1.4.8 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="oauth2client 1.4.7 documentation" href="../../index.html"/>
+    <link rel="top" title="oauth2client 1.4.8 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -126,8 +126,10 @@
 <span class="sd">&quot;&quot;&quot;Crypto-related routines for oauth2client.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">base64</span>
+<span class="kn">import</span> <span class="nn">imp</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">time</span>
 
@@ -147,7 +149,9 @@
 
 </div>
 <span class="k">try</span><span class="p">:</span>
-  <span class="kn">from</span> <span class="nn">OpenSSL</span> <span class="kn">import</span> <span class="n">crypto</span>
+  <span class="n">_</span><span class="p">,</span> <span class="n">_package_dir</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">imp</span><span class="o">.</span><span class="n">find_module</span><span class="p">(</span><span class="s">&#39;OpenSSL&#39;</span><span class="p">)</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_package_dir</span><span class="p">,</span> <span class="s">&#39;crypto.py&#39;</span><span class="p">)):</span>
+    <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s">&#39;No module named OpenSSL&#39;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="OpenSSLVerifier"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.crypt.OpenSSLVerifier">[docs]</a>  <span class="k">class</span> <span class="nc">OpenSSLVerifier</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Verifies the signature on a message.&quot;&quot;&quot;</span>
@@ -171,6 +175,7 @@
 <span class="sd">        True if message was signed by the private key associated with the public</span>
 <span class="sd">        key that this object was constructed with.</span>
 <span class="sd">      &quot;&quot;&quot;</span>
+      <span class="kn">from</span> <span class="nn">OpenSSL</span> <span class="kn">import</span> <span class="n">crypto</span>
       <span class="k">try</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">text_type</span><span class="p">):</span>
           <span class="n">message</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">)</span>
@@ -194,6 +199,7 @@
 <span class="sd">      Raises:</span>
 <span class="sd">        OpenSSL.crypto.Error if the key_pem can&#39;t be parsed.</span>
 <span class="sd">      &quot;&quot;&quot;</span>
+      <span class="kn">from</span> <span class="nn">OpenSSL</span> <span class="kn">import</span> <span class="n">crypto</span>
       <span class="k">if</span> <span class="n">is_x509_cert</span><span class="p">:</span>
         <span class="n">pubkey</span> <span class="o">=</span> <span class="n">crypto</span><span class="o">.</span><span class="n">load_certificate</span><span class="p">(</span><span class="n">crypto</span><span class="o">.</span><span class="n">FILETYPE_PEM</span><span class="p">,</span> <span class="n">key_pem</span><span class="p">)</span>
       <span class="k">else</span><span class="p">:</span>
@@ -221,6 +227,7 @@
 <span class="sd">      Returns:</span>
 <span class="sd">        string, The signature of the message for the given key.</span>
 <span class="sd">      &quot;&quot;&quot;</span>
+      <span class="kn">from</span> <span class="nn">OpenSSL</span> <span class="kn">import</span> <span class="n">crypto</span>
       <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">text_type</span><span class="p">):</span>
         <span class="n">message</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">)</span>
       <span class="k">return</span> <span class="n">crypto</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_key</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="s">&#39;sha256&#39;</span><span class="p">)</span>
@@ -239,6 +246,7 @@
 <span class="sd">      Raises:</span>
 <span class="sd">        OpenSSL.crypto.Error if the key can&#39;t be parsed.</span>
 <span class="sd">      &quot;&quot;&quot;</span>
+      <span class="kn">from</span> <span class="nn">OpenSSL</span> <span class="kn">import</span> <span class="n">crypto</span>
       <span class="n">parsed_pem_key</span> <span class="o">=</span> <span class="n">_parse_pem_key</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
       <span class="k">if</span> <span class="n">parsed_pem_key</span><span class="p">:</span>
         <span class="n">pkey</span> <span class="o">=</span> <span class="n">crypto</span><span class="o">.</span><span class="n">load_privatekey</span><span class="p">(</span><span class="n">crypto</span><span class="o">.</span><span class="n">FILETYPE_PEM</span><span class="p">,</span> <span class="n">parsed_pem_key</span><span class="p">)</span>
@@ -259,6 +267,7 @@
 <span class="sd">    Returns:</span>
 <span class="sd">      String. PEM contents of ``private_key_text``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">OpenSSL</span> <span class="kn">import</span> <span class="n">crypto</span>
     <span class="n">decoded_body</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64decode</span><span class="p">(</span><span class="n">private_key_text</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">private_key_password</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
       <span class="n">private_key_password</span> <span class="o">=</span> <span class="n">private_key_password</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s">&#39;ascii&#39;</span><span class="p">)</span>
@@ -568,7 +577,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../',
-            VERSION:'1.4.7',
+            VERSION:'1.4.8',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true
