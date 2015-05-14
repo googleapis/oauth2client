@@ -274,14 +274,6 @@ class GoogleCredentialsTests(unittest.TestCase):
       os.environ = ORIGINAL_ENVIRON
       os.path.isdir = ORIGINAL_ISDIR
 
-  def test_get_well_known_file_with_non_existent_config_dir(self):
-    ORIGINAL_ISDIR = os.path.isdir
-    try:
-      os.path.isdir = lambda path: False
-      self.assertRaises(OSError, _get_well_known_file)
-    finally:
-      os.path.isdir = ORIGINAL_ISDIR
-
   def test_get_application_default_credential_from_file_service_account(self):
     credentials_file = datafile(
         os.path.join('gcloud', 'application_default_credentials.json'))
@@ -304,6 +296,18 @@ class GoogleCredentialsTests(unittest.TestCase):
     self.assertEqual('dummy@google.com', d['client_email'])
     self.assertEqual('ABCDEF', d['private_key_id'])
     os.remove(temp_credential_file)
+
+  def test_save_well_known_file_with_non_existent_config_dir(self):
+    credential_file = datafile(
+        os.path.join('gcloud', 'application_default_credentials.json'))
+    credentials = _get_application_default_credential_from_file(
+        credential_file)
+    ORIGINAL_ISDIR = os.path.isdir
+    try:
+      os.path.isdir = lambda path: False
+      self.assertRaises(OSError, save_to_well_known_file, credentials)
+    finally:
+      os.path.isdir = ORIGINAL_ISDIR
 
   def test_get_application_default_credential_from_file_authorized_user(self):
     credentials_file = datafile(
