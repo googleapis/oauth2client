@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.4.9
+
+* Ensure that the ADC fails if we try to *write* the well-known file to a
+  directory that doesn't exist, but not if we try to *read* from one.
+
 ## v1.4.8
 
 * Better handling of `body` during token refresh when `body` is a stream.
