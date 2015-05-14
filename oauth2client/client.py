@@ -1260,6 +1260,10 @@ def save_to_well_known_file(credentials, well_known_file=None):
   if well_known_file is None:
     well_known_file = _get_well_known_file()
 
+  config_dir = os.path.dirname(well_known_file)
+  if not os.path.isdir(config_dir):
+    raise OSError('Config directory does not exist: %s' % config_dir)
+
   credentials_data = credentials.serialization_data
   _save_private_file(well_known_file, credentials_data)
 
@@ -1301,9 +1305,6 @@ def _get_well_known_file():
       default_config_dir = os.path.join(os.path.expanduser('~'),
                                         '.config',
                                         _CLOUDSDK_CONFIG_DIRECTORY)
-
-  if not os.path.isdir(default_config_dir):
-    raise OSError('Config directory does not exist', default_config_dir)
 
   return os.path.join(default_config_dir, WELL_KNOWN_CREDENTIALS_FILE)
 
