@@ -7,7 +7,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>oauth2client.client &mdash; oauth2client 1.4.8 documentation</title>
+  <title>oauth2client.client &mdash; oauth2client 1.4.9 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="oauth2client 1.4.8 documentation" href="../../index.html"/>
+    <link rel="top" title="oauth2client 1.4.9 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -1370,6 +1370,10 @@
   <span class="k">if</span> <span class="n">well_known_file</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
     <span class="n">well_known_file</span> <span class="o">=</span> <span class="n">_get_well_known_file</span><span class="p">()</span>
 
+  <span class="n">config_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">well_known_file</span><span class="p">)</span>
+  <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">config_dir</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span><span class="s">&#39;Config directory does not exist: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">config_dir</span><span class="p">)</span>
+
   <span class="n">credentials_data</span> <span class="o">=</span> <span class="n">credentials</span><span class="o">.</span><span class="n">serialization_data</span>
   <span class="n">_save_private_file</span><span class="p">(</span><span class="n">well_known_file</span><span class="p">,</span> <span class="n">credentials_data</span><span class="p">)</span>
 
@@ -1411,9 +1415,6 @@
       <span class="n">default_config_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s">&#39;~&#39;</span><span class="p">),</span>
                                         <span class="s">&#39;.config&#39;</span><span class="p">,</span>
                                         <span class="n">_CLOUDSDK_CONFIG_DIRECTORY</span><span class="p">)</span>
-
-  <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">default_config_dir</span><span class="p">):</span>
-    <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span><span class="s">&#39;Config directory does not exist&#39;</span><span class="p">,</span> <span class="n">default_config_dir</span><span class="p">)</span>
 
   <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">default_config_dir</span><span class="p">,</span> <span class="n">WELL_KNOWN_CREDENTIALS_FILE</span><span class="p">)</span>
 
@@ -2208,7 +2209,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../',
-            VERSION:'1.4.8',
+            VERSION:'1.4.9',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true
