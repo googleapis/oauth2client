@@ -58,15 +58,17 @@ class Test_pkcs12_key_as_pem(unittest.TestCase):
     self.assertTrue(pem_contents in [pkcs12_key_as_pem, alternate_pem])
 
   def test_without_openssl(self):
-    import os
-    path_isfile = os.path.isfile
+    import imp
+    imp_find_module = imp.find_module
+    def find_module(module_name):
+      raise ImportError('No module named %s' % module_name)
     try:
-      os.path.isfile = lambda value: False
+      imp.find_module = find_module
       reload(crypt)
       self.assertRaises(NotImplementedError, crypt.pkcs12_key_as_pem,
                         'FOO', 'BAR')
     finally:
-      os.path.isfile = path_isfile
+      imp.find_module = imp_find_module
       reload(crypt)
 
   def test_with_nonsense_key(self):
