@@ -7,7 +7,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>oauth2client.crypt &mdash; oauth2client 1.4.9 documentation</title>
+  <title>oauth2client.crypt &mdash; oauth2client 1.4.10 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="oauth2client 1.4.9 documentation" href="../../index.html"/>
+    <link rel="top" title="oauth2client 1.4.10 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -149,9 +149,7 @@
 
 </div>
 <span class="k">try</span><span class="p">:</span>
-  <span class="n">_</span><span class="p">,</span> <span class="n">_package_dir</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">imp</span><span class="o">.</span><span class="n">find_module</span><span class="p">(</span><span class="s">&#39;OpenSSL&#39;</span><span class="p">)</span>
-  <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_package_dir</span><span class="p">,</span> <span class="s">&#39;crypto.py&#39;</span><span class="p">)):</span>
-    <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="s">&#39;No module named OpenSSL&#39;</span><span class="p">)</span>
+  <span class="n">_</span> <span class="o">=</span> <span class="n">imp</span><span class="o">.</span><span class="n">find_module</span><span class="p">(</span><span class="s">&#39;OpenSSL&#39;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="OpenSSLVerifier"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.crypt.OpenSSLVerifier">[docs]</a>  <span class="k">class</span> <span class="nc">OpenSSLVerifier</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Verifies the signature on a message.&quot;&quot;&quot;</span>
@@ -577,7 +575,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../',
-            VERSION:'1.4.9',
+            VERSION:'1.4.10',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true
