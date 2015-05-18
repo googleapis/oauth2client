@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v1.4.10
+
+* Update the `OpenSSL` check to be less strict about finding `crypto.py` in
+  the `OpenSSL` directory.
+* `tox` updates for new environment handling in `tox`.
+
 ## v1.4.9
 
 * Ensure that the ADC fails if we try to *write* the well-known file to a
