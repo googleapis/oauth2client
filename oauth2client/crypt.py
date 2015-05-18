@@ -39,9 +39,7 @@ class AppIdentityError(Exception):
 
 
 try:
-  _, _package_dir, _ = imp.find_module('OpenSSL')
-  if not os.path.isfile(os.path.join(_package_dir, 'crypto.py')):
-    raise ImportError('No module named OpenSSL')
+  _ = imp.find_module('OpenSSL')
 
   class OpenSSLVerifier(object):
     """Verifies the signature on a message."""
