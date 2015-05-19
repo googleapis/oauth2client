@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.4.11
+
+* Better environment detection with Managed VMs.
+* Better OpenSSL detection in exotic environments.
+
 ## v1.4.10
 
 * Update the `OpenSSL` check to be less strict about finding `crypto.py` in
