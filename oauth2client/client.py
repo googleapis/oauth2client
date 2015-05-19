@@ -992,11 +992,18 @@ def _get_environment(urlopen=None):
   # None is an unset value, not the default.
   SETTINGS.env_name = DEFAULT_ENV_NAME
 
-  server_software = os.environ.get('SERVER_SOFTWARE', '')
-  if server_software.startswith('Google App Engine/'):
-    SETTINGS.env_name = 'GAE_PRODUCTION'
-  elif server_software.startswith('Development/'):
-    SETTINGS.env_name = 'GAE_LOCAL'
+  try:
+    import google.appengine
+    has_gae_sdk = True
+  except ImportError:
+    has_gae_sdk = False
+
+  if has_gae_sdk:
+    server_software = os.environ.get('SERVER_SOFTWARE', '')
+    if server_software.startswith('Google App Engine/'):
+      SETTINGS.env_name = 'GAE_PRODUCTION'
+    elif server_software.startswith('Development/'):
+      SETTINGS.env_name = 'GAE_LOCAL'
   elif NO_GCE_CHECK != 'True' and _detect_gce_environment(urlopen=urlopen):
     SETTINGS.env_name = 'GCE_PRODUCTION'
 
