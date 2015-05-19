@@ -23,9 +23,11 @@ Unit tests for oauth2client.
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 import base64
+import contextlib
 import datetime
 import json
 import os
+import sys
 import time
 import unittest
 
@@ -144,6 +146,22 @@ class MockResponse(object):
     return Info(self._headers)
 
 
+@contextlib.contextmanager
+def mock_module_import(module):
+  """Place a dummy objects in sys.modules to mock an import test."""
+  parts = module.split('.')
+  entries = ['.'.join(parts[:i+1]) for i in range(len(parts))]
+  for entry in entries:
+    sys.modules[entry] = object()
+  
+  try:
+    yield
+
+  finally:
+    for entry in entries:
+      del sys.modules[entry]
+
+
 class GoogleCredentialsTests(unittest.TestCase):
 
   def setUp(self):
@@ -200,12 +218,14 @@ class GoogleCredentialsTests(unittest.TestCase):
                      credentials.create_scoped(['dummy_scope']))
 
   def test_get_environment_gae_production(self):
-    os.environ['SERVER_SOFTWARE'] = 'Google App Engine/XYZ'
-    self.assertEqual('GAE_PRODUCTION', _get_environment())
+    with mock_module_import('google.appengine'):
+      os.environ['SERVER_SOFTWARE'] = 'Google App Engine/XYZ'
+      self.assertEqual('GAE_PRODUCTION', _get_environment())
 
   def test_get_environment_gae_local(self):
-    os.environ['SERVER_SOFTWARE'] = 'Development/XYZ'
-    self.assertEqual('GAE_LOCAL', _get_environment())
+    with mock_module_import('google.appengine'):
+      os.environ['SERVER_SOFTWARE'] = 'Development/XYZ'
+      self.assertEqual('GAE_LOCAL', _get_environment())
 
   def test_get_environment_gce_production(self):
     os.environ['SERVER_SOFTWARE'] = ''
