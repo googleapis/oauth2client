@@ -7,7 +7,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>oauth2client.crypt &mdash; oauth2client 1.4.10 documentation</title>
+  <title>oauth2client.crypt &mdash; oauth2client 1.4.11 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="oauth2client 1.4.10 documentation" href="../../index.html"/>
+    <link rel="top" title="oauth2client 1.4.11 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -148,8 +148,33 @@
   <span class="k">pass</span>
 
 </div>
+<span class="k">def</span> <span class="nf">_TryOpenSslImport</span><span class="p">():</span>
+  <span class="sd">&quot;&quot;&quot;Import OpenSSL, avoiding the explicit import where possible.</span>
+
+<span class="sd">  Importing OpenSSL 0.14 can take up to 0.5s, which is a large price</span>
+<span class="sd">  to pay at module import time. However, it&#39;s also possible for</span>
+<span class="sd">  ``imp.find_module`` to fail to find the module, even when it&#39;s</span>
+<span class="sd">  installed. (This is the case in various exotic environments,</span>
+<span class="sd">  including some relevant for Google.) So we first try a fast-path,</span>
+<span class="sd">  and fall back to the slow import as needed.</span>
+
+<span class="sd">  Args:</span>
+<span class="sd">    None</span>
+<span class="sd">  Returns:</span>
+<span class="sd">    None</span>
+<span class="sd">  Raises:</span>
+<span class="sd">    ImportError if OpenSSL is unavailable.</span>
+
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">try</span><span class="p">:</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">imp</span><span class="o">.</span><span class="n">find_module</span><span class="p">(</span><span class="s">&#39;OpenSSL&#39;</span><span class="p">)</span>
+    <span class="k">return</span>
+  <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">OpenSSL</span>
+
+
 <span class="k">try</span><span class="p">:</span>
-  <span class="n">_</span> <span class="o">=</span> <span class="n">imp</span><span class="o">.</span><span class="n">find_module</span><span class="p">(</span><span class="s">&#39;OpenSSL&#39;</span><span class="p">)</span>
+  <span class="n">_TryOpenSslImport</span><span class="p">()</span>
 
 <div class="viewcode-block" id="OpenSSLVerifier"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.crypt.OpenSSLVerifier">[docs]</a>  <span class="k">class</span> <span class="nc">OpenSSLVerifier</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Verifies the signature on a message.&quot;&quot;&quot;</span>
@@ -575,7 +600,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../',
-            VERSION:'1.4.10',
+            VERSION:'1.4.11',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true
