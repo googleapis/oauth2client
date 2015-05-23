@@ -57,10 +57,14 @@ def _TryOpenSslImport():
 
   """
   try:
-    _ = imp.find_module('OpenSSL')
+    _, _package_dir, _ = imp.find_module('OpenSSL')
+    if not (os.path.isfile(os.path.join(_package_dir, 'crypto.py')) or
+            os.path.isfile(os.path.join(_package_dir, 'crypto.so')) or
+            os.path.isdir(os.path.join(_package_dir, 'crypto'))):
+      raise ImportError('No module named OpenSSL.crypto')
     return
   except ImportError:
-    import OpenSSL
+    import OpenSSL.crypto
 
 
 try:
