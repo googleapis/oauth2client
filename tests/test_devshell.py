@@ -44,6 +44,7 @@ class _AuthReferenceServer(threading.Thread):
     port = self._socket.getsockname()[1]
     os.environ[DEVSHELL_ENV] = str(port)
     self._socket.listen(0)
+    self.daemon = True
     self.start()
     return self
 
@@ -57,7 +58,10 @@ class _AuthReferenceServer(threading.Thread):
   def run(self):
     s = None
     try:
-      self._socket.settimeout(15)
+      # Do not set the timeout on the socket, leave it in the blocking mode as
+      # setting the timeout seems to cause spurious EAGAIN errors on OSX.
+      self._socket.settimeout(None)
+
       s, unused_addr = self._socket.accept()
       resp_buffer = ''
       resp_1 = s.recv(6).decode()
