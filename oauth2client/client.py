@@ -532,7 +532,6 @@ class OAuth2Credentials(Credentials):
     request_orig = http.request
 
     # The closure that will replace 'httplib2.Http.request'.
-    @util.positional(1)
     def new_request(uri, method='GET', body=None, headers=None,
                     redirections=httplib2.DEFAULT_MAX_REDIRECTS,
                     connection_type=None):
