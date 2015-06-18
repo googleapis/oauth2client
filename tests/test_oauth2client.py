@@ -40,6 +40,7 @@ from .http_mock import HttpMockSequence
 from oauth2client import GOOGLE_REVOKE_URI
 from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client import client
+from oauth2client import util as oauth2client_util
 from oauth2client.client import AccessTokenCredentials
 from oauth2client.client import AccessTokenCredentialsError
 from oauth2client.client import AccessTokenRefreshError
@@ -581,6 +582,10 @@ class BasicCredentialsTests(unittest.TestCase):
         refresh_token, token_expiry, GOOGLE_TOKEN_URI,
         user_agent, revoke_uri=GOOGLE_REVOKE_URI)
 
+    # Provoke a failure if @util.positional is not respected.
+    oauth2client_util.positional_parameters_enforcement = (
+        oauth2client_util.POSITIONAL_EXCEPTION)
+
   def test_token_refresh_success(self):
     for status_code in REFRESH_STATUS_CODES:
       token_response = {'access_token': '1/3w', 'expires_in': 3600}
@@ -594,6 +599,26 @@ class BasicCredentialsTests(unittest.TestCase):
       self.assertEqual(b'Bearer 1/3w', content[b'Authorization'])
       self.assertFalse(self.credentials.access_token_expired)
       self.assertEqual(token_response, self.credentials.token_response)
+
+  def test_recursive_authorize(self):
+    """Tests that OAuth2Credentials does not introduce new method constraints.
+
+    Formerly, OAuth2Credentials.authorize monkeypatched the request method of
+    its httplib2.Http argument with a wrapper annotated with
+    @util.positional(1). Since the original method has no such annotation, that
+    meant that the wrapper was violating the contract of the original method by
+    adding a new requirement to it. And in fact the wrapper itself doesn't
+    even respect that requirement. So before the removal of the annotation, this
+    test would fail.
+    """
+    token_response = {'access_token': '1/3w', 'expires_in': 3600}
+    encoded_response = json.dumps(token_response).encode('utf-8')
+    http = HttpMockSequence([
+        ({'status': '200'}, encoded_response),
+    ])
+    http = self.credentials.authorize(http)
+    http = self.credentials.authorize(http)
+    http.request('http://example.com')
 
   def test_token_refresh_failure(self):
     for status_code in REFRESH_STATUS_CODES:
