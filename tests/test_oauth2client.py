@@ -583,8 +583,14 @@ class BasicCredentialsTests(unittest.TestCase):
         user_agent, revoke_uri=GOOGLE_REVOKE_URI)
 
     # Provoke a failure if @util.positional is not respected.
+    self.old_positional_enforcement = (
+        oauth2client_util.positional_parameters_enforcement)
     oauth2client_util.positional_parameters_enforcement = (
         oauth2client_util.POSITIONAL_EXCEPTION)
+
+  def tearDown(self):
+    oauth2client_util.positional_parameters_enforcement = (
+        self.old_positional_enforcement)
 
   def test_token_refresh_success(self):
     for status_code in REFRESH_STATUS_CODES:
