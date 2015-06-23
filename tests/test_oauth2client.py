@@ -1027,6 +1027,29 @@ class OAuth2WebServerFlowTest(unittest.TestCase):
     request_code = urllib.parse.parse_qs(http.requests[0]['body'])['code'][0]
     self.assertEqual(code, request_code)
 
+  def test_exchange_using_authorization_header(self):
+    auth_header = 'Basic Y2xpZW50X2lkKzE6c2VjcmV0KzE=',
+    flow = OAuth2WebServerFlow(
+      client_id='client_id+1',
+      authorization_header=auth_header,
+      scope='foo',
+      redirect_uri=OOB_CALLBACK_URN,
+      user_agent='unittest-sample/1.0',
+      revoke_uri='dummy_revoke_uri',
+        )
+    http = HttpMockSequence([
+      ({'status': '200'}, b'access_token=SlAV32hkKG'),
+    ])
+
+    credentials = flow.step2_exchange('some random code', http=http)
+    self.assertEqual('SlAV32hkKG', credentials.access_token)
+
+    test_request = http.requests[0]
+    # Did we pass the Authorization header?
+    self.assertEqual(test_request['headers']['Authorization'], auth_header)
+    # Did we omit client_secret from POST body?
+    self.assertNotIn('client_secret', test_request['body'])
+
   def test_urlencoded_exchange_success(self):
     http = HttpMockSequence([
       ({'status': '200'}, b'access_token=SlAV32hkKG&expires_in=3600'),

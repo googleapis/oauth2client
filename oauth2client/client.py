@@ -1784,7 +1784,9 @@ class OAuth2WebServerFlow(Flow):
   """
 
   @util.positional(4)
-  def __init__(self, client_id, client_secret, scope,
+  def __init__(self, client_id,
+               client_secret=None,
+               scope=None,
                redirect_uri=None,
                user_agent=None,
                auth_uri=GOOGLE_AUTH_URI,
@@ -1792,6 +1794,7 @@ class OAuth2WebServerFlow(Flow):
                revoke_uri=GOOGLE_REVOKE_URI,
                login_hint=None,
                device_uri=GOOGLE_DEVICE_URI,
+               authorization_header=None,
                **kwargs):
     """Constructor for OAuth2WebServerFlow.
 
@@ -1819,9 +1822,14 @@ class OAuth2WebServerFlow(Flow):
         proper multi-login session, thereby simplifying the login flow.
       device_uri: string, URI for device authorization endpoint. For convenience
         defaults to Google's endpoints but any OAuth 2.0 provider can be used.
+      authorization_header: string, For use with OAuth 2.0 providers that
+        require a client to authenticate using a header value instead of passing
+        client_secret in the POST body.
       **kwargs: dict, The keyword arguments are all optional and required
                         parameters for the OAuth calls.
     """
+    if scope is None:
+      raise TypeError("The value of scope must not be None")
     self.client_id = client_id
     self.client_secret = client_secret
     self.scope = util.scopes_to_string(scope)
@@ -1832,6 +1840,7 @@ class OAuth2WebServerFlow(Flow):
     self.token_uri = token_uri
     self.revoke_uri = revoke_uri
     self.device_uri = device_uri
+    self.authorization_header = authorization_header
     self.params = {
         'access_type': 'offline',
         'response_type': 'code',
@@ -1957,10 +1966,11 @@ class OAuth2WebServerFlow(Flow):
 
     post_data = {
         'client_id': self.client_id,
-        'client_secret': self.client_secret,
         'code': code,
         'scope': self.scope,
     }
+    if self.client_secret is not None:
+      post_data['client_secret'] = self.client_secret
     if device_flow_info is not None:
       post_data['grant_type'] = 'http://oauth.net/grant_type/device/1.0'
     else:
@@ -1970,7 +1980,8 @@ class OAuth2WebServerFlow(Flow):
     headers = {
         'content-type': 'application/x-www-form-urlencoded',
     }
-
+    if self.authorization_header is not None:
+      headers['Authorization'] = self.authorization_header
     if self.user_agent is not None:
       headers['user-agent'] = self.user_agent
 
