@@ -1828,6 +1828,8 @@ class OAuth2WebServerFlow(Flow):
       **kwargs: dict, The keyword arguments are all optional and required
                         parameters for the OAuth calls.
     """
+    # scope is a required argument, but to preserve backwards-compatibility
+    # we don't want to rearrange the positional arguments
     if scope is None:
       raise TypeError("The value of scope must not be None")
     self.client_id = client_id
