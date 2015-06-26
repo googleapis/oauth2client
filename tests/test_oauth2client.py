@@ -945,6 +945,9 @@ class OAuth2WebServerFlowTest(unittest.TestCase):
     self.assertEqual(OOB_CALLBACK_URN, q['redirect_uri'][0])
     self.assertEqual('online', q['access_type'][0])
 
+  def test_scope_is_required(self):
+    self.assertRaises(TypeError, OAuth2WebServerFlow, 'client_id+1')
+
   def test_exchange_failure(self):
     http = HttpMockSequence([
       ({'status': '400'}, b'{"error":"invalid_request"}'),
