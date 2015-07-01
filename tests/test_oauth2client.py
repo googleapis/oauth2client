@@ -65,9 +65,10 @@ from oauth2client.client import TokenRevokeError
 from oauth2client.client import VerifyJwtTokenError
 from oauth2client.client import _extract_id_token
 from oauth2client.client import _get_application_default_credential_from_file
-from oauth2client.client import _get_environment
 from oauth2client.client import _get_environment_variable_file
 from oauth2client.client import _get_well_known_file
+from oauth2client.client import _in_gae_environment
+from oauth2client.client import _in_gce_environment
 from oauth2client.client import _raise_exception_for_missing_fields
 from oauth2client.client import _raise_exception_for_reading_json
 from oauth2client.client import _update_query_params
@@ -221,12 +222,49 @@ class GoogleCredentialsTests(unittest.TestCase):
   def test_get_environment_gae_production(self):
     with mock_module_import('google.appengine'):
       os.environ['SERVER_SOFTWARE'] = 'Google App Engine/XYZ'
-      self.assertEqual('GAE_PRODUCTION', _get_environment())
+      self.assertTrue(_in_gae_environment())
+      self.assertFalse(_in_gce_environment())
 
   def test_get_environment_gae_local(self):
     with mock_module_import('google.appengine'):
       os.environ['SERVER_SOFTWARE'] = 'Development/XYZ'
-      self.assertEqual('GAE_LOCAL', _get_environment())
+      self.assertTrue(_in_gae_environment())
+      self.assertFalse(_in_gce_environment())
+
+
+  def test_get_environment_fastpath(self):
+    os.environ['SERVER_SOFTWARE'] = 'Development/XYZ'
+    with mock_module_import('google.appengine'):
+      with mock.patch.object(urllib.request, 'urlopen',
+                             return_value=MockResponse({}),
+                             autospec=True) as urlopen:
+        self.assertTrue(_in_gae_environment())
+        self.assertFalse(_in_gce_environment())
+        # We already know are in GAE, so we shouldn't actually do the urlopen.
+        self.assertFalse(urlopen.called)
+
+  def test_get_environment_gae_module_on_gce(self):
+    with mock_module_import('google.appengine'):
+      os.environ['SERVER_SOFTWARE'] = ''
+      response = MockResponse({'Metadata-Flavor': 'Google'})
+      with mock.patch.object(urllib.request, 'urlopen',
+                             return_value=response,
+                             autospec=True) as urlopen:
+        self.assertFalse(_in_gae_environment())
+        self.assertTrue(_in_gce_environment())
+        urlopen.assert_called_once_with(
+            'http://169.254.169.254/', timeout=1)
+
+  def test_get_environment_gae_module_unknown(self):
+    with mock_module_import('google.appengine'):
+      os.environ['SERVER_SOFTWARE'] = ''
+      with mock.patch.object(urllib.request, 'urlopen',
+                             return_value=MockResponse({}),
+                             autospec=True) as urlopen:
+        self.assertFalse(_in_gae_environment())
+        self.assertFalse(_in_gce_environment())
+        urlopen.assert_called_once_with(
+            'http://169.254.169.254/', timeout=1)
 
   def test_get_environment_gce_production(self):
     os.environ['SERVER_SOFTWARE'] = ''
@@ -234,7 +272,8 @@ class GoogleCredentialsTests(unittest.TestCase):
     with mock.patch.object(urllib.request, 'urlopen',
                            return_value=response,
                            autospec=True) as urlopen:
-      self.assertEqual('GCE_PRODUCTION', _get_environment())
+      self.assertFalse(_in_gae_environment())
+      self.assertTrue(_in_gce_environment())
       urlopen.assert_called_once_with(
           'http://169.254.169.254/', timeout=1)
 
@@ -243,7 +282,8 @@ class GoogleCredentialsTests(unittest.TestCase):
     with mock.patch.object(urllib.request, 'urlopen',
                            return_value=MockResponse({}),
                            autospec=True) as urlopen:
-      self.assertEqual(DEFAULT_ENV_NAME, _get_environment())
+      self.assertFalse(_in_gce_environment())
+      self.assertFalse(_in_gae_environment())
       urlopen.assert_called_once_with(
           'http://169.254.169.254/', timeout=1)
 
