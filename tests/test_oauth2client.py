@@ -154,7 +154,7 @@ def mock_module_import(module):
   entries = ['.'.join(parts[:i+1]) for i in range(len(parts))]
   for entry in entries:
     sys.modules[entry] = object()
-  
+
   try:
     yield
 
@@ -1051,7 +1051,7 @@ class OAuth2WebServerFlowTest(unittest.TestCase):
     # Did we pass the Authorization header?
     self.assertEqual(test_request['headers']['Authorization'], auth_header)
     # Did we omit client_secret from POST body?
-    self.assertNotIn('client_secret', test_request['body'])
+    self.assertTrue('client_secret' not in test_request['body'])
 
   def test_urlencoded_exchange_success(self):
     http = HttpMockSequence([
