@@ -59,7 +59,7 @@ class CryptTests(unittest.TestCase):
     self._check_sign_and_verify('privatekey.%s' % self.format)
 
   def test_sign_and_verify_from_converted_pkcs12(self):
-    """Tests that following instructions to convert from PKCS12 to PEM works."""
+    # Tests that following instructions to convert from PKCS12 to PEM works.
     if self.format == 'pem':
       self._check_sign_and_verify('pem_from_pkcs12.pem')
 
@@ -74,7 +74,8 @@ class CryptTests(unittest.TestCase):
     self.assertTrue(verifier.verify(b'foo', signature))
 
     self.assertFalse(verifier.verify(b'bar', signature))
-    self.assertFalse(verifier.verify(b'foo', 'bad signagure'))
+    self.assertFalse(verifier.verify(b'foo', b'bad signagure'))
+    self.assertFalse(verifier.verify(b'foo', u'bad signagure'))
 
   def _check_jwt_failure(self, jwt, expected_error):
     public_key = datafile('publickey.pem')
@@ -189,6 +190,7 @@ class CryptTests(unittest.TestCase):
 
 
 class PEMCryptTestsPyCrypto(CryptTests):
+
   def setUp(self):
     self.format = 'pem'
     self.signer = crypt.PyCryptoSigner
@@ -196,6 +198,7 @@ class PEMCryptTestsPyCrypto(CryptTests):
 
 
 class PEMCryptTestsOpenSSL(CryptTests):
+
   def setUp(self):
     self.format = 'pem'
     self.signer = crypt.OpenSSLSigner
@@ -203,6 +206,7 @@ class PEMCryptTestsOpenSSL(CryptTests):
 
 
 class SignedJwtAssertionCredentialsTests(unittest.TestCase):
+
   def setUp(self):
     self.format = 'p12'
     crypt.Signer = crypt.OpenSSLSigner
@@ -281,6 +285,7 @@ class SignedJwtAssertionCredentialsTests(unittest.TestCase):
 
 class PEMSignedJwtAssertionCredentialsOpenSSLTests(
     SignedJwtAssertionCredentialsTests):
+
   def setUp(self):
     self.format = 'pem'
     crypt.Signer = crypt.OpenSSLSigner
@@ -288,6 +293,7 @@ class PEMSignedJwtAssertionCredentialsOpenSSLTests(
 
 class PEMSignedJwtAssertionCredentialsPyCryptoTests(
     SignedJwtAssertionCredentialsTests):
+
   def setUp(self):
     self.format = 'pem'
     crypt.Signer = crypt.PyCryptoSigner
