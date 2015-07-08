@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v1.4.12
+
+* Fix OS X flaky test failure (#189).
+* Fix broken OpenSSL import (#191).
+* Remove `@util.positional` from wrapped request in `Credentials.authorize()`
+  (#196, #197).
+* Changing pinned dependencies to `>=` (#200, #204).
+* Support client authentication using `Authorization` header (#206).
+* Clarify environment check in case where GAE imports succeed but GAE services
+  aren't available (#208).
+
 ## v1.4.11
 
 * Better environment detection with Managed VMs.
