@@ -7,7 +7,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>oauth2client.client &mdash; oauth2client 1.4.11 documentation</title>
+  <title>oauth2client.client &mdash; oauth2client 1.4.12 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="oauth2client 1.4.11 documentation" href="../../index.html"/>
+    <link rel="top" title="oauth2client 1.4.12 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -642,7 +642,6 @@
     <span class="n">request_orig</span> <span class="o">=</span> <span class="n">http</span><span class="o">.</span><span class="n">request</span>
 
     <span class="c"># The closure that will replace &#39;httplib2.Http.request&#39;.</span>
-    <span class="nd">@util.positional</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">new_request</span><span class="p">(</span><span class="n">uri</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s">&#39;GET&#39;</span><span class="p">,</span> <span class="n">body</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                     <span class="n">redirections</span><span class="o">=</span><span class="n">httplib2</span><span class="o">.</span><span class="n">DEFAULT_MAX_REDIRECTS</span><span class="p">,</span>
                     <span class="n">connection_type</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
@@ -1086,38 +1085,46 @@
     <span class="k">return</span> <span class="bp">False</span>
 
 
-<span class="k">def</span> <span class="nf">_get_environment</span><span class="p">(</span><span class="n">urlopen</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-  <span class="sd">&quot;&quot;&quot;Detect the environment the code is being run on.</span>
+<span class="k">def</span> <span class="nf">_in_gae_environment</span><span class="p">():</span>
+  <span class="sd">&quot;&quot;&quot;Detects if the code is running in the App Engine environment.</span>
+
+<span class="sd">  Returns:</span>
+<span class="sd">     True if running in the GAE environment, False otherwise.</span>
+<span class="sd">  &quot;&quot;&quot;</span>
+  <span class="k">if</span> <span class="n">SETTINGS</span><span class="o">.</span><span class="n">env_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">SETTINGS</span><span class="o">.</span><span class="n">env_name</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;GAE_PRODUCTION&#39;</span><span class="p">,</span> <span class="s">&#39;GAE_LOCAL&#39;</span><span class="p">)</span>
+
+  <span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">google.appengine</span>
+    <span class="n">server_software</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;SERVER_SOFTWARE&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">server_software</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;Google App Engine/&#39;</span><span class="p">):</span>
+      <span class="n">SETTINGS</span><span class="o">.</span><span class="n">env_name</span> <span class="o">=</span> <span class="s">&#39;GAE_PRODUCTION&#39;</span>
+      <span class="k">return</span> <span class="bp">True</span>
+    <span class="k">elif</span> <span class="n">server_software</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;Development/&#39;</span><span class="p">):</span>
+      <span class="n">SETTINGS</span><span class="o">.</span><span class="n">env_name</span> <span class="o">=</span> <span class="s">&#39;GAE_LOCAL&#39;</span>
+      <span class="k">return</span> <span class="bp">True</span>
+  <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="k">pass</span>
+
+  <span class="k">return</span> <span class="bp">False</span>
+
+
+<span class="k">def</span> <span class="nf">_in_gce_environment</span><span class="p">(</span><span class="n">urlopen</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;Detect if the code is running in the Compute Engine environment.</span>
 
 <span class="sd">  Args:</span>
 <span class="sd">      urlopen: Optional argument. Function used to open a connection to a URL.</span>
 
 <span class="sd">  Returns:</span>
-<span class="sd">      The value of SETTINGS.env_name after being set. If already</span>
-<span class="sd">          set, simply returns the value.</span>
+<span class="sd">      True if running in the GCE environment, False otherwise.</span>
 <span class="sd">  &quot;&quot;&quot;</span>
   <span class="k">if</span> <span class="n">SETTINGS</span><span class="o">.</span><span class="n">env_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-    <span class="k">return</span> <span class="n">SETTINGS</span><span class="o">.</span><span class="n">env_name</span>
+    <span class="k">return</span> <span class="n">SETTINGS</span><span class="o">.</span><span class="n">env_name</span> <span class="o">==</span> <span class="s">&#39;GCE_PRODUCTION&#39;</span>
 
-  <span class="c"># None is an unset value, not the default.</span>
-  <span class="n">SETTINGS</span><span class="o">.</span><span class="n">env_name</span> <span class="o">=</span> <span class="n">DEFAULT_ENV_NAME</span>
-
-  <span class="k">try</span><span class="p">:</span>
-    <span class="kn">import</span> <span class="nn">google.appengine</span>
-    <span class="n">has_gae_sdk</span> <span class="o">=</span> <span class="bp">True</span>
-  <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-    <span class="n">has_gae_sdk</span> <span class="o">=</span> <span class="bp">False</span>
-
-  <span class="k">if</span> <span class="n">has_gae_sdk</span><span class="p">:</span>
-    <span class="n">server_software</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;SERVER_SOFTWARE&#39;</span><span class="p">,</span> <span class="s">&#39;&#39;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">server_software</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;Google App Engine/&#39;</span><span class="p">):</span>
-      <span class="n">SETTINGS</span><span class="o">.</span><span class="n">env_name</span> <span class="o">=</span> <span class="s">&#39;GAE_PRODUCTION&#39;</span>
-    <span class="k">elif</span> <span class="n">server_software</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;Development/&#39;</span><span class="p">):</span>
-      <span class="n">SETTINGS</span><span class="o">.</span><span class="n">env_name</span> <span class="o">=</span> <span class="s">&#39;GAE_LOCAL&#39;</span>
-  <span class="k">elif</span> <span class="n">NO_GCE_CHECK</span> <span class="o">!=</span> <span class="s">&#39;True&#39;</span> <span class="ow">and</span> <span class="n">_detect_gce_environment</span><span class="p">(</span><span class="n">urlopen</span><span class="o">=</span><span class="n">urlopen</span><span class="p">):</span>
+  <span class="k">if</span> <span class="n">NO_GCE_CHECK</span> <span class="o">!=</span> <span class="s">&#39;True&#39;</span> <span class="ow">and</span> <span class="n">_detect_gce_environment</span><span class="p">(</span><span class="n">urlopen</span><span class="o">=</span><span class="n">urlopen</span><span class="p">):</span>
     <span class="n">SETTINGS</span><span class="o">.</span><span class="n">env_name</span> <span class="o">=</span> <span class="s">&#39;GCE_PRODUCTION&#39;</span>
-
-  <span class="k">return</span> <span class="n">SETTINGS</span><span class="o">.</span><span class="n">env_name</span>
+    <span class="k">return</span> <span class="bp">True</span>
+  <span class="k">return</span> <span class="bp">False</span>
 
 
 <div class="viewcode-block" id="GoogleCredentials"><a class="viewcode-back" href="../../source/oauth2client.html#oauth2client.appengine.GoogleCredentials">[docs]</a><span class="k">class</span> <span class="nc">GoogleCredentials</span><span class="p">(</span><span class="n">OAuth2Credentials</span><span class="p">):</span>
@@ -1196,55 +1203,44 @@
     <span class="p">}</span>
 
   <span class="nd">@staticmethod</span>
-  <span class="k">def</span> <span class="nf">_implicit_credentials_from_gae</span><span class="p">(</span><span class="n">env_name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">_implicit_credentials_from_gae</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Attempts to get implicit credentials in Google App Engine env.</span>
 
 <span class="sd">    If the current environment is not detected as App Engine, returns None,</span>
 <span class="sd">    indicating no Google App Engine credentials can be detected from the</span>
 <span class="sd">    current environment.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        env_name: String, indicating current environment.</span>
-
 <span class="sd">    Returns:</span>
 <span class="sd">        None, if not in GAE, else an appengine.AppAssertionCredentials object.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">env_name</span> <span class="o">=</span> <span class="n">env_name</span> <span class="ow">or</span> <span class="n">_get_environment</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">env_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;GAE_PRODUCTION&#39;</span><span class="p">,</span> <span class="s">&#39;GAE_LOCAL&#39;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_in_gae_environment</span><span class="p">():</span>
       <span class="k">return</span> <span class="bp">None</span>
 
     <span class="k">return</span> <span class="n">_get_application_default_credential_GAE</span><span class="p">()</span>
 
   <span class="nd">@staticmethod</span>
-  <span class="k">def</span> <span class="nf">_implicit_credentials_from_gce</span><span class="p">(</span><span class="n">env_name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">_implicit_credentials_from_gce</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Attempts to get implicit credentials in Google Compute Engine env.</span>
 
 <span class="sd">    If the current environment is not detected as Compute Engine, returns None,</span>
 <span class="sd">    indicating no Google Compute Engine credentials can be detected from the</span>
 <span class="sd">    current environment.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        env_name: String, indicating current environment.</span>
-
 <span class="sd">    Returns:</span>
 <span class="sd">        None, if not in GCE, else a gce.AppAssertionCredentials object.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">env_name</span> <span class="o">=</span> <span class="n">env_name</span> <span class="ow">or</span> <span class="n">_get_environment</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">env_name</span> <span class="o">!=</span> <span class="s">&#39;GCE_PRODUCTION&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_in_gce_environment</span><span class="p">():</span>
       <span class="k">return</span> <span class="bp">None</span>
 
     <span class="k">return</span> <span class="n">_get_application_default_credential_GCE</span><span class="p">()</span>
 
   <span class="nd">@staticmethod</span>
-  <span class="k">def</span> <span class="nf">_implicit_credentials_from_files</span><span class="p">(</span><span class="n">env_name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">_implicit_credentials_from_files</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Attempts to get implicit credentials from local credential files.</span>
 
 <span class="sd">    First checks if the environment variable GOOGLE_APPLICATION_CREDENTIALS</span>
 <span class="sd">    is set with a filename and then falls back to a configuration file (the</span>
 <span class="sd">    &quot;well known&quot; file) associated with the &#39;gcloud&#39; command line tool.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        env_name: Unused argument.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Credentials object associated with the GOOGLE_APPLICATION_CREDENTIALS</span>
@@ -1267,6 +1263,10 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">credentials_filename</span><span class="p">:</span>
       <span class="k">return</span>
 
+    <span class="c"># If we can read the credentials from a file, we don&#39;t need to know what</span>
+    <span class="c"># environment we are in.</span>
+    <span class="n">SETTINGS</span><span class="o">.</span><span class="n">env_name</span> <span class="o">=</span> <span class="n">DEFAULT_ENV_NAME</span>
+
     <span class="k">try</span><span class="p">:</span>
       <span class="k">return</span> <span class="n">_get_application_default_credential_from_file</span><span class="p">(</span><span class="n">credentials_filename</span><span class="p">)</span>
     <span class="k">except</span> <span class="p">(</span><span class="n">ApplicationDefaultCredentialsError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
@@ -1287,10 +1287,8 @@
 <span class="sd">      ApplicationDefaultCredentialsError: raised when the credentials fail</span>
 <span class="sd">          to be retrieved.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">env_name</span> <span class="o">=</span> <span class="n">_get_environment</span><span class="p">()</span>
 
-    <span class="c"># Environ checks (in order). Assumes each checker takes `env_name`</span>
-    <span class="c"># as a kwarg.</span>
+    <span class="c"># Environ checks (in order).</span>
     <span class="n">environ_checkers</span> <span class="o">=</span> <span class="p">[</span>
       <span class="n">cls</span><span class="o">.</span><span class="n">_implicit_credentials_from_gae</span><span class="p">,</span>
       <span class="n">cls</span><span class="o">.</span><span class="n">_implicit_credentials_from_files</span><span class="p">,</span>
@@ -1298,7 +1296,7 @@
     <span class="p">]</span>
 
     <span class="k">for</span> <span class="n">checker</span> <span class="ow">in</span> <span class="n">environ_checkers</span><span class="p">:</span>
-      <span class="n">credentials</span> <span class="o">=</span> <span class="n">checker</span><span class="p">(</span><span class="n">env_name</span><span class="o">=</span><span class="n">env_name</span><span class="p">)</span>
+      <span class="n">credentials</span> <span class="o">=</span> <span class="n">checker</span><span class="p">()</span>
       <span class="k">if</span> <span class="n">credentials</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">credentials</span>
 
@@ -1895,7 +1893,9 @@
 <span class="sd">  &quot;&quot;&quot;</span>
 
   <span class="nd">@util.positional</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
-  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client_id</span><span class="p">,</span> <span class="n">client_secret</span><span class="p">,</span> <span class="n">scope</span><span class="p">,</span>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">client_id</span><span class="p">,</span>
+               <span class="n">client_secret</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+               <span class="n">scope</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                <span class="n">redirect_uri</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                <span class="n">user_agent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                <span class="n">auth_uri</span><span class="o">=</span><span class="n">GOOGLE_AUTH_URI</span><span class="p">,</span>
@@ -1903,6 +1903,7 @@
                <span class="n">revoke_uri</span><span class="o">=</span><span class="n">GOOGLE_REVOKE_URI</span><span class="p">,</span>
                <span class="n">login_hint</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                <span class="n">device_uri</span><span class="o">=</span><span class="n">GOOGLE_DEVICE_URI</span><span class="p">,</span>
+               <span class="n">authorization_header</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Constructor for OAuth2WebServerFlow.</span>
 
@@ -1930,9 +1931,16 @@
 <span class="sd">        proper multi-login session, thereby simplifying the login flow.</span>
 <span class="sd">      device_uri: string, URI for device authorization endpoint. For convenience</span>
 <span class="sd">        defaults to Google&#39;s endpoints but any OAuth 2.0 provider can be used.</span>
+<span class="sd">      authorization_header: string, For use with OAuth 2.0 providers that</span>
+<span class="sd">        require a client to authenticate using a header value instead of passing</span>
+<span class="sd">        client_secret in the POST body.</span>
 <span class="sd">      **kwargs: dict, The keyword arguments are all optional and required</span>
 <span class="sd">                        parameters for the OAuth calls.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c"># scope is a required argument, but to preserve backwards-compatibility</span>
+    <span class="c"># we don&#39;t want to rearrange the positional arguments</span>
+    <span class="k">if</span> <span class="n">scope</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;The value of scope must not be None&quot;</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">client_id</span> <span class="o">=</span> <span class="n">client_id</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">client_secret</span> <span class="o">=</span> <span class="n">client_secret</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">scope</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">scopes_to_string</span><span class="p">(</span><span class="n">scope</span><span class="p">)</span>
@@ -1943,6 +1951,7 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">token_uri</span> <span class="o">=</span> <span class="n">token_uri</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">revoke_uri</span> <span class="o">=</span> <span class="n">revoke_uri</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">device_uri</span> <span class="o">=</span> <span class="n">device_uri</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">authorization_header</span> <span class="o">=</span> <span class="n">authorization_header</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s">&#39;access_type&#39;</span><span class="p">:</span> <span class="s">&#39;offline&#39;</span><span class="p">,</span>
         <span class="s">&#39;response_type&#39;</span><span class="p">:</span> <span class="s">&#39;code&#39;</span><span class="p">,</span>
@@ -2068,10 +2077,11 @@
 
     <span class="n">post_data</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s">&#39;client_id&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_id</span><span class="p">,</span>
-        <span class="s">&#39;client_secret&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_secret</span><span class="p">,</span>
         <span class="s">&#39;code&#39;</span><span class="p">:</span> <span class="n">code</span><span class="p">,</span>
         <span class="s">&#39;scope&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">scope</span><span class="p">,</span>
     <span class="p">}</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_secret</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="n">post_data</span><span class="p">[</span><span class="s">&#39;client_secret&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client_secret</span>
     <span class="k">if</span> <span class="n">device_flow_info</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
       <span class="n">post_data</span><span class="p">[</span><span class="s">&#39;grant_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&#39;http://oauth.net/grant_type/device/1.0&#39;</span>
     <span class="k">else</span><span class="p">:</span>
@@ -2081,7 +2091,8 @@
     <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s">&#39;content-type&#39;</span><span class="p">:</span> <span class="s">&#39;application/x-www-form-urlencoded&#39;</span><span class="p">,</span>
     <span class="p">}</span>
-
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">authorization_header</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+      <span class="n">headers</span><span class="p">[</span><span class="s">&#39;Authorization&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">authorization_header</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_agent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
       <span class="n">headers</span><span class="p">[</span><span class="s">&#39;user-agent&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_agent</span>
 
@@ -2216,7 +2227,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../',
-            VERSION:'1.4.11',
+            VERSION:'1.4.12',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true
