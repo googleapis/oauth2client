@@ -27,12 +27,12 @@ import pickle
 import threading
 
 import httplib2
+import webapp2 as webapp
 
 from google.appengine.api import app_identity
 from google.appengine.api import memcache
 from google.appengine.api import users
 from google.appengine.ext import db
-from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import login_required
 from google.appengine.ext.webapp.util import run_wsgi_app
 from oauth2client import GOOGLE_AUTH_URI
