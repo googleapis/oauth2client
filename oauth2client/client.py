@@ -1849,7 +1849,7 @@ class OAuth2WebServerFlow(Flow):
     self.params.update(kwargs)
 
   @util.positional(1)
-  def step1_get_authorize_url(self, redirect_uri=None):
+  def step1_get_authorize_url(self, redirect_uri=None, state=None):
     """Returns a URI to redirect to the provider.
 
     Args:
@@ -1876,6 +1876,8 @@ class OAuth2WebServerFlow(Flow):
         'redirect_uri': self.redirect_uri,
         'scope': self.scope,
     }
+    if state is not None:
+      query_params['state'] = state
     if self.login_hint is not None:
       query_params['login_hint'] = self.login_hint
     query_params.update(self.params)

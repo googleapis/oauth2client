@@ -981,7 +981,7 @@ class OAuth2WebServerFlowTest(unittest.TestCase):
         )
 
   def test_construct_authorize_url(self):
-    authorize_url = self.flow.step1_get_authorize_url()
+    authorize_url = self.flow.step1_get_authorize_url(state='state+1')
 
     parsed = urllib.parse.urlparse(authorize_url)
     q = urllib.parse.parse_qs(parsed[4])
@@ -990,6 +990,7 @@ class OAuth2WebServerFlowTest(unittest.TestCase):
     self.assertEqual('foo', q['scope'][0])
     self.assertEqual(OOB_CALLBACK_URN, q['redirect_uri'][0])
     self.assertEqual('offline', q['access_type'][0])
+    self.assertEqual('state+1', q['state'][0])
 
   def test_override_flow_via_kwargs(self):
     """Passing kwargs to override defaults."""
