@@ -1857,6 +1857,8 @@ class OAuth2WebServerFlow(Flow):
         a non-web-based application, or a URI that handles the callback from
         the authorization server. This parameter is deprecated, please move to
         passing the redirect_uri in via the constructor.
+      state: string, Opaque state string which is passed through the OAuth2 flow
+        and returned to the client as a query parameter in the callback.
 
     Returns:
       A URI as a string to redirect the user to begin the authorization flow.
