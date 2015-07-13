@@ -85,20 +85,24 @@ try:
       """Verifies a message against a signature.
 
       Args:
-        message: string, The message to verify.
-        signature: string, The signature on the message.
+        message: string or bytes, The message to verify. If string, will be
+                 encoded to bytes as utf-8.
+        signature: string or bytes, The signature on the message. If string,
+                   will be encoded to bytes as utf-8.
 
       Returns:
         True if message was signed by the private key associated with the public
         key that this object was constructed with.
       """
       from OpenSSL import crypto
+      if isinstance(message, six.text_type):
+        message = message.encode('utf-8')
+      if isinstance(signature, six.text_type):
+        signature = signature.encode('utf-8')
       try:
-        if isinstance(message, six.text_type):
-          message = message.encode('utf-8')
         crypto.verify(self._pubkey, signature, message, 'sha256')
         return True
-      except:
+      except crypto.Error:
         return False
 
     @staticmethod
@@ -221,18 +225,18 @@ try:
       """Verifies a message against a signature.
 
       Args:
-        message: string, The message to verify.
-        signature: string, The signature on the message.
+        message: string or bytes, The message to verify. If string, will be
+                 encoded to bytes as utf-8.
+        signature: string or bytes, The signature on the message.
 
       Returns:
         True if message was signed by the private key associated with the public
         key that this object was constructed with.
       """
-      try:
-        return PKCS1_v1_5.new(self._pubkey).verify(
-            SHA256.new(message), signature)
-      except:
-        return False
+      if isinstance(message, six.text_type):
+        message = message.encode('utf-8')
+      return PKCS1_v1_5.new(self._pubkey).verify(
+          SHA256.new(message), signature)
 
     @staticmethod
     def from_string(key_pem, is_x509_cert):
