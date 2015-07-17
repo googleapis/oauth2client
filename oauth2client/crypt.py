@@ -15,15 +15,15 @@
 # limitations under the License.
 """Crypto-related routines for oauth2client."""
 
-import base64
 import imp
 import json
 import logging
 import os
-import sys
 import time
 
-import six
+from oauth2client._helpers import _json_encode
+from oauth2client._helpers import _urlsafe_b64decode
+from oauth2client._helpers import _urlsafe_b64encode
 
 
 CLOCK_SKEW_SECS = 300  # 5 minutes in seconds
@@ -69,133 +69,9 @@ def _TryOpenSslImport():
 
 try:
   _TryOpenSslImport()
-
-  class OpenSSLVerifier(object):
-    """Verifies the signature on a message."""
-
-    def __init__(self, pubkey):
-      """Constructor.
-
-      Args:
-        pubkey, OpenSSL.crypto.PKey, The public key to verify with.
-      """
-      self._pubkey = pubkey
-
-    def verify(self, message, signature):
-      """Verifies a message against a signature.
-
-      Args:
-        message: string or bytes, The message to verify. If string, will be
-                 encoded to bytes as utf-8.
-        signature: string or bytes, The signature on the message. If string,
-                   will be encoded to bytes as utf-8.
-
-      Returns:
-        True if message was signed by the private key associated with the public
-        key that this object was constructed with.
-      """
-      from OpenSSL import crypto
-      if isinstance(message, six.text_type):
-        message = message.encode('utf-8')
-      if isinstance(signature, six.text_type):
-        signature = signature.encode('utf-8')
-      try:
-        crypto.verify(self._pubkey, signature, message, 'sha256')
-        return True
-      except crypto.Error:
-        return False
-
-    @staticmethod
-    def from_string(key_pem, is_x509_cert):
-      """Construct a Verified instance from a string.
-
-      Args:
-        key_pem: string, public key in PEM format.
-        is_x509_cert: bool, True if key_pem is an X509 cert, otherwise it is
-          expected to be an RSA key in PEM format.
-
-      Returns:
-        Verifier instance.
-
-      Raises:
-        OpenSSL.crypto.Error if the key_pem can't be parsed.
-      """
-      from OpenSSL import crypto
-      if is_x509_cert:
-        pubkey = crypto.load_certificate(crypto.FILETYPE_PEM, key_pem)
-      else:
-        pubkey = crypto.load_privatekey(crypto.FILETYPE_PEM, key_pem)
-      return OpenSSLVerifier(pubkey)
-
-
-  class OpenSSLSigner(object):
-    """Signs messages with a private key."""
-
-    def __init__(self, pkey):
-      """Constructor.
-
-      Args:
-        pkey, OpenSSL.crypto.PKey (or equiv), The private key to sign with.
-      """
-      self._key = pkey
-
-    def sign(self, message):
-      """Signs a message.
-
-      Args:
-        message: bytes, Message to be signed.
-
-      Returns:
-        string, The signature of the message for the given key.
-      """
-      from OpenSSL import crypto
-      if isinstance(message, six.text_type):
-        message = message.encode('utf-8')
-      return crypto.sign(self._key, message, 'sha256')
-
-    @staticmethod
-    def from_string(key, password=b'notasecret'):
-      """Construct a Signer instance from a string.
-
-      Args:
-        key: string, private key in PKCS12 or PEM format.
-        password: string, password for the private key file.
-
-      Returns:
-        Signer instance.
-
-      Raises:
-        OpenSSL.crypto.Error if the key can't be parsed.
-      """
-      from OpenSSL import crypto
-      parsed_pem_key = _parse_pem_key(key)
-      if parsed_pem_key:
-        pkey = crypto.load_privatekey(crypto.FILETYPE_PEM, parsed_pem_key)
-      else:
-        if isinstance(password, six.text_type):
-          password = password.encode('utf-8')
-        pkey = crypto.load_pkcs12(key, password).get_privatekey()
-      return OpenSSLSigner(pkey)
-
-
-  def pkcs12_key_as_pem(private_key_text, private_key_password):
-    """Convert the contents of a PKCS12 key to PEM using OpenSSL.
-
-    Args:
-      private_key_text: String. Private key.
-      private_key_password: String. Password for PKCS12.
-
-    Returns:
-      String. PEM contents of ``private_key_text``.
-    """
-    from OpenSSL import crypto
-    decoded_body = base64.b64decode(private_key_text)
-    if isinstance(private_key_password, six.string_types):
-      private_key_password = private_key_password.encode('ascii')
-
-    pkcs12 = crypto.load_pkcs12(decoded_body, private_key_password)
-    return crypto.dump_privatekey(crypto.FILETYPE_PEM,
-                                  pkcs12.get_privatekey())
+  from oauth2client._openssl_crypt import OpenSSLVerifier
+  from oauth2client._openssl_crypt import OpenSSLSigner
+  from oauth2client._openssl_crypt import pkcs12_key_as_pem
 except ImportError:
   OpenSSLVerifier = None
   OpenSSLSigner = None
@@ -204,116 +80,8 @@ except ImportError:
 
 
 try:
-  from Crypto.PublicKey import RSA
-  from Crypto.Hash import SHA256
-  from Crypto.Signature import PKCS1_v1_5
-  from Crypto.Util.asn1 import DerSequence
-
-
-  class PyCryptoVerifier(object):
-    """Verifies the signature on a message."""
-
-    def __init__(self, pubkey):
-      """Constructor.
-
-      Args:
-        pubkey, OpenSSL.crypto.PKey (or equiv), The public key to verify with.
-      """
-      self._pubkey = pubkey
-
-    def verify(self, message, signature):
-      """Verifies a message against a signature.
-
-      Args:
-        message: string or bytes, The message to verify. If string, will be
-                 encoded to bytes as utf-8.
-        signature: string or bytes, The signature on the message.
-
-      Returns:
-        True if message was signed by the private key associated with the public
-        key that this object was constructed with.
-      """
-      if isinstance(message, six.text_type):
-        message = message.encode('utf-8')
-      return PKCS1_v1_5.new(self._pubkey).verify(
-          SHA256.new(message), signature)
-
-    @staticmethod
-    def from_string(key_pem, is_x509_cert):
-      """Construct a Verified instance from a string.
-
-      Args:
-        key_pem: string, public key in PEM format.
-        is_x509_cert: bool, True if key_pem is an X509 cert, otherwise it is
-          expected to be an RSA key in PEM format.
-
-      Returns:
-        Verifier instance.
-      """
-      if is_x509_cert:
-        if isinstance(key_pem, six.text_type):
-          key_pem = key_pem.encode('ascii')
-        pemLines = key_pem.replace(b' ', b'').split()
-        certDer = _urlsafe_b64decode(b''.join(pemLines[1:-1]))
-        certSeq = DerSequence()
-        certSeq.decode(certDer)
-        tbsSeq = DerSequence()
-        tbsSeq.decode(certSeq[0])
-        pubkey = RSA.importKey(tbsSeq[6])
-      else:
-        pubkey = RSA.importKey(key_pem)
-      return PyCryptoVerifier(pubkey)
-
-
-  class PyCryptoSigner(object):
-    """Signs messages with a private key."""
-
-    def __init__(self, pkey):
-      """Constructor.
-
-      Args:
-        pkey, OpenSSL.crypto.PKey (or equiv), The private key to sign with.
-      """
-      self._key = pkey
-
-    def sign(self, message):
-      """Signs a message.
-
-      Args:
-        message: string, Message to be signed.
-
-      Returns:
-        string, The signature of the message for the given key.
-      """
-      if isinstance(message, six.text_type):
-        message = message.encode('utf-8')
-      return PKCS1_v1_5.new(self._key).sign(SHA256.new(message))
-
-    @staticmethod
-    def from_string(key, password='notasecret'):
-      """Construct a Signer instance from a string.
-
-      Args:
-        key: string, private key in PEM format.
-        password: string, password for private key file. Unused for PEM files.
-
-      Returns:
-        Signer instance.
-
-      Raises:
-        NotImplementedError if they key isn't in PEM format.
-      """
-      parsed_pem_key = _parse_pem_key(key)
-      if parsed_pem_key:
-        pkey = RSA.importKey(parsed_pem_key)
-      else:
-        raise NotImplementedError(
-            'PKCS12 format is not supported by the PyCrypto library. '
-            'Try converting to a "PEM" '
-            '(openssl pkcs12 -in xxxxx.p12 -nodes -nocerts > privatekey.pem) '
-            'or using PyOpenSSL if native code is an option.')
-      return PyCryptoSigner(pkey)
-
+  from oauth2client._pycrypto_crypt import PyCryptoVerifier
+  from oauth2client._pycrypto_crypt import PyCryptoSigner
 except ImportError:
   PyCryptoVerifier = None
   PyCryptoSigner = None
@@ -328,41 +96,6 @@ elif PyCryptoSigner:
 else:
   raise ImportError('No encryption library found. Please install either '
                     'PyOpenSSL, or PyCrypto 2.6 or later')
-
-
-def _parse_pem_key(raw_key_input):
-  """Identify and extract PEM keys.
-
-  Determines whether the given key is in the format of PEM key, and extracts
-  the relevant part of the key if it is.
-
-  Args:
-    raw_key_input: The contents of a private key file (either PEM or PKCS12).
-
-  Returns:
-    string, The actual key if the contents are from a PEM file, or else None.
-  """
-  offset = raw_key_input.find(b'-----BEGIN ')
-  if offset != -1:
-    return raw_key_input[offset:]
-
-
-def _urlsafe_b64encode(raw_bytes):
-  if isinstance(raw_bytes, six.text_type):
-    raw_bytes = raw_bytes.encode('utf-8')
-  return base64.urlsafe_b64encode(raw_bytes).decode('ascii').rstrip('=')
-
-
-def _urlsafe_b64decode(b64string):
-  # Guard against unicode strings, which base64 can't handle.
-  if isinstance(b64string, six.text_type):
-    b64string = b64string.encode('ascii')
-  padded = b64string + b'=' * (4 - len(b64string) % 4)
-  return base64.urlsafe_b64decode(padded)
-
-
-def _json_encode(data):
-  return json.dumps(data, separators=(',', ':'))
 
 
 def make_signed_jwt(signer, payload):

@@ -18,7 +18,6 @@ This credentials class is implemented on top of rsa library.
 """
 
 import base64
-import json
 import six
 import time
 
@@ -28,6 +27,8 @@ import rsa
 
 from oauth2client import GOOGLE_REVOKE_URI
 from oauth2client import GOOGLE_TOKEN_URI
+from oauth2client._helpers import _json_encode
+from oauth2client._helpers import _urlsafe_b64encode
 from oauth2client import util
 from oauth2client.client import AssertionCredentials
 
@@ -75,8 +76,9 @@ class _ServiceAccountCredentials(AssertionCredentials):
     }
     payload.update(self._kwargs)
 
-    assertion_input = (_urlsafe_b64encode(header) + b'.' +
-                       _urlsafe_b64encode(payload))
+    first_segment = _urlsafe_b64encode(_json_encode(header)).encode('utf-8')
+    second_segment = _urlsafe_b64encode(_json_encode(payload)).encode('utf-8')
+    assertion_input = first_segment + b'.' + second_segment
 
     # Sign the assertion.
     rsa_bytes = rsa.pkcs1.sign(assertion_input, self._private_key, 'SHA-256')
@@ -120,11 +122,6 @@ class _ServiceAccountCredentials(AssertionCredentials):
                                       token_uri=self._token_uri,
                                       revoke_uri=self._revoke_uri,
                                       **self._kwargs)
-
-
-def _urlsafe_b64encode(data):
-  return base64.urlsafe_b64encode(
-      json.dumps(data, separators=(',', ':')).encode('UTF-8')).rstrip(b'=')
 
 
 def _get_private_key(private_key_pkcs8_text):

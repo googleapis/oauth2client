@@ -67,7 +67,10 @@ class CryptTests(unittest.TestCase):
     private_key = datafile(private_key_file)
     public_key = datafile('publickey.pem')
 
-    signer = self.signer.from_string(private_key)
+    # We pass in a non-bytes password to make sure all branches
+    # are traversed in tests.
+    signer = self.signer.from_string(private_key,
+                                     password=u'notasecret')
     signature = signer.sign('foo')
 
     verifier = self.verifier.from_string(public_key, True)
@@ -187,6 +190,13 @@ class CryptTests(unittest.TestCase):
         'exp': time.time() + 300,
     })
     self._check_jwt_failure(jwt, 'Wrong recipient')
+
+  def test_from_string_non_509_cert(self):
+    # Use a private key instead of a certificate to test the other branch
+    # of from_string().
+    public_key = datafile('privatekey.pem')
+    verifier = self.verifier.from_string(public_key, is_x509_cert=False)
+    self.assertTrue(isinstance(verifier, self.verifier))
 
 
 class PEMCryptTestsPyCrypto(CryptTests):

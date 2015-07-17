@@ -35,11 +35,12 @@ import six
 from six.moves import urllib
 
 import httplib2
-from oauth2client import clientsecrets
 from oauth2client import GOOGLE_AUTH_URI
 from oauth2client import GOOGLE_DEVICE_URI
 from oauth2client import GOOGLE_REVOKE_URI
 from oauth2client import GOOGLE_TOKEN_URI
+from oauth2client._helpers import _urlsafe_b64decode
+from oauth2client import clientsecrets
 from oauth2client import util
 
 HAS_OPENSSL = False
@@ -1589,14 +1590,6 @@ def verify_id_token(id_token, audience, http=None,
     return crypt.verify_signed_jwt_with_certs(id_token, certs, audience)
   else:
     raise VerifyJwtTokenError('Status code: %d' % resp.status)
-
-
-def _urlsafe_b64decode(b64string):
-  # Guard against unicode strings, which base64 can't handle.
-  if isinstance(b64string, six.text_type):
-    b64string = b64string.encode('ascii')
-  padded = b64string + b'=' * (4 - len(b64string) % 4)
-  return base64.urlsafe_b64decode(padded)
 
 
 def _extract_id_token(id_token):
