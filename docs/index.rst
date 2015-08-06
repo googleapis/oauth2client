@@ -6,7 +6,7 @@ oauth2client
 ``oauth2client`` makes it easy to interact with OAuth2-protected resources,
 especially those related to Google APIs. You can also start with `general
 information about using OAuth2 with Google APIs
-<https://developers.google.com/accounts/docs/OAuth2>`_. 
+<https://developers.google.com/accounts/docs/OAuth2>`_.
 
 Getting started
 ---------------
@@ -28,7 +28,7 @@ Downloads
   <https://github.com/google/oauth2client/tarball/master>`_
 * `Most recent release zipfile
   <https://github.com/google/oauth2client/zipball/master>`_
-* `Complete release list <https://github.com/google/oauth2client/releases>`_ 
+* `Complete release list <https://github.com/google/oauth2client/releases>`_
 
 Library Documentation
 ---------------------

@@ -28,4 +28,3 @@ sphinx-apidoc -f -o docs/source oauth2client
 cd docs
 make html
 cd ..
-
