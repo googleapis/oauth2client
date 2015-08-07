@@ -895,7 +895,7 @@ class AccessTokenCredentials(OAuth2Credentials):
     http = httplib2.Http()
     http = credentials.authorize(http)
 
-  Exceptions:
+  Raises:
     AccessTokenCredentialsExpired: raised when the access_token expires or is
       revoked.
   """
@@ -1174,7 +1174,7 @@ class GoogleCredentials(OAuth2Credentials):
     - Stored "well known" file associated with `gcloud` command line tool.
     - Google Compute Engine production environment.
 
-    Exceptions:
+    Raises:
       ApplicationDefaultCredentialsError: raised when the credentials fail
           to be retrieved.
     """
@@ -1198,7 +1198,7 @@ class GoogleCredentials(OAuth2Credentials):
   def get_application_default():
     """Get the Application Default Credentials for the current environment.
 
-    Exceptions:
+    Raises:
       ApplicationDefaultCredentialsError: raised when the credentials fail
                                           to be retrieved.
     """
@@ -1214,7 +1214,7 @@ class GoogleCredentials(OAuth2Credentials):
       credential_filename: the path to the file from where the credentials
         are to be read
 
-    Exceptions:
+    Raises:
       ApplicationDefaultCredentialsError: raised when the credentials fail
                                           to be retrieved.
     """
