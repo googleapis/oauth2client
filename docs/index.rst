@@ -40,16 +40,17 @@ Library Documentation
 Contributing
 ------------
 
-Please see the `contributing page <contributing.html>`_ for more information.
+Please see the `contributing page`_ for more information.
 In particular, we love pull requests -- but please make sure to sign the
 contributor license agreement.
+
+.. _contributing page: https://github.com/google/oauth2client/blob/master/CONTRIBUTING.md
 
 .. toctree::
    :maxdepth: 1
    :hidden:
 
    source/modules
-   contributing
 
 Supported Python Versions
 -------------------------

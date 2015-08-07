@@ -1,12 +1,43 @@
 Contributing
 ============
 
-1.  **Please sign one of the contributor license agreements below.**
-1.  Fork the repo, develop and test your code changes, add docs.
+1.  **Please sign one of the contributor license agreements [below][6].**
+1.  [File an issue][9] to notify the maintainers about what you're working on.
+1.  [Fork the repo][10], develop and [test][11] your code changes, add docs.
 1.  Make sure that your commit messages clearly describe the changes.
-1.  Send a pull request.
+1.  [Send][12] a pull request.
 
 Here are some guidelines for hacking on `oauth2client`.
+
+Before writing code, file an issue
+----------------------------------
+
+Use the [issue tracker][7] to start the discussion. It is possible that someone
+else is already working on your idea, your approach is not quite right, or that
+the functionality exists already. The ticket you file in the issue tracker will
+be used to hash that all out.
+
+Fork `oauth2client`
+-------------------
+
+We will use GitHub's mechanism for [forking][8] repositories and making pull
+requests. Fork the repository, and make your changes in the forked repository.
+
+Include tests
+-------------
+
+Be sure to add the relevant tests before making the pull request. Docs will be
+updated automatically when we merge to `master`, but you should also build
+the docs yourself via `tox -e docs` and make sure they're readable.
+
+Make the pull request
+---------------------
+
+Once you have made all your changes, tests, and updated the documentation,
+make a pull request to move everything back into the main `oauth2client`
+repository. Be sure to reference the original issue in the pull request.
+Expect some back-and-forth with regards to style and compliance of these
+rules.
 
 Using a Development Checkout
 ----------------------------
@@ -153,3 +184,10 @@ we'll be able to accept your pull requests.
 [3]: https://cloud.google.com/storage/docs/authentication#generating-a-private-key
 [4]: https://developers.google.com/open-source/cla/individual
 [5]: https://developers.google.com/open-source/cla/corporate
+[6]: #contributor-license-agreements
+[7]: https://github.com/google/oauth2client/issues
+[8]: https://help.github.com/articles/fork-a-repo/
+[9]: #before-writing-code-file-an-issue
+[10]: #fork-oauth2client
+[11]: #include-tests
+[12]: #make-the-pull-request
