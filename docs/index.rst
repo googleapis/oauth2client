@@ -50,7 +50,7 @@ contributor license agreement.
    :maxdepth: 1
    :hidden:
 
-   source/modules
+   source/oauth2client
 
 Supported Python Versions
 -------------------------

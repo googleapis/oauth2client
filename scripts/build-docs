@@ -25,6 +25,8 @@ fi
 
 rm -rf docs/_build/* docs/source/*
 sphinx-apidoc -f -o docs/source oauth2client
+# We only have one package, so modules.rst is overkill.
+rm -f docs/source/modules.rst
 cd docs
 make html
 cd ..
