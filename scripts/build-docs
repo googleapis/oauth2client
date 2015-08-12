@@ -27,6 +27,13 @@ rm -rf docs/_build/* docs/source/*
 sphinx-apidoc -f -o docs/source oauth2client
 # We only have one package, so modules.rst is overkill.
 rm -f docs/source/modules.rst
+
+# If anything has changed
+if [[ -n "$(git diff -- docs/)" ]]; then
+    echo "sphinx-apidoc generated changes that are not checked in to version control."
+    exit 1
+fi
+
 cd docs
 make html
 cd ..
