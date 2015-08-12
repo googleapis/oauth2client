@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/google/oauth2client.svg?branch=master)](https://travis-ci.org/google/oauth2client)
-[![Coverage Status](https://img.shields.io/coveralls/google/oauth2client.svg)](https://coveralls.io/r/google/oauth2client?branch=master)
+[![Coverage Status](https://coveralls.io/repos/google/oauth2client/badge.svg?branch=master&service=github)](https://coveralls.io/github/google/oauth2client?branch=master)
 [![Documentation Status](https://readthedocs.org/projects/oauth2client/badge/?version=latest)](http://oauth2client.readthedocs.org/)
 
 This is a client library for accessing resources protected by OAuth 2.0.
