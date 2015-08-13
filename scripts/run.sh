@@ -16,4 +16,10 @@
 
 set -ev
 
+if [[ "${TOX_ENV}" == "pypy" ]]; then
+    PYENV_ROOT="${HOME}/.pyenv"
+    PATH="${PYENV_ROOT}/bin:${PATH}"
+    eval "$(pyenv init -)"
+    pyenv global pypy-2.6.0
+fi
 tox -e ${TOX_ENV}
