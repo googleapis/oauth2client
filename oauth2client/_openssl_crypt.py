@@ -15,6 +15,7 @@
 
 import base64
 import six
+from OpenSSL import crypto
 
 from oauth2client._helpers import _parse_pem_key
 
@@ -43,7 +44,6 @@ class OpenSSLVerifier(object):
       True if message was signed by the private key associated with the public
       key that this object was constructed with.
     """
-    from OpenSSL import crypto  # Delay import due to 0.5s import time.
     if isinstance(message, six.text_type):
       message = message.encode('utf-8')
     if isinstance(signature, six.text_type):
@@ -69,7 +69,6 @@ class OpenSSLVerifier(object):
     Raises:
       OpenSSL.crypto.Error if the key_pem can't be parsed.
     """
-    from OpenSSL import crypto  # Delay import due to 0.5s import time.
     if is_x509_cert:
       pubkey = crypto.load_certificate(crypto.FILETYPE_PEM, key_pem)
     else:
@@ -97,7 +96,6 @@ class OpenSSLSigner(object):
     Returns:
       string, The signature of the message for the given key.
     """
-    from OpenSSL import crypto  # Delay import due to 0.5s import time.
     if isinstance(message, six.text_type):
       message = message.encode('utf-8')
     return crypto.sign(self._key, message, 'sha256')
@@ -116,7 +114,6 @@ class OpenSSLSigner(object):
     Raises:
       OpenSSL.crypto.Error if the key can't be parsed.
     """
-    from OpenSSL import crypto  # Delay import due to 0.5s import time.
     parsed_pem_key = _parse_pem_key(key)
     if parsed_pem_key:
       pkey = crypto.load_privatekey(crypto.FILETYPE_PEM, parsed_pem_key)
@@ -137,7 +134,6 @@ def pkcs12_key_as_pem(private_key_text, private_key_password):
   Returns:
     String. PEM contents of ``private_key_text``.
   """
-  from OpenSSL import crypto  # Delay import due to 0.5s import time.
   decoded_body = base64.b64decode(private_key_text)
   if isinstance(private_key_password, six.text_type):
     private_key_password = private_key_password.encode('ascii')
