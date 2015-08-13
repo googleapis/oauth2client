@@ -24,7 +24,7 @@ if [[ -z "${SKIP_GAE_SDK}" ]]; then
 fi
 
 rm -rf docs/_build/* docs/source/*
-sphinx-apidoc -f -o docs/source oauth2client
+sphinx-apidoc --separate --force -o docs/source oauth2client
 # We only have one package, so modules.rst is overkill.
 rm -f docs/source/modules.rst
 cd docs
