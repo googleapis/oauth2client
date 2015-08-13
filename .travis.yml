@@ -12,9 +12,9 @@ env:
   - TOX_ENV=system-tests
   - TOX_ENV=system-tests3
 install:
-- pip install tox
+- ./scripts/install.sh
 script:
-- tox -e $TOX_ENV
+- ./scripts/run.sh
 after_success:
 - if [[ "${TOX_ENV}" == "py27" ]]; then tox -e coveralls; fi
 notifications:
