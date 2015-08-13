@@ -27,6 +27,19 @@ class ScopeToStringTests(unittest.TestCase):
       self.assertEqual(expected, util.scopes_to_string(case))
 
 
+class StringToScopeTests(unittest.TestCase):
+
+  def test_conversion(self):
+    cases = [
+      (['a', 'b'], ['a', 'b']),
+      ('', []),
+      ('a', ['a']),
+      ('a b c d e f', ['a', 'b', 'c', 'd', 'e', 'f']),
+    ]
+
+    for case, expected in cases:
+      self.assertEqual(expected, util.string_to_scopes(case))
+
 class KeyConversionTests(unittest.TestCase):
 
   def test_key_conversions(self):

@@ -39,6 +39,7 @@ from oauth2client import GOOGLE_AUTH_URI
 from oauth2client import GOOGLE_DEVICE_URI
 from oauth2client import GOOGLE_REVOKE_URI
 from oauth2client import GOOGLE_TOKEN_URI
+from oauth2client import GOOGLE_TOKEN_INFO_URI
 from oauth2client._helpers import _urlsafe_b64decode
 from oauth2client import clientsecrets
 from oauth2client import util
@@ -252,6 +253,8 @@ class Credentials(object):
     for key, val in d.items():
       if isinstance(val, bytes):
         d[key] = val.decode('utf-8')
+      if isinstance(val, set):
+        d[key] = list(val)
     return json.dumps(d)
 
   def to_json(self):
@@ -459,7 +462,8 @@ class OAuth2Credentials(Credentials):
   @util.positional(8)
   def __init__(self, access_token, client_id, client_secret, refresh_token,
                token_expiry, token_uri, user_agent, revoke_uri=None,
-               id_token=None, token_response=None):
+               id_token=None, token_response=None, scopes=None,
+               token_info_uri=None):
     """Create an instance of OAuth2Credentials.
 
     This constructor is not usually called by the user, instead
@@ -479,6 +483,9 @@ class OAuth2Credentials(Credentials):
       token_response: dict, the decoded response to the token request. None
         if a token hasn't been requested yet. Stored because some providers
         (e.g. wordpress.com) include extra fields that clients may want.
+      scopes: list, authorized scopes for these credentials.
+      token_info_uri: string, the URI for the token info endpoint. Defaults to
+        None; scopes can not be refreshed if this is None.
 
     Notes:
       store: callable, A callable that when passed a Credential
@@ -497,6 +504,8 @@ class OAuth2Credentials(Credentials):
     self.revoke_uri = revoke_uri
     self.id_token = id_token
     self.token_response = token_response
+    self.scopes = set(util.string_to_scopes(scopes or []))
+    self.token_info_uri = token_info_uri
 
     # True if the credentials have been revoked or expired and can't be
     # refreshed.
@@ -614,6 +623,39 @@ class OAuth2Credentials(Credentials):
     """
     headers['Authorization'] = 'Bearer ' + self.access_token
 
+  def has_scopes(self, scopes):
+    """Verify that the credentials are authorized for the given scopes.
+
+    Returns True if the credentials authorized scopes contain all of the scopes
+    given.
+
+    Args:
+      scopes: list or string, the scopes to check.
+
+    Notes:
+      There are cases where the credentials are unaware of which scopes are
+      authorized. Notably, credentials obtained and stored before this code was
+      added will not have scopes, AccessTokenCredentials do not have scopes. In
+      both cases, you can use refresh_scopes() to obtain the canonical set of
+      scopes.
+    """
+    scopes = util.string_to_scopes(scopes)
+    return set(scopes).issubset(self.scopes)
+
+  def retrieve_scopes(self, http):
+    """Retrieves the canonical list of scopes for this access token from the
+    OAuth2 provider.
+
+    Args:
+      http: httplib2.Http, an http object to be used to make the refresh
+        request.
+
+    Returns:
+      A set of strings containing the canonical list of scopes.
+    """
+    self._retrieve_scopes(http.request)
+    return self.scopes
+
   def to_json(self):
     return self._to_json(Credentials.NON_SERIALIZED_MEMBERS)
 
@@ -648,7 +690,9 @@ class OAuth2Credentials(Credentials):
         data['user_agent'],
         revoke_uri=data.get('revoke_uri', None),
         id_token=data.get('id_token', None),
-        token_response=data.get('token_response', None))
+        token_response=data.get('token_response', None),
+        scopes=data.get('scopes', None),
+        token_info_uri=data.get('token_info_uri', None))
     retval.invalid = data['invalid']
     return retval
 
@@ -858,6 +902,10 @@ class OAuth2Credentials(Credentials):
     query_params = {'token': token}
     token_revoke_uri = _update_query_params(self.revoke_uri, query_params)
     resp, content = http_request(token_revoke_uri)
+
+    if six.PY3 and isinstance(content, bytes):
+      content = content.decode('utf-8')
+
     if resp.status == 200:
       self.invalid = True
     else:
@@ -872,6 +920,48 @@ class OAuth2Credentials(Credentials):
 
     if self.store:
       self.store.delete()
+
+  def _retrieve_scopes(self, http_request):
+    """Retrieves the list of authorized scopes from the OAuth2 provider.
+
+    Args:
+      http_request: callable, a callable that matches the method signature of
+        httplib2.Http.request, used to make the revoke request.
+    """
+    self._do_retrieve_scopes(http_request, self.access_token)
+
+  def _do_retrieve_scopes(self, http_request, token):
+    """Retrieves the list of authorized scopes from the OAuth2 provider.
+
+    Args:
+      http_request: callable, a callable that matches the method signature of
+        httplib2.Http.request, used to make the refresh request.
+      token: A string used as the token to identify the credentials to the
+        provider.
+
+    Raises:
+      Error: When refresh fails, indicating the the access token is invalid.
+    """
+    logger.info('Refreshing scopes')
+    query_params = {'access_token': token, 'fields': 'scope'}
+    token_info_uri = _update_query_params(self.token_info_uri, query_params)
+    resp, content  = http_request(token_info_uri)
+
+    if six.PY3 and isinstance(content, bytes):
+      content = content.decode('utf-8')
+
+    if resp.status == 200:
+      d = json.loads(content)
+      self.scopes = set(util.string_to_scopes(d.get('scope', '')))
+    else:
+      error_msg = 'Invalid response %s.' % (resp.status,)
+      try:
+        d = json.loads(content)
+        if 'error_description' in d:
+          error_msg = d['error_description']
+      except (TypeError, ValueError):
+        pass
+      raise Error(error_msg)
 
 
 class AccessTokenCredentials(OAuth2Credentials):
@@ -1650,7 +1740,8 @@ def credentials_from_code(client_id, client_secret, scope, code,
                           user_agent=None, token_uri=GOOGLE_TOKEN_URI,
                           auth_uri=GOOGLE_AUTH_URI,
                           revoke_uri=GOOGLE_REVOKE_URI,
-                          device_uri=GOOGLE_DEVICE_URI):
+                          device_uri=GOOGLE_DEVICE_URI,
+                          token_info_uri=GOOGLE_TOKEN_INFO_URI):
   """Exchanges an authorization code for an OAuth2Credentials object.
 
   Args:
@@ -1681,7 +1772,8 @@ def credentials_from_code(client_id, client_secret, scope, code,
   flow = OAuth2WebServerFlow(client_id, client_secret, scope,
                              redirect_uri=redirect_uri, user_agent=user_agent,
                              auth_uri=auth_uri, token_uri=token_uri,
-                             revoke_uri=revoke_uri, device_uri=device_uri)
+                             revoke_uri=revoke_uri, device_uri=device_uri,
+                             token_info_uri=token_info_uri)
 
   credentials = flow.step2_exchange(code, http=http)
   return credentials
@@ -1786,6 +1878,7 @@ class OAuth2WebServerFlow(Flow):
                revoke_uri=GOOGLE_REVOKE_URI,
                login_hint=None,
                device_uri=GOOGLE_DEVICE_URI,
+               token_info_uri=GOOGLE_TOKEN_INFO_URI,
                authorization_header=None,
                **kwargs):
     """Constructor for OAuth2WebServerFlow.
@@ -1834,6 +1927,7 @@ class OAuth2WebServerFlow(Flow):
     self.token_uri = token_uri
     self.revoke_uri = revoke_uri
     self.device_uri = device_uri
+    self.token_info_uri = token_info_uri
     self.authorization_header = authorization_header
     self.params = {
         'access_type': 'offline',
@@ -2011,7 +2105,9 @@ class OAuth2WebServerFlow(Flow):
                                self.token_uri, self.user_agent,
                                revoke_uri=self.revoke_uri,
                                id_token=extracted_id_token,
-                               token_response=d)
+                               token_response=d,
+                               scopes=self.scope,
+                               token_info_uri=self.token_info_uri)
     else:
       logger.info('Failed to retrieve access token: %s', content)
       if 'error' in d:

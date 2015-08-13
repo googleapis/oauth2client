@@ -40,6 +40,7 @@ from .http_mock import HttpMock
 from .http_mock import HttpMockSequence
 from oauth2client import GOOGLE_REVOKE_URI
 from oauth2client import GOOGLE_TOKEN_URI
+from oauth2client import GOOGLE_TOKEN_INFO_URI
 from oauth2client import client
 from oauth2client import util as oauth2client_util
 from oauth2client.client import AccessTokenCredentials
@@ -50,6 +51,7 @@ from oauth2client.client import AssertionCredentials
 from oauth2client.client import AUTHORIZED_USER
 from oauth2client.client import Credentials
 from oauth2client.client import DEFAULT_ENV_NAME
+from oauth2client.client import Error
 from oauth2client.client import ApplicationDefaultCredentialsError
 from oauth2client.client import FlowExchangeError
 from oauth2client.client import GoogleCredentials
@@ -647,7 +649,8 @@ class BasicCredentialsTests(unittest.TestCase):
     self.credentials = OAuth2Credentials(
         access_token, client_id, client_secret,
         refresh_token, token_expiry, GOOGLE_TOKEN_URI,
-        user_agent, revoke_uri=GOOGLE_REVOKE_URI)
+        user_agent, revoke_uri=GOOGLE_REVOKE_URI, scopes='foo',
+        token_info_uri=GOOGLE_TOKEN_INFO_URI)
 
     # Provoke a failure if @util.positional is not respected.
     self.old_positional_enforcement = (
@@ -843,6 +846,43 @@ class BasicCredentialsTests(unittest.TestCase):
     self.assertFalse(self.credentials.access_token_expired)
     self.assertEqual(token_response_second, self.credentials.token_response)
 
+  def test_has_scopes(self):
+    self.assertTrue(self.credentials.has_scopes('foo'))
+    self.assertTrue(self.credentials.has_scopes(['foo']))
+    self.assertFalse(self.credentials.has_scopes('bar'))
+    self.assertFalse(self.credentials.has_scopes(['bar']))
+
+    self.credentials.scopes = set(['foo', 'bar'])
+    self.assertTrue(self.credentials.has_scopes('foo'))
+    self.assertTrue(self.credentials.has_scopes('bar'))
+    self.assertFalse(self.credentials.has_scopes('baz'))
+    self.assertTrue(self.credentials.has_scopes(['foo', 'bar']))
+    self.assertFalse(self.credentials.has_scopes(['foo', 'baz']))
+
+    self.credentials.scopes = set([])
+    self.assertFalse(self.credentials.has_scopes('foo'))
+
+  def test_retrieve_scopes(self):
+    info_response_first = {'scope': 'foo bar'}
+    info_response_second = {'error_description': 'abcdef'}
+    http = HttpMockSequence([
+      ({'status': '200'}, json.dumps(info_response_first).encode('utf-8')),
+      ({'status': '400'}, json.dumps(info_response_second).encode('utf-8')),
+      ({'status': '500'}, b''),
+    ])
+
+    self.credentials.retrieve_scopes(http)
+    self.assertEqual(set(['foo', 'bar']), self.credentials.scopes)
+
+    self.assertRaises(
+        Error,
+        self.credentials.retrieve_scopes,
+        http)
+
+    self.assertRaises(
+        Error,
+        self.credentials.retrieve_scopes,
+        http)
 
 class AccessTokenCredentialsTests(unittest.TestCase):
 
@@ -1069,6 +1109,7 @@ class OAuth2WebServerFlowTest(unittest.TestCase):
     self.assertNotEqual(None, credentials.token_expiry)
     self.assertEqual('8xLOxBtZp8', credentials.refresh_token)
     self.assertEqual('dummy_revoke_uri', credentials.revoke_uri)
+    self.assertEqual(set(['foo']), credentials.scopes)
 
   def test_exchange_dictlike(self):
     class FakeDict(object):
@@ -1095,6 +1136,7 @@ class OAuth2WebServerFlowTest(unittest.TestCase):
     self.assertNotEqual(None, credentials.token_expiry)
     self.assertEqual('8xLOxBtZp8', credentials.refresh_token)
     self.assertEqual('dummy_revoke_uri', credentials.revoke_uri)
+    self.assertEqual(set(['foo']), credentials.scopes)
     request_code = urllib.parse.parse_qs(http.requests[0]['body'])['code'][0]
     self.assertEqual(code, request_code)
 
@@ -1229,6 +1271,7 @@ class CredentialsFromCodeTests(unittest.TestCase):
         http=http)
     self.assertEqual(credentials.access_token, token)
     self.assertNotEqual(None, credentials.token_expiry)
+    self.assertEqual(set(['foo']), credentials.scopes)
 
   def test_exchange_code_for_token_fail(self):
     http = HttpMockSequence([
@@ -1254,6 +1297,7 @@ class CredentialsFromCodeTests(unittest.TestCase):
                             self.code, http=http)
     self.assertEqual(credentials.access_token, 'asdfghjkl')
     self.assertNotEqual(None, credentials.token_expiry)
+    self.assertEqual(set(['foo']), credentials.scopes)
 
   def test_exchange_code_and_cached_file_for_token(self):
     http = HttpMockSequence([
@@ -1266,6 +1310,7 @@ class CredentialsFromCodeTests(unittest.TestCase):
         'some_secrets', self.scope,
         self.code, http=http, cache=cache_mock)
     self.assertEqual(credentials.access_token, 'asdfghjkl')
+    self.assertEqual(set(['foo']), credentials.scopes)
 
   def test_exchange_code_and_file_for_token_fail(self):
     http = HttpMockSequence([
