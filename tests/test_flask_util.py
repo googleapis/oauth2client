@@ -225,8 +225,8 @@ class FlaskOAuth2Tests(unittest.TestCase):
                 self.assertTrue('/return_url' in rv.headers['Location'])
                 self.assertTrue(self.oauth2.client_secret in http.body)
                 self.assertTrue('codez' in http.body)
-                self.oauth2.storage.put.assert_called()
-                self.oauth2.authorize_callback.assert_called()
+                self.assertTrue(self.oauth2.storage.put.called)
+                self.assertTrue(self.oauth2.authorize_callback.called)
 
     def test_callback_view_errors(self):
         # Error supplied to callback
@@ -317,13 +317,12 @@ class FlaskOAuth2Tests(unittest.TestCase):
 
     def test_refresh(self):
         with self.app.test_request_context():
-            with mock.patch('flask.session') as mock_session:
+            with mock.patch('flask.session'):
                 self.oauth2.storage.put(self._generate_credentials())
 
                 self.oauth2.credentials.refresh(
                     Http2Mock(access_token='new_token'))
 
-                mock_session.__setitem__.assert_called()
                 self.assertEqual(
                     self.oauth2.storage.get().access_token, 'new_token')
 
