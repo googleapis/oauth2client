@@ -20,6 +20,7 @@ import logging
 import time
 
 from oauth2client._helpers import _json_encode
+from oauth2client._helpers import _to_bytes
 from oauth2client._helpers import _urlsafe_b64decode
 from oauth2client._helpers import _urlsafe_b64encode
 
@@ -84,14 +85,14 @@ def make_signed_jwt(signer, payload):
       _urlsafe_b64encode(_json_encode(header)),
       _urlsafe_b64encode(_json_encode(payload)),
   ]
-  signing_input = '.'.join(segments)
+  signing_input = b'.'.join(segments)
 
   signature = signer.sign(signing_input)
   segments.append(_urlsafe_b64encode(signature))
 
   logger.debug(str(segments))
 
-  return '.'.join(segments)
+  return b'.'.join(segments)
 
 
 def verify_signed_jwt_with_certs(jwt, certs, audience):
@@ -111,11 +112,12 @@ def verify_signed_jwt_with_certs(jwt, certs, audience):
   Raises:
     AppIdentityError if any checks are failed.
   """
-  segments = jwt.split('.')
+  jwt = _to_bytes(jwt)
+  segments = jwt.split(b'.')
 
   if len(segments) != 3:
     raise AppIdentityError('Wrong number of segments in token: %s' % jwt)
-  signed = '%s.%s' % (segments[0], segments[1])
+  signed = segments[0] + b'.' + segments[1]
 
   signature = _urlsafe_b64decode(segments[2])
 

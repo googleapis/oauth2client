@@ -20,6 +20,7 @@ from Crypto.Util.asn1 import DerSequence
 import six
 
 from oauth2client._helpers import _parse_pem_key
+from oauth2client._helpers import _to_bytes
 from oauth2client._helpers import _urlsafe_b64decode
 
 
@@ -46,8 +47,7 @@ class PyCryptoVerifier(object):
       True if message was signed by the private key associated with the public
       key that this object was constructed with.
     """
-    if isinstance(message, six.text_type):
-      message = message.encode('utf-8')
+    message = _to_bytes(message, encoding='utf-8')
     return PKCS1_v1_5.new(self._pubkey).verify(
         SHA256.new(message), signature)
 
@@ -64,8 +64,7 @@ class PyCryptoVerifier(object):
       Verifier instance.
     """
     if is_x509_cert:
-      if isinstance(key_pem, six.text_type):
-        key_pem = key_pem.encode('ascii')
+      key_pem = _to_bytes(key_pem)
       pemLines = key_pem.replace(b' ', b'').split()
       certDer = _urlsafe_b64decode(b''.join(pemLines[1:-1]))
       certSeq = DerSequence()
@@ -98,8 +97,7 @@ class PyCryptoSigner(object):
     Returns:
       string, The signature of the message for the given key.
     """
-    if isinstance(message, six.text_type):
-      message = message.encode('utf-8')
+    message = _to_bytes(message, encoding='utf-8')
     return PKCS1_v1_5.new(self._key).sign(SHA256.new(message))
 
   @staticmethod

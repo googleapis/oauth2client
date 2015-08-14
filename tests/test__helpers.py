@@ -17,6 +17,7 @@ import unittest
 
 from oauth2client._helpers import _json_encode
 from oauth2client._helpers import _parse_pem_key
+from oauth2client._helpers import _to_bytes
 from oauth2client._helpers import _urlsafe_b64decode
 from oauth2client._helpers import _urlsafe_b64encode
 
@@ -49,17 +50,35 @@ class Test__json_encode(unittest.TestCase):
     self.assertEqual(result, """[42,1337]""")
 
 
+class Test__to_bytes(unittest.TestCase):
+
+  def test_with_bytes(self):
+    value = b'bytes-val'
+    self.assertEqual(_to_bytes(value), value)
+
+  def test_with_unicode(self):
+    value = u'string-val'
+    encoded_value = b'string-val'
+    self.assertEqual(_to_bytes(value), encoded_value)
+
+  def test_with_nonstring_type(self):
+    value = object()
+    self.assertRaises(ValueError, _to_bytes, value)
+
+
 class Test__urlsafe_b64encode(unittest.TestCase):
+
+  DEADBEEF_ENCODED = b'ZGVhZGJlZWY'
 
   def test_valid_input_bytes(self):
     test_string = b'deadbeef'
     result = _urlsafe_b64encode(test_string)
-    self.assertEqual(result, u'ZGVhZGJlZWY')
+    self.assertEqual(result, self.DEADBEEF_ENCODED)
 
   def test_valid_input_unicode(self):
     test_string = u'deadbeef'
     result = _urlsafe_b64encode(test_string)
-    self.assertEqual(result, u'ZGVhZGJlZWY')
+    self.assertEqual(result, self.DEADBEEF_ENCODED)
 
 
 class Test__urlsafe_b64decode(unittest.TestCase):

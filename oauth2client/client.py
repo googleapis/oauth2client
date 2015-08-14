@@ -40,6 +40,7 @@ from oauth2client import GOOGLE_DEVICE_URI
 from oauth2client import GOOGLE_REVOKE_URI
 from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client import GOOGLE_TOKEN_INFO_URI
+from oauth2client._helpers import _to_bytes
 from oauth2client._helpers import _urlsafe_b64decode
 from oauth2client import clientsecrets
 from oauth2client import util
@@ -278,7 +279,7 @@ class Credentials(object):
       An instance of the subclass of Credentials that was serialized with
       to_json().
     """
-    if six.PY3 and isinstance(s, bytes):
+    if isinstance(s, bytes):
       s = s.decode('utf-8')
     data = json.loads(s)
     # Find and call the right classmethod from_json() to restore the object.
@@ -425,11 +426,13 @@ def clean_headers(headers):
   clean = {}
   try:
     for k, v in six.iteritems(headers):
-      clean_k = k if isinstance(k, bytes) else str(k).encode('ascii')
-      clean_v = v if isinstance(v, bytes) else str(v).encode('ascii')
-      clean[clean_k] = clean_v
+      if not isinstance(k, six.binary_type):
+        k = str(k)
+      if not isinstance(v, six.binary_type):
+        v = str(v)
+      clean[_to_bytes(k)] = _to_bytes(v)
   except UnicodeEncodeError:
-    raise NonAsciiHeaderError(k + ': ' + v)
+    raise NonAsciiHeaderError(k, ': ', v)
   return clean
 
 
@@ -670,7 +673,7 @@ class OAuth2Credentials(Credentials):
     Returns:
       An instance of a Credentials subclass.
     """
-    if six.PY3 and isinstance(s, bytes):
+    if isinstance(s, bytes):
       s = s.decode('utf-8')
     data = json.loads(s)
     if (data.get('token_expiry') and
@@ -842,7 +845,7 @@ class OAuth2Credentials(Credentials):
     logger.info('Refreshing access_token')
     resp, content = http_request(
         self.token_uri, method='POST', body=body, headers=headers)
-    if six.PY3 and isinstance(content, bytes):
+    if isinstance(content, bytes):
       content = content.decode('utf-8')
     if resp.status == 200:
       d = json.loads(content)
@@ -903,7 +906,7 @@ class OAuth2Credentials(Credentials):
     token_revoke_uri = _update_query_params(self.revoke_uri, query_params)
     resp, content = http_request(token_revoke_uri)
 
-    if six.PY3 and isinstance(content, bytes):
+    if isinstance(content, bytes):
       content = content.decode('utf-8')
 
     if resp.status == 200:
@@ -1015,7 +1018,7 @@ class AccessTokenCredentials(OAuth2Credentials):
 
   @classmethod
   def from_json(cls, s):
-    if six.PY3 and isinstance(s, bytes):
+    if isinstance(s, bytes):
       s = s.decode('utf-8')
     data = json.loads(s)
     retval = AccessTokenCredentials(
@@ -1602,9 +1605,7 @@ class SignedJwtAssertionCredentials(AssertionCredentials):
 
     # Keep base64 encoded so it can be stored in JSON.
     self.private_key = base64.b64encode(private_key)
-    if isinstance(self.private_key, six.text_type):
-      self.private_key = self.private_key.encode('utf-8')
-
+    self.private_key = _to_bytes(self.private_key, encoding='utf-8')
     self.private_key_password = private_key_password
     self.service_account_name = service_account_name
     self.kwargs = kwargs

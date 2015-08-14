@@ -18,6 +18,7 @@ import six
 from OpenSSL import crypto
 
 from oauth2client._helpers import _parse_pem_key
+from oauth2client._helpers import _to_bytes
 
 
 class OpenSSLVerifier(object):
@@ -44,10 +45,8 @@ class OpenSSLVerifier(object):
       True if message was signed by the private key associated with the public
       key that this object was constructed with.
     """
-    if isinstance(message, six.text_type):
-      message = message.encode('utf-8')
-    if isinstance(signature, six.text_type):
-      signature = signature.encode('utf-8')
+    message = _to_bytes(message, encoding='utf-8')
+    signature = _to_bytes(signature, encoding='utf-8')
     try:
       crypto.verify(self._pubkey, signature, message, 'sha256')
       return True
@@ -96,8 +95,7 @@ class OpenSSLSigner(object):
     Returns:
       string, The signature of the message for the given key.
     """
-    if isinstance(message, six.text_type):
-      message = message.encode('utf-8')
+    message = _to_bytes(message, encoding='utf-8')
     return crypto.sign(self._key, message, 'sha256')
 
   @staticmethod
@@ -118,8 +116,7 @@ class OpenSSLSigner(object):
     if parsed_pem_key:
       pkey = crypto.load_privatekey(crypto.FILETYPE_PEM, parsed_pem_key)
     else:
-      if isinstance(password, six.text_type):
-        password = password.encode('utf-8')
+      password = _to_bytes(password, encoding='utf-8')
       pkey = crypto.load_pkcs12(key, password).get_privatekey()
     return OpenSSLSigner(pkey)
 
@@ -135,8 +132,7 @@ def pkcs12_key_as_pem(private_key_text, private_key_password):
     String. PEM contents of ``private_key_text``.
   """
   decoded_body = base64.b64decode(private_key_text)
-  if isinstance(private_key_password, six.text_type):
-    private_key_password = private_key_password.encode('ascii')
+  private_key_password = _to_bytes(private_key_password)
 
   pkcs12 = crypto.load_pkcs12(decoded_body, private_key_password)
   return crypto.dump_privatekey(crypto.FILETYPE_PEM,

@@ -17,6 +17,7 @@
 import json
 import os
 
+from oauth2client._helpers import _to_bytes
 from oauth2client import client
 
 
@@ -76,7 +77,7 @@ def _SendRecv():
 
   data = CREDENTIAL_INFO_REQUEST_JSON
   msg = '%s\n%s' % (len(data), data)
-  sock.sendall(msg.encode())
+  sock.sendall(_to_bytes(msg, encoding='utf-8'))
 
   header = sock.recv(6).decode()
   if '\n' not in header:
@@ -133,4 +134,3 @@ class DevshellCredentials(client.GoogleCredentials):
   def serialization_data(self):
     raise NotImplementedError(
         'Cannot serialize Developer Shell credentials.')
-
