@@ -15,10 +15,19 @@
 """Utilities for the Flask web framework
 
 Provides a Flask extension that makes using OAuth2 web server flow easier.
-The extension includes views that handle the entire auth flow and a @required
-decorator to automatically ensure that user credentials are available.
+The extension includes views that handle the entire auth flow and a
+``@required`` decorator to automatically ensure that user credentials are
+available.
 
-To configure::
+
+Configuration
+=============
+
+To configure, you'll need a set of OAuth2 client ID from the
+`Google Developer's Console <https://console.developers.google.com/project/_/\
+apiui/credential>`__.
+
+.. code-block:: python
 
     from oauth2client.flask_util import UserOAuth2
 
@@ -34,7 +43,14 @@ To configure::
     oauth2 = UserOAuth2(app)
 
 
-To use::
+Usage
+=====
+
+Once configured, you can use the :meth:`UserOAuth2.required` decorator to ensure
+that credentials are available within a view.
+
+.. code-block:: python
+   :emphasize-lines: 3,7,10
 
     # Note that app.route should be the outermost decorator.
     @app.route('/needs_credentials')
@@ -47,11 +63,11 @@ To use::
         # Or, you can access the credentials directly
         credentials = oauth2.credentials
 
+If you want credentials to be optional for a view, you can leave the decorator
+off and use :meth:`UserOAuth2.has_credentials` to check.
 
-    @app.route('/info')
-    @oauth2.required
-    def info():
-        return "Hello, {}".format(oauth2.email)
+.. code-block:: python
+   :emphasize-lines: 3
 
     @app.route('/optional')
     def optional():
@@ -60,6 +76,89 @@ To use::
         else:
             return 'No credentials!'
 
+
+When credentials are available, you can use :attr:`UserOAuth2.email` and
+:attr:`UserOAuth2.user_id` to access information from the `ID Token
+<https://developers.google.com/identity/protocols/OpenIDConnect?hl=en>`__, if
+available.
+
+.. code-block:: python
+   :emphasize-lines: 4
+
+    @app.route('/info')
+    @oauth2.required
+    def info():
+        return "Hello, {} ({})".format(oauth2.email, oauth2.user_id)
+
+
+URLs & Trigging Authorization
+=============================
+
+The extension will add two new routes to your application:
+
+    * ``"oauth2.authorize"`` -> ``/oauth2authorize``
+    * ``"oauth2.callback"`` -> ``/oauth2callback``
+
+When configuring your OAuth2 credentials on the Google Developer's Console, be
+sure to add ``http[s]://[your-app-url]/oauth2callback`` as an authorized
+callback url.
+
+Typically you don't not need to use these routes directly, just be sure to
+decorate any views that require credentials with ``@oauth2.required``. If
+needed, you can trigger authorization at any time by redirecting the user
+to the URL returned by :meth:`UserOAuth2.authorize_url`.
+
+.. code-block:: python
+   :emphasize-lines: 3
+
+    @app.route('/login')
+    def login():
+        return oauth2.authorize_url("/")
+
+
+Incremental Auth
+================
+
+This extension also supports `Incremental Auth <https://developers.google.com\
+/identity/protocols/OAuth2WebServer?hl=en#incrementalAuth>`__. To enable it,
+configure the extension with ``include_granted_scopes``.
+
+.. code-block:: python
+
+    oauth2 = UserOAuth2(app, include_granted_scopes=True)
+
+Then specify any additional scopes needed on the decorator, for example:
+
+.. code-block:: python
+   :emphasize-lines: 2,7
+
+    @app.route('/drive')
+    @oauth2.required(scopes=["https://www.googleapis.com/auth/drive"])
+    def requires_drive():
+        ...
+
+    @app.route('/calendar')
+    @oauth2.required(scopes=["https://www.googleapis.com/auth/calendar"])
+    def requires_calendar():
+        ...
+
+The decorator will ensure that the the user has authorized all specified scopes
+before allowing them to access the view, and will also ensure that credentials
+do not lose any previously authorized scopes.
+
+
+Storage
+=======
+
+By default, the extension uses a Flask session-based storage solution. This
+means that credentials are only available for the duration of a session. It
+also means that with Flask's default configuration, the credentials will be
+visible in the session cookie. It's highly recommended to use database-backed
+session and to use https whenever handling user credentials.
+
+If you need the credentials to be available longer than a user session or
+available outside of a request context, you will need to implement your own
+:class:`oauth2client.Storage`.
 """
 
 __author__ = 'jonwayne@google.com (Jon Wayne Parrott)'
@@ -98,13 +197,15 @@ class UserOAuth2(object):
     """Flask extension for making OAuth 2.0 easier.
 
     Configuration values:
-        * GOOGLE_OAUTH2_CLIENT_SECRETS_JSON path to a client secrets json file,
-            obtained from the credentials screen in the Google Developers
-            console.
-        * GOOGLE_OAUTH2_CLIENT_ID the oauth2 credentials' client ID. This is
-            only needed if OAUTH2_CLIENT_SECRETS_JSON is not specified.
-        * GOOGLE_OAUTH2_CLIENT_SECRET the oauth2 credentials' client secret.
-            This is only needed if OAUTH2_CLIENT_SECRETS_JSON is not specified.
+
+        * ``GOOGLE_OAUTH2_CLIENT_SECRETS_JSON`` path to a client secrets json
+          file, obtained from the credentials screen in the Google Developers
+          console.
+        * ``GOOGLE_OAUTH2_CLIENT_ID`` the oauth2 credentials' client ID. This
+          is only needed if ``OAUTH2_CLIENT_SECRETS_JSON`` is not specified.
+        * ``GOOGLE_OAUTH2_CLIENT_SECRET`` the oauth2 credentials' client
+          secret. This is only needed if ``OAUTH2_CLIENT_SECRETS_JSON`` is not
+          specified.
 
     If app is specified, all arguments will be passed along to init_app.
 
@@ -241,6 +342,10 @@ class UserOAuth2(object):
         user to the OAuth2 provider."""
         args = request.args.to_dict()
 
+        # Scopes will be passed as mutliple args, and to_dict() will only
+        # return one. So, we use getlist() to get all of the scopes.
+        args['scopes'] = request.args.getlist('scopes')
+
         return_url = args.pop('return_url', None)
         if return_url is None:
             return_url = request.referrer or '/'
@@ -348,7 +453,8 @@ class UserOAuth2(object):
         """
         return url_for('oauth2.authorize', return_url=return_url, **kwargs)
 
-    def required(self, decorated_function=None, **decorator_kwargs):
+    def required(self, decorated_function=None, scopes=None,
+                 **decorator_kwargs):
         """Decorator to require OAuth2 credentials for a view.
 
         If credentials are not available for the current user, then they will
@@ -358,12 +464,28 @@ class UserOAuth2(object):
         def curry_wrapper(wrapped_function):
             @wraps(wrapped_function)
             def required_wrapper(*args, **kwargs):
+
+                return_url = decorator_kwargs.pop('return_url', request.url)
+
+                # No credentials, redirect for new authorization.
                 if not self.has_credentials():
-                    if 'return_url' not in decorator_kwargs:
-                        decorator_kwargs['return_url'] = request.url
-                    return redirect(self.authorize_url(**decorator_kwargs))
-                else:
-                    return wrapped_function(*args, **kwargs)
+                    auth_url = self.authorize_url(
+                        return_url,
+                        scopes=scopes,
+                        **decorator_kwargs)
+                    return redirect(auth_url)
+
+                # Existing credentials but mismatching scopes, redirect for
+                # incremental authorization.
+                if scopes and not self.credentials.has_scopes(scopes):
+                    auth_url = self.authorize_url(
+                        return_url,
+                        scopes=list(self.credentials.scopes) + scopes,
+                        **decorator_kwargs)
+                    return redirect(auth_url)
+
+                return wrapped_function(*args, **kwargs)
+
             return required_wrapper
 
         if decorated_function:
