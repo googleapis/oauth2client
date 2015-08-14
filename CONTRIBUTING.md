@@ -121,6 +121,10 @@ Running Tests
     $ tox
     ```
 
+-   In order to run the `pypy` environment (in `tox`) you'll need at
+    least version 2.6 of `pypy` installed. See the [docs][13] for
+    more information.
+
 Running System Tests
 --------------------
 
@@ -191,3 +195,4 @@ we'll be able to accept your pull requests.
 [10]: #fork-oauth2client
 [11]: #include-tests
 [12]: #make-the-pull-request
+[13]: http://oauth2client.readthedocs.org/en/latest/#using-pypy
