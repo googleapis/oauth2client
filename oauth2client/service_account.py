@@ -28,6 +28,7 @@ import rsa
 from oauth2client import GOOGLE_REVOKE_URI
 from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client._helpers import _json_encode
+from oauth2client._helpers import _to_bytes
 from oauth2client._helpers import _urlsafe_b64encode
 from oauth2client import util
 from oauth2client.client import AssertionCredentials
@@ -76,8 +77,8 @@ class _ServiceAccountCredentials(AssertionCredentials):
     }
     payload.update(self._kwargs)
 
-    first_segment = _urlsafe_b64encode(_json_encode(header)).encode('utf-8')
-    second_segment = _urlsafe_b64encode(_json_encode(payload)).encode('utf-8')
+    first_segment = _urlsafe_b64encode(_json_encode(header))
+    second_segment = _urlsafe_b64encode(_json_encode(payload))
     assertion_input = first_segment + b'.' + second_segment
 
     # Sign the assertion.
@@ -88,10 +89,7 @@ class _ServiceAccountCredentials(AssertionCredentials):
 
   def sign_blob(self, blob):
     # Ensure that it is bytes
-    try:
-      blob = blob.encode('utf-8')
-    except AttributeError:
-      pass
+    blob = _to_bytes(blob, encoding='utf-8')
     return (self._private_key_id,
             rsa.pkcs1.sign(blob, self._private_key, 'SHA-256'))
 
@@ -126,9 +124,7 @@ class _ServiceAccountCredentials(AssertionCredentials):
 
 def _get_private_key(private_key_pkcs8_text):
   """Get an RSA private key object from a pkcs8 representation."""
-
-  if not isinstance(private_key_pkcs8_text, six.binary_type):
-    private_key_pkcs8_text = private_key_pkcs8_text.encode('ascii')
+  private_key_pkcs8_text = _to_bytes(private_key_pkcs8_text)
   der = rsa.pem.load_pem(private_key_pkcs8_text, 'PRIVATE KEY')
   asn1_private_key, _ = decoder.decode(der, asn1Spec=PrivateKeyInfo())
   return rsa.PrivateKey.load_pkcs1(

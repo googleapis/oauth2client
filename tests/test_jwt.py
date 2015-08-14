@@ -147,7 +147,7 @@ class CryptTests(unittest.TestCase):
     self._check_jwt_failure('foo.bar.baz', 'Can\'t parse token')
 
     # Bad signature
-    jwt = 'foo.%s.baz' % crypt._urlsafe_b64encode('{"a":"b"}')
+    jwt = b'.'.join([b'foo', crypt._urlsafe_b64encode('{"a":"b"}'), b'baz'])
     self._check_jwt_failure(jwt, 'Invalid token signature')
 
     # No expiration
