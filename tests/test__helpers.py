@@ -15,6 +15,7 @@
 
 import unittest
 
+from oauth2client._helpers import _from_bytes
 from oauth2client._helpers import _json_encode
 from oauth2client._helpers import _parse_pem_key
 from oauth2client._helpers import _to_bytes
@@ -64,6 +65,22 @@ class Test__to_bytes(unittest.TestCase):
   def test_with_nonstring_type(self):
     value = object()
     self.assertRaises(ValueError, _to_bytes, value)
+
+
+class Test__from_bytes(unittest.TestCase):
+
+  def test_with_unicode(self):
+    value = u'bytes-val'
+    self.assertEqual(_from_bytes(value), value)
+
+  def test_with_bytes(self):
+    value = b'string-val'
+    decoded_value = u'string-val'
+    self.assertEqual(_from_bytes(value), decoded_value)
+
+  def test_with_nonstring_type(self):
+    value = object()
+    self.assertRaises(ValueError, _from_bytes, value)
 
 
 class Test__urlsafe_b64encode(unittest.TestCase):

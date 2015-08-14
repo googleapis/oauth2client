@@ -18,7 +18,6 @@ This credentials class is implemented on top of rsa library.
 """
 
 import base64
-import six
 import time
 
 from pyasn1.codec.ber import decoder

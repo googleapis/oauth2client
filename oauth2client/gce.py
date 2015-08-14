@@ -23,6 +23,7 @@ import json
 import logging
 from six.moves import urllib
 
+from oauth2client._helpers import _from_bytes
 from oauth2client import util
 from oauth2client.client import AccessTokenRefreshError
 from oauth2client.client import AssertionCredentials
@@ -63,7 +64,7 @@ class AppAssertionCredentials(AssertionCredentials):
 
   @classmethod
   def from_json(cls, json_data):
-    data = json.loads(json_data)
+    data = json.loads(_from_bytes(json_data))
     return AppAssertionCredentials(data['scope'])
 
   def _refresh(self, http_request):
@@ -81,6 +82,7 @@ class AppAssertionCredentials(AssertionCredentials):
     query = '?scope=%s' % urllib.parse.quote(self.scope, '')
     uri = META.replace('{?scope}', query)
     response, content = http_request(uri)
+    content = _from_bytes(content)
     if response.status == 200:
       try:
         d = json.loads(content)

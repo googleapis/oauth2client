@@ -28,8 +28,8 @@ import json
 import os
 import time
 import unittest
-import urllib
-import urlparse
+
+from six.moves import urllib
 
 import dev_appserver
 dev_appserver.fix_sys_path()
@@ -550,7 +550,7 @@ class DecoratorTests(unittest.TestCase):
     self.assertEqual(self.decorator.credentials, None)
     response = self.app.get('http://localhost/foo_path')
     self.assertTrue(response.status.startswith('302'))
-    q = urlparse.parse_qs(response.headers['Location'].split('?', 1)[1])
+    q = urllib.parse.parse_qs(response.headers['Location'].split('?', 1)[1])
     self.assertEqual('http://localhost/oauth2callback', q['redirect_uri'][0])
     self.assertEqual('foo_client_id', q['client_id'][0])
     self.assertEqual('foo_scope bar_scope', q['scope'][0])
@@ -571,10 +571,10 @@ class DecoratorTests(unittest.TestCase):
       self.assertEqual('http://localhost/foo_path', parts[0])
       self.assertEqual(None, self.decorator.credentials)
       if self.decorator._token_response_param:
-        response_query = urlparse.parse_qs(parts[1])
+        response_query = urllib.parse.parse_qs(parts[1])
         response = response_query[self.decorator._token_response_param][0]
         self.assertEqual(Http2Mock.content,
-                         json.loads(urllib.unquote(response)))
+                         json.loads(urllib.parse.unquote(response)))
       self.assertEqual(self.decorator.flow, self.decorator._tls.flow)
       self.assertEqual(self.decorator.credentials,
                        self.decorator._tls.credentials)
@@ -605,7 +605,7 @@ class DecoratorTests(unittest.TestCase):
     # Invalid Credentials should start the OAuth dance again.
     response = self.app.get('/foo_path')
     self.assertTrue(response.status.startswith('302'))
-    q = urlparse.parse_qs(response.headers['Location'].split('?', 1)[1])
+    q = urllib.parse.parse_qs(response.headers['Location'].split('?', 1)[1])
     self.assertEqual('http://localhost/oauth2callback', q['redirect_uri'][0])
 
   def test_storage_delete(self):
@@ -650,7 +650,7 @@ class DecoratorTests(unittest.TestCase):
     self.assertEqual('200 OK', response.status)
     self.assertEqual(False, self.decorator.has_credentials())
     url = self.decorator.authorize_url()
-    q = urlparse.parse_qs(url.split('?', 1)[1])
+    q = urllib.parse.parse_qs(url.split('?', 1)[1])
     self.assertEqual('http://localhost/oauth2callback', q['redirect_uri'][0])
     self.assertEqual('foo_client_id', q['client_id'][0])
     self.assertEqual('foo_scope bar_scope', q['scope'][0])
