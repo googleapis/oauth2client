@@ -73,7 +73,7 @@ class FlaskOAuth2Tests(unittest.TestCase):
             client_id='client_idz',
             client_secret='client_secretz')
 
-    def _generate_credentials(self):
+    def _generate_credentials(self, scopes=None):
         return OAuth2Credentials(
             'access_tokenz',
             'client_idz',
@@ -85,7 +85,8 @@ class FlaskOAuth2Tests(unittest.TestCase):
             id_token={
                 'sub': '123',
                 'email': 'user@example.com'
-            })
+            },
+            scopes=scopes)
 
     def test_explicit_configuration(self):
         oauth2 = FlaskOAuth2(
@@ -314,6 +315,53 @@ class FlaskOAuth2Tests(unittest.TestCase):
             rv = c.get('/protected')
             self.assertEqual(rv.status_code, httplib.OK)
             self.assertTrue('Hello' in rv.data.decode('utf-8'))
+
+    def test_incremental_auth(self):
+        self.app = flask.Flask(__name__)
+        self.app.testing = True
+        self.app.config['SECRET_KEY'] = 'notasecert'
+        self.oauth2 = FlaskOAuth2(
+            self.app,
+            client_id='client_idz',
+            client_secret='client_secretz',
+            include_granted_scopes=True)
+
+        @self.app.route('/one')
+        @self.oauth2.required(scopes=['one'])
+        def one():
+            return 'Hello'
+
+        @self.app.route('/two')
+        @self.oauth2.required(scopes=['two', 'three'])
+        def two():
+            return 'Hello'
+
+        # No credentials, should redirect
+        with self.app.test_client() as c:
+            rv = c.get('/one')
+            self.assertTrue('one' in rv.headers['Location'])
+            self.assertEqual(rv.status_code, httplib.FOUND)
+
+        # Credentials for one. /one should allow, /two should redirect.
+        credentials = self._generate_credentials(scopes=['one'])
+
+        with self.app.test_client() as c:
+            with c.session_transaction() as session:
+                session['google_oauth2_credentials'] = credentials.to_json()
+
+            rv = c.get('/one')
+            self.assertEqual(rv.status_code, httplib.OK)
+
+            rv = c.get('/two')
+            self.assertTrue('two' in rv.headers['Location'])
+            self.assertEqual(rv.status_code, httplib.FOUND)
+
+            # Starting the authorization flow should include the
+            # include_granted_scopes parameter as well as the scopes.
+            rv = c.get(rv.headers['Location'][17:])
+            q = urlparse.parse_qs(rv.headers['Location'].split('?', 1)[1])
+            self.assertTrue('include_granted_scopes' in q)
+            self.assertEqual(q['scope'][0], 'email one two three')
 
     def test_refresh(self):
         with self.app.test_request_context():
