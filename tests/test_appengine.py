@@ -26,6 +26,7 @@ import datetime
 import httplib2
 import json
 import os
+import tempfile
 import time
 import unittest
 import urllib
@@ -58,6 +59,7 @@ from oauth2client.appengine import FlowProperty
 from oauth2client.appengine import OAuth2Decorator
 from oauth2client.appengine import OAuth2DecoratorFromClientSecrets
 from oauth2client.appengine import StorageByKeyName
+from oauth2client.client import _CLOUDSDK_CONFIG_ENV_VAR
 from oauth2client.client import AccessTokenRefreshError
 from oauth2client.client import Credentials
 from oauth2client.client import FlowExchangeError
@@ -240,8 +242,10 @@ class TestAppAssertionCredentials(unittest.TestCase):
     self.assertEqual(None, token.expires_in)
 
   def test_save_to_well_known_file(self):
+    os.environ[_CLOUDSDK_CONFIG_ENV_VAR] = tempfile.mkdtemp()
     credentials = AppAssertionCredentials([])
     self.assertRaises(NotImplementedError, save_to_well_known_file, credentials)
+    del os.environ[_CLOUDSDK_CONFIG_ENV_VAR]
 
 
 class TestFlowModel(db.Model):
