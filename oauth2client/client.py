@@ -270,31 +270,32 @@ class Credentials(object):
 
   @classmethod
   def new_from_json(cls, s):
-    """Utility class method to instantiate a Credentials subclass from a JSON
-    representation produced by to_json().
+    """Utility class method to instantiate a Credentials subclass from JSON.
+
+    Expects the JSON string to have been produced by to_json().
 
     Args:
-      s: string, JSON from to_json().
+      s: string or bytes, JSON from to_json().
 
     Returns:
       An instance of the subclass of Credentials that was serialized with
       to_json().
     """
-    s = _from_bytes(s)
-    data = json.loads(s)
+    json_string_as_unicode = _from_bytes(s)
+    data = json.loads(json_string_as_unicode)
     # Find and call the right classmethod from_json() to restore the object.
-    module = data['_module']
+    module_name = data['_module']
     try:
-      m = __import__(module)
+      module_obj = __import__(module_name)
     except ImportError:
       # In case there's an object from the old package structure, update it
-      module = module.replace('.googleapiclient', '')
-      m = __import__(module)
+      module_name = module_name.replace('.googleapiclient', '')
+      module_obj = __import__(module_name)
 
-    m = __import__(module, fromlist=module.split('.')[:-1])
-    kls = getattr(m, data['_class'])
+    module_obj = __import__(module_name, fromlist=module_name.split('.')[:-1])
+    kls = getattr(module_obj, data['_class'])
     from_json = getattr(kls, 'from_json')
-    return from_json(s)
+    return from_json(json_string_as_unicode)
 
   @classmethod
   def from_json(cls, unused_data):
