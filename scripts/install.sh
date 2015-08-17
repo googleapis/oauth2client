@@ -25,3 +25,7 @@ if [[ "${TOX_ENV}" == "pypy" ]]; then
     pyenv install pypy-2.6.0
     pyenv global pypy-2.6.0
 fi
+
+if [[ "${TOX_ENV}" == "gae" && ! -d ${GAE_PYTHONPATH} ]]; then
+    python scripts/fetch_gae_sdk.py `dirname ${GAE_PYTHONPATH}`
+fi
