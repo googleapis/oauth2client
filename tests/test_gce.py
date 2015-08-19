@@ -20,11 +20,14 @@ Unit tests for oauth2client.gce.
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
+import json
+from six.moves import urllib
 import unittest
 
 import httplib2
 import mock
 
+from oauth2client._helpers import _to_bytes
 from oauth2client.client import AccessTokenRefreshError
 from oauth2client.client import Credentials
 from oauth2client.client import save_to_well_known_file
@@ -33,22 +36,32 @@ from oauth2client.gce import AppAssertionCredentials
 
 class AssertionCredentialsTests(unittest.TestCase):
 
-  def test_good_refresh(self):
+  def _refresh_success_helper(self, bytes_response=False):
+    access_token = u'this-is-a-token'
+    return_val = json.dumps({u'accessToken': access_token})
+    if bytes_response:
+      return_val = _to_bytes(return_val)
     http = mock.MagicMock()
     http.request = mock.MagicMock(
-        return_value=(mock.Mock(status=200),
-                      '{"accessToken": "this-is-a-token"}'))
+        return_value=(mock.Mock(status=200), return_val))
 
-    c = AppAssertionCredentials(scope=['http://example.com/a',
-                                       'http://example.com/b'])
-    self.assertEquals(None, c.access_token)
-    c.refresh(http)
-    self.assertEquals('this-is-a-token', c.access_token)
+    scopes = ['http://example.com/a', 'http://example.com/b']
+    credentials = AppAssertionCredentials(scope=scopes)
+    self.assertEquals(None, credentials.access_token)
+    credentials.refresh(http)
+    self.assertEquals(access_token, credentials.access_token)
 
-    http.request.assert_called_once_with(
-        'http://metadata.google.internal/0.1/meta-data/service-accounts/'
-        'default/acquire'
-        '?scope=http%3A%2F%2Fexample.com%2Fa%20http%3A%2F%2Fexample.com%2Fb')
+    base_metadata_uri = ('http://metadata.google.internal/0.1/meta-data/'
+                         'service-accounts/default/acquire')
+    escaped_scopes = urllib.parse.quote(' '.join(scopes), safe='')
+    request_uri = base_metadata_uri + '?scope=' + escaped_scopes
+    http.request.assert_called_once_with(request_uri)
+
+  def test_refresh_success(self):
+    self._refresh_success_helper(bytes_response=False)
+
+  def test_refresh_success_bytes(self):
+    self._refresh_success_helper(bytes_response=True)
 
   def test_fail_refresh(self):
     http = mock.MagicMock()

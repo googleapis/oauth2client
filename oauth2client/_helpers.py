@@ -68,6 +68,27 @@ def _to_bytes(value, encoding='ascii'):
     raise ValueError('%r could not be converted to bytes' % (value,))
 
 
+def _from_bytes(value):
+  """Converts bytes to a string value, if necessary.
+
+  Args:
+      value: The string/bytes value to be converted.
+
+  Returns:
+      The original value converted to unicode (if bytes) or as passed in
+      if it started out as unicode.
+
+  Raises:
+      ValueError if the value could not be converted to unicode.
+  """
+  result = (value.decode('utf-8')
+            if isinstance(value, six.binary_type) else value)
+  if isinstance(result, six.text_type):
+    return result
+  else:
+    raise ValueError('%r could not be converted to unicode' % (value,))
+
+
 def _urlsafe_b64encode(raw_bytes):
   raw_bytes = _to_bytes(raw_bytes, encoding='utf-8')
   return base64.urlsafe_b64encode(raw_bytes).rstrip(b'=')

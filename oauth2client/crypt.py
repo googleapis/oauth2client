@@ -19,6 +19,7 @@ import json
 import logging
 import time
 
+from oauth2client._helpers import _from_bytes
 from oauth2client._helpers import _json_encode
 from oauth2client._helpers import _to_bytes
 from oauth2client._helpers import _urlsafe_b64decode
@@ -124,7 +125,7 @@ def verify_signed_jwt_with_certs(jwt, certs, audience):
   # Parse token.
   json_body = _urlsafe_b64decode(segments[1])
   try:
-    parsed = json.loads(json_body.decode('utf-8'))
+    parsed = json.loads(_from_bytes(json_body))
   except:
     raise AppIdentityError('Can\'t parse token: %s' % json_body)
 

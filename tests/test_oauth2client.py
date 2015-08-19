@@ -801,8 +801,8 @@ class BasicCredentialsTests(unittest.TestCase):
     http = credentials.authorize(http)
     http.request(u'http://example.com', method=u'GET', headers={u'foo': u'bar'})
     for k, v in six.iteritems(http.headers):
-      self.assertEqual(six.binary_type, type(k))
-      self.assertEqual(six.binary_type, type(v))
+      self.assertTrue(isinstance(k, six.binary_type))
+      self.assertTrue(isinstance(v, six.binary_type))
 
     # Test again with unicode strings that can't simply be converted to ASCII.
     try:

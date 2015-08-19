@@ -40,6 +40,7 @@ from oauth2client import GOOGLE_DEVICE_URI
 from oauth2client import GOOGLE_REVOKE_URI
 from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client import GOOGLE_TOKEN_INFO_URI
+from oauth2client._helpers import _from_bytes
 from oauth2client._helpers import _to_bytes
 from oauth2client._helpers import _urlsafe_b64decode
 from oauth2client import clientsecrets
@@ -269,32 +270,32 @@ class Credentials(object):
 
   @classmethod
   def new_from_json(cls, s):
-    """Utility class method to instantiate a Credentials subclass from a JSON
-    representation produced by to_json().
+    """Utility class method to instantiate a Credentials subclass from JSON.
+
+    Expects the JSON string to have been produced by to_json().
 
     Args:
-      s: string, JSON from to_json().
+      s: string or bytes, JSON from to_json().
 
     Returns:
       An instance of the subclass of Credentials that was serialized with
       to_json().
     """
-    if isinstance(s, bytes):
-      s = s.decode('utf-8')
-    data = json.loads(s)
+    json_string_as_unicode = _from_bytes(s)
+    data = json.loads(json_string_as_unicode)
     # Find and call the right classmethod from_json() to restore the object.
-    module = data['_module']
+    module_name = data['_module']
     try:
-      m = __import__(module)
+      module_obj = __import__(module_name)
     except ImportError:
       # In case there's an object from the old package structure, update it
-      module = module.replace('.googleapiclient', '')
-      m = __import__(module)
+      module_name = module_name.replace('.googleapiclient', '')
+      module_obj = __import__(module_name)
 
-    m = __import__(module, fromlist=module.split('.')[:-1])
-    kls = getattr(m, data['_class'])
+    module_obj = __import__(module_name, fromlist=module_name.split('.')[:-1])
+    kls = getattr(module_obj, data['_class'])
     from_json = getattr(kls, 'from_json')
-    return from_json(s)
+    return from_json(json_string_as_unicode)
 
   @classmethod
   def from_json(cls, unused_data):
@@ -673,8 +674,7 @@ class OAuth2Credentials(Credentials):
     Returns:
       An instance of a Credentials subclass.
     """
-    if isinstance(s, bytes):
-      s = s.decode('utf-8')
+    s = _from_bytes(s)
     data = json.loads(s)
     if (data.get('token_expiry') and
         not isinstance(data['token_expiry'], datetime.datetime)):
@@ -845,8 +845,7 @@ class OAuth2Credentials(Credentials):
     logger.info('Refreshing access_token')
     resp, content = http_request(
         self.token_uri, method='POST', body=body, headers=headers)
-    if isinstance(content, bytes):
-      content = content.decode('utf-8')
+    content = _from_bytes(content)
     if resp.status == 200:
       d = json.loads(content)
       self.token_response = d
@@ -905,16 +904,12 @@ class OAuth2Credentials(Credentials):
     query_params = {'token': token}
     token_revoke_uri = _update_query_params(self.revoke_uri, query_params)
     resp, content = http_request(token_revoke_uri)
-
-    if isinstance(content, bytes):
-      content = content.decode('utf-8')
-
     if resp.status == 200:
       self.invalid = True
     else:
       error_msg = 'Invalid response %s.' % resp.status
       try:
-        d = json.loads(content)
+        d = json.loads(_from_bytes(content))
         if 'error' in d:
           error_msg = d['error']
       except (TypeError, ValueError):
@@ -949,10 +944,7 @@ class OAuth2Credentials(Credentials):
     query_params = {'access_token': token, 'fields': 'scope'}
     token_info_uri = _update_query_params(self.token_info_uri, query_params)
     resp, content  = http_request(token_info_uri)
-
-    if six.PY3 and isinstance(content, bytes):
-      content = content.decode('utf-8')
-
+    content = _from_bytes(content)
     if resp.status == 200:
       d = json.loads(content)
       self.scopes = set(util.string_to_scopes(d.get('scope', '')))
@@ -1018,9 +1010,7 @@ class AccessTokenCredentials(OAuth2Credentials):
 
   @classmethod
   def from_json(cls, s):
-    if isinstance(s, bytes):
-      s = s.decode('utf-8')
-    data = json.loads(s)
+    data = json.loads(_from_bytes(s))
     retval = AccessTokenCredentials(
       data['access_token'],
       data['user_agent'])
@@ -1612,7 +1602,7 @@ class SignedJwtAssertionCredentials(AssertionCredentials):
 
   @classmethod
   def from_json(cls, s):
-    data = json.loads(s)
+    data = json.loads(_from_bytes(s))
     retval = SignedJwtAssertionCredentials(
         data['service_account_name'],
         base64.b64decode(data['private_key']),
@@ -1675,9 +1665,8 @@ def verify_id_token(id_token, audience, http=None,
     http = _cached_http
 
   resp, content = http.request(cert_uri)
-
   if resp.status == 200:
-    certs = json.loads(content.decode('utf-8'))
+    certs = json.loads(_from_bytes(content))
     return crypt.verify_signed_jwt_with_certs(id_token, certs, audience)
   else:
     raise VerifyJwtTokenError('Status code: %d' % resp.status)
@@ -1703,7 +1692,7 @@ def _extract_id_token(id_token):
     raise VerifyJwtTokenError(
         'Wrong number of segments in token: %s' % id_token)
 
-  return json.loads(_urlsafe_b64decode(segments[1]).decode('utf-8'))
+  return json.loads(_from_bytes(_urlsafe_b64decode(segments[1])))
 
 
 def _parse_exchange_token_response(content):
@@ -1720,12 +1709,12 @@ def _parse_exchange_token_response(content):
     i.e. {}. That basically indicates a failure.
   """
   resp = {}
+  content = _from_bytes(content)
   try:
-    resp = json.loads(content.decode('utf-8'))
+    resp = json.loads(content)
   except Exception:
     # different JSON libs raise different exceptions,
     # so we just do a catch-all here
-    content = content.decode('utf-8')
     resp = dict(urllib.parse.parse_qsl(content))
 
   # some providers respond with 'expires', others with 'expires_in'
@@ -2000,6 +1989,7 @@ class OAuth2WebServerFlow(Flow):
 
     resp, content = http.request(self.device_uri, method='POST', body=body,
                                  headers=headers)
+    content = _from_bytes(content)
     if resp.status == 200:
       try:
         flow_info = json.loads(content)
