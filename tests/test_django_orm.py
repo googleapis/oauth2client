@@ -42,7 +42,8 @@ from oauth2client.client import Flow
 from django.conf import global_settings
 global_settings.SECRET_KEY = 'NotASecret'
 os.environ['DJANGO_SETTINGS_MODULE'] = 'django_settings'
-sys.modules['django_settings'] = django_settings = imp.new_module('django_settings')
+sys.modules['django_settings'] = django_settings = imp.new_module(
+    'django_settings')
 django_settings.SECRET_KEY = 'xyzzy'
 
 from oauth2client.django_orm import CredentialsField
@@ -50,6 +51,7 @@ from oauth2client.django_orm import FlowField
 
 
 class TestCredentialsField(unittest.TestCase):
+
     def setUp(self):
         self.field = CredentialsField()
         self.credentials = Credentials()
@@ -59,11 +61,12 @@ class TestCredentialsField(unittest.TestCase):
         self.assertEquals(self.field.get_internal_type(), 'TextField')
 
     def test_field_unpickled(self):
-        self.assertTrue(isinstance(self.field.to_python(self.pickle), Credentials))
+        self.assertTrue(isinstance(self.field.to_python(self.pickle),
+                                   Credentials))
 
     def test_field_pickled(self):
         prep_value = self.field.get_db_prep_value(self.credentials,
-                                              connection=None)
+                                                  connection=None)
         self.assertEqual(prep_value, self.pickle)
 
 

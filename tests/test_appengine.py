@@ -113,16 +113,16 @@ class Http2Mock(object):
     """Mock httplib2.Http"""
     status = 200
     content = {
-      'access_token': 'foo_access_token',
-      'refresh_token': 'foo_refresh_token',
-      'expires_in': 3600,
-      'extra': 'value',
+        'access_token': 'foo_access_token',
+        'refresh_token': 'foo_refresh_token',
+        'expires_in': 3600,
+        'extra': 'value',
     }
 
     def request(self, token_uri, method, body, headers, *args, **kwargs):
         self.body = body
         self.headers = headers
-        return (self, json.dumps(self.content))
+        return self, json.dumps(self.content)
 
 
 class TestAppAssertionCredentials(unittest.TestCase):
@@ -132,8 +132,8 @@ class TestAppAssertionCredentials(unittest.TestCase):
     class AppIdentityStubImpl(apiproxy_stub.APIProxyStub):
 
         def __init__(self):
-            super(TestAppAssertionCredentials.AppIdentityStubImpl, self).__init__(
-          'app_identity_service')
+            super(TestAppAssertionCredentials.AppIdentityStubImpl,
+                  self).__init__('app_identity_service')
 
         def _Dynamic_GetAccessToken(self, request, response):
             response.set_access_token('a_token_123')
@@ -142,8 +142,8 @@ class TestAppAssertionCredentials(unittest.TestCase):
     class ErroringAppIdentityStubImpl(apiproxy_stub.APIProxyStub):
 
         def __init__(self):
-            super(TestAppAssertionCredentials.ErroringAppIdentityStubImpl, self).__init__(
-          'app_identity_service')
+            super(TestAppAssertionCredentials.ErroringAppIdentityStubImpl,
+                  self).__init__('app_identity_service')
 
         def _Dynamic_GetAccessToken(self, request, response):
             raise app_identity.BackendDeadlineExceeded()
@@ -152,9 +152,9 @@ class TestAppAssertionCredentials(unittest.TestCase):
         app_identity_stub = self.ErroringAppIdentityStubImpl()
         apiproxy_stub_map.apiproxy = apiproxy_stub_map.APIProxyStubMap()
         apiproxy_stub_map.apiproxy.RegisterStub('app_identity_service',
-                                            app_identity_stub)
+                                                app_identity_stub)
         apiproxy_stub_map.apiproxy.RegisterStub(
-      'memcache', memcache_stub.MemcacheServiceStub())
+            'memcache', memcache_stub.MemcacheServiceStub())
 
         scope = 'http://www.googleapis.com/scope'
         credentials = AppAssertionCredentials(scope)
@@ -165,13 +165,13 @@ class TestAppAssertionCredentials(unittest.TestCase):
         app_identity_stub = self.AppIdentityStubImpl()
         apiproxy_stub_map.apiproxy = apiproxy_stub_map.APIProxyStubMap()
         apiproxy_stub_map.apiproxy.RegisterStub("app_identity_service",
-                                            app_identity_stub)
+                                                app_identity_stub)
         apiproxy_stub_map.apiproxy.RegisterStub(
-      'memcache', memcache_stub.MemcacheServiceStub())
+            'memcache', memcache_stub.MemcacheServiceStub())
 
         scope = [
-     "http://www.googleapis.com/scope",
-     "http://www.googleapis.com/scope2"]
+            "http://www.googleapis.com/scope",
+            "http://www.googleapis.com/scope2"]
         credentials = AppAssertionCredentials(scope)
         http = httplib2.Http()
         credentials.refresh(http)
@@ -180,34 +180,35 @@ class TestAppAssertionCredentials(unittest.TestCase):
         json = credentials.to_json()
         credentials = Credentials.new_from_json(json)
         self.assertEqual(
-      'http://www.googleapis.com/scope http://www.googleapis.com/scope2',
-      credentials.scope)
+            'http://www.googleapis.com/scope http://www.googleapis.com/scope2',
+            credentials.scope)
 
-        scope = "http://www.googleapis.com/scope http://www.googleapis.com/scope2"
+        scope = ('http://www.googleapis.com/scope '
+                 'http://www.googleapis.com/scope2')
         credentials = AppAssertionCredentials(scope)
         http = httplib2.Http()
         credentials.refresh(http)
         self.assertEqual('a_token_123', credentials.access_token)
         self.assertEqual(
-      'http://www.googleapis.com/scope http://www.googleapis.com/scope2',
-      credentials.scope)
+            'http://www.googleapis.com/scope http://www.googleapis.com/scope2',
+            credentials.scope)
 
     def test_custom_service_account(self):
         scope = "http://www.googleapis.com/scope"
         account_id = "service_account_name_2@appspot.com"
 
         with mock.patch.object(app_identity, 'get_access_token',
-                           return_value=('a_token_456', None),
-                           autospec=True) as get_access_token:
+                               return_value=('a_token_456', None),
+                               autospec=True) as get_access_token:
             credentials = AppAssertionCredentials(
-          scope, service_account_id=account_id)
+                scope, service_account_id=account_id)
             http = httplib2.Http()
             credentials.refresh(http)
 
             self.assertEqual('a_token_456', credentials.access_token)
             self.assertEqual(scope, credentials.scope)
             get_access_token.assert_called_once_with(
-          [scope], service_account_id=account_id)
+                [scope], service_account_id=account_id)
 
     def test_create_scoped_required_without_scopes(self):
         credentials = AppAssertionCredentials([])
@@ -228,9 +229,9 @@ class TestAppAssertionCredentials(unittest.TestCase):
         app_identity_stub = self.AppIdentityStubImpl()
         apiproxy_stub_map.apiproxy = apiproxy_stub_map.APIProxyStubMap()
         apiproxy_stub_map.apiproxy.RegisterStub("app_identity_service",
-                                            app_identity_stub)
+                                                app_identity_stub)
         apiproxy_stub_map.apiproxy.RegisterStub(
-        'memcache', memcache_stub.MemcacheServiceStub())
+            'memcache', memcache_stub.MemcacheServiceStub())
 
         credentials = AppAssertionCredentials(['dummy_scope'])
         token = credentials.get_access_token()
@@ -240,7 +241,8 @@ class TestAppAssertionCredentials(unittest.TestCase):
     def test_save_to_well_known_file(self):
         os.environ[_CLOUDSDK_CONFIG_ENV_VAR] = tempfile.mkdtemp()
         credentials = AppAssertionCredentials([])
-        self.assertRaises(NotImplementedError, save_to_well_known_file, credentials)
+        self.assertRaises(NotImplementedError,
+                          save_to_well_known_file, credentials)
         del os.environ[_CLOUDSDK_CONFIG_ENV_VAR]
 
 
@@ -260,9 +262,9 @@ class FlowPropertyTest(unittest.TestCase):
 
     def test_flow_get_put(self):
         instance = TestFlowModel(
-        flow=flow_from_clientsecrets(datafile('client_secrets.json'), 'foo',
-                                     redirect_uri='oob'),
-        key_name='foo'
+            flow=flow_from_clientsecrets(datafile('client_secrets.json'),
+                                         'foo', redirect_uri='oob'),
+            key_name='foo'
         )
         instance.put()
         retrieved = TestFlowModel.get_by_key_name('foo')
@@ -287,9 +289,9 @@ class FlowNDBPropertyTest(unittest.TestCase):
 
     def test_flow_get_put(self):
         instance = TestFlowNDBModel(
-        flow=flow_from_clientsecrets(datafile('client_secrets.json'), 'foo',
-                                     redirect_uri='oob'),
-        id='foo'
+            flow=flow_from_clientsecrets(datafile('client_secrets.json'),
+                                         'foo', redirect_uri='oob'),
+            id='foo'
         )
         instance.put()
         retrieved = TestFlowNDBModel.get_by_id('foo')
@@ -320,16 +322,16 @@ class StorageByKeyNameTest(unittest.TestCase):
         token_expiry = datetime.datetime.utcnow()
         user_agent = 'refresh_checker/1.0'
         self.credentials = OAuth2Credentials(
-      access_token, client_id, client_secret,
-      refresh_token, token_expiry, GOOGLE_TOKEN_URI,
-      user_agent)
+            access_token, client_id, client_secret,
+            refresh_token, token_expiry, GOOGLE_TOKEN_URI,
+            user_agent)
 
     def tearDown(self):
         self.testbed.deactivate()
 
     def test_get_and_put_simple(self):
         storage = StorageByKeyName(
-      CredentialsModel, 'foo', 'credentials')
+            CredentialsModel, 'foo', 'credentials')
 
         self.assertEqual(None, storage.get())
         self.credentials.set_store(storage)
@@ -340,7 +342,7 @@ class StorageByKeyNameTest(unittest.TestCase):
 
     def test_get_and_put_cached(self):
         storage = StorageByKeyName(
-      CredentialsModel, 'foo', 'credentials', cache=memcache)
+            CredentialsModel, 'foo', 'credentials', cache=memcache)
 
         self.assertEqual(None, storage.get())
         self.credentials.set_store(storage)
@@ -365,13 +367,13 @@ class StorageByKeyNameTest(unittest.TestCase):
 
     def test_get_and_put_set_store_on_cache_retrieval(self):
         storage = StorageByKeyName(
-      CredentialsModel, 'foo', 'credentials', cache=memcache)
+            CredentialsModel, 'foo', 'credentials', cache=memcache)
 
         self.assertEqual(None, storage.get())
         self.credentials.set_store(storage)
         storage.put(self.credentials)
-        # Pre-bug 292 old_creds wouldn't have storage, and the _refresh wouldn't
-        # be able to store the updated cred back into the storage.
+        # Pre-bug 292 old_creds wouldn't have storage, and the _refresh
+        # wouldn't be able to store the updated cred back into the storage.
         old_creds = storage.get()
         self.assertEqual(old_creds.access_token, 'foo')
         old_creds.invalid = True
@@ -382,7 +384,7 @@ class StorageByKeyNameTest(unittest.TestCase):
     def test_get_and_put_ndb(self):
         # Start empty
         storage = StorageByKeyName(
-      CredentialsNDBModel, 'foo', 'credentials')
+            CredentialsNDBModel, 'foo', 'credentials')
         self.assertEqual(None, storage.get())
 
         # Refresh storage and retrieve without using storage
@@ -391,19 +393,20 @@ class StorageByKeyNameTest(unittest.TestCase):
         credmodel = CredentialsNDBModel.get_by_id('foo')
         self.assertEqual('bar', credmodel.credentials.access_token)
         self.assertEqual(credmodel.credentials.to_json(),
-                     self.credentials.to_json())
+                         self.credentials.to_json())
 
     def test_delete_ndb(self):
         # Start empty
         storage = StorageByKeyName(
-      CredentialsNDBModel, 'foo', 'credentials')
+            CredentialsNDBModel, 'foo', 'credentials')
         self.assertEqual(None, storage.get())
 
-        # Add credentials to model with storage, and check equivalent w/o storage
+        # Add credentials to model with storage, and check equivalent
+        # w/o storage
         storage.put(self.credentials)
         credmodel = CredentialsNDBModel.get_by_id('foo')
         self.assertEqual(credmodel.credentials.to_json(),
-                     self.credentials.to_json())
+                         self.credentials.to_json())
 
         # Delete and make sure empty
         storage.delete()
@@ -412,7 +415,7 @@ class StorageByKeyNameTest(unittest.TestCase):
     def test_get_and_put_mixed_ndb_storage_db_get(self):
         # Start empty
         storage = StorageByKeyName(
-      CredentialsNDBModel, 'foo', 'credentials')
+            CredentialsNDBModel, 'foo', 'credentials')
         self.assertEqual(None, storage.get())
 
         # Set NDB store and refresh to add to storage
@@ -423,12 +426,12 @@ class StorageByKeyNameTest(unittest.TestCase):
         credmodel = CredentialsModel.get_by_key_name('foo')
         self.assertEqual('bar', credmodel.credentials.access_token)
         self.assertEqual(self.credentials.to_json(),
-                     credmodel.credentials.to_json())
+                         credmodel.credentials.to_json())
 
     def test_get_and_put_mixed_db_storage_ndb_get(self):
         # Start empty
         storage = StorageByKeyName(
-      CredentialsModel, 'foo', 'credentials')
+            CredentialsModel, 'foo', 'credentials')
         self.assertEqual(None, storage.get())
 
         # Set DB store and refresh to add to storage
@@ -439,14 +442,14 @@ class StorageByKeyNameTest(unittest.TestCase):
         credmodel = CredentialsNDBModel.get_by_id('foo')
         self.assertEqual('bar', credmodel.credentials.access_token)
         self.assertEqual(self.credentials.to_json(),
-                     credmodel.credentials.to_json())
+                         credmodel.credentials.to_json())
 
     def test_delete_db_ndb_mixed(self):
         # Start empty
         storage_ndb = StorageByKeyName(
-      CredentialsNDBModel, 'foo', 'credentials')
+            CredentialsNDBModel, 'foo', 'credentials')
         storage = StorageByKeyName(
-      CredentialsModel, 'foo', 'credentials')
+            CredentialsModel, 'foo', 'credentials')
 
         # First DB, then NDB
         self.assertEqual(None, storage.get())
@@ -489,9 +492,9 @@ class DecoratorTests(unittest.TestCase):
         self.testbed.init_user_stub()
 
         decorator = OAuth2Decorator(client_id='foo_client_id',
-                                client_secret='foo_client_secret',
-                                scope=['foo_scope', 'bar_scope'],
-                                user_agent='foo')
+                                    client_secret='foo_client_secret',
+                                    scope=['foo_scope', 'bar_scope'],
+                                    user_agent='foo')
 
         self._finish_setup(decorator, user_mock=UserMock)
 
@@ -523,20 +526,22 @@ class DecoratorTests(unittest.TestCase):
                 if parent.should_raise:
                     raise Exception('')
 
-        application = webapp2.WSGIApplication([
-        ('/oauth2callback', self.decorator.callback_handler()),
-        ('/foo_path', TestRequiredHandler),
-        webapp2.Route(r'/bar_path/<year:\d{4}>/<month:\d{2}>',
-          handler=TestAwareHandler, name='bar')],
-      debug=True)
-    self.app = TestApp(application, extra_environ={
-        'wsgi.url_scheme': 'http',
-        'HTTP_HOST': 'localhost',
+        routes = [
+            ('/oauth2callback', self.decorator.callback_handler()),
+            ('/foo_path', TestRequiredHandler),
+            webapp2.Route(r'/bar_path/<year:\d{4}>/<month:\d{2}>',
+                          handler=TestAwareHandler, name='bar'),
+        ]
+        application = webapp2.WSGIApplication(routes, debug=True)
+
+        self.app = TestApp(application, extra_environ={
+            'wsgi.url_scheme': 'http',
+            'HTTP_HOST': 'localhost',
         })
-    self.current_user = user_mock()
-    users.get_current_user = self.current_user
-    self.httplib2_orig = httplib2.Http
-    httplib2.Http = Http2Mock
+        self.current_user = user_mock()
+        users.get_current_user = self.current_user
+        self.httplib2_orig = httplib2.Http
+        httplib2.Http = Http2Mock
 
     def tearDown(self):
         self.testbed.deactivate()
@@ -549,46 +554,49 @@ class DecoratorTests(unittest.TestCase):
         self.assertEqual(self.decorator.credentials, None)
         response = self.app.get('http://localhost/foo_path')
         self.assertTrue(response.status.startswith('302'))
-        q = urllib.parse.parse_qs(response.headers['Location'].split('?', 1)[1])
-        self.assertEqual('http://localhost/oauth2callback', q['redirect_uri'][0])
+        q = urllib.parse.parse_qs(
+            response.headers['Location'].split('?', 1)[1])
+        self.assertEqual('http://localhost/oauth2callback',
+                         q['redirect_uri'][0])
         self.assertEqual('foo_client_id', q['client_id'][0])
         self.assertEqual('foo_scope bar_scope', q['scope'][0])
         self.assertEqual('http://localhost/foo_path',
-                     q['state'][0].rsplit(':', 1)[0])
+                         q['state'][0].rsplit(':', 1)[0])
         self.assertEqual('code', q['response_type'][0])
         self.assertEqual(False, self.decorator.has_credentials())
 
         with mock.patch.object(appengine, '_parse_state_value',
-                           return_value='foo_path',
-                           autospec=True) as parse_state_value:
+                               return_value='foo_path',
+                               autospec=True) as parse_state_value:
             # Now simulate the callback to /oauth2callback.
             response = self.app.get('/oauth2callback', {
-          'code': 'foo_access_code',
-          'state': 'foo_path:xsrfkey123',
-          })
+                'code': 'foo_access_code',
+                'state': 'foo_path:xsrfkey123',
+            })
             parts = response.headers['Location'].split('?', 1)
             self.assertEqual('http://localhost/foo_path', parts[0])
             self.assertEqual(None, self.decorator.credentials)
             if self.decorator._token_response_param:
                 response_query = urllib.parse.parse_qs(parts[1])
-                response = response_query[self.decorator._token_response_param][0]
+                response = response_query[
+                    self.decorator._token_response_param][0]
                 self.assertEqual(Http2Mock.content,
-                         json.loads(urllib.parse.unquote(response)))
+                                 json.loads(urllib.parse.unquote(response)))
             self.assertEqual(self.decorator.flow, self.decorator._tls.flow)
             self.assertEqual(self.decorator.credentials,
-                       self.decorator._tls.credentials)
+                             self.decorator._tls.credentials)
 
             parse_state_value.assert_called_once_with(
-          'foo_path:xsrfkey123', self.current_user)
+                'foo_path:xsrfkey123', self.current_user)
 
         # Now requesting the decorated path should work.
         response = self.app.get('/foo_path')
         self.assertEqual('200 OK', response.status)
         self.assertEqual(True, self.had_credentials)
         self.assertEqual('foo_refresh_token',
-                     self.found_credentials.refresh_token)
+                         self.found_credentials.refresh_token)
         self.assertEqual('foo_access_token',
-                     self.found_credentials.access_token)
+                         self.found_credentials.access_token)
         self.assertEqual(None, self.decorator.credentials)
 
         # Raising an exception still clears the Credentials.
@@ -604,8 +612,10 @@ class DecoratorTests(unittest.TestCase):
         # Invalid Credentials should start the OAuth dance again.
         response = self.app.get('/foo_path')
         self.assertTrue(response.status.startswith('302'))
-        q = urllib.parse.parse_qs(response.headers['Location'].split('?', 1)[1])
-        self.assertEqual('http://localhost/oauth2callback', q['redirect_uri'][0])
+        q = urllib.parse.parse_qs(
+            response.headers['Location'].split('?', 1)[1])
+        self.assertEqual('http://localhost/oauth2callback',
+                         q['redirect_uri'][0])
 
     def test_storage_delete(self):
         # An initial request to an oauth_required decorated path should be a
@@ -614,14 +624,15 @@ class DecoratorTests(unittest.TestCase):
         self.assertTrue(response.status.startswith('302'))
 
         with mock.patch.object(appengine, '_parse_state_value',
-                           return_value='foo_path',
-                           autospec=True) as parse_state_value:
+                               return_value='foo_path',
+                               autospec=True) as parse_state_value:
             # Now simulate the callback to /oauth2callback.
             response = self.app.get('/oauth2callback', {
-          'code': 'foo_access_code',
-          'state': 'foo_path:xsrfkey123',
+                'code': 'foo_access_code',
+                'state': 'foo_path:xsrfkey123',
             })
-            self.assertEqual('http://localhost/foo_path', response.headers['Location'])
+            self.assertEqual('http://localhost/foo_path',
+                             response.headers['Location'])
             self.assertEqual(None, self.decorator.credentials)
 
             # Now requesting the decorated path should work.
@@ -640,37 +651,40 @@ class DecoratorTests(unittest.TestCase):
             self.assertTrue(response.status.startswith('302'))
 
             parse_state_value.assert_called_once_with(
-          'foo_path:xsrfkey123', self.current_user)
+                'foo_path:xsrfkey123', self.current_user)
 
     def test_aware(self):
-        # An initial request to an oauth_aware decorated path should not redirect.
+        # An initial request to an oauth_aware decorated path should
+        # not redirect.
         response = self.app.get('http://localhost/bar_path/2012/01')
         self.assertEqual('Hello World!', response.body)
         self.assertEqual('200 OK', response.status)
         self.assertEqual(False, self.decorator.has_credentials())
         url = self.decorator.authorize_url()
         q = urllib.parse.parse_qs(url.split('?', 1)[1])
-        self.assertEqual('http://localhost/oauth2callback', q['redirect_uri'][0])
+        self.assertEqual('http://localhost/oauth2callback',
+                         q['redirect_uri'][0])
         self.assertEqual('foo_client_id', q['client_id'][0])
         self.assertEqual('foo_scope bar_scope', q['scope'][0])
         self.assertEqual('http://localhost/bar_path/2012/01',
-                     q['state'][0].rsplit(':', 1)[0])
+                         q['state'][0].rsplit(':', 1)[0])
         self.assertEqual('code', q['response_type'][0])
 
         with mock.patch.object(appengine, '_parse_state_value',
-                           return_value='bar_path',
-                           autospec=True) as parse_state_value:
+                               return_value='bar_path',
+                               autospec=True) as parse_state_value:
             # Now simulate the callback to /oauth2callback.
             url = self.decorator.authorize_url()
             response = self.app.get('/oauth2callback', {
-          'code': 'foo_access_code',
-          'state': 'bar_path:xsrfkey456',
-          })
+                'code': 'foo_access_code',
+                'state': 'bar_path:xsrfkey456',
+            })
 
-            self.assertEqual('http://localhost/bar_path', response.headers['Location'])
+            self.assertEqual('http://localhost/bar_path',
+                             response.headers['Location'])
             self.assertEqual(False, self.decorator.has_credentials())
             parse_state_value.assert_called_once_with(
-          'bar_path:xsrfkey456', self.current_user)
+                'bar_path:xsrfkey456', self.current_user)
 
         # Now requesting the decorated path will have credentials.
         response = self.app.get('/bar_path/2012/01')
@@ -678,9 +692,9 @@ class DecoratorTests(unittest.TestCase):
         self.assertEqual('Hello World!', response.body)
         self.assertEqual(True, self.had_credentials)
         self.assertEqual('foo_refresh_token',
-                     self.found_credentials.refresh_token)
+                         self.found_credentials.refresh_token)
         self.assertEqual('foo_access_token',
-                     self.found_credentials.access_token)
+                         self.found_credentials.access_token)
 
         # Credentials should be cleared after each call.
         self.assertEqual(None, self.decorator.credentials)
@@ -692,28 +706,29 @@ class DecoratorTests(unittest.TestCase):
         self.assertEqual(None, self.decorator.credentials)
 
     def test_error_in_step2(self):
-        # An initial request to an oauth_aware decorated path should not redirect.
+        # An initial request to an oauth_aware decorated path should
+        # not redirect.
         response = self.app.get('/bar_path/2012/01')
         url = self.decorator.authorize_url()
         response = self.app.get('/oauth2callback', {
-        'error': 'Bad<Stuff>Happened\''
+            'error': 'Bad<Stuff>Happened\''
         })
         self.assertEqual('200 OK', response.status)
         self.assertTrue('Bad&lt;Stuff&gt;Happened&#39;' in response.body)
 
     def test_kwargs_are_passed_to_underlying_flow(self):
         decorator = OAuth2Decorator(client_id='foo_client_id',
-        client_secret='foo_client_secret',
-        user_agent='foo_user_agent',
-        scope=['foo_scope', 'bar_scope'],
-        access_type='offline',
-        approval_prompt='force',
-        revoke_uri='dummy_revoke_uri')
+                                    client_secret='foo_client_secret',
+                                    user_agent='foo_user_agent',
+                                    scope=['foo_scope', 'bar_scope'],
+                                    access_type='offline',
+                                    approval_prompt='force',
+                                    revoke_uri='dummy_revoke_uri')
         request_handler = MockRequestHandler()
         decorator._create_flow(request_handler)
 
         self.assertEqual('https://example.org/oauth2callback',
-                     decorator.flow.redirect_uri)
+                         decorator.flow.redirect_uri)
         self.assertEqual('offline', decorator.flow.params['access_type'])
         self.assertEqual('force', decorator.flow.params['approval_prompt'])
         self.assertEqual('foo_user_agent', decorator.flow.user_agent)
@@ -727,41 +742,42 @@ class DecoratorTests(unittest.TestCase):
 
     def test_decorator_from_client_secrets(self):
         decorator = OAuth2DecoratorFromClientSecrets(
-        datafile('client_secrets.json'),
-        scope=['foo_scope', 'bar_scope'])
+            datafile('client_secrets.json'),
+            scope=['foo_scope', 'bar_scope'])
         self._finish_setup(decorator, user_mock=UserMock)
 
         self.assertFalse(decorator._in_error)
         self.decorator = decorator
         self.test_required()
         http = self.decorator.http()
-        self.assertEquals('foo_access_token', http.request.credentials.access_token)
+        self.assertEquals('foo_access_token',
+                          http.request.credentials.access_token)
 
         # revoke_uri is not required
         self.assertEqual(self.decorator._revoke_uri,
-                     'https://accounts.google.com/o/oauth2/revoke')
+                         'https://accounts.google.com/o/oauth2/revoke')
         self.assertEqual(self.decorator._revoke_uri,
-                     self.decorator.credentials.revoke_uri)
+                         self.decorator.credentials.revoke_uri)
 
     def test_decorator_from_client_secrets_kwargs(self):
         decorator = OAuth2DecoratorFromClientSecrets(
-        datafile('client_secrets.json'),
-        scope=['foo_scope', 'bar_scope'],
-        approval_prompt='force')
+            datafile('client_secrets.json'),
+            scope=['foo_scope', 'bar_scope'],
+            approval_prompt='force')
         self.assertTrue('approval_prompt' in decorator._kwargs)
 
     def test_decorator_from_cached_client_secrets(self):
         cache_mock = CacheMock()
         load_and_cache('client_secrets.json', 'secret', cache_mock)
         decorator = OAuth2DecoratorFromClientSecrets(
-      # filename, scope, message=None, cache=None
-      'secret', '', cache=cache_mock)
+            # filename, scope, message=None, cache=None
+            'secret', '', cache=cache_mock)
         self.assertFalse(decorator._in_error)
 
     def test_decorator_from_client_secrets_not_logged_in_required(self):
         decorator = OAuth2DecoratorFromClientSecrets(
-        datafile('client_secrets.json'),
-        scope=['foo_scope', 'bar_scope'], message='NotLoggedInMessage')
+            datafile('client_secrets.json'),
+            scope=['foo_scope', 'bar_scope'], message='NotLoggedInMessage')
         self.decorator = decorator
         self._finish_setup(decorator, user_mock=UserNotLoggedInMock)
 
@@ -775,8 +791,8 @@ class DecoratorTests(unittest.TestCase):
 
     def test_decorator_from_client_secrets_not_logged_in_aware(self):
         decorator = OAuth2DecoratorFromClientSecrets(
-        datafile('client_secrets.json'),
-        scope=['foo_scope', 'bar_scope'], message='NotLoggedInMessage')
+            datafile('client_secrets.json'),
+            scope=['foo_scope', 'bar_scope'], message='NotLoggedInMessage')
         self.decorator = decorator
         self._finish_setup(decorator, user_mock=UserNotLoggedInMock)
 
@@ -790,8 +806,8 @@ class DecoratorTests(unittest.TestCase):
         MESSAGE = 'File is missing'
         try:
             decorator = OAuth2DecoratorFromClientSecrets(
-          datafile('unfilled_client_secrets.json'),
-          scope=['foo_scope', 'bar_scope'], message=MESSAGE)
+                datafile('unfilled_client_secrets.json'),
+                scope=['foo_scope', 'bar_scope'], message=MESSAGE)
         except InvalidClientSecretsError:
             pass
 
@@ -799,8 +815,8 @@ class DecoratorTests(unittest.TestCase):
         MESSAGE = 'File is missing'
         try:
             decorator = OAuth2DecoratorFromClientSecrets(
-          datafile('unfilled_client_secrets.json'),
-          scope=['foo_scope', 'bar_scope'], message=MESSAGE)
+                datafile('unfilled_client_secrets.json'),
+                scope=['foo_scope', 'bar_scope'], message=MESSAGE)
         except InvalidClientSecretsError:
             pass
 
@@ -826,13 +842,13 @@ class DecoratorXsrfSecretTests(unittest.TestCase):
 
         # Secret shouldn't change if memcache goes away.
         memcache.delete(appengine.XSRF_MEMCACHE_ID,
-                    namespace=appengine.OAUTH2CLIENT_NAMESPACE)
+                        namespace=appengine.OAUTH2CLIENT_NAMESPACE)
         secret3 = appengine.xsrf_secret_key()
         self.assertEqual(secret2, secret3)
 
         # Secret should change if both memcache and the model goes away.
         memcache.delete(appengine.XSRF_MEMCACHE_ID,
-                    namespace=appengine.OAUTH2CLIENT_NAMESPACE)
+                        namespace=appengine.OAUTH2CLIENT_NAMESPACE)
         model = appengine.SiteXsrfSecretKey.get_or_insert('site')
         model.delete()
 
@@ -869,10 +885,10 @@ class DecoratorXsrfProtectionTests(unittest.TestCase):
     def test_build_and_parse_state(self):
         state = appengine._build_state_value(MockRequestHandler(), UserMock())
         self.assertEqual(
-        'https://example.org',
-        appengine._parse_state_value(state, UserMock()))
+            'https://example.org',
+            appengine._parse_state_value(state, UserMock()))
         self.assertRaises(appengine.InvalidXsrfTokenError,
-                      appengine._parse_state_value, state[1:], UserMock())
+                          appengine._parse_state_value, state[1:], UserMock())
 
 
 if __name__ == '__main__':

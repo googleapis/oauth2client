@@ -32,7 +32,7 @@ class _AuthReferenceServer(threading.Thread):
     def __init__(self, response=None):
         super(_AuthReferenceServer, self).__init__(None)
         self.response = (response or
-                     '["joe@example.com", "fooproj", "sometoken"]')
+                         '["joe@example.com", "fooproj", "sometoken"]')
 
     def __enter__(self):
         self.start_server()
@@ -57,8 +57,9 @@ class _AuthReferenceServer(threading.Thread):
     def run(self):
         s = None
         try:
-            # Do not set the timeout on the socket, leave it in the blocking mode as
-            # setting the timeout seems to cause spurious EAGAIN errors on OSX.
+            # Do not set the timeout on the socket, leave it in the blocking
+            # mode as setting the timeout seems to cause spurious EAGAIN
+            # errors on OSX.
             self._socket.settimeout(None)
 
             s, unused_addr = self._socket.accept()
@@ -121,7 +122,7 @@ class DevshellCredentialsTests(unittest.TestCase):
 
     def test_handles_ignores_extra_fields(self):
         with _AuthReferenceServer(
-        '["joe@example.com", "fooproj", "sometoken", "extra"]'):
+                '["joe@example.com", "fooproj", "sometoken", "extra"]'):
             creds = DevshellCredentials()
             self.assertEqual('joe@example.com', creds.user_email)
             self.assertEqual('fooproj', creds.project_id)
@@ -133,6 +134,7 @@ class DevshellCredentialsTests(unittest.TestCase):
             os.path.isdir = lambda path: True
             with _AuthReferenceServer():
                 creds = DevshellCredentials()
-                self.assertRaises(NotImplementedError, save_to_well_known_file, creds)
+                self.assertRaises(NotImplementedError,
+                                  save_to_well_known_file, creds)
         finally:
             os.path.isdir = ORIGINAL_ISDIR

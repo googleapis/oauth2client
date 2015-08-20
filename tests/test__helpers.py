@@ -43,12 +43,12 @@ class Test__json_encode(unittest.TestCase):
         # is non-deterministic.
         data = {u'foo': 10}
         result = _json_encode(data)
-        self.assertEqual(result, """{"foo":10}""")
+        self.assertEqual(result, '{"foo":10}')
 
     def test_list_input(self):
         data = [42, 1337]
         result = _json_encode(data)
-        self.assertEqual(result, """[42,1337]""")
+        self.assertEqual(result, '[42,1337]')
 
 
 class Test__to_bytes(unittest.TestCase):
@@ -114,4 +114,4 @@ class Test__urlsafe_b64decode(unittest.TestCase):
         import binascii
         bad_string = b'+'
         self.assertRaises((TypeError, binascii.Error),
-                      _urlsafe_b64decode, bad_string)
+                          _urlsafe_b64decode, bad_string)

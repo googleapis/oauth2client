@@ -64,7 +64,7 @@ class OAuth2ClientFileTests(unittest.TestCase):
             pass
 
     def create_test_credentials(self, client_id='some_client_id',
-                              expiration=None):
+                                expiration=None):
         access_token = 'foo'
         client_secret = 'cOuDdkfjxxnv+'
         refresh_token = '1/0/a.df219fjls0'
@@ -73,9 +73,9 @@ class OAuth2ClientFileTests(unittest.TestCase):
         user_agent = 'refresh_checker/1.0'
 
         credentials = OAuth2Credentials(
-        access_token, client_id, client_secret,
-        refresh_token, token_expiry, token_uri,
-        user_agent)
+            access_token, client_id, client_secret,
+            refresh_token, token_expiry, token_uri,
+            user_agent)
         return credentials
 
     def test_non_existent_file_storage(self):
@@ -104,8 +104,8 @@ class OAuth2ClientFileTests(unittest.TestCase):
         pickle.dump(credentials, f)
         f.close()
 
-        # Storage should be not be able to read that object, as the capability to
-        # read and write credentials as pickled objects has been removed.
+        # Storage should be not be able to read that object, as the capability
+        # to read and write credentials as pickled objects has been removed.
         s = file.Storage(FILENAME)
         read_credentials = s.get()
         self.assertEquals(None, read_credentials)
@@ -120,7 +120,8 @@ class OAuth2ClientFileTests(unittest.TestCase):
         self.assertEquals(data['_module'], OAuth2Credentials.__module__)
 
     def test_token_refresh_store_expired(self):
-        expiration = datetime.datetime.utcnow() - datetime.timedelta(minutes=15)
+        expiration = (datetime.datetime.utcnow() -
+                      datetime.timedelta(minutes=15))
         credentials = self.create_test_credentials(expiration=expiration)
 
         s = file.Storage(FILENAME)
@@ -133,16 +134,17 @@ class OAuth2ClientFileTests(unittest.TestCase):
         access_token = '1/3w'
         token_response = {'access_token': access_token, 'expires_in': 3600}
         http = HttpMockSequence([
-        ({'status': '200'}, json.dumps(token_response).encode('utf-8')),
+            ({'status': '200'}, json.dumps(token_response).encode('utf-8')),
         ])
 
         credentials._refresh(http.request)
         self.assertEquals(credentials.access_token, access_token)
 
     def test_token_refresh_store_expires_soon(self):
-        # Tests the case where an access token that is valid when it is read from
-        # the store expires before the original request succeeds.
-        expiration = datetime.datetime.utcnow() + datetime.timedelta(minutes=15)
+        # Tests the case where an access token that is valid when it is read
+        # from the store expires before the original request succeeds.
+        expiration = (datetime.datetime.utcnow() +
+                      datetime.timedelta(minutes=15))
         credentials = self.create_test_credentials(expiration=expiration)
 
         s = file.Storage(FILENAME)
@@ -155,12 +157,14 @@ class OAuth2ClientFileTests(unittest.TestCase):
         access_token = '1/3w'
         token_response = {'access_token': access_token, 'expires_in': 3600}
         http = HttpMockSequence([
-        ({'status': str(http_client.UNAUTHORIZED)}, b'Initial token expired'),
-        ({'status': str(http_client.UNAUTHORIZED)}, b'Store token expired'),
-        ({'status': str(http_client.OK)},
-         json.dumps(token_response).encode('utf-8')),
-        ({'status': str(http_client.OK)},
-         b'Valid response to original request')
+            ({'status': str(http_client.UNAUTHORIZED)},
+             b'Initial token expired'),
+            ({'status': str(http_client.UNAUTHORIZED)},
+             b'Store token expired'),
+            ({'status': str(http_client.OK)},
+             json.dumps(token_response).encode('utf-8')),
+            ({'status': str(http_client.OK)},
+             b'Valid response to original request')
         ])
 
         credentials.authorize(http)
@@ -168,7 +172,8 @@ class OAuth2ClientFileTests(unittest.TestCase):
         self.assertEqual(credentials.access_token, access_token)
 
     def test_token_refresh_good_store(self):
-        expiration = datetime.datetime.utcnow() + datetime.timedelta(minutes=15)
+        expiration = (datetime.datetime.utcnow() +
+                      datetime.timedelta(minutes=15))
         credentials = self.create_test_credentials(expiration=expiration)
 
         s = file.Storage(FILENAME)
@@ -182,7 +187,8 @@ class OAuth2ClientFileTests(unittest.TestCase):
         self.assertEquals(credentials.access_token, 'bar')
 
     def test_token_refresh_stream_body(self):
-        expiration = datetime.datetime.utcnow() + datetime.timedelta(minutes=15)
+        expiration = (datetime.datetime.utcnow() +
+                      datetime.timedelta(minutes=15))
         credentials = self.create_test_credentials(expiration=expiration)
 
         s = file.Storage(FILENAME)
@@ -193,13 +199,16 @@ class OAuth2ClientFileTests(unittest.TestCase):
         s.put(new_cred)
 
         valid_access_token = '1/3w'
-        token_response = {'access_token': valid_access_token, 'expires_in': 3600}
+        token_response = {'access_token': valid_access_token,
+                          'expires_in': 3600}
         http = HttpMockSequence([
-        ({'status': str(http_client.UNAUTHORIZED)}, b'Initial token expired'),
-        ({'status': str(http_client.UNAUTHORIZED)}, b'Store token expired'),
-        ({'status': str(http_client.OK)},
-         json.dumps(token_response).encode('utf-8')),
-        ({'status': str(http_client.OK)}, 'echo_request_body')
+            ({'status': str(http_client.UNAUTHORIZED)},
+             b'Initial token expired'),
+            ({'status': str(http_client.UNAUTHORIZED)},
+             b'Store token expired'),
+            ({'status': str(http_client.OK)},
+             json.dumps(token_response).encode('utf-8')),
+            ({'status': str(http_client.OK)}, 'echo_request_body')
         ])
 
         body = six.StringIO('streaming body')
@@ -235,7 +244,8 @@ class OAuth2ClientFileTests(unittest.TestCase):
         mode = os.stat(FILENAME).st_mode
 
         if os.name == 'posix':
-            self.assertEquals('0o600', oct(stat.S_IMODE(os.stat(FILENAME).st_mode)))
+            self.assertEquals('0o600',
+                              oct(stat.S_IMODE(os.stat(FILENAME).st_mode)))
 
     def test_read_only_file_fail_lock(self):
         credentials = self.create_test_credentials()
@@ -244,10 +254,10 @@ class OAuth2ClientFileTests(unittest.TestCase):
         os.chmod(FILENAME, 0o400)
 
         store = multistore_file.get_credential_storage(
-        FILENAME,
-        credentials.client_id,
-        credentials.user_agent,
-        ['some-scope', 'some-other-scope'])
+            FILENAME,
+            credentials.client_id,
+            credentials.user_agent,
+            ['some-scope', 'some-other-scope'])
 
         store.put(credentials)
         if os.name == 'posix':
@@ -259,10 +269,10 @@ class OAuth2ClientFileTests(unittest.TestCase):
             SYMFILENAME = FILENAME + 'sym'
             os.symlink(FILENAME, SYMFILENAME)
             store = multistore_file.get_credential_storage(
-          SYMFILENAME,
-          'some_client_id',
-          'user-agent/1.0',
-          ['some-scope', 'some-other-scope'])
+                SYMFILENAME,
+                'some_client_id',
+                'user-agent/1.0',
+                ['some-scope', 'some-other-scope'])
             try:
                 store.get()
                 self.fail('Should have raised an exception.')
@@ -273,10 +283,10 @@ class OAuth2ClientFileTests(unittest.TestCase):
 
     def test_multistore_non_existent_file(self):
         store = multistore_file.get_credential_storage(
-        FILENAME,
-        'some_client_id',
-        'user-agent/1.0',
-        ['some-scope', 'some-other-scope'])
+            FILENAME,
+            'some_client_id',
+            'user-agent/1.0',
+            ['some-scope', 'some-other-scope'])
 
         credentials = store.get()
         self.assertEquals(None, credentials)
@@ -285,10 +295,10 @@ class OAuth2ClientFileTests(unittest.TestCase):
         credentials = self.create_test_credentials()
 
         store = multistore_file.get_credential_storage(
-        FILENAME,
-        credentials.client_id,
-        credentials.user_agent,
-        ['some-scope', 'some-other-scope'])
+            FILENAME,
+            credentials.client_id,
+            credentials.user_agent,
+            ['some-scope', 'some-other-scope'])
 
         store.put(credentials)
         credentials = store.get()
@@ -302,20 +312,22 @@ class OAuth2ClientFileTests(unittest.TestCase):
         self.assertEquals(None, credentials)
 
         if os.name == 'posix':
-            self.assertEquals('0o600', oct(stat.S_IMODE(os.stat(FILENAME).st_mode)))
+            self.assertEquals('0o600',
+                              oct(stat.S_IMODE(os.stat(FILENAME).st_mode)))
 
     def test_multistore_file_custom_key(self):
         credentials = self.create_test_credentials()
 
         custom_key = {'myapp': 'testing', 'clientid': 'some client'}
         store = multistore_file.get_credential_storage_custom_key(
-        FILENAME, custom_key)
+            FILENAME, custom_key)
 
         store.put(credentials)
         stored_credentials = store.get()
 
         self.assertNotEquals(None, stored_credentials)
-        self.assertEqual(credentials.access_token, stored_credentials.access_token)
+        self.assertEqual(credentials.access_token,
+                         stored_credentials.access_token)
 
         store.delete()
         stored_credentials = store.get()
@@ -327,20 +339,22 @@ class OAuth2ClientFileTests(unittest.TestCase):
 
         # store with string key
         store = multistore_file.get_credential_storage_custom_string_key(
-        FILENAME, 'mykey')
+            FILENAME, 'mykey')
 
         store.put(credentials)
         stored_credentials = store.get()
 
         self.assertNotEquals(None, stored_credentials)
-        self.assertEqual(credentials.access_token, stored_credentials.access_token)
+        self.assertEqual(credentials.access_token,
+                         stored_credentials.access_token)
 
         # try retrieving with a dictionary
         store_dict = multistore_file.get_credential_storage_custom_string_key(
-        FILENAME, {'key': 'mykey'})
+            FILENAME, {'key': 'mykey'})
         stored_credentials = store.get()
         self.assertNotEquals(None, stored_credentials)
-        self.assertEqual(credentials.access_token, stored_credentials.access_token)
+        self.assertEqual(credentials.access_token,
+                         stored_credentials.access_token)
 
         store.delete()
         stored_credentials = store.get()
@@ -353,16 +367,19 @@ class OAuth2ClientFileTests(unittest.TestCase):
 
         # store the credentials using the legacy key method
         store = multistore_file.get_credential_storage(
-        FILENAME, 'client_id', 'user_agent', scopes)
+            FILENAME, 'client_id', 'user_agent', scopes)
         store.put(credentials)
 
-        # retrieve the credentials using a custom key that matches the legacy key
+        # retrieve the credentials using a custom key that matches the
+        # legacy key
         key = {'clientId': 'client_id', 'userAgent': 'user_agent',
-           'scope': util.scopes_to_string(scopes)}
-        store = multistore_file.get_credential_storage_custom_key(FILENAME, key)
+               'scope': util.scopes_to_string(scopes)}
+        store = multistore_file.get_credential_storage_custom_key(
+            FILENAME, key)
         stored_credentials = store.get()
 
-        self.assertEqual(credentials.access_token, stored_credentials.access_token)
+        self.assertEqual(credentials.access_token,
+                         stored_credentials.access_token)
 
     def test_multistore_file_get_all_keys(self):
         # start with no keys
@@ -373,7 +390,7 @@ class OAuth2ClientFileTests(unittest.TestCase):
         credentials = self.create_test_credentials(client_id='client1')
         custom_key = {'myapp': 'testing', 'clientid': 'client1'}
         store1 = multistore_file.get_credential_storage_custom_key(
-        FILENAME, custom_key)
+            FILENAME, custom_key)
         store1.put(credentials)
 
         keys = multistore_file.get_all_credential_keys(FILENAME)
@@ -383,7 +400,7 @@ class OAuth2ClientFileTests(unittest.TestCase):
         credentials = self.create_test_credentials(client_id='client2')
         string_key = 'string_key'
         store2 = multistore_file.get_credential_storage_custom_string_key(
-        FILENAME, string_key)
+            FILENAME, string_key)
         store2.put(credentials)
 
         keys = multistore_file.get_all_credential_keys(FILENAME)

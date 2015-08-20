@@ -13,7 +13,8 @@ class TestClientRedirectServer(unittest.TestCase):
         # create a ClientRedirectServer and run it in a thread to listen
         # for a mock GET request with the access token
         # the server should return a 200 message and store the token
-        httpd = tools.ClientRedirectServer(('localhost', 0), tools.ClientRedirectHandler)
+        httpd = tools.ClientRedirectServer(('localhost', 0),
+                                           tools.ClientRedirectHandler)
         code = 'foo'
         url = 'http://localhost:%i?code=%s' % (httpd.server_address[1], code)
         t = threading.Thread(target=httpd.handle_request)

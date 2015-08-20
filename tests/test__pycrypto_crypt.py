@@ -23,9 +23,9 @@ from oauth2client.crypt import PyCryptoVerifier
 class TestPyCryptoVerifier(unittest.TestCase):
 
     PUBLIC_KEY_FILENAME = os.path.join(os.path.dirname(__file__),
-                                     'data', 'publickey.pem')
+                                       'data', 'publickey.pem')
     PRIVATE_KEY_FILENAME = os.path.join(os.path.dirname(__file__),
-                                      'data', 'privatekey.pem')
+                                        'data', 'privatekey.pem')
 
     def _load_public_key_bytes(self):
         with open(self.PUBLIC_KEY_FILENAME, 'rb') as fh:
@@ -41,18 +41,18 @@ class TestPyCryptoVerifier(unittest.TestCase):
         actual_signature = signer.sign(to_sign)
 
         verifier = PyCryptoVerifier.from_string(self._load_public_key_bytes(),
-                                            is_x509_cert=True)
+                                                is_x509_cert=True)
         self.assertTrue(verifier.verify(to_sign, actual_signature))
 
     def test_verify_failure(self):
         verifier = PyCryptoVerifier.from_string(self._load_public_key_bytes(),
-                                            is_x509_cert=True)
+                                                is_x509_cert=True)
         bad_signature = b''
         self.assertFalse(verifier.verify(b'foo', bad_signature))
 
     def test_verify_bad_key(self):
         verifier = PyCryptoVerifier.from_string(self._load_public_key_bytes(),
-                                            is_x509_cert=True)
+                                                is_x509_cert=True)
         bad_signature = b''
         self.assertFalse(verifier.verify(b'foo', bad_signature))
 

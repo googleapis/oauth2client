@@ -14,8 +14,6 @@
 
 """Unit tests for oauth2client.clientsecrets."""
 
-__author__ = 'jcgregorio@google.com (Joe Gregorio)'
-
 import os
 import unittest
 from io import StringIO
@@ -23,6 +21,10 @@ from io import StringIO
 import httplib2
 
 from oauth2client import clientsecrets
+
+
+__author__ = 'jcgregorio@google.com (Joe Gregorio)'
+
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 VALID_FILE = os.path.join(DATA_DIR, 'client_secrets.json')
@@ -32,29 +34,24 @@ NONEXISTENT_FILE = os.path.join(__file__, '..', 'afilethatisntthere.json')
 
 class OAuth2CredentialsTests(unittest.TestCase):
 
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
     def test_validate_error(self):
+        payload = (
+            b'{'
+            b'  "web": {'
+            b'    "client_id": "[[CLIENT ID REQUIRED]]",'
+            b'    "client_secret": "[[CLIENT SECRET REQUIRED]]",'
+            b'    "redirect_uris": ["http://localhost:8080/oauth2callback"],'
+            b'    "auth_uri": "",'
+            b'    "token_uri": ""'
+            b'  }'
+            b'}')
         ERRORS = [
-      ('{}', 'Invalid'),
-      ('{"foo": {}}', 'Unknown'),
-      ('{"web": {}}', 'Missing'),
-      ('{"web": {"client_id": "dkkd"}}', 'Missing'),
-      ("""{
-         "web": {
-           "client_id": "[[CLIENT ID REQUIRED]]",
-           "client_secret": "[[CLIENT SECRET REQUIRED]]",
-           "redirect_uris": ["http://localhost:8080/oauth2callback"],
-           "auth_uri": "",
-           "token_uri": ""
-         }
-       }
-       """, 'Property'),
-      ]
+            ('{}', 'Invalid'),
+            ('{"foo": {}}', 'Unknown'),
+            ('{"web": {}}', 'Missing'),
+            ('{"web": {"client_id": "dkkd"}}', 'Missing'),
+            (payload, 'Property'),
+        ]
         for src, match in ERRORS:
             # Ensure that it is unicode
             try:
@@ -107,7 +104,7 @@ class CachedClientsecretsTests(unittest.TestCase):
 
     def test_cache_miss(self):
         client_type, client_info = clientsecrets.loadfile(
-      VALID_FILE, cache=self.cache_mock)
+            VALID_FILE, cache=self.cache_mock)
         self.assertEqual('web', client_type)
         self.assertEqual('foo_client_secret', client_info['client_secret'])
 
@@ -124,7 +121,7 @@ class CachedClientsecretsTests(unittest.TestCase):
         self.cache_mock.cache[NONEXISTENT_FILE] = {'web': 'secret info'}
 
         client_type, client_info = clientsecrets.loadfile(
-      NONEXISTENT_FILE, cache=self.cache_mock)
+            NONEXISTENT_FILE, cache=self.cache_mock)
         self.assertEqual('web', client_type)
         self.assertEqual('secret info', client_info)
         # make sure we didn't do any set() RPCs
@@ -134,7 +131,7 @@ class CachedClientsecretsTests(unittest.TestCase):
         try:
             clientsecrets.loadfile(INVALID_FILE, cache=self.cache_mock)
             self.fail('Expected InvalidClientSecretsError to be raised '
-                'while loading %s' % INVALID_FILE)
+                      'while loading %s' % INVALID_FILE)
         except clientsecrets.InvalidClientSecretsError:
             pass
 

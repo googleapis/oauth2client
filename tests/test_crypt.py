@@ -39,13 +39,13 @@ def datafile(filename):
 class Test_pkcs12_key_as_pem(unittest.TestCase):
 
     def _make_signed_jwt_creds(self, private_key_file='privatekey.p12',
-                             private_key=None):
+                               private_key=None):
         private_key = private_key or datafile(private_key_file)
         return SignedJwtAssertionCredentials(
-        'some_account@example.com',
-        private_key,
-        scope='read+write',
-        sub='joe@example.org')
+            'some_account@example.com',
+            private_key,
+            scope='read+write',
+            sub='joe@example.org')
 
     def _succeeds_helper(self, password=None):
         self.assertEqual(True, HAS_OPENSSL)
@@ -53,7 +53,8 @@ class Test_pkcs12_key_as_pem(unittest.TestCase):
         credentials = self._make_signed_jwt_creds()
         if password is None:
             password = credentials.private_key_password
-        pem_contents = crypt.pkcs12_key_as_pem(credentials.private_key, password)
+        pem_contents = crypt.pkcs12_key_as_pem(credentials.private_key,
+                                               password)
         pkcs12_key_as_pem = datafile('pem_from_pkcs12.pem')
         pkcs12_key_as_pem = _helpers._parse_pem_key(pkcs12_key_as_pem)
         alternate_pem = datafile('pem_from_pkcs12_alternate.pem')
@@ -70,4 +71,5 @@ class Test_pkcs12_key_as_pem(unittest.TestCase):
         from OpenSSL import crypto
         credentials = self._make_signed_jwt_creds(private_key=b'NOT_A_KEY')
         self.assertRaises(crypto.Error, crypt.pkcs12_key_as_pem,
-                      credentials.private_key, credentials.private_key_password)
+                          credentials.private_key,
+                          credentials.private_key_password)

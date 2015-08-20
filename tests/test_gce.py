@@ -42,7 +42,7 @@ class AssertionCredentialsTests(unittest.TestCase):
             return_val = _to_bytes(return_val)
         http = mock.MagicMock()
         http.request = mock.MagicMock(
-        return_value=(mock.Mock(status=200), return_val))
+            return_value=(mock.Mock(status=200), return_val))
 
         scopes = ['http://example.com/a', 'http://example.com/b']
         credentials = AppAssertionCredentials(scope=scopes)
@@ -51,7 +51,7 @@ class AssertionCredentialsTests(unittest.TestCase):
         self.assertEquals(access_token, credentials.access_token)
 
         base_metadata_uri = ('http://metadata.google.internal/0.1/meta-data/'
-                         'service-accounts/default/acquire')
+                             'service-accounts/default/acquire')
         escaped_scopes = urllib.parse.quote(' '.join(scopes), safe='')
         request_uri = base_metadata_uri + '?scope=' + escaped_scopes
         http.request.assert_called_once_with(request_uri)
@@ -64,15 +64,16 @@ class AssertionCredentialsTests(unittest.TestCase):
 
     def test_fail_refresh(self):
         http = mock.MagicMock()
-        http.request = mock.MagicMock(return_value=(mock.Mock(status=400), '{}'))
+        http.request = mock.MagicMock(
+            return_value=(mock.Mock(status=400), '{}'))
 
         c = AppAssertionCredentials(scope=['http://example.com/a',
-                                       'http://example.com/b'])
+                                           'http://example.com/b'])
         self.assertRaises(AccessTokenRefreshError, c.refresh, http)
 
     def test_to_from_json(self):
         c = AppAssertionCredentials(scope=['http://example.com/a',
-                                       'http://example.com/b'])
+                                           'http://example.com/b'])
         json = c.to_json()
         c2 = Credentials.new_from_json(json)
 
@@ -96,8 +97,8 @@ class AssertionCredentialsTests(unittest.TestCase):
     def test_get_access_token(self):
         http = mock.MagicMock()
         http.request = mock.MagicMock(
-        return_value=(mock.Mock(status=200),
-                      '{"accessToken": "this-is-a-token"}'))
+            return_value=(mock.Mock(status=200),
+                          '{"accessToken": "this-is-a-token"}'))
 
         credentials = AppAssertionCredentials(['dummy_scope'])
         token = credentials.get_access_token(http=http)
@@ -105,8 +106,8 @@ class AssertionCredentialsTests(unittest.TestCase):
         self.assertEqual(None, token.expires_in)
 
         http.request.assert_called_once_with(
-        'http://metadata.google.internal/0.1/meta-data/service-accounts/'
-        'default/acquire?scope=dummy_scope')
+            'http://metadata.google.internal/0.1/meta-data/service-accounts/'
+            'default/acquire?scope=dummy_scope')
 
     def test_save_to_well_known_file(self):
         import os
@@ -115,6 +116,6 @@ class AssertionCredentialsTests(unittest.TestCase):
             os.path.isdir = lambda path: True
             credentials = AppAssertionCredentials([])
             self.assertRaises(NotImplementedError, save_to_well_known_file,
-                        credentials)
+                              credentials)
         finally:
             os.path.isdir = ORIGINAL_ISDIR

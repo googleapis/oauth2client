@@ -34,8 +34,8 @@ class OAuth2ClientKeyringTests(unittest.TestCase):
 
     def test_non_existent_credentials_storage(self):
         with mock.patch.object(keyring, 'get_password',
-                           return_value=None,
-                           autospec=True) as get_password:
+                               return_value=None,
+                               autospec=True) as get_password:
             s = Storage('my_unit_test', 'me')
             credentials = s.get()
             self.assertEquals(None, credentials)
@@ -43,8 +43,8 @@ class OAuth2ClientKeyringTests(unittest.TestCase):
 
     def test_malformed_credentials_in_storage(self):
         with mock.patch.object(keyring, 'get_password',
-                           return_value='{',
-                           autospec=True) as get_password:
+                               return_value='{',
+                               autospec=True) as get_password:
             s = Storage('my_unit_test', 'me')
             credentials = s.get()
             self.assertEquals(None, credentials)
@@ -59,31 +59,31 @@ class OAuth2ClientKeyringTests(unittest.TestCase):
         user_agent = 'refresh_checker/1.0'
 
         credentials = OAuth2Credentials(
-        access_token, client_id, client_secret,
-        refresh_token, token_expiry, GOOGLE_TOKEN_URI,
-        user_agent)
+            access_token, client_id, client_secret,
+            refresh_token, token_expiry, GOOGLE_TOKEN_URI,
+            user_agent)
 
         # Setting autospec on a mock with an iterable side_effect is
         # currently broken (http://bugs.python.org/issue17826), so instead
         # we patch twice.
         with mock.patch.object(keyring, 'get_password',
-                           return_value=None,
-                           autospec=True) as get_password:
+                               return_value=None,
+                               autospec=True) as get_password:
             with mock.patch.object(keyring, 'set_password',
-                             return_value=None,
-                             autospec=True) as set_password:
+                                   return_value=None,
+                                   autospec=True) as set_password:
                 s = Storage('my_unit_test', 'me')
                 self.assertEquals(None, s.get())
 
                 s.put(credentials)
 
                 set_password.assert_called_once_with(
-            'my_unit_test', 'me', credentials.to_json())
+                    'my_unit_test', 'me', credentials.to_json())
                 get_password.assert_called_once_with('my_unit_test', 'me')
 
         with mock.patch.object(keyring, 'get_password',
-                           return_value=credentials.to_json(),
-                           autospec=True) as get_password:
+                               return_value=credentials.to_json(),
+                               autospec=True) as get_password:
             restored = s.get()
             self.assertEqual('foo', restored.access_token)
             self.assertEqual('some_client_id', restored.client_id)
