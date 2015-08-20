@@ -20,47 +20,45 @@ import httplib2
 
 # TODO(craigcitro): Find a cleaner way to share this code with googleapiclient.
 
-
 class HttpMock(object):
-  """Mock of httplib2.Http"""
+    """Mock of httplib2.Http"""
 
-  def __init__(self, filename=None, headers=None):
-    """
+    def __init__(self, filename=None, headers=None):
+        """
     Args:
       filename: string, absolute filename to read response from
       headers: dict, header to return with response
     """
-    if headers is None:
-      headers = {'status': '200 OK'}
-    if filename:
-      f = file(filename, 'r')
-      self.data = f.read()
-      f.close()
-    else:
-      self.data = None
-    self.response_headers = headers
-    self.headers = None
-    self.uri = None
-    self.method = None
-    self.body = None
-    self.headers = None
+        if headers is None:
+            headers = {'status': '200 OK'}
+        if filename:
+            f = file(filename, 'r')
+            self.data = f.read()
+            f.close()
+        else:
+            self.data = None
+        self.response_headers = headers
+        self.headers = None
+        self.uri = None
+        self.method = None
+        self.body = None
+        self.headers = None
 
-
-  def request(self, uri,
+    def request(self, uri,
               method='GET',
               body=None,
               headers=None,
               redirections=1,
               connection_type=None):
-    self.uri = uri
-    self.method = method
-    self.body = body
-    self.headers = headers
-    return httplib2.Response(self.response_headers), self.data
+        self.uri = uri
+        self.method = method
+        self.body = body
+        self.headers = headers
+        return httplib2.Response(self.response_headers), self.data
 
 
 class HttpMockSequence(object):
-  """Mock of httplib2.Http
+    """Mock of httplib2.Http
 
   Mocks a sequence of calls to request returning different responses for each
   call. Create an instance initialized with the desired response headers
@@ -83,33 +81,33 @@ class HttpMockSequence(object):
   'echo_request_uri' means return the request uri in the response body
   """
 
-  def __init__(self, iterable):
-    """
+    def __init__(self, iterable):
+        """
     Args:
       iterable: iterable, a sequence of pairs of (headers, body)
     """
-    self._iterable = iterable
-    self.follow_redirects = True
-    self.requests = []
+        self._iterable = iterable
+        self.follow_redirects = True
+        self.requests = []
 
-  def request(self, uri,
+    def request(self, uri,
               method='GET',
               body=None,
               headers=None,
               redirections=1,
               connection_type=None):
-    resp, content = self._iterable.pop(0)
-    self.requests.append({'uri': uri, 'body': body, 'headers': headers})
-    # Read any underlying stream before sending the request.
-    body_stream_content = body.read() if getattr(body, 'read', None) else None
-    if content == 'echo_request_headers':
-      content = headers
-    elif content == 'echo_request_headers_as_json':
-      content = json.dumps(headers)
-    elif content == 'echo_request_body':
-      content = body if body_stream_content is None else body_stream_content
-    elif content == 'echo_request_uri':
-      content = uri
-    elif not isinstance(content, bytes):
-      raise TypeError('http content should be bytes: %r' % (content,))
-    return httplib2.Response(resp), content
+        resp, content = self._iterable.pop(0)
+        self.requests.append({'uri': uri, 'body': body, 'headers': headers})
+        # Read any underlying stream before sending the request.
+        body_stream_content = body.read() if getattr(body, 'read', None) else None
+        if content == 'echo_request_headers':
+            content = headers
+        elif content == 'echo_request_headers_as_json':
+            content = json.dumps(headers)
+        elif content == 'echo_request_body':
+            content = body if body_stream_content is None else body_stream_content
+        elif content == 'echo_request_uri':
+            content = uri
+        elif not isinstance(content, bytes):
+            raise TypeError('http content should be bytes: %r' % (content, ))
+        return httplib2.Response(resp), content

@@ -189,8 +189,7 @@ from oauth2client.client import Storage
 from oauth2client import clientsecrets
 from oauth2client import util
 
-
-DEFAULT_SCOPES = ('email',)
+DEFAULT_SCOPES = ('email', )
 
 
 class UserOAuth2(object):
@@ -461,6 +460,7 @@ class UserOAuth2(object):
         be redirected to the authorization flow. Once complete, the user will
         be redirected back to the original page.
         """
+
         def curry_wrapper(wrapped_function):
             @wraps(wrapped_function)
             def required_wrapper(*args, **kwargs):
@@ -519,6 +519,7 @@ class FlaskSessionStorage(Storage):
     credentials. We strongly recommend using a server-side session
     implementation.
     """
+
     def locked_get(self):
         serialized = session.get('google_oauth2_credentials')
 

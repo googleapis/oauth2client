@@ -19,9 +19,9 @@ import unittest
 
 class ImportTest(unittest.TestCase):
 
-  def test_tools_import(self):
-    import oauth2client.tools
+    def test_tools_import(self):
+        import oauth2client.tools
 
 
 if __name__ == '__main__':
-  unittest.main()
+    unittest.main()

@@ -22,18 +22,18 @@ from oauth2client._helpers import _to_bytes
 
 
 class OpenSSLVerifier(object):
-  """Verifies the signature on a message."""
+    """Verifies the signature on a message."""
 
-  def __init__(self, pubkey):
-    """Constructor.
+    def __init__(self, pubkey):
+        """Constructor.
 
     Args:
       pubkey, OpenSSL.crypto.PKey, The public key to verify with.
     """
-    self._pubkey = pubkey
+        self._pubkey = pubkey
 
-  def verify(self, message, signature):
-    """Verifies a message against a signature.
+    def verify(self, message, signature):
+        """Verifies a message against a signature.
 
     Args:
       message: string or bytes, The message to verify. If string, will be
@@ -45,17 +45,17 @@ class OpenSSLVerifier(object):
       True if message was signed by the private key associated with the public
       key that this object was constructed with.
     """
-    message = _to_bytes(message, encoding='utf-8')
-    signature = _to_bytes(signature, encoding='utf-8')
-    try:
-      crypto.verify(self._pubkey, signature, message, 'sha256')
-      return True
-    except crypto.Error:
-      return False
+        message = _to_bytes(message, encoding='utf-8')
+        signature = _to_bytes(signature, encoding='utf-8')
+        try:
+            crypto.verify(self._pubkey, signature, message, 'sha256')
+            return True
+        except crypto.Error:
+            return False
 
-  @staticmethod
+    @staticmethod
   def from_string(key_pem, is_x509_cert):
-    """Construct a Verified instance from a string.
+        """Construct a Verified instance from a string.
 
     Args:
       key_pem: string, public key in PEM format.
@@ -68,26 +68,26 @@ class OpenSSLVerifier(object):
     Raises:
       OpenSSL.crypto.Error if the key_pem can't be parsed.
     """
-    if is_x509_cert:
-      pubkey = crypto.load_certificate(crypto.FILETYPE_PEM, key_pem)
-    else:
-      pubkey = crypto.load_privatekey(crypto.FILETYPE_PEM, key_pem)
-    return OpenSSLVerifier(pubkey)
+        if is_x509_cert:
+            pubkey = crypto.load_certificate(crypto.FILETYPE_PEM, key_pem)
+        else:
+            pubkey = crypto.load_privatekey(crypto.FILETYPE_PEM, key_pem)
+        return OpenSSLVerifier(pubkey)
 
 
 class OpenSSLSigner(object):
-  """Signs messages with a private key."""
+    """Signs messages with a private key."""
 
-  def __init__(self, pkey):
-    """Constructor.
+    def __init__(self, pkey):
+        """Constructor.
 
     Args:
       pkey, OpenSSL.crypto.PKey (or equiv), The private key to sign with.
     """
-    self._key = pkey
+        self._key = pkey
 
-  def sign(self, message):
-    """Signs a message.
+    def sign(self, message):
+        """Signs a message.
 
     Args:
       message: bytes, Message to be signed.
@@ -95,12 +95,12 @@ class OpenSSLSigner(object):
     Returns:
       string, The signature of the message for the given key.
     """
-    message = _to_bytes(message, encoding='utf-8')
-    return crypto.sign(self._key, message, 'sha256')
+        message = _to_bytes(message, encoding='utf-8')
+        return crypto.sign(self._key, message, 'sha256')
 
-  @staticmethod
-  def from_string(key, password=b'notasecret'):
-    """Construct a Signer instance from a string.
+    @staticmethod
+    def from_string(key, password=b'notasecret'):
+        """Construct a Signer instance from a string.
 
     Args:
       key: string, private key in PKCS12 or PEM format.
@@ -112,17 +112,17 @@ class OpenSSLSigner(object):
     Raises:
       OpenSSL.crypto.Error if the key can't be parsed.
     """
-    parsed_pem_key = _parse_pem_key(key)
-    if parsed_pem_key:
-      pkey = crypto.load_privatekey(crypto.FILETYPE_PEM, parsed_pem_key)
-    else:
-      password = _to_bytes(password, encoding='utf-8')
-      pkey = crypto.load_pkcs12(key, password).get_privatekey()
-    return OpenSSLSigner(pkey)
+        parsed_pem_key = _parse_pem_key(key)
+        if parsed_pem_key:
+            pkey = crypto.load_privatekey(crypto.FILETYPE_PEM, parsed_pem_key)
+        else:
+            password = _to_bytes(password, encoding='utf-8')
+            pkey = crypto.load_pkcs12(key, password).get_privatekey()
+        return OpenSSLSigner(pkey)
 
 
 def pkcs12_key_as_pem(private_key_text, private_key_password):
-  """Convert the contents of a PKCS12 key to PEM using OpenSSL.
+    """Convert the contents of a PKCS12 key to PEM using OpenSSL.
 
   Args:
     private_key_text: String. Private key.
@@ -131,9 +131,9 @@ def pkcs12_key_as_pem(private_key_text, private_key_password):
   Returns:
     String. PEM contents of ``private_key_text``.
   """
-  decoded_body = base64.b64decode(private_key_text)
-  private_key_password = _to_bytes(private_key_password)
+    decoded_body = base64.b64decode(private_key_text)
+    private_key_password = _to_bytes(private_key_password)
 
-  pkcs12 = crypto.load_pkcs12(decoded_body, private_key_password)
-  return crypto.dump_privatekey(crypto.FILETYPE_PEM,
+    pkcs12 = crypto.load_pkcs12(decoded_body, private_key_password)
+    return crypto.dump_privatekey(crypto.FILETYPE_PEM,
                                 pkcs12.get_privatekey())

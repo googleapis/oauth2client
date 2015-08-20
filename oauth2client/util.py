@@ -38,7 +38,6 @@ import types
 import six
 from six.moves import urllib
 
-
 logger = logging.getLogger(__name__)
 
 POSITIONAL_WARNING = 'WARNING'
@@ -49,8 +48,9 @@ POSITIONAL_SET = frozenset([POSITIONAL_WARNING, POSITIONAL_EXCEPTION,
 
 positional_parameters_enforcement = POSITIONAL_WARNING
 
+
 def positional(max_positional_args):
-  """A decorator to declare that only the first N arguments my be positional.
+    """A decorator to declare that only the first N arguments my be positional.
 
   This decorator makes it easy to support Python 3 style keyword-only
   parameters. For example, in Python 3 it is possible to write::
@@ -119,33 +119,34 @@ def positional(max_positional_args):
     POSITIONAL_EXCEPTION.
 
   """
-  def positional_decorator(wrapped):
-    @functools.wraps(wrapped)
-    def positional_wrapper(*args, **kwargs):
-      if len(args) > max_positional_args:
-        plural_s = ''
-        if max_positional_args != 1:
-          plural_s = 's'
-        message = '%s() takes at most %d positional argument%s (%d given)' % (
-            wrapped.__name__, max_positional_args, plural_s, len(args))
-        if positional_parameters_enforcement == POSITIONAL_EXCEPTION:
-          raise TypeError(message)
-        elif positional_parameters_enforcement == POSITIONAL_WARNING:
-          logger.warning(message)
-        else: # IGNORE
-          pass
-      return wrapped(*args, **kwargs)
-    return positional_wrapper
 
-  if isinstance(max_positional_args, six.integer_types):
-    return positional_decorator
-  else:
-    args, _, _, defaults = inspect.getargspec(max_positional_args)
-    return positional(len(args) - len(defaults))(max_positional_args)
+    def positional_decorator(wrapped):
+        @functools.wraps(wrapped)
+        def positional_wrapper(*args, **kwargs):
+            if len(args) > max_positional_args:
+                plural_s = ''
+                if max_positional_args != 1:
+                    plural_s = 's'
+                message = '%s() takes at most %d positional argument%s (%d given)' % (
+            wrapped.__name__, max_positional_args, plural_s, len(args))
+                if positional_parameters_enforcement == POSITIONAL_EXCEPTION:
+                    raise TypeError(message)
+                elif positional_parameters_enforcement == POSITIONAL_WARNING:
+                    logger.warning(message)
+                else:  # IGNORE
+                    pass
+            return wrapped(*args, **kwargs)
+        return positional_wrapper
+
+    if isinstance(max_positional_args, six.integer_types):
+        return positional_decorator
+    else:
+        args, _, _, defaults = inspect.getargspec(max_positional_args)
+        return positional(len(args) - len(defaults))(max_positional_args)
 
 
 def scopes_to_string(scopes):
-  """Converts scope value to a string.
+    """Converts scope value to a string.
 
   If scopes is a string then it is simply passed through. If scopes is an
   iterable then a string is returned that is all the individual scopes
@@ -157,14 +158,14 @@ def scopes_to_string(scopes):
   Returns:
     The scopes formatted as a single string.
   """
-  if isinstance(scopes, six.string_types):
-    return scopes
-  else:
-    return ' '.join(scopes)
+    if isinstance(scopes, six.string_types):
+        return scopes
+    else:
+        return ' '.join(scopes)
 
 
 def string_to_scopes(scopes):
-  """Converts stringifed scope value to a list.
+    """Converts stringifed scope value to a list.
 
   If scopes is a list then it is simply passed through. If scopes is an
   string then a list of each individual scope is returned.
@@ -175,16 +176,16 @@ def string_to_scopes(scopes):
   Returns:
     The scopes in a list.
   """
-  if not scopes:
-    return []
-  if isinstance(scopes, six.string_types):
-    return scopes.split(' ')
-  else:
-    return scopes
+    if not scopes:
+        return []
+    if isinstance(scopes, six.string_types):
+        return scopes.split(' ')
+    else:
+        return scopes
 
 
 def dict_to_tuple_key(dictionary):
-  """Converts a dictionary to a tuple that can be used as an immutable key.
+    """Converts a dictionary to a tuple that can be used as an immutable key.
 
   The resulting key is always sorted so that logically equivalent dictionaries
   always produce an identical tuple for a key.
@@ -195,11 +196,11 @@ def dict_to_tuple_key(dictionary):
   Returns:
     A tuple representing the dictionary in it's naturally sorted ordering.
   """
-  return tuple(sorted(dictionary.items()))
+    return tuple(sorted(dictionary.items()))
 
 
 def _add_query_parameter(url, name, value):
-  """Adds a query parameter to a url.
+    """Adds a query parameter to a url.
 
   Replaces the current value if it already exists in the URL.
 
@@ -211,11 +212,11 @@ def _add_query_parameter(url, name, value):
   Returns:
     Updated query parameter. Does not update the url if value is None.
   """
-  if value is None:
-    return url
-  else:
-    parsed = list(urllib.parse.urlparse(url))
-    q = dict(urllib.parse.parse_qsl(parsed[4]))
-    q[name] = value
-    parsed[4] = urllib.parse.urlencode(q)
-    return urllib.parse.urlunparse(parsed)
+    if value is None:
+        return url
+    else:
+        parsed = list(urllib.parse.urlparse(url))
+        q = dict(urllib.parse.parse_qsl(parsed[4]))
+        q[name] = value
+        parsed[4] = urllib.parse.urlencode(q)
+        return urllib.parse.urlunparse(parsed)

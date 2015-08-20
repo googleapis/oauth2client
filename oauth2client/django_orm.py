@@ -27,58 +27,59 @@ import pickle
 from django.db import models
 from oauth2client.client import Storage as BaseStorage
 
+
 class CredentialsField(models.Field):
 
-  __metaclass__ = models.SubfieldBase
+    __metaclass__ = models.SubfieldBase
 
-  def __init__(self, *args, **kwargs):
-    if 'null' not in kwargs:
-      kwargs['null'] = True
-    super(CredentialsField, self).__init__(*args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        if 'null' not in kwargs:
+            kwargs['null'] = True
+        super(CredentialsField, self).__init__(*args, **kwargs)
 
-  def get_internal_type(self):
-    return "TextField"
+    def get_internal_type(self):
+        return "TextField"
 
-  def to_python(self, value):
-    if value is None:
-      return None
-    if isinstance(value, oauth2client.client.Credentials):
-      return value
-    return pickle.loads(base64.b64decode(value))
+    def to_python(self, value):
+        if value is None:
+            return None
+        if isinstance(value, oauth2client.client.Credentials):
+            return value
+        return pickle.loads(base64.b64decode(value))
 
-  def get_db_prep_value(self, value, connection, prepared=False):
-    if value is None:
-      return None
-    return base64.b64encode(pickle.dumps(value))
+    def get_db_prep_value(self, value, connection, prepared=False):
+        if value is None:
+            return None
+        return base64.b64encode(pickle.dumps(value))
 
 
 class FlowField(models.Field):
 
-  __metaclass__ = models.SubfieldBase
+    __metaclass__ = models.SubfieldBase
 
-  def __init__(self, *args, **kwargs):
-    if 'null' not in kwargs:
-      kwargs['null'] = True
-    super(FlowField, self).__init__(*args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        if 'null' not in kwargs:
+            kwargs['null'] = True
+        super(FlowField, self).__init__(*args, **kwargs)
 
-  def get_internal_type(self):
-    return "TextField"
+    def get_internal_type(self):
+        return "TextField"
 
-  def to_python(self, value):
-    if value is None:
-      return None
-    if isinstance(value, oauth2client.client.Flow):
-      return value
-    return pickle.loads(base64.b64decode(value))
+    def to_python(self, value):
+        if value is None:
+            return None
+        if isinstance(value, oauth2client.client.Flow):
+            return value
+        return pickle.loads(base64.b64decode(value))
 
-  def get_db_prep_value(self, value, connection, prepared=False):
-    if value is None:
-      return None
-    return base64.b64encode(pickle.dumps(value))
+    def get_db_prep_value(self, value, connection, prepared=False):
+        if value is None:
+            return None
+        return base64.b64encode(pickle.dumps(value))
 
 
 class Storage(BaseStorage):
-  """Store and retrieve a single credential to and from
+    """Store and retrieve a single credential to and from
   the datastore.
 
   This Storage helper presumes the Credentials
@@ -86,8 +87,8 @@ class Storage(BaseStorage):
   on a db model class.
   """
 
-  def __init__(self, model_class, key_name, key_value, property_name):
-    """Constructor for Storage.
+    def __init__(self, model_class, key_name, key_value, property_name):
+        """Constructor for Storage.
 
     Args:
       model: db.Model, model class
@@ -95,47 +96,47 @@ class Storage(BaseStorage):
       key_value: string, key value for the entity that has the credentials
       property_name: string, name of the property that is an CredentialsProperty
     """
-    self.model_class = model_class
-    self.key_name = key_name
-    self.key_value = key_value
-    self.property_name = property_name
+        self.model_class = model_class
+        self.key_name = key_name
+        self.key_value = key_value
+        self.property_name = property_name
 
-  def locked_get(self):
-    """Retrieve Credential from datastore.
+    def locked_get(self):
+        """Retrieve Credential from datastore.
 
     Returns:
       oauth2client.Credentials
     """
-    credential = None
+        credential = None
 
-    query = {self.key_name: self.key_value}
-    entities = self.model_class.objects.filter(**query)
-    if len(entities) > 0:
-      credential = getattr(entities[0], self.property_name)
-      if credential and hasattr(credential, 'set_store'):
-        credential.set_store(self)
-    return credential
+        query = {self.key_name: self.key_value}
+        entities = self.model_class.objects.filter(**query)
+        if len(entities) > 0:
+            credential = getattr(entities[0], self.property_name)
+            if credential and hasattr(credential, 'set_store'):
+                credential.set_store(self)
+        return credential
 
-  def locked_put(self, credentials, overwrite=False):
-    """Write a Credentials to the datastore.
+    def locked_put(self, credentials, overwrite=False):
+        """Write a Credentials to the datastore.
 
     Args:
       credentials: Credentials, the credentials to store.
       overwrite: Boolean, indicates whether you would like these credentials to
                           overwrite any existing stored credentials.
     """
-    args = {self.key_name: self.key_value}
+        args = {self.key_name: self.key_value}
 
-    if overwrite:
-      entity, unused_is_new = self.model_class.objects.get_or_create(**args)
-    else:
-      entity = self.model_class(**args)
+        if overwrite:
+            entity, unused_is_new = self.model_class.objects.get_or_create(**args)
+        else:
+            entity = self.model_class(**args)
 
-    setattr(entity, self.property_name, credentials)
-    entity.save()
+        setattr(entity, self.property_name, credentials)
+        entity.save()
 
-  def locked_delete(self):
-    """Delete Credentials from the datastore."""
+    def locked_delete(self):
+        """Delete Credentials from the datastore."""
 
-    query = {self.key_name: self.key_value}
-    entities = self.model_class.objects.filter(**query).delete()
+        query = {self.key_name: self.key_value}
+        entities = self.model_class.objects.filter(**query).delete()

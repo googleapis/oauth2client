@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 """Tests for oauth2client.keyring_storage tests.
 
 Unit tests for oauth2client.keyring_storage.
@@ -33,59 +32,59 @@ from oauth2client.keyring_storage import Storage
 
 class OAuth2ClientKeyringTests(unittest.TestCase):
 
-  def test_non_existent_credentials_storage(self):
-    with mock.patch.object(keyring, 'get_password',
+    def test_non_existent_credentials_storage(self):
+        with mock.patch.object(keyring, 'get_password',
                            return_value=None,
                            autospec=True) as get_password:
-      s = Storage('my_unit_test', 'me')
-      credentials = s.get()
-      self.assertEquals(None, credentials)
-      get_password.assert_called_once_with('my_unit_test', 'me')
+            s = Storage('my_unit_test', 'me')
+            credentials = s.get()
+            self.assertEquals(None, credentials)
+            get_password.assert_called_once_with('my_unit_test', 'me')
 
-  def test_malformed_credentials_in_storage(self):
-    with mock.patch.object(keyring, 'get_password',
+    def test_malformed_credentials_in_storage(self):
+        with mock.patch.object(keyring, 'get_password',
                            return_value='{',
                            autospec=True) as get_password:
-      s = Storage('my_unit_test', 'me')
-      credentials = s.get()
-      self.assertEquals(None, credentials)
-      get_password.assert_called_once_with('my_unit_test', 'me')
+            s = Storage('my_unit_test', 'me')
+            credentials = s.get()
+            self.assertEquals(None, credentials)
+            get_password.assert_called_once_with('my_unit_test', 'me')
 
-  def test_json_credentials_storage(self):
-    access_token = 'foo'
-    client_id = 'some_client_id'
-    client_secret = 'cOuDdkfjxxnv+'
-    refresh_token = '1/0/a.df219fjls0'
-    token_expiry = datetime.datetime.utcnow()
-    user_agent = 'refresh_checker/1.0'
+    def test_json_credentials_storage(self):
+        access_token = 'foo'
+        client_id = 'some_client_id'
+        client_secret = 'cOuDdkfjxxnv+'
+        refresh_token = '1/0/a.df219fjls0'
+        token_expiry = datetime.datetime.utcnow()
+        user_agent = 'refresh_checker/1.0'
 
-    credentials = OAuth2Credentials(
+        credentials = OAuth2Credentials(
         access_token, client_id, client_secret,
         refresh_token, token_expiry, GOOGLE_TOKEN_URI,
         user_agent)
 
-    # Setting autospec on a mock with an iterable side_effect is
-    # currently broken (http://bugs.python.org/issue17826), so instead
-    # we patch twice.
-    with mock.patch.object(keyring, 'get_password',
+        # Setting autospec on a mock with an iterable side_effect is
+        # currently broken (http://bugs.python.org/issue17826), so instead
+        # we patch twice.
+        with mock.patch.object(keyring, 'get_password',
                            return_value=None,
                            autospec=True) as get_password:
-      with mock.patch.object(keyring, 'set_password',
+            with mock.patch.object(keyring, 'set_password',
                              return_value=None,
                              autospec=True) as set_password:
-        s = Storage('my_unit_test', 'me')
-        self.assertEquals(None, s.get())
+                s = Storage('my_unit_test', 'me')
+                self.assertEquals(None, s.get())
 
-        s.put(credentials)
+                s.put(credentials)
 
-        set_password.assert_called_once_with(
+                set_password.assert_called_once_with(
             'my_unit_test', 'me', credentials.to_json())
-        get_password.assert_called_once_with('my_unit_test', 'me')
+                get_password.assert_called_once_with('my_unit_test', 'me')
 
-    with mock.patch.object(keyring, 'get_password',
+        with mock.patch.object(keyring, 'get_password',
                            return_value=credentials.to_json(),
                            autospec=True) as get_password:
-      restored = s.get()
-      self.assertEqual('foo', restored.access_token)
-      self.assertEqual('some_client_id', restored.client_id)
-      get_password.assert_called_once_with('my_unit_test', 'me')
+            restored = s.get()
+            self.assertEqual('foo', restored.access_token)
+            self.assertEqual('some_client_id', restored.client_id)
+            get_password.assert_called_once_with('my_unit_test', 'me')

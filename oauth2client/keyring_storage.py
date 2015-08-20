@@ -28,7 +28,7 @@ from oauth2client.client import Storage as BaseStorage
 
 
 class Storage(BaseStorage):
-  """Store and retrieve a single credential to and from the keyring.
+    """Store and retrieve a single credential to and from the keyring.
 
   To use this module you must have the keyring module installed. See
   <http://pypi.python.org/pypi/keyring/>. This is an optional module and is not
@@ -48,63 +48,63 @@ class Storage(BaseStorage):
 
   """
 
-  def __init__(self, service_name, user_name):
-    """Constructor.
+    def __init__(self, service_name, user_name):
+        """Constructor.
 
     Args:
       service_name: string, The name of the service under which the credentials
         are stored.
       user_name: string, The name of the user to store credentials for.
     """
-    self._service_name = service_name
-    self._user_name = user_name
-    self._lock = threading.Lock()
+        self._service_name = service_name
+        self._user_name = user_name
+        self._lock = threading.Lock()
 
-  def acquire_lock(self):
-    """Acquires any lock necessary to access this Storage.
+    def acquire_lock(self):
+        """Acquires any lock necessary to access this Storage.
 
     This lock is not reentrant."""
-    self._lock.acquire()
+        self._lock.acquire()
 
-  def release_lock(self):
-    """Release the Storage lock.
+    def release_lock(self):
+        """Release the Storage lock.
 
     Trying to release a lock that isn't held will result in a
     RuntimeError.
     """
-    self._lock.release()
+        self._lock.release()
 
-  def locked_get(self):
-    """Retrieve Credential from file.
+    def locked_get(self):
+        """Retrieve Credential from file.
 
     Returns:
       oauth2client.client.Credentials
     """
-    credentials = None
-    content = keyring.get_password(self._service_name, self._user_name)
+        credentials = None
+        content = keyring.get_password(self._service_name, self._user_name)
 
-    if content is not None:
-      try:
-        credentials = Credentials.new_from_json(content)
-        credentials.set_store(self)
-      except ValueError:
-        pass
+        if content is not None:
+            try:
+                credentials = Credentials.new_from_json(content)
+                credentials.set_store(self)
+            except ValueError:
+                pass
 
-    return credentials
+        return credentials
 
-  def locked_put(self, credentials):
-    """Write Credentials to file.
+    def locked_put(self, credentials):
+        """Write Credentials to file.
 
     Args:
       credentials: Credentials, the credentials to store.
     """
-    keyring.set_password(self._service_name, self._user_name,
+        keyring.set_password(self._service_name, self._user_name,
                          credentials.to_json())
 
-  def locked_delete(self):
-    """Delete Credentials file.
+    def locked_delete(self):
+        """Delete Credentials file.
 
     Args:
       credentials: Credentials, the credentials to store.
     """
-    keyring.set_password(self._service_name, self._user_name, '')
+        keyring.set_password(self._service_name, self._user_name, '')

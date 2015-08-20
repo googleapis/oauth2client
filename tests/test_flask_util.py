@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 """Unit tests for the Flask utilities"""
 
 __author__ = 'jonwayne@google.com (Jon Wayne Parrott)'
@@ -35,6 +34,7 @@ from oauth2client.client import OAuth2Credentials
 
 class Http2Mock(object):
     """Mock httplib2.Http for code exchange / refresh"""
+
     def __init__(self, status=httplib.OK, **kwargs):
         self.status = status
         self.content = {
