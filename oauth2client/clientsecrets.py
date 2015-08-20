@@ -70,30 +70,31 @@ class InvalidClientSecretsError(Error):
 
 def _validate_clientsecrets(obj):
     _INVALID_FILE_FORMAT_MSG = (
-    'Invalid file format. See '
-    'https://developers.google.com/api-client-library/'
-    'python/guide/aaa_client_secrets')
+        'Invalid file format. See '
+        'https://developers.google.com/api-client-library/'
+        'python/guide/aaa_client_secrets')
 
     if obj is None:
         raise InvalidClientSecretsError(_INVALID_FILE_FORMAT_MSG)
     if len(obj) != 1:
         raise InvalidClientSecretsError(
-      _INVALID_FILE_FORMAT_MSG + ' '
-      'Expected a JSON object with a single property for a "web" or '
-      '"installed" application')
+            _INVALID_FILE_FORMAT_MSG + ' '
+            'Expected a JSON object with a single property for a "web" or '
+            '"installed" application')
     client_type = tuple(obj)[0]
     if client_type not in VALID_CLIENT:
-        raise InvalidClientSecretsError('Unknown client type: %s.' % (client_type, ))
+        raise InvalidClientSecretsError(
+            'Unknown client type: %s.' % (client_type,))
     client_info = obj[client_type]
     for prop_name in VALID_CLIENT[client_type]['required']:
         if prop_name not in client_info:
             raise InvalidClientSecretsError(
-        'Missing property "%s" in a client type of "%s".' % (prop_name,
-                                                           client_type))
+                'Missing property "%s" in a client type of "%s".' %
+                (prop_name, client_type))
     for prop_name in VALID_CLIENT[client_type]['string']:
         if client_info[prop_name].startswith('[['):
             raise InvalidClientSecretsError(
-        'Property "%s" is not configured.' % prop_name)
+                'Property "%s" is not configured.' % prop_name)
     return client_type, client_info
 
 

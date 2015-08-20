@@ -93,7 +93,8 @@ class Storage(BaseStorage):
         Args:
             model: db.Model, model class
             key_name: string, key name for the entity that has the credentials
-            key_value: string, key value for the entity that has the credentials
+            key_value: string, key value for the entity that has the
+                       credentials
             property_name: string, name of the property that is an
                            CredentialsProperty
         """
@@ -124,12 +125,14 @@ class Storage(BaseStorage):
         Args:
             credentials: Credentials, the credentials to store.
             overwrite: Boolean, indicates whether you would like these
-                       credentials to overwrite any existing stored credentials.
+                       credentials to overwrite any existing stored
+                       credentials.
         """
         args = {self.key_name: self.key_value}
 
         if overwrite:
-            entity, unused_is_new = self.model_class.objects.get_or_create(**args)
+            (entity,
+             unused_is_new) = self.model_class.objects.get_or_create(**args)
         else:
             entity = self.model_class(**args)
 

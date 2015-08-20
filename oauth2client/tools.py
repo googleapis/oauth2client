@@ -55,14 +55,15 @@ def _CreateArgumentParser():
         return None
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument('--auth_host_name', default='localhost',
-                      help='Hostname when running a local web server.')
+                        help='Hostname when running a local web server.')
     parser.add_argument('--noauth_local_webserver', action='store_true',
-                      default=False, help='Do not run a local web server.')
+                        default=False, help='Do not run a local web server.')
     parser.add_argument('--auth_host_port', default=[8080, 8090], type=int,
-                      nargs='*', help='Port web server should listen on.')
-    parser.add_argument('--logging_level', default='ERROR',
-                      choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
-                      help='Set the logging level of detail.')
+                        nargs='*', help='Port web server should listen on.')
+    parser.add_argument(
+        '--logging_level', default='ERROR',
+        choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
+        help='Set the logging level of detail.')
     return parser
 
 # argparser is an ArgumentParser that contains command-line options expected
@@ -100,12 +101,14 @@ class ClientRedirectHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         query = self.path.split('?', 1)[-1]
         query = dict(urllib.parse.parse_qsl(query))
         self.server.query_params = query
-        self.wfile.write(b"<html><head><title>Authentication Status</title></head>")
-        self.wfile.write(b"<body><p>The authentication flow has completed.</p>")
+        self.wfile.write(
+            b"<html><head><title>Authentication Status</title></head>")
+        self.wfile.write(
+            b"<body><p>The authentication flow has completed.</p>")
         self.wfile.write(b"</body></html>")
 
     def log_message(self, format, *args):
-        """Do not log messages to stdout while running as command line program."""
+        """Do not log messages to stdout while running as cmd. line program."""
 
 
 @util.positional(3)
@@ -137,9 +140,9 @@ def run_flow(flow, storage, flags, http=None):
            Run a local web server to handle redirects during OAuth
            authorization.
 
-    The tools module defines an ``ArgumentParser`` the already contains the flag
-    definitions that ``run()`` requires. You can pass that ``ArgumentParser`` to
-    your ``ArgumentParser`` constructor::
+    The tools module defines an ``ArgumentParser`` the already contains the
+    flag definitions that ``run()`` requires. You can pass that
+    ``ArgumentParser`` to your ``ArgumentParser`` constructor::
 
         parser = argparse.ArgumentParser(
             description=__doc__,
@@ -167,7 +170,7 @@ def run_flow(flow, storage, flags, http=None):
             port_number = port
             try:
                 httpd = ClientRedirectServer((flags.auth_host_name, port),
-                                     ClientRedirectHandler)
+                                             ClientRedirectHandler)
             except socket.error:
                 pass
             else:
@@ -175,13 +178,14 @@ def run_flow(flow, storage, flags, http=None):
                 break
         flags.noauth_local_webserver = not success
     if not success:
-            print('Failed to start a local webserver listening on either port 8080')
-            print('or port 9090. Please check your firewall settings and locally')
-            print('running programs that may be blocking or using those ports.')
-            print()
-            print('Falling back to --noauth_local_webserver and continuing with')
-            print('authorization.')
-            print()
+        print('Failed to start a local webserver listening '
+              'on either port 8080')
+        print('or port 9090. Please check your firewall settings and locally')
+        print('running programs that may be blocking or using those ports.')
+        print()
+        print('Falling back to --noauth_local_webserver and continuing with')
+        print('authorization.')
+        print()
 
     if not flags.noauth_local_webserver:
         oauth_callback = 'http://%s:%s/' % (flags.auth_host_name, port_number)
@@ -197,7 +201,8 @@ def run_flow(flow, storage, flags, http=None):
         print()
         print('    ' + authorize_url)
         print()
-        print('If your browser is on a different machine then exit and re-run this')
+        print('If your browser is on a different machine then '
+              'exit and re-run this')
         print('application with the command-line parameter ')
         print()
         print('  --noauth_local_webserver')
@@ -216,7 +221,8 @@ def run_flow(flow, storage, flags, http=None):
         if 'code' in httpd.query_params:
             code = httpd.query_params['code']
         else:
-            print('Failed to find "code" in the query parameters of the redirect.')
+            print('Failed to find "code" in the query parameters '
+                  'of the redirect.')
             sys.exit('Try running with --noauth_local_webserver.')
     else:
         code = input('Enter verification code: ').strip()
@@ -235,8 +241,8 @@ def run_flow(flow, storage, flags, http=None):
 
 def message_if_missing(filename):
     """Helpful message to display if the CLIENT_SECRETS file is missing."""
-
     return _CLIENT_SECRETS_MESSAGE % filename
+
 
 try:
     from oauth2client.old_run import run
@@ -244,6 +250,6 @@ try:
 except ImportError:
     def run(*args, **kwargs):
         raise NotImplementedError(
-        'The gflags library must be installed to use tools.run(). '
-        'Please install gflags or preferrably switch to using '
-        'tools.run_flow().')
+            'The gflags library must be installed to use tools.run(). '
+            'Please install gflags or preferrably switch to using '
+            'tools.run_flow().')

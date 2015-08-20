@@ -45,10 +45,8 @@ except ImportError:
     OpenSSLVerifier = None
     OpenSSLSigner = None
 
-
     def pkcs12_key_as_pem(*args, **kwargs):
         raise NotImplementedError('pkcs12_key_as_pem requires OpenSSL.')
-
 
 try:
     from oauth2client._pycrypto_crypt import PyCryptoVerifier
@@ -66,7 +64,7 @@ elif PyCryptoSigner:
     Verifier = PyCryptoVerifier
 else:
     raise ImportError('No encryption library found. Please install either '
-                    'PyOpenSSL, or PyCrypto 2.6 or later')
+                      'PyOpenSSL, or PyCrypto 2.6 or later')
 
 
 def make_signed_jwt(signer, payload):
@@ -157,10 +155,10 @@ def verify_signed_jwt_with_certs(jwt, certs, audience):
 
     if now < earliest:
         raise AppIdentityError('Token used too early, %d < %d: %s' %
-                           (now, earliest, json_body))
+                               (now, earliest, json_body))
     if now > latest:
         raise AppIdentityError('Token used too late, %d > %d: %s' %
-                           (now, latest, json_body))
+                               (now, latest, json_body))
 
     # Check audience.
     if audience is not None:
@@ -169,6 +167,6 @@ def verify_signed_jwt_with_certs(jwt, certs, audience):
             raise AppIdentityError('No aud field in token: %s' % json_body)
         if aud != audience:
             raise AppIdentityError('Wrong recipient, %s != %s: %s' %
-                             (aud, audience, json_body))
+                                   (aud, audience, json_body))
 
     return parsed

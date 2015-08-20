@@ -42,7 +42,7 @@ class Storage(BaseStorage):
     def _validate_file(self):
         if os.path.islink(self._filename):
             raise CredentialsFileSymbolicLinkError(
-          'File: %s is a symbolic link.' % self._filename)
+                'File: %s is a symbolic link.' % self._filename)
 
     def acquire_lock(self):
         """Acquires any lock necessary to access this Storage.

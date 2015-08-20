@@ -35,8 +35,9 @@ class CommunicationError(Error):
 class NoDevshellServer(Error):
     """Error when no Developer Shell server can be contacted."""
 
-# The request for credential information to the Developer Shell client socket is
-# always an empty PBLite-formatted JSON object, so just define it as a constant.
+# The request for credential information to the Developer Shell client socket
+# is always an empty PBLite-formatted JSON object, so just define it as a
+# constant.
 CREDENTIAL_INFO_REQUEST_JSON = '[]'
 
 
@@ -44,7 +45,9 @@ class CredentialInfoResponse(object):
     """Credential information response from Developer Shell server.
 
     The credential information response from Developer Shell socket is a
-    PBLite-formatted JSON array with fields encoded by their index in the array:
+    PBLite-formatted JSON array with fields encoded by their index in the
+    array:
+
     * Index 0 - user email
     * Index 1 - default project ID. None if the project context is not known.
     * Index 2 - OAuth2 access token. None if there is no valid auth context.
@@ -103,13 +106,13 @@ class DevshellCredentials(client.GoogleCredentials):
 
     def __init__(self, user_agent=None):
         super(DevshellCredentials, self).__init__(
-        None,  # access_token, initialized below
-        None,  # client_id
-        None,  # client_secret
-        None,  # refresh_token
-        None,  # token_expiry
-        None,  # token_uri
-        user_agent)
+            None,  # access_token, initialized below
+            None,  # client_id
+            None,  # client_secret
+            None,  # refresh_token
+            None,  # token_expiry
+            None,  # token_uri
+            user_agent)
         self._refresh(None)
 
     def _refresh(self, http_request):
@@ -127,9 +130,9 @@ class DevshellCredentials(client.GoogleCredentials):
     @classmethod
     def from_json(cls, json_data):
         raise NotImplementedError(
-        'Cannot load Developer Shell credentials from JSON.')
+            'Cannot load Developer Shell credentials from JSON.')
 
     @property
     def serialization_data(self):
         raise NotImplementedError(
-        'Cannot serialize Developer Shell credentials.')
+            'Cannot serialize Developer Shell credentials.')

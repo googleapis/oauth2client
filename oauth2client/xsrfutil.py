@@ -104,7 +104,7 @@ def validate_token(key, token, user_id, action_id="", current_time=None):
 
     # The given token should match the generated one with the same time.
     expected_token = generate_token(key, user_id, action_id=action_id,
-                                  when=token_time)
+                                    when=token_time)
     if len(token) != len(expected_token):
         return False
 

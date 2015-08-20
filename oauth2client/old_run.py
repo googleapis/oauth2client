@@ -72,7 +72,8 @@ def run(flow, storage, http=None):
            of values.
 
         ``--[no]auth_local_webserver`` (boolean, default: ``True``)
-           Run a local web server to handle redirects during OAuth authorization.
+           Run a local web server to handle redirects during OAuth
+           authorization.
 
     Since it uses flags make sure to initialize the ``gflags`` module before
     calling ``run()``.
@@ -87,8 +88,8 @@ def run(flow, storage, http=None):
         Credentials, the obtained credential.
     """
     logging.warning('This function, oauth2client.tools.run(), and the use of '
-      'the gflags library are deprecated and will be removed in a future '
-      'version of the library.')
+                    'the gflags library are deprecated and will be removed in '
+                    'a future version of the library.')
     if FLAGS.auth_local_webserver:
         success = False
         port_number = 0
@@ -96,7 +97,7 @@ def run(flow, storage, http=None):
             port_number = port
             try:
                 httpd = ClientRedirectServer((FLAGS.auth_host_name, port),
-                                     ClientRedirectHandler)
+                                             ClientRedirectHandler)
             except socket.error as e:
                 pass
             else:
@@ -104,13 +105,14 @@ def run(flow, storage, http=None):
                 break
         FLAGS.auth_local_webserver = success
     if not success:
-            print('Failed to start a local webserver listening on either port 8080')
-            print('or port 9090. Please check your firewall settings and locally')
-            print('running programs that may be blocking or using those ports.')
-            print()
-            print('Falling back to --noauth_local_webserver and continuing with')
-            print('authorization.')
-            print()
+        print('Failed to start a local webserver listening on '
+              'either port 8080')
+        print('or port 9090. Please check your firewall settings and locally')
+        print('running programs that may be blocking or using those ports.')
+        print()
+        print('Falling back to --noauth_local_webserver and continuing with')
+        print('authorization.')
+        print()
 
     if FLAGS.auth_local_webserver:
         oauth_callback = 'http://%s:%s/' % (FLAGS.auth_host_name, port_number)
@@ -144,7 +146,8 @@ def run(flow, storage, http=None):
         if 'code' in httpd.query_params:
             code = httpd.query_params['code']
         else:
-            print('Failed to find "code" in the query parameters of the redirect.')
+            print('Failed to find "code" in the query '
+                  'parameters of the redirect.')
             sys.exit('Try running with --noauth_local_webserver.')
     else:
         code = input('Enter verification code: ').strip()

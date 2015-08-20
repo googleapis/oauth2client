@@ -50,7 +50,7 @@ class PyCryptoVerifier(object):
         """
         message = _to_bytes(message, encoding='utf-8')
         return PKCS1_v1_5.new(self._pubkey).verify(
-        SHA256.new(message), signature)
+            SHA256.new(message), signature)
 
     @staticmethod
     def from_string(key_pem, is_x509_cert):
@@ -58,8 +58,8 @@ class PyCryptoVerifier(object):
 
         Args:
             key_pem: string, public key in PEM format.
-            is_x509_cert: bool, True if key_pem is an X509 cert, otherwise it is
-                          expected to be an RSA key in PEM format.
+            is_x509_cert: bool, True if key_pem is an X509 cert, otherwise it
+                          is expected to be an RSA key in PEM format.
 
         Returns:
             Verifier instance.
@@ -121,8 +121,9 @@ class PyCryptoSigner(object):
             pkey = RSA.importKey(parsed_pem_key)
         else:
             raise NotImplementedError(
-          'PKCS12 format is not supported by the PyCrypto library. '
-          'Try converting to a "PEM" '
-          '(openssl pkcs12 -in xxxxx.p12 -nodes -nocerts > privatekey.pem) '
-          'or using PyOpenSSL if native code is an option.')
+                'PKCS12 format is not supported by the PyCrypto library. '
+                'Try converting to a "PEM" '
+                '(openssl pkcs12 -in xxxxx.p12 -nodes -nocerts > '
+                'privatekey.pem) '
+                'or using PyOpenSSL if native code is an option.')
         return PyCryptoSigner(pkey)

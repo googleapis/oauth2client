@@ -103,7 +103,7 @@ class Storage(BaseStorage):
             credentials: Credentials, the credentials to store.
         """
         keyring.set_password(self._service_name, self._user_name,
-                         credentials.to_json())
+                             credentials.to_json())
 
     def locked_delete(self):
         """Delete Credentials file.

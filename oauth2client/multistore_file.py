@@ -91,14 +91,14 @@ def get_credential_storage(filename, client_id, user_agent, scope,
     """
     # Recreate the legacy key with these specific parameters
     key = {'clientId': client_id, 'userAgent': user_agent,
-         'scope': util.scopes_to_string(scope)}
+           'scope': util.scopes_to_string(scope)}
     return get_credential_storage_custom_key(
       filename, key, warn_on_readonly=warn_on_readonly)
 
 
 @util.positional(2)
-def get_credential_storage_custom_string_key(
-    filename, key_string, warn_on_readonly=True):
+def get_credential_storage_custom_string_key(filename, key_string,
+                                             warn_on_readonly=True):
     """Get a Storage instance for a credential using a single string as a key.
 
     Allows you to provide a string as a custom key that will be used for
@@ -120,8 +120,8 @@ def get_credential_storage_custom_string_key(
 
 
 @util.positional(2)
-def get_credential_storage_custom_key(
-    filename, key_dict, warn_on_readonly=True):
+def get_credential_storage_custom_key(filename, key_dict,
+                                      warn_on_readonly=True):
     """Get a Storage instance for a credential using a dictionary as a key.
 
     Allows you to provide a dictionary as a custom key that will be used for
@@ -179,7 +179,7 @@ def _get_multistore(filename, warn_on_readonly=True):
     _multistores_lock.acquire()
     try:
         multistore = _multistores.setdefault(
-        filename, _MultiStore(filename, warn_on_readonly=warn_on_readonly))
+            filename, _MultiStore(filename, warn_on_readonly=warn_on_readonly))
     finally:
         _multistores_lock.release()
     return multistore
@@ -211,7 +211,7 @@ class _MultiStore(object):
         self._data = None
 
     class _Storage(BaseStorage):
-        """A Storage object that knows how to read/write a single credential."""
+        """A Storage object that can read/write a single credential."""
 
         def __init__(self, multistore, key):
             self._multistore = multistore
@@ -285,19 +285,20 @@ class _MultiStore(object):
             self._file.open_and_lock()
         except IOError as e:
             if e.errno == errno.ENOSYS:
-                logger.warn('File system does not support locking the credentials '
-                    'file.')
+                logger.warn('File system does not support locking the '
+                            'credentials file.')
             elif e.errno == errno.ENOLCK:
                 logger.warn('File system is out of resources for writing the '
-                    'credentials file (is your disk full?).')
+                            'credentials file (is your disk full?).')
             else:
                 raise
         if not self._file.is_locked():
             self._read_only = True
             if self._warn_on_readonly:
-                logger.warn('The credentials file (%s) is not writable. Opening in '
-                    'read-only mode. Any refreshed credentials will only be '
-                    'valid for this run.', self._file.filename())
+                logger.warn('The credentials file (%s) is not writable. '
+                            'Opening in read-only mode. Any refreshed '
+                            'credentials will only be '
+                            'valid for this run.', self._file.filename())
         if os.path.getsize(self._file.filename()) == 0:
             logger.debug('Initializing empty multistore file')
             # The multistore is empty so write out an empty file.
@@ -340,7 +341,8 @@ class _MultiStore(object):
         if self._read_only:
             return
         self._file.file_handle().seek(0)
-        json.dump(data, self._file.file_handle(), sort_keys=True, indent=2, separators=(',', ': '))
+        json.dump(data, self._file.file_handle(),
+                  sort_keys=True, indent=2, separators=(',', ': '))
         self._file.file_handle().truncate()
 
     def _refresh_data_cache(self):
@@ -357,7 +359,7 @@ class _MultiStore(object):
             raw_data = self._locked_json_read()
         except Exception:
             logger.warn('Credential data store could not be loaded. '
-                  'Will ignore and overwrite.')
+                        'Will ignore and overwrite.')
             return
 
         version = 0
@@ -365,11 +367,11 @@ class _MultiStore(object):
             version = raw_data['file_version']
         except Exception:
             logger.warn('Missing version for credential data store. It may be '
-                  'corrupt or an old version. Overwriting.')
+                        'corrupt or an old version. Overwriting.')
         if version > 1:
             raise NewerCredentialStoreError(
-          'Credential file has file_version of %d. '
-          'Only file_version of 1 is supported.' % version)
+                'Credential file has file_version of %d. '
+                'Only file_version of 1 is supported.' % version)
 
         credentials = []
         try:
@@ -379,11 +381,12 @@ class _MultiStore(object):
 
         for cred_entry in credentials:
             try:
-                (key, credential) = self._decode_credential_from_json(cred_entry)
+                key, credential = self._decode_credential_from_json(cred_entry)
                 self._data[key] = credential
             except:
                 # If something goes wrong loading a credential, just ignore it
-                logger.info('Error decoding credential, skipping', exc_info=True)
+                logger.info('Error decoding credential, skipping',
+                            exc_info=True)
 
     def _decode_credential_from_json(self, cred_entry):
         """Load a credential from our JSON serialization.
@@ -398,7 +401,8 @@ class _MultiStore(object):
         raw_key = cred_entry['key']
         key = util.dict_to_tuple_key(raw_key)
         credential = None
-        credential = Credentials.new_from_json(json.dumps(cred_entry['credential']))
+        credential = Credentials.new_from_json(
+            json.dumps(cred_entry['credential']))
         return (key, credential)
 
     def _write(self):

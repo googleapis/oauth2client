@@ -44,9 +44,9 @@ class AppAssertionCredentials(AssertionCredentials):
     used for the purpose of accessing data stored under an account assigned to
     the Compute Engine instance itself.
 
-    This credential does not require a flow to instantiate because it represents
-    a two legged flow, and therefore has all of the required information to
-    generate and refresh its own access tokens.
+    This credential does not require a flow to instantiate because it
+    represents a two legged flow, and therefore has all of the required
+    information to generate and refresh its own access tokens.
     """
 
     @util.positional(2)
@@ -60,7 +60,8 @@ class AppAssertionCredentials(AssertionCredentials):
         self.scope = util.scopes_to_string(scope)
         self.kwargs = kwargs
 
-        # Assertion type is no longer used, but still in the parent class signature.
+        # Assertion type is no longer used, but still in the
+        # parent class signature.
         super(AppAssertionCredentials, self).__init__(None)
 
     @classmethod
@@ -74,9 +75,9 @@ class AppAssertionCredentials(AssertionCredentials):
         Skip all the storage hoops and just refresh using the API.
 
         Args:
-            http_request: callable, a callable that matches the method signature
-                          of httplib2.Http.request, used to make the refresh
-                          request.
+            http_request: callable, a callable that matches the method
+                          signature of httplib2.Http.request, used to make
+                          the refresh request.
 
         Raises:
             AccessTokenRefreshError: When the refresh fails.
@@ -94,13 +95,13 @@ class AppAssertionCredentials(AssertionCredentials):
         else:
             if response.status == 404:
                 content += (' This can occur if a VM was created'
-                    ' with no service account or scopes.')
+                            ' with no service account or scopes.')
             raise AccessTokenRefreshError(content)
 
     @property
-  def serialization_data(self):
+    def serialization_data(self):
         raise NotImplementedError(
-        'Cannot serialize credentials for GCE service accounts.')
+            'Cannot serialize credentials for GCE service accounts.')
 
     def create_scoped_required(self):
         return not self.scope

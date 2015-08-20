@@ -63,11 +63,11 @@ def _to_bytes(value, encoding='ascii'):
         ValueError if the value could not be converted to bytes.
     """
     result = (value.encode(encoding)
-            if isinstance(value, six.text_type) else value)
+              if isinstance(value, six.text_type) else value)
     if isinstance(result, six.binary_type):
         return result
     else:
-        raise ValueError('%r could not be converted to bytes' % (value, ))
+        raise ValueError('%r could not be converted to bytes' % (value,))
 
 
 def _from_bytes(value):
@@ -84,11 +84,11 @@ def _from_bytes(value):
         ValueError if the value could not be converted to unicode.
     """
     result = (value.decode('utf-8')
-            if isinstance(value, six.binary_type) else value)
+              if isinstance(value, six.binary_type) else value)
     if isinstance(result, six.text_type):
         return result
     else:
-        raise ValueError('%r could not be converted to unicode' % (value, ))
+        raise ValueError('%r could not be converted to unicode' % (value,))
 
 
 def _urlsafe_b64encode(raw_bytes):

@@ -46,8 +46,8 @@ apiui/credential>`__.
 Usage
 =====
 
-Once configured, you can use the :meth:`UserOAuth2.required` decorator to ensure
-that credentials are available within a view.
+Once configured, you can use the :meth:`UserOAuth2.required` decorator to
+ensure that credentials are available within a view.
 
 .. code-block:: python
    :emphasize-lines: 3,7,10
@@ -190,7 +190,7 @@ from oauth2client import util
 
 __author__ = 'jonwayne@google.com (Jon Wayne Parrott)'
 
-DEFAULT_SCOPES = ('email', )
+DEFAULT_SCOPES = ('email',)
 
 
 class UserOAuth2(object):
@@ -291,8 +291,9 @@ class UserOAuth2(object):
             raise ValueError(
                 'OAuth2 configuration could not be found. Either specify the '
                 'client_secrets_file or client_id and client_secret or set the'
-                'app configuration variables GOOGLE_OAUTH2_CLIENT_SECRETS_FILE '
-                'or GOOGLE_OAUTH2_CLIENT_ID and GOOGLE_OAUTH2_CLIENT_SECRET.')
+                'app configuration variables '
+                'GOOGLE_OAUTH2_CLIENT_SECRETS_FILE or '
+                'GOOGLE_OAUTH2_CLIENT_ID and GOOGLE_OAUTH2_CLIENT_SECRET.')
 
     def _load_client_secrets(self, filename):
         """Loads client secrets from the given filename."""
@@ -392,7 +393,8 @@ class UserOAuth2(object):
             credentials = flow.step2_exchange(code)
         except FlowExchangeError as exchange_error:
             current_app.logger.exception(exchange_error)
-            return 'An error occurred: %s' % exchange_error, httplib.BAD_REQUEST
+            content = 'An error occurred: %s' % (exchange_error,)
+            return content, httplib.BAD_REQUEST
 
         # Save the credentials to the storage.
         self.storage.put(credentials)
@@ -420,9 +422,9 @@ class UserOAuth2(object):
     def email(self):
         """Returns the user's email address or None if there are no credentials.
 
-        The email address is provided by the current credentials' id_token. This
-        should not be used as unique identifier as the user can change their
-        email. If you need a unique identifier, use user_id.
+        The email address is provided by the current credentials' id_token.
+        This should not be used as unique identifier as the user can change
+        their email. If you need a unique identifier, use user_id.
         """
         if not self.credentials:
             return None
@@ -451,8 +453,9 @@ class UserOAuth2(object):
     def authorize_url(self, return_url, **kwargs):
         """Creates a URL that can be used to start the authorization flow.
 
-        When the user is directed to the URL, the authorization flow will begin.
-        Once complete, the user will be redirected to the specified return URL.
+        When the user is directed to the URL, the authorization flow will
+        begin. Once complete, the user will be redirected to the specified
+        return URL.
 
         Any kwargs are passed into the flow constructor.
         """

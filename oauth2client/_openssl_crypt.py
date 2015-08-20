@@ -54,7 +54,7 @@ class OpenSSLVerifier(object):
             return False
 
     @staticmethod
-  def from_string(key_pem, is_x509_cert):
+    def from_string(key_pem, is_x509_cert):
         """Construct a Verified instance from a string.
 
         Args:
@@ -136,4 +136,4 @@ def pkcs12_key_as_pem(private_key_text, private_key_password):
 
     pkcs12 = crypto.load_pkcs12(decoded_body, private_key_password)
     return crypto.dump_privatekey(crypto.FILETYPE_PEM,
-                                pkcs12.get_privatekey())
+                                  pkcs12.get_privatekey())

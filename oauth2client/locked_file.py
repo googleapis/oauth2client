@@ -57,7 +57,7 @@ class AlreadyLockedException(Exception):
 def validate_file(filename):
     if os.path.islink(filename):
         raise CredentialsFileSymbolicLinkError(
-        'File: %s is a symbolic link.' % filename)
+            'File: %s is a symbolic link.' % filename)
 
 
 class _Opener(object):
@@ -123,7 +123,7 @@ class _PosixOpener(_Opener):
         """
         if self._locked:
             raise AlreadyLockedException('File %s is already locked' %
-                                   self._filename)
+                                         self._filename)
         self._locked = False
 
         validate_file(self._filename)
@@ -140,7 +140,7 @@ class _PosixOpener(_Opener):
     while True:
             try:
                 self._lock_fd = os.open(lock_filename,
-                                os.O_CREAT | os.O_EXCL | os.O_RDWR)
+                                        os.O_CREAT | os.O_EXCL | os.O_RDWR)
                 self._locked = True
                 break
 
@@ -149,7 +149,7 @@ class _PosixOpener(_Opener):
                     raise
                 if (time.time() - start_time) >= timeout:
                     logger.warn('Could not acquire lock %s in %s seconds',
-                      lock_filename, timeout)
+                                lock_filename, timeout)
                     # Close the file and open in fallback_mode.
                     if self._fh:
                         self._fh.close()
@@ -176,7 +176,6 @@ class _PosixOpener(_Opener):
 try:
     import fcntl
 
-
     class _FcntlOpener(_Opener):
         """Open, lock, and unlock a file using fcntl.lockf."""
 
@@ -190,18 +189,20 @@ try:
             Raises:
                 AlreadyLockedException: if the lock is already acquired.
                 IOError: if the open fails.
-                CredentialsFileSymbolicLinkError if the file is a symbolic link.
+                CredentialsFileSymbolicLinkError: if the file is a symbolic
+                                                  link.
             """
             if self._locked:
                 raise AlreadyLockedException('File %s is already locked' %
-                                     self._filename)
+                                             self._filename)
             start_time = time.time()
 
             validate_file(self._filename)
             try:
                 self._fh = open(self._filename, self._mode)
             except IOError as e:
-                # If we can't access with _mode, try _fallback_mode and don't lock.
+                # If we can't access with _mode, try _fallback_mode and
+                # don't lock.
                 if e.errno in (errno.EPERM, errno.EACCES):
                     self._fh = open(self._filename, self._fallback_mode)
                     return
@@ -221,7 +222,7 @@ try:
                     # We could not acquire the lock. Try again.
                     if (time.time() - start_time) >= timeout:
                         logger.warn('Could not lock %s in %s seconds',
-                        self._filename, timeout)
+                                    self._filename, timeout)
                         if self._fh:
                             self._fh.close()
                         self._fh = open(self._filename, self._fallback_mode)
@@ -243,7 +244,6 @@ try:
     import pywintypes
     import win32con
     import win32file
-
 
     class _Win32Opener(_Opener):
         """Open, lock, and unlock a file using windows primitives."""
@@ -271,14 +271,15 @@ try:
             """
             if self._locked:
                 raise AlreadyLockedException('File %s is already locked' %
-                                     self._filename)
+                                             self._filename)
             start_time = time.time()
 
             validate_file(self._filename)
             try:
                 self._fh = open(self._filename, self._mode)
             except IOError as e:
-                # If we can't access with _mode, try _fallback_mode and don't lock.
+                # If we can't access with _mode, try _fallback_mode
+                # and don't lock.
                 if e.errno == errno.EACCES:
                     self._fh = open(self._filename, self._fallback_mode)
                     return
@@ -288,24 +289,25 @@ try:
                 try:
                     hfile = win32file._get_osfhandle(self._fh.fileno())
                     win32file.LockFileEx(
-              hfile,
-              (win32con.LOCKFILE_FAIL_IMMEDIATELY |
-               win32con.LOCKFILE_EXCLUSIVE_LOCK), 0, -0x10000,
-              pywintypes.OVERLAPPED())
+                        hfile,
+                        (win32con.LOCKFILE_FAIL_IMMEDIATELY |
+                         win32con.LOCKFILE_EXCLUSIVE_LOCK), 0, -0x10000,
+                        pywintypes.OVERLAPPED())
                     self._locked = True
                     return
                 except pywintypes.error as e:
                     if timeout == 0:
                         raise
 
-                    # If the error is not that the file is already in use, raise.
+                    # If the error is not that the file is already
+                    # in use, raise.
                     if e[0] != _Win32Opener.FILE_IN_USE_ERROR:
                         raise
 
                     # We could not acquire the lock. Try again.
                     if (time.time() - start_time) >= timeout:
                         logger.warn('Could not lock %s in %s seconds' % (
-                self._filename, timeout))
+                            self._filename, timeout))
                         if self._fh:
                             self._fh.close()
                         self._fh = open(self._filename, self._fallback_mode)
@@ -317,12 +319,13 @@ try:
             if self._locked:
                 try:
                     hfile = win32file._get_osfhandle(self._fh.fileno())
-                    win32file.UnlockFileEx(hfile, 0, -0x10000, pywintypes.OVERLAPPED())
+                    win32file.UnlockFileEx(hfile, 0, -0x10000,
+                                           pywintypes.OVERLAPPED())
                 except pywintypes.error as e:
                     if e[0] != _Win32Opener.FILE_ALREADY_UNLOCKED_ERROR:
                         raise
             self._locked = False
-      if self._fh:
+            if self._fh:
                 self._fh.close()
 except ImportError:
     _Win32Opener = None
