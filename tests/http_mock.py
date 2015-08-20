@@ -24,11 +24,12 @@ class HttpMock(object):
     """Mock of httplib2.Http"""
 
     def __init__(self, filename=None, headers=None):
+        """HttpMock constructor.
+
+        Args:
+            filename: string, absolute filename to read response from
+            headers: dict, header to return with response
         """
-    Args:
-      filename: string, absolute filename to read response from
-      headers: dict, header to return with response
-    """
         if headers is None:
             headers = {'status': '200 OK'}
         if filename:
@@ -60,32 +61,34 @@ class HttpMock(object):
 class HttpMockSequence(object):
     """Mock of httplib2.Http
 
-  Mocks a sequence of calls to request returning different responses for each
-  call. Create an instance initialized with the desired response headers
-  and content and then use as if an httplib2.Http instance.
+    Mocks a sequence of calls to request returning different responses for each
+    call. Create an instance initialized with the desired response headers
+    and content and then use as if an httplib2.Http instance::
 
-    http = HttpMockSequence([
-      ({'status': '401'}, b''),
-      ({'status': '200'}, b'{"access_token":"1/3w","expires_in":3600}'),
-      ({'status': '200'}, 'echo_request_headers'),
-      ])
-    resp, content = http.request("http://examples.com")
+        http = HttpMockSequence([
+            ({'status': '401'}, b''),
+            ({'status': '200'}, b'{"access_token":"1/3w","expires_in":3600}'),
+            ({'status': '200'}, 'echo_request_headers'),
+        ])
+        resp, content = http.request("http://examples.com")
 
-  There are special values you can pass in for content to trigger
-  behavours that are helpful in testing.
+    There are special values you can pass in for content to trigger
+    behavours that are helpful in testing.
 
-  'echo_request_headers' means return the request headers in the response body
-  'echo_request_headers_as_json' means return the request headers in
-     the response body
-  'echo_request_body' means return the request body in the response body
-  'echo_request_uri' means return the request uri in the response body
-  """
+    * 'echo_request_headers' means return the request headers in the response
+       body
+    * 'echo_request_headers_as_json' means return the request headers in
+      the response body
+    * 'echo_request_body' means return the request body in the response body
+    * 'echo_request_uri' means return the request uri in the response body
+    """
 
     def __init__(self, iterable):
+        """HttpMockSequence constructor.
+
+        Args:
+            iterable: iterable, a sequence of pairs of (headers, body)
         """
-    Args:
-      iterable: iterable, a sequence of pairs of (headers, body)
-    """
         self._iterable = iterable
         self.follow_redirects = True
         self.requests = []
