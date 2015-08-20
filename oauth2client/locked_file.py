@@ -32,14 +32,15 @@ Usage::
 
 from __future__ import print_function
 
-__author__ = 'cache@google.com (David T McWherter)'
-
 import errno
 import logging
 import os
 import time
 
 from oauth2client import util
+
+
+__author__ = 'cache@google.com (David T McWherter)'
 
 logger = logging.getLogger(__name__)
 

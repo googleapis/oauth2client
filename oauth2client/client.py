@@ -17,8 +17,6 @@
 Tools for interacting with OAuth 2.0 protected resources.
 """
 
-__author__ = 'jcgregorio@google.com (Joe Gregorio)'
-
 import base64
 import collections
 import copy
@@ -46,6 +44,9 @@ from oauth2client._helpers import _urlsafe_b64decode
 from oauth2client import clientsecrets
 from oauth2client import util
 
+
+__author__ = 'jcgregorio@google.com (Joe Gregorio)'
+
 HAS_OPENSSL = False
 HAS_CRYPTO = False
 try:
@@ -55,6 +56,7 @@ try:
         HAS_OPENSSL = True
 except ImportError:
     pass
+
 
 logger = logging.getLogger(__name__)
 

@@ -21,9 +21,6 @@ the same directory.
 
 from __future__ import print_function
 
-__author__ = 'jcgregorio@google.com (Joe Gregorio)'
-__all__ = ['argparser', 'run_flow', 'run', 'message_if_missing']
-
 import logging
 import socket
 import sys
@@ -34,6 +31,10 @@ from six.moves import input
 
 from oauth2client import client
 from oauth2client import util
+
+
+__author__ = 'jcgregorio@google.com (Joe Gregorio)'
+__all__ = ['argparser', 'run_flow', 'run', 'message_if_missing']
 
 _CLIENT_SECRETS_MESSAGE = """WARNING: Please configure OAuth 2.0
 

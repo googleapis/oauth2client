@@ -161,8 +161,6 @@ available outside of a request context, you will need to implement your own
 :class:`oauth2client.Storage`.
 """
 
-__author__ = 'jonwayne@google.com (Jon Wayne Parrott)'
-
 import hashlib
 import json
 import os
@@ -188,6 +186,9 @@ from oauth2client.client import OAuth2WebServerFlow
 from oauth2client.client import Storage
 from oauth2client import clientsecrets
 from oauth2client import util
+
+
+__author__ = 'jonwayne@google.com (Jon Wayne Parrott)'
 
 DEFAULT_SCOPES = ('email', )
 

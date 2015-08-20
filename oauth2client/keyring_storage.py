@@ -17,14 +17,15 @@
 A Storage for Credentials that uses the keyring module.
 """
 
-__author__ = 'jcgregorio@google.com (Joe Gregorio)'
-
 import threading
 
 import keyring
 
 from oauth2client.client import Credentials
 from oauth2client.client import Storage as BaseStorage
+
+
+__author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 
 class Storage(BaseStorage):

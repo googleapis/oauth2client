@@ -18,14 +18,15 @@ Utilities for using OAuth 2.0 in conjunction with
 the Django datastore.
 """
 
-__author__ = 'jcgregorio@google.com (Joe Gregorio)'
-
 import oauth2client
 import base64
 import pickle
 
 from django.db import models
 from oauth2client.client import Storage as BaseStorage
+
+
+__author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 
 class CredentialsField(models.Field):

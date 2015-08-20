@@ -17,6 +17,16 @@
 
 """Common utility library."""
 
+import functools
+import inspect
+import logging
+import sys
+import types
+
+import six
+from six.moves import urllib
+
+
 __author__ = [
     'rafek@google.com (Rafe Kaplan)',
     'guido@google.com (Guido van Rossum)',
@@ -28,15 +38,6 @@ __all__ = [
     'POSITIONAL_EXCEPTION',
     'POSITIONAL_IGNORE',
 ]
-
-import functools
-import inspect
-import logging
-import sys
-import types
-
-import six
-from six.moves import urllib
 
 logger = logging.getLogger(__name__)
 

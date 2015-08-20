@@ -44,8 +44,6 @@ The format of the stored data is like so::
 
 """
 
-__author__ = 'jbeda@google.com (Joe Beda)'
-
 import errno
 import json
 import logging
@@ -56,6 +54,9 @@ from oauth2client.client import Credentials
 from oauth2client.client import Storage as BaseStorage
 from oauth2client import util
 from oauth2client.locked_file import LockedFile
+
+
+__author__ = 'jbeda@google.com (Joe Beda)'
 
 logger = logging.getLogger(__name__)
 

@@ -30,6 +30,7 @@ from oauth2client import util
 from oauth2client.tools import ClientRedirectHandler
 from oauth2client.tools import ClientRedirectServer
 
+
 FLAGS = gflags.FLAGS
 
 gflags.DEFINE_boolean('auth_local_webserver', True,

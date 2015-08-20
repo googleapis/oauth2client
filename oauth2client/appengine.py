@@ -17,8 +17,6 @@
 Utilities for making it easier to use OAuth 2.0 on Google App Engine.
 """
 
-__author__ = 'jcgregorio@google.com (Joe Gregorio)'
-
 import cgi
 import json
 import logging
@@ -54,6 +52,9 @@ try:
     from google.appengine.ext import ndb
 except ImportError:
     ndb = None
+
+
+__author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 logger = logging.getLogger(__name__)
 

@@ -18,13 +18,14 @@ Utilities for making it easier to work with OAuth 2.0
 credentials.
 """
 
-__author__ = 'jcgregorio@google.com (Joe Gregorio)'
-
 import os
 import threading
 
 from oauth2client.client import Credentials
 from oauth2client.client import Storage as BaseStorage
+
+
+__author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 
 class CredentialsFileSymbolicLinkError(Exception):

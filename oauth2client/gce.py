@@ -17,8 +17,6 @@
 Utilities for making it easier to use OAuth 2.0 on Google Compute Engine.
 """
 
-__author__ = 'jcgregorio@google.com (Joe Gregorio)'
-
 import json
 import logging
 from six.moves import urllib
@@ -27,6 +25,9 @@ from oauth2client._helpers import _from_bytes
 from oauth2client import util
 from oauth2client.client import AccessTokenRefreshError
 from oauth2client.client import AssertionCredentials
+
+
+__author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 logger = logging.getLogger(__name__)
 
