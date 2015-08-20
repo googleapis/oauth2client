@@ -19,8 +19,6 @@
 Unit tests for oauth2client.
 """
 
-__author__ = 'jcgregorio@google.com (Joe Gregorio)'
-
 import os
 import mock
 import sys
@@ -38,6 +36,9 @@ from oauth2client.client import HAS_OPENSSL
 from oauth2client.client import HAS_CRYPTO
 from oauth2client import crypt
 from oauth2client.file import Storage
+
+
+__author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 
 def datafile(filename):

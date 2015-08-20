@@ -14,8 +14,6 @@
 
 """Unit tests for the Flask utilities"""
 
-__author__ = 'jonwayne@google.com (Jon Wayne Parrott)'
-
 import httplib2
 import json
 import unittest
@@ -30,6 +28,9 @@ from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client import clientsecrets
 from oauth2client.flask_util import UserOAuth2 as FlaskOAuth2
 from oauth2client.client import OAuth2Credentials
+
+
+__author__ = 'jonwayne@google.com (Jon Wayne Parrott)'
 
 
 class Http2Mock(object):

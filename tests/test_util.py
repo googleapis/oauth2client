@@ -1,10 +1,11 @@
 """Unit tests for oauth2client.util."""
 
-__author__ = 'jcgregorio@google.com (Joe Gregorio)'
-
 import unittest
 
 from oauth2client import util
+
+
+__author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 
 class ScopeToStringTests(unittest.TestCase):

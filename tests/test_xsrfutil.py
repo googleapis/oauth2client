@@ -16,8 +16,6 @@
 Unit tests for oauth2client.xsrfutil.
 """
 
-__author__ = 'jcgregorio@google.com (Joe Gregorio)'
-
 import unittest
 
 from oauth2client import xsrfutil
@@ -31,6 +29,9 @@ TEST_ACTION_ID_1 = 'some_action'
 TEST_ACTION_ID_2 = 'some_other_action'
 TEST_EXTRA_INFO_1 = 'extra_info_1'
 TEST_EXTRA_INFO_2 = 'more_extra_info'
+
+
+__author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 
 class XsrfUtilTests(unittest.TestCase):

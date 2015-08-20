@@ -19,8 +19,6 @@
 Unit tests for objects created from discovery documents.
 """
 
-__author__ = 'jcgregorio@google.com (Joe Gregorio)'
-
 import datetime
 import httplib2
 import json
@@ -66,6 +64,9 @@ from oauth2client.client import OAuth2Credentials
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import save_to_well_known_file
 from webtest import TestApp
+
+
+__author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 

@@ -17,8 +17,6 @@
 Unit tests for oauth2client.keyring_storage.
 """
 
-__author__ = 'jcgregorio@google.com (Joe Gregorio)'
-
 import datetime
 import keyring
 import unittest
@@ -28,6 +26,9 @@ import mock
 from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client.client import OAuth2Credentials
 from oauth2client.keyring_storage import Storage
+
+
+__author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 
 class OAuth2ClientKeyringTests(unittest.TestCase):

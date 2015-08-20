@@ -19,8 +19,6 @@
 Unit tests for oauth2client.file
 """
 
-__author__ = 'jcgregorio@google.com (Joe Gregorio)'
-
 import copy
 import datetime
 import json
@@ -45,6 +43,8 @@ try:
     from future_builtins import oct
 except:
     pass
+
+__author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 FILENAME = tempfile.mktemp('oauth2client_test.data')
 

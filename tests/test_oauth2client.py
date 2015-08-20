@@ -19,8 +19,6 @@
 Unit tests for oauth2client.
 """
 
-__author__ = 'jcgregorio@google.com (Joe Gregorio)'
-
 import base64
 import contextlib
 import datetime
@@ -80,6 +78,8 @@ from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import save_to_well_known_file
 from oauth2client.clientsecrets import _loadfile
 from oauth2client.service_account import _ServiceAccountCredentials
+
+__author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 

@@ -17,8 +17,6 @@
 Unit tests for oauth2client.gce.
 """
 
-__author__ = 'jcgregorio@google.com (Joe Gregorio)'
-
 import json
 from six.moves import urllib
 import unittest
@@ -31,6 +29,9 @@ from oauth2client.client import AccessTokenRefreshError
 from oauth2client.client import Credentials
 from oauth2client.client import save_to_well_known_file
 from oauth2client.gce import AppAssertionCredentials
+
+
+__author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 
 class AssertionCredentialsTests(unittest.TestCase):

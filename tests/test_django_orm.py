@@ -19,8 +19,6 @@
 Unit tests for objects created from discovery documents.
 """
 
-__author__ = 'conleyo@google.com (Conley Owens)'
-
 import base64
 import imp
 import os
@@ -48,6 +46,9 @@ django_settings.SECRET_KEY = 'xyzzy'
 
 from oauth2client.django_orm import CredentialsField
 from oauth2client.django_orm import FlowField
+
+
+__author__ = 'conleyo@google.com (Conley Owens)'
 
 
 class TestCredentialsField(unittest.TestCase):
