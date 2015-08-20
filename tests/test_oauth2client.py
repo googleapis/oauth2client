@@ -1096,7 +1096,7 @@ class OAuth2WebServerFlowTest(unittest.TestCase):
         try:
             credentials = self.flow.step2_exchange('some random code',
                                                    http=http)
-        self.fail('should raise exception if exchange doesn\'t get 200')
+            self.fail('should raise exception if exchange doesn\'t get 200')
         except FlowExchangeError:
             pass
 
@@ -1273,7 +1273,7 @@ class OAuth2WebServerFlowTest(unittest.TestCase):
         payload = (b'{'
                    b'  "access_token":"SlAV32hkKG",'
                    b'  "refresh_token":"8xLOxBtZp8",'
-                   b'  "id_token": "' + jwt + '"'
+                   b'  "id_token": "' + jwt + b'"'
                    b'}')
         http = HttpMockSequence([({'status': '200'}, payload)])
         credentials = self.flow.step2_exchange('some random code', http=http)

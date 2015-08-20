@@ -708,8 +708,8 @@ class OAuth2Credentials(Credentials):
             token_response=data.get('token_response', None),
             scopes=data.get('scopes', None),
             token_info_uri=data.get('token_info_uri', None))
-    retval.invalid = data['invalid']
-    return retval
+        retval.invalid = data['invalid']
+        return retval
 
     @property
     def access_token_expired(self):

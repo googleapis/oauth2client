@@ -136,8 +136,8 @@ class _PosixOpener(_Opener):
                 return
 
         lock_filename = self._posix_lockfile(self._filename)
-    start_time = time.time()
-    while True:
+        start_time = time.time()
+        while True:
             try:
                 self._lock_fd = os.open(lock_filename,
                                         os.O_CREAT | os.O_EXCL | os.O_RDWR)
