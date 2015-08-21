@@ -43,12 +43,12 @@ CREDENTIAL_INFO_REQUEST_JSON = '[]'
 class CredentialInfoResponse(object):
     """Credential information response from Developer Shell server.
 
-  The credential information response from Developer Shell socket is a
-  PBLite-formatted JSON array with fields encoded by their index in the array:
-  * Index 0 - user email
-  * Index 1 - default project ID. None if the project context is not known.
-  * Index 2 - OAuth2 access token. None if there is no valid auth context.
-  """
+    The credential information response from Developer Shell socket is a
+    PBLite-formatted JSON array with fields encoded by their index in the array:
+    * Index 0 - user email
+    * Index 1 - default project ID. None if the project context is not known.
+    * Index 2 - OAuth2 access token. None if there is no valid auth context.
+    """
 
     def __init__(self, json_string):
         """Initialize the response data from JSON PBLite array."""
@@ -91,14 +91,15 @@ def _SendRecv():
 class DevshellCredentials(client.GoogleCredentials):
     """Credentials object for Google Developer Shell environment.
 
-  This object will allow a Google Developer Shell session to identify its user
-  to Google and other OAuth 2.0 servers that can verify assertions. It can be
-  used for the purpose of accessing data stored under the user account.
+    This object will allow a Google Developer Shell session to identify its
+    user to Google and other OAuth 2.0 servers that can verify assertions. It
+    can be used for the purpose of accessing data stored under the user
+    account.
 
-  This credential does not require a flow to instantiate because it represents
-  a two legged flow, and therefore has all of the required information to
-  generate and refresh its own access tokens.
-  """
+    This credential does not require a flow to instantiate because it
+    represents a two legged flow, and therefore has all of the required
+    information to generate and refresh its own access tokens.
+    """
 
     def __init__(self, user_agent=None):
         super(DevshellCredentials, self).__init__(

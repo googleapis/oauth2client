@@ -79,23 +79,23 @@ class FlowField(models.Field):
 
 
 class Storage(BaseStorage):
-    """Store and retrieve a single credential to and from
-  the datastore.
+    """Store and retrieve a single credential to and from the datastore.
 
-  This Storage helper presumes the Credentials
-  have been stored as a CredenialsField
-  on a db model class.
-  """
+    This Storage helper presumes the Credentials
+    have been stored as a CredenialsField
+    on a db model class.
+    """
 
     def __init__(self, model_class, key_name, key_value, property_name):
         """Constructor for Storage.
 
-    Args:
-      model: db.Model, model class
-      key_name: string, key name for the entity that has the credentials
-      key_value: string, key value for the entity that has the credentials
-      property_name: string, name of the property that is an CredentialsProperty
-    """
+        Args:
+            model: db.Model, model class
+            key_name: string, key name for the entity that has the credentials
+            key_value: string, key value for the entity that has the credentials
+            property_name: string, name of the property that is an
+                           CredentialsProperty
+        """
         self.model_class = model_class
         self.key_name = key_name
         self.key_value = key_value
@@ -104,9 +104,9 @@ class Storage(BaseStorage):
     def locked_get(self):
         """Retrieve Credential from datastore.
 
-    Returns:
-      oauth2client.Credentials
-    """
+        Returns:
+            oauth2client.Credentials
+        """
         credential = None
 
         query = {self.key_name: self.key_value}
@@ -120,11 +120,11 @@ class Storage(BaseStorage):
     def locked_put(self, credentials, overwrite=False):
         """Write a Credentials to the datastore.
 
-    Args:
-      credentials: Credentials, the credentials to store.
-      overwrite: Boolean, indicates whether you would like these credentials to
-                          overwrite any existing stored credentials.
-    """
+        Args:
+            credentials: Credentials, the credentials to store.
+            overwrite: Boolean, indicates whether you would like these
+                       credentials to overwrite any existing stored credentials.
+        """
         args = {self.key_name: self.key_value}
 
         if overwrite:

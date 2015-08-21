@@ -21,15 +21,17 @@ import six
 def _parse_pem_key(raw_key_input):
     """Identify and extract PEM keys.
 
-  Determines whether the given key is in the format of PEM key, and extracts
-  the relevant part of the key if it is.
+    Determines whether the given key is in the format of PEM key, and extracts
+    the relevant part of the key if it is.
 
-  Args:
-    raw_key_input: The contents of a private key file (either PEM or PKCS12).
+    Args:
+        raw_key_input: The contents of a private key file (either PEM or
+                       PKCS12).
 
-  Returns:
-    string, The actual key if the contents are from a PEM file, or else None.
-  """
+    Returns:
+        string, The actual key if the contents are from a PEM file, or
+        else None.
+    """
     offset = raw_key_input.find(b'-----BEGIN ')
     if offset != -1:
         return raw_key_input[offset:]
@@ -42,24 +44,24 @@ def _json_encode(data):
 def _to_bytes(value, encoding='ascii'):
     """Converts a string value to bytes, if necessary.
 
-  Unfortunately, ``six.b`` is insufficient for this task since in
-  Python2 it does not modify ``unicode`` objects.
+    Unfortunately, ``six.b`` is insufficient for this task since in
+    Python2 it does not modify ``unicode`` objects.
 
-  Args:
-      value: The string/bytes value to be converted.
-      encoding: The encoding to use to convert unicode to bytes. Defaults
-                to "ascii", which will not allow any characters from ordinals
-                larger than 127. Other useful values are "latin-1", which
-                which will only allows byte ordinals (up to 255) and "utf-8",
-                which will encode any unicode that needs to be.
+    Args:
+        value: The string/bytes value to be converted.
+        encoding: The encoding to use to convert unicode to bytes. Defaults
+                  to "ascii", which will not allow any characters from ordinals
+                  larger than 127. Other useful values are "latin-1", which
+                  which will only allows byte ordinals (up to 255) and "utf-8",
+                  which will encode any unicode that needs to be.
 
-  Returns:
-      The original value converted to bytes (if unicode) or as passed in
-      if it started out as bytes.
+    Returns:
+        The original value converted to bytes (if unicode) or as passed in
+        if it started out as bytes.
 
-  Raises:
-      ValueError if the value could not be converted to bytes.
-  """
+    Raises:
+        ValueError if the value could not be converted to bytes.
+    """
     result = (value.encode(encoding)
             if isinstance(value, six.text_type) else value)
     if isinstance(result, six.binary_type):
@@ -71,16 +73,16 @@ def _to_bytes(value, encoding='ascii'):
 def _from_bytes(value):
     """Converts bytes to a string value, if necessary.
 
-  Args:
-      value: The string/bytes value to be converted.
+    Args:
+        value: The string/bytes value to be converted.
 
-  Returns:
-      The original value converted to unicode (if bytes) or as passed in
-      if it started out as unicode.
+    Returns:
+        The original value converted to unicode (if bytes) or as passed in
+        if it started out as unicode.
 
-  Raises:
-      ValueError if the value could not be converted to unicode.
-  """
+    Raises:
+        ValueError if the value could not be converted to unicode.
+    """
     result = (value.decode('utf-8')
             if isinstance(value, six.binary_type) else value)
     if isinstance(result, six.text_type):

@@ -30,23 +30,24 @@ class PyCryptoVerifier(object):
     def __init__(self, pubkey):
         """Constructor.
 
-    Args:
-      pubkey, OpenSSL.crypto.PKey (or equiv), The public key to verify with.
-    """
+        Args:
+            pubkey: OpenSSL.crypto.PKey (or equiv), The public key to verify
+            with.
+        """
         self._pubkey = pubkey
 
     def verify(self, message, signature):
         """Verifies a message against a signature.
 
-    Args:
-      message: string or bytes, The message to verify. If string, will be
-               encoded to bytes as utf-8.
-      signature: string or bytes, The signature on the message.
+        Args:
+            message: string or bytes, The message to verify. If string, will be
+                     encoded to bytes as utf-8.
+            signature: string or bytes, The signature on the message.
 
-    Returns:
-      True if message was signed by the private key associated with the public
-      key that this object was constructed with.
-    """
+        Returns:
+            True if message was signed by the private key associated with the
+            public key that this object was constructed with.
+        """
         message = _to_bytes(message, encoding='utf-8')
         return PKCS1_v1_5.new(self._pubkey).verify(
         SHA256.new(message), signature)
@@ -55,14 +56,14 @@ class PyCryptoVerifier(object):
     def from_string(key_pem, is_x509_cert):
         """Construct a Verified instance from a string.
 
-    Args:
-      key_pem: string, public key in PEM format.
-      is_x509_cert: bool, True if key_pem is an X509 cert, otherwise it is
-        expected to be an RSA key in PEM format.
+        Args:
+            key_pem: string, public key in PEM format.
+            is_x509_cert: bool, True if key_pem is an X509 cert, otherwise it is
+                          expected to be an RSA key in PEM format.
 
-    Returns:
-      Verifier instance.
-    """
+        Returns:
+            Verifier instance.
+        """
         if is_x509_cert:
             key_pem = _to_bytes(key_pem)
             pemLines = key_pem.replace(b' ', b'').split()
@@ -83,20 +84,20 @@ class PyCryptoSigner(object):
     def __init__(self, pkey):
         """Constructor.
 
-    Args:
-      pkey, OpenSSL.crypto.PKey (or equiv), The private key to sign with.
-    """
+        Args:
+            pkey, OpenSSL.crypto.PKey (or equiv), The private key to sign with.
+        """
         self._key = pkey
 
     def sign(self, message):
         """Signs a message.
 
-    Args:
-      message: string, Message to be signed.
+        Args:
+            message: string, Message to be signed.
 
-    Returns:
-      string, The signature of the message for the given key.
-    """
+        Returns:
+            string, The signature of the message for the given key.
+        """
         message = _to_bytes(message, encoding='utf-8')
         return PKCS1_v1_5.new(self._key).sign(SHA256.new(message))
 
@@ -104,16 +105,17 @@ class PyCryptoSigner(object):
     def from_string(key, password='notasecret'):
         """Construct a Signer instance from a string.
 
-    Args:
-      key: string, private key in PEM format.
-      password: string, password for private key file. Unused for PEM files.
+        Args:
+            key: string, private key in PEM format.
+            password: string, password for private key file. Unused for PEM
+                      files.
 
-    Returns:
-      Signer instance.
+        Returns:
+            Signer instance.
 
-    Raises:
-      NotImplementedError if the key isn't in PEM format.
-    """
+        Raises:
+            NotImplementedError if the key isn't in PEM format.
+        """
         parsed_pem_key = _parse_pem_key(key)
         if parsed_pem_key:
             pkey = RSA.importKey(parsed_pem_key)

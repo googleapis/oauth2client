@@ -46,26 +46,27 @@ class Storage(BaseStorage):
     def acquire_lock(self):
         """Acquires any lock necessary to access this Storage.
 
-    This lock is not reentrant."""
+        This lock is not reentrant.
+        """
         self._lock.acquire()
 
     def release_lock(self):
         """Release the Storage lock.
 
-    Trying to release a lock that isn't held will result in a
-    RuntimeError.
-    """
+        Trying to release a lock that isn't held will result in a
+        RuntimeError.
+        """
         self._lock.release()
 
     def locked_get(self):
         """Retrieve Credential from file.
 
-    Returns:
-      oauth2client.client.Credentials
+        Returns:
+            oauth2client.client.Credentials
 
-    Raises:
-      CredentialsFileSymbolicLinkError if the file is a symbolic link.
-    """
+        Raises:
+            CredentialsFileSymbolicLinkError if the file is a symbolic link.
+        """
         credentials = None
         self._validate_file()
         try:
@@ -86,9 +87,9 @@ class Storage(BaseStorage):
     def _create_file_if_needed(self):
         """Create an empty file if necessary.
 
-    This method will not initialize the file. Instead it implements a
-    simple version of "touch" to ensure the file has been created.
-    """
+        This method will not initialize the file. Instead it implements a
+        simple version of "touch" to ensure the file has been created.
+        """
         if not os.path.exists(self._filename):
             old_umask = os.umask(0o177)
             try:
@@ -99,13 +100,12 @@ class Storage(BaseStorage):
     def locked_put(self, credentials):
         """Write Credentials to file.
 
-    Args:
-      credentials: Credentials, the credentials to store.
+        Args:
+            credentials: Credentials, the credentials to store.
 
-    Raises:
-      CredentialsFileSymbolicLinkError if the file is a symbolic link.
-    """
-
+        Raises:
+            CredentialsFileSymbolicLinkError if the file is a symbolic link.
+        """
         self._create_file_if_needed()
         self._validate_file()
         f = open(self._filename, 'w')
@@ -115,8 +115,7 @@ class Storage(BaseStorage):
     def locked_delete(self):
         """Delete Credentials file.
 
-    Args:
-      credentials: Credentials, the credentials to store.
-    """
-
+        Args:
+            credentials: Credentials, the credentials to store.
+        """
         os.unlink(self._filename)

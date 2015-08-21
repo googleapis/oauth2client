@@ -71,15 +71,15 @@ else:
 def make_signed_jwt(signer, payload):
     """Make a signed JWT.
 
-  See http://self-issued.info/docs/draft-jones-json-web-token.html.
+    See http://self-issued.info/docs/draft-jones-json-web-token.html.
 
-  Args:
-    signer: crypt.Signer, Cryptographic signer.
-    payload: dict, Dictionary of data to convert to JSON and then sign.
+    Args:
+        signer: crypt.Signer, Cryptographic signer.
+        payload: dict, Dictionary of data to convert to JSON and then sign.
 
-  Returns:
-    string, The JWT for the payload.
-  """
+    Returns:
+        string, The JWT for the payload.
+    """
     header = {'typ': 'JWT', 'alg': 'RS256'}
 
     segments = [
@@ -99,20 +99,20 @@ def make_signed_jwt(signer, payload):
 def verify_signed_jwt_with_certs(jwt, certs, audience):
     """Verify a JWT against public certs.
 
-  See http://self-issued.info/docs/draft-jones-json-web-token.html.
+    See http://self-issued.info/docs/draft-jones-json-web-token.html.
 
-  Args:
-    jwt: string, A JWT.
-    certs: dict, Dictionary where values of public keys in PEM format.
-    audience: string, The audience, 'aud', that this JWT should contain. If
-      None then the JWT's 'aud' parameter is not verified.
+    Args:
+        jwt: string, A JWT.
+        certs: dict, Dictionary where values of public keys in PEM format.
+        audience: string, The audience, 'aud', that this JWT should contain. If
+                  None then the JWT's 'aud' parameter is not verified.
 
-  Returns:
-    dict, The deserialized JSON payload in the JWT.
+    Returns:
+        dict, The deserialized JSON payload in the JWT.
 
-  Raises:
-    AppIdentityError if any checks are failed.
-  """
+    Raises:
+        AppIdentityError if any checks are failed.
+    """
     jwt = _to_bytes(jwt)
     segments = jwt.split(b'.')
 

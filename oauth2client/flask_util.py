@@ -337,8 +337,10 @@ class UserOAuth2(object):
         return bp
 
     def authorize_view(self):
-        """Flask view that starts the authorization flow by redirecting the
-        user to the OAuth2 provider."""
+        """Flask view that starts the authorization flow.
+
+        Starts flow by redirecting the user to the OAuth2 provider.
+        """
         args = request.args.to_dict()
 
         # Scopes will be passed as mutliple args, and to_dict() will only
@@ -355,9 +357,11 @@ class UserOAuth2(object):
         return redirect(auth_url)
 
     def callback_view(self):
-        """Flask view that handles the user's return from the OAuth2 provider
-        and exchanges the authorization code for credentials and stores the
-        credentials."""
+        """Flask view that handles the user's return from OAuth2 provider.
+
+        On return, exchanges the authorization code for credentials and stores
+        the credentials.
+        """
         if 'error' in request.args:
             reason = request.args.get(
                 'error_description', request.args.get('error', ''))
@@ -429,8 +433,9 @@ class UserOAuth2(object):
 
     @property
     def user_id(self):
-        """Returns the a unique identifier for the user or None if there are no
-        credentials.
+        """Returns the a unique identifier for the user
+
+        Returns None if there are no credentials.
 
         The id is provided by the current credentials' id_token.
         """

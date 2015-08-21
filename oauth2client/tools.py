@@ -73,26 +73,26 @@ argparser = _CreateArgumentParser()
 class ClientRedirectServer(BaseHTTPServer.HTTPServer):
     """A server to handle OAuth 2.0 redirects back to localhost.
 
-  Waits for a single request and parses the query parameters
-  into query_params and then stops serving.
-  """
+    Waits for a single request and parses the query parameters
+    into query_params and then stops serving.
+    """
     query_params = {}
 
 
 class ClientRedirectHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     """A handler for OAuth 2.0 redirects back to localhost.
 
-  Waits for a single request and parses the query parameters
-  into the servers query_params and then stops serving.
-  """
+    Waits for a single request and parses the query parameters
+    into the servers query_params and then stops serving.
+    """
 
     def do_GET(self):
         """Handle a GET request.
 
-    Parses the query parameters and prints a message
-    if the flow has completed. Note that we can't detect
-    if an error occurred.
-    """
+        Parses the query parameters and prints a message
+        if the flow has completed. Note that we can't detect
+        if an error occurred.
+        """
         self.send_response(200)
         self.send_header("Content-type", "text/html")
         self.end_headers()
@@ -111,54 +111,53 @@ class ClientRedirectHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 def run_flow(flow, storage, flags, http=None):
     """Core code for a command-line application.
 
-  The ``run()`` function is called from your application and runs
-  through all the steps to obtain credentials. It takes a ``Flow``
-  argument and attempts to open an authorization server page in the
-  user's default web browser. The server asks the user to grant your
-  application access to the user's data. If the user grants access,
-  the ``run()`` function returns new credentials. The new credentials
-  are also stored in the ``storage`` argument, which updates the file
-  associated with the ``Storage`` object.
+    The ``run()`` function is called from your application and runs
+    through all the steps to obtain credentials. It takes a ``Flow``
+    argument and attempts to open an authorization server page in the
+    user's default web browser. The server asks the user to grant your
+    application access to the user's data. If the user grants access,
+    the ``run()`` function returns new credentials. The new credentials
+    are also stored in the ``storage`` argument, which updates the file
+    associated with the ``Storage`` object.
 
-  It presumes it is run from a command-line application and supports the
-  following flags:
+    It presumes it is run from a command-line application and supports the
+    following flags:
 
-    ``--auth_host_name`` (string, default: ``localhost``)
-       Host name to use when running a local web server to handle
-       redirects during OAuth authorization.
+        ``--auth_host_name`` (string, default: ``localhost``)
+           Host name to use when running a local web server to handle
+           redirects during OAuth authorization.
 
-    ``--auth_host_port`` (integer, default: ``[8080, 8090]``)
-       Port to use when running a local web server to handle redirects
-       during OAuth authorization. Repeat this option to specify a list
-       of values.
+        ``--auth_host_port`` (integer, default: ``[8080, 8090]``)
+           Port to use when running a local web server to handle redirects
+           during OAuth authorization. Repeat this option to specify a list
+           of values.
 
-    ``--[no]auth_local_webserver`` (boolean, default: ``True``)
-       Run a local web server to handle redirects during OAuth authorization.
+        ``--[no]auth_local_webserver`` (boolean, default: ``True``)
+           Run a local web server to handle redirects during OAuth
+           authorization.
 
+    The tools module defines an ``ArgumentParser`` the already contains the flag
+    definitions that ``run()`` requires. You can pass that ``ArgumentParser`` to
+    your ``ArgumentParser`` constructor::
 
+        parser = argparse.ArgumentParser(
+            description=__doc__,
+            formatter_class=argparse.RawDescriptionHelpFormatter,
+            parents=[tools.argparser])
+        flags = parser.parse_args(argv)
 
+    Args:
+        flow: Flow, an OAuth 2.0 Flow to step through.
+        storage: Storage, a ``Storage`` to store the credential in.
+        flags: ``argparse.Namespace``, The command-line flags. This is the
+               object returned from calling ``parse_args()`` on
+               ``argparse.ArgumentParser`` as described above.
+        http: An instance of ``httplib2.Http.request`` or something that
+              acts like it.
 
-  The tools module defines an ``ArgumentParser`` the already contains the flag
-  definitions that ``run()`` requires. You can pass that ``ArgumentParser`` to your
-  ``ArgumentParser`` constructor::
-
-      parser = argparse.ArgumentParser(description=__doc__,
-          formatter_class=argparse.RawDescriptionHelpFormatter,
-          parents=[tools.argparser])
-      flags = parser.parse_args(argv)
-
-  Args:
-    flow: Flow, an OAuth 2.0 Flow to step through.
-    storage: Storage, a ``Storage`` to store the credential in.
-    flags: ``argparse.Namespace``, The command-line flags. This is the
-        object returned from calling ``parse_args()`` on
-        ``argparse.ArgumentParser`` as described above.
-    http: An instance of ``httplib2.Http.request`` or something that
-        acts like it.
-
-  Returns:
-    Credentials, the obtained credential.
-  """
+    Returns:
+        Credentials, the obtained credential.
+    """
     logging.getLogger().setLevel(getattr(logging, flags.logging_level))
     if not flags.noauth_local_webserver:
         success = False

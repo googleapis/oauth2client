@@ -38,24 +38,24 @@ META = ('http://metadata.google.internal/0.1/meta-data/service-accounts/'
 class AppAssertionCredentials(AssertionCredentials):
     """Credentials object for Compute Engine Assertion Grants
 
-  This object will allow a Compute Engine instance to identify itself to
-  Google and other OAuth 2.0 servers that can verify assertions. It can be used
-  for the purpose of accessing data stored under an account assigned to the
-  Compute Engine instance itself.
+    This object will allow a Compute Engine instance to identify itself to
+    Google and other OAuth 2.0 servers that can verify assertions. It can be
+    used for the purpose of accessing data stored under an account assigned to
+    the Compute Engine instance itself.
 
-  This credential does not require a flow to instantiate because it represents
-  a two legged flow, and therefore has all of the required information to
-  generate and refresh its own access tokens.
-  """
+    This credential does not require a flow to instantiate because it represents
+    a two legged flow, and therefore has all of the required information to
+    generate and refresh its own access tokens.
+    """
 
     @util.positional(2)
     def __init__(self, scope, **kwargs):
         """Constructor for AppAssertionCredentials
 
-    Args:
-      scope: string or iterable of strings, scope(s) of the credentials being
-        requested.
-    """
+        Args:
+            scope: string or iterable of strings, scope(s) of the credentials
+                   being requested.
+        """
         self.scope = util.scopes_to_string(scope)
         self.kwargs = kwargs
 
@@ -70,15 +70,16 @@ class AppAssertionCredentials(AssertionCredentials):
     def _refresh(self, http_request):
         """Refreshes the access_token.
 
-    Skip all the storage hoops and just refresh using the API.
+        Skip all the storage hoops and just refresh using the API.
 
-    Args:
-      http_request: callable, a callable that matches the method signature of
-        httplib2.Http.request, used to make the refresh request.
+        Args:
+            http_request: callable, a callable that matches the method signature
+                          of httplib2.Http.request, used to make the refresh
+                          request.
 
-    Raises:
-      AccessTokenRefreshError: When the refresh fails.
-    """
+        Raises:
+            AccessTokenRefreshError: When the refresh fails.
+        """
         query = '?scope=%s' % urllib.parse.quote(self.scope, '')
         uri = META.replace('{?scope}', query)
         response, content = http_request(uri)

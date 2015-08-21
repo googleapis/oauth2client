@@ -65,11 +65,11 @@ class _Opener(object):
     def __init__(self, filename, mode, fallback_mode):
         """Create an Opener.
 
-    Args:
-      filename: string, The pathname of the file.
-      mode: string, The preferred mode to access the file with.
-      fallback_mode: string, The mode to use if locking fails.
-    """
+        Args:
+            filename: string, The pathname of the file.
+            mode: string, The preferred mode to access the file with.
+            fallback_mode: string, The mode to use if locking fails.
+        """
         self._locked = False
         self._filename = filename
         self._mode = mode
@@ -92,10 +92,10 @@ class _Opener(object):
     def open_and_lock(self, timeout, delay):
         """Open the file and lock it.
 
-    Args:
-      timeout: float, How long to try to lock for.
-      delay: float, How long to wait between retries.
-    """
+        Args:
+            timeout: float, How long to try to lock for.
+            delay: float, How long to wait between retries.
+        """
         pass
 
     def unlock_and_close(self):
@@ -109,17 +109,17 @@ class _PosixOpener(_Opener):
     def open_and_lock(self, timeout, delay):
         """Open the file and lock it.
 
-    Tries to create a .lock file next to the file we're trying to open.
+        Tries to create a .lock file next to the file we're trying to open.
 
-    Args:
-      timeout: float, How long to try to lock for.
-      delay: float, How long to wait between retries.
+        Args:
+            timeout: float, How long to try to lock for.
+            delay: float, How long to wait between retries.
 
-    Raises:
-      AlreadyLockedException: if the lock is already acquired.
-      IOError: if the open fails.
-      CredentialsFileSymbolicLinkError if the file is a symbolic link.
-    """
+        Raises:
+            AlreadyLockedException: if the lock is already acquired.
+            IOError: if the open fails.
+            CredentialsFileSymbolicLinkError if the file is a symbolic link.
+        """
         if self._locked:
             raise AlreadyLockedException('File %s is already locked' %
                                    self._filename)
@@ -182,15 +182,15 @@ try:
         def open_and_lock(self, timeout, delay):
             """Open the file and lock it.
 
-      Args:
-        timeout: float, How long to try to lock for.
-        delay: float, How long to wait between retries
+            Args:
+                timeout: float, How long to try to lock for.
+                delay: float, How long to wait between retries
 
-      Raises:
-        AlreadyLockedException: if the lock is already acquired.
-        IOError: if the open fails.
-        CredentialsFileSymbolicLinkError if the file is a symbolic link.
-      """
+            Raises:
+                AlreadyLockedException: if the lock is already acquired.
+                IOError: if the open fails.
+                CredentialsFileSymbolicLinkError if the file is a symbolic link.
+            """
             if self._locked:
                 raise AlreadyLockedException('File %s is already locked' %
                                      self._filename)
@@ -258,15 +258,16 @@ try:
         def open_and_lock(self, timeout, delay):
             """Open the file and lock it.
 
-      Args:
-        timeout: float, How long to try to lock for.
-        delay: float, How long to wait between retries
+            Args:
+                timeout: float, How long to try to lock for.
+                delay: float, How long to wait between retries
 
-      Raises:
-        AlreadyLockedException: if the lock is already acquired.
-        IOError: if the open fails.
-        CredentialsFileSymbolicLinkError if the file is a symbolic link.
-      """
+            Raises:
+                AlreadyLockedException: if the lock is already acquired.
+                IOError: if the open fails.
+                CredentialsFileSymbolicLinkError: if the file is a symbolic
+                                                  link.
+            """
             if self._locked:
                 raise AlreadyLockedException('File %s is already locked' %
                                      self._filename)
@@ -333,12 +334,13 @@ class LockedFile(object):
     def __init__(self, filename, mode, fallback_mode, use_native_locking=True):
         """Construct a LockedFile.
 
-    Args:
-      filename: string, The path of the file to open.
-      mode: string, The mode to try to open the file with.
-      fallback_mode: string, The mode to use if locking fails.
-      use_native_locking: bool, Whether or not fcntl/win32 locking is used.
-    """
+        Args:
+            filename: string, The path of the file to open.
+            mode: string, The mode to try to open the file with.
+            fallback_mode: string, The mode to use if locking fails.
+            use_native_locking: bool, Whether or not fcntl/win32 locking is
+                                used.
+        """
         opener = None
         if not opener and use_native_locking:
             if _Win32Opener:
@@ -366,14 +368,14 @@ class LockedFile(object):
     def open_and_lock(self, timeout=0, delay=0.05):
         """Open the file, trying to lock it.
 
-    Args:
-      timeout: float, The number of seconds to try to acquire the lock.
-      delay: float, The number of seconds to wait between retry attempts.
+        Args:
+            timeout: float, The number of seconds to try to acquire the lock.
+            delay: float, The number of seconds to wait between retry attempts.
 
-    Raises:
-      AlreadyLockedException: if the lock is already acquired.
-      IOError: if the open fails.
-    """
+        Raises:
+            AlreadyLockedException: if the lock is already acquired.
+            IOError: if the open fails.
+        """
         self._opener.open_and_lock(timeout, delay)
 
     def unlock_and_close(self):
