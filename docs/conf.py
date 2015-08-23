@@ -42,33 +42,33 @@ exclude_patterns = ['_build']
 # been installed run `pip install -r docs/requirements.txt`.
 import django
 if django.VERSION[1] < 7:
-  sys.path.insert(0, '.')
-  os.environ['DJANGO_SETTINGS_MODULE'] = 'django_settings'
+    sys.path.insert(0, '.')
+    os.environ['DJANGO_SETTINGS_MODULE'] = 'django_settings'
 
 # -- Options for HTML output ----------------------------------------------
 
 # We want to set the RTD theme, but not if we're on RTD.
 if os.environ.get('READTHEDOCS', None) == 'True':
-  # Download the GAE SDK if we are building on READTHEDOCS.
-  docs_dir = os.path.dirname(os.path.abspath(__file__))
-  root_dir = os.path.abspath(os.path.join(docs_dir, '..'))
-  gae_dir = os.path.join(root_dir, 'google_appengine')
-  if not os.path.isdir(gae_dir):
-    scripts_dir = os.path.join(root_dir, 'scripts')
-    sys.path.append(scripts_dir)
-    import fetch_gae_sdk
-    # The first argument is the script name and the second is
-    # the destination dir (where google_appengine is downloaded).
-    result = fetch_gae_sdk.main([None, root_dir])
-    if result not in (0, None):
-      sys.stderr.write('Result failed %d\n' % (result,))
-      sys.exit(result)
-    # Allow imports from the GAE directory as well.
-    sys.path.append(gae_dir)
+    # Download the GAE SDK if we are building on READTHEDOCS.
+    docs_dir = os.path.dirname(os.path.abspath(__file__))
+    root_dir = os.path.abspath(os.path.join(docs_dir, '..'))
+    gae_dir = os.path.join(root_dir, 'google_appengine')
+    if not os.path.isdir(gae_dir):
+        scripts_dir = os.path.join(root_dir, 'scripts')
+        sys.path.append(scripts_dir)
+        import fetch_gae_sdk
+        # The first argument is the script name and the second is
+        # the destination dir (where google_appengine is downloaded).
+        result = fetch_gae_sdk.main([None, root_dir])
+        if result not in (0, None):
+            sys.stderr.write('Result failed %d\n' % (result,))
+            sys.exit(result)
+        # Allow imports from the GAE directory as well.
+        sys.path.append(gae_dir)
 else:
-  import sphinx_rtd_theme
-  html_theme = 'sphinx_rtd_theme'
-  html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+    import sphinx_rtd_theme
+    html_theme = 'sphinx_rtd_theme'
+    html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32

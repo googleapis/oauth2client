@@ -22,11 +22,11 @@ from __future__ import print_function
 import sys
 
 if sys.version_info < (2, 6):
-  print('oauth2client requires python2 version >= 2.6.', file=sys.stderr)
-  sys.exit(1)
+    print('oauth2client requires python2 version >= 2.6.', file=sys.stderr)
+    sys.exit(1)
 if (3, 1) <= sys.version_info < (3, 3):
-  print('oauth2client requires python3 version >= 3.3.', file=sys.stderr)
-  sys.exit(1)
+    print('oauth2client requires python3 version >= 3.3.', file=sys.stderr)
+    sys.exit(1)
 
 from setuptools import setup
 

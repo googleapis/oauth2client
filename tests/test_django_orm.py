@@ -14,13 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 """Discovery document tests
 
 Unit tests for objects created from discovery documents.
 """
-
-__author__ = 'conleyo@google.com (Conley Owens)'
 
 import base64
 import imp
@@ -31,10 +28,10 @@ import unittest
 
 # Ensure that if app engine is available, we use the correct django from it
 try:
-  from google.appengine.dist import use_library
-  use_library('django', '1.5')
+    from google.appengine.dist import use_library
+    use_library('django', '1.5')
 except ImportError:
-  pass
+    pass
 
 from oauth2client.client import Credentials
 from oauth2client.client import Flow
@@ -43,47 +40,53 @@ from oauth2client.client import Flow
 from django.conf import global_settings
 global_settings.SECRET_KEY = 'NotASecret'
 os.environ['DJANGO_SETTINGS_MODULE'] = 'django_settings'
-sys.modules['django_settings'] = django_settings = imp.new_module('django_settings')
+sys.modules['django_settings'] = django_settings = imp.new_module(
+    'django_settings')
 django_settings.SECRET_KEY = 'xyzzy'
 
 from oauth2client.django_orm import CredentialsField
 from oauth2client.django_orm import FlowField
 
 
+__author__ = 'conleyo@google.com (Conley Owens)'
+
+
 class TestCredentialsField(unittest.TestCase):
-  def setUp(self):
-    self.field = CredentialsField()
-    self.credentials = Credentials()
-    self.pickle = base64.b64encode(pickle.dumps(self.credentials))
 
-  def test_field_is_text(self):
-    self.assertEquals(self.field.get_internal_type(), 'TextField')
+    def setUp(self):
+        self.field = CredentialsField()
+        self.credentials = Credentials()
+        self.pickle = base64.b64encode(pickle.dumps(self.credentials))
 
-  def test_field_unpickled(self):
-    self.assertTrue(isinstance(self.field.to_python(self.pickle), Credentials))
+    def test_field_is_text(self):
+        self.assertEquals(self.field.get_internal_type(), 'TextField')
 
-  def test_field_pickled(self):
-    prep_value = self.field.get_db_prep_value(self.credentials,
-                                              connection=None)
-    self.assertEqual(prep_value, self.pickle)
+    def test_field_unpickled(self):
+        self.assertTrue(isinstance(self.field.to_python(self.pickle),
+                                   Credentials))
+
+    def test_field_pickled(self):
+        prep_value = self.field.get_db_prep_value(self.credentials,
+                                                  connection=None)
+        self.assertEqual(prep_value, self.pickle)
 
 
 class TestFlowField(unittest.TestCase):
-  def setUp(self):
-    self.field = FlowField()
-    self.flow = Flow()
-    self.pickle = base64.b64encode(pickle.dumps(self.flow))
+    def setUp(self):
+        self.field = FlowField()
+        self.flow = Flow()
+        self.pickle = base64.b64encode(pickle.dumps(self.flow))
 
-  def test_field_is_text(self):
-    self.assertEquals(self.field.get_internal_type(), 'TextField')
+    def test_field_is_text(self):
+        self.assertEquals(self.field.get_internal_type(), 'TextField')
 
-  def test_field_unpickled(self):
-    self.assertTrue(isinstance(self.field.to_python(self.pickle), Flow))
+    def test_field_unpickled(self):
+        self.assertTrue(isinstance(self.field.to_python(self.pickle), Flow))
 
-  def test_field_pickled(self):
-    prep_value = self.field.get_db_prep_value(self.flow, connection=None)
-    self.assertEqual(prep_value, self.pickle)
+    def test_field_pickled(self):
+        prep_value = self.field.get_db_prep_value(self.flow, connection=None)
+        self.assertEqual(prep_value, self.pickle)
 
 
 if __name__ == '__main__':
-  unittest.main()
+    unittest.main()

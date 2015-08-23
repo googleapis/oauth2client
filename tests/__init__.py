@@ -12,10 +12,12 @@
 
 """Test Package set up."""
 
-__author__ = 'afshar@google.com (Ali Afshar)'
-
 import oauth2client.util
 
+
+__author__ = 'afshar@google.com (Ali Afshar)'
+
+
 def setup_package():
-  """Run on testing package."""
-  oauth2client.util.positional_parameters_enforcement = 'EXCEPTION'
+    """Run on testing package."""
+    oauth2client.util.positional_parameters_enforcement = 'EXCEPTION'

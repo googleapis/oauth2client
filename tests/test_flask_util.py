@@ -12,10 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 """Unit tests for the Flask utilities"""
-
-__author__ = 'jonwayne@google.com (Jon Wayne Parrott)'
 
 import httplib2
 import json
@@ -33,8 +30,12 @@ from oauth2client.flask_util import UserOAuth2 as FlaskOAuth2
 from oauth2client.client import OAuth2Credentials
 
 
+__author__ = 'jonwayne@google.com (Jon Wayne Parrott)'
+
+
 class Http2Mock(object):
     """Mock httplib2.Http for code exchange / refresh"""
+
     def __init__(self, status=httplib.OK, **kwargs):
         self.status = status
         self.content = {
