@@ -177,7 +177,7 @@ try:
     from flask import request
     from flask import session
     from flask import url_for
-except ImportError:
+except ImportError:  # pragma: NO COVER
     raise ImportError('The flask utilities require flask 0.9 or newer.')
 
 from oauth2client.client import FlowExchangeError
@@ -536,9 +536,7 @@ class FlaskSessionStorage(Storage):
             return None
 
         credentials = OAuth2Credentials.from_json(serialized)
-
-        if credentials:
-            credentials.set_store(self)
+        credentials.set_store(self)
 
         return credentials
 

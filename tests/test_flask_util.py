@@ -109,6 +109,25 @@ class FlaskOAuth2Tests(unittest.TestCase):
             self.assertEqual(oauth2.client_id, 'id')
             self.assertEqual(oauth2.client_secret, 'secret')
 
+    def test_delayed_configuration(self):
+        app = flask.Flask(__name__)
+        oauth2 = FlaskOAuth2()
+        oauth2.init_app(app, client_id='id', client_secret='secret')
+        self.assertEqual(oauth2.app, app)
+
+    def test_explicit_storage(self):
+        storage_mock = mock.Mock()
+        oauth2 = FlaskOAuth2(
+            flask.Flask(__name__), storage=storage_mock, client_id='id',
+            client_secret='secret')
+        self.assertEqual(oauth2.storage, storage_mock)
+
+    def test_explicit_scopes(self):
+        oauth2 = FlaskOAuth2(
+            flask.Flask(__name__), scopes=['1', '2'], client_id='id',
+            client_secret='secret')
+        self.assertEqual(oauth2.scopes, ['1', '2'])
+
     def test_bad_client_secrets(self):
         return_val = (
             'other',
@@ -209,7 +228,6 @@ class FlaskOAuth2Tests(unittest.TestCase):
 
     def test_callback_view(self):
         self.oauth2.storage = mock.Mock()
-        self.oauth2.authorize_callback = mock.Mock()
 
         with self.app.test_client() as c:
             with Http2Mock() as http:
@@ -228,39 +246,62 @@ class FlaskOAuth2Tests(unittest.TestCase):
                 self.assertTrue(self.oauth2.client_secret in http.body)
                 self.assertTrue('codez' in http.body)
                 self.assertTrue(self.oauth2.storage.put.called)
-                self.assertTrue(self.oauth2.authorize_callback.called)
+
+    def test_authorize_callback(self):
+        self.oauth2.authorize_callback = mock.Mock()
+        self.test_callback_view()
+        self.assertTrue(self.oauth2.authorize_callback.called)
 
     def test_callback_view_errors(self):
         # Error supplied to callback
         with self.app.test_client() as c:
             with c.session_transaction() as session:
-                session['google_oauth2_state'] = 'state'
+                session['google_oauth2_csrf_token'] = 'tokenz'
 
-            rv = c.get('/oauth2callback?state=state&error=something')
+            rv = c.get('/oauth2callback?state={}&error=something')
             self.assertEqual(rv.status_code, httplib.BAD_REQUEST)
             self.assertTrue('something' in rv.data.decode('utf-8'))
 
         # CSRF mismatch
         with self.app.test_client() as c:
             with c.session_transaction() as session:
-                session['google_oauth2_state'] = 'goodstate'
+                session['google_oauth2_csrf_token'] = 'goodstate'
 
-            rv = c.get('/oauth2callback?state=badstate&code=codez')
+            state = json.dumps({
+                'csrf_token': 'badstate',
+                'return_url': '/return_url'
+            })
+
+            rv = c.get('/oauth2callback?state=%s&code=codez' % state)
             self.assertEqual(rv.status_code, httplib.BAD_REQUEST)
 
         # KeyError, no CSRF state.
         with self.app.test_client() as c:
-            rv = c.get('/oauth2callback?state=badstate&code=codez')
+            rv = c.get('/oauth2callback?state={}&code=codez')
             self.assertEqual(rv.status_code, httplib.BAD_REQUEST)
 
         # Code exchange error
         with self.app.test_client() as c:
             with Http2Mock(status=500):
                 with c.session_transaction() as session:
-                    session['google_oauth2_state'] = 'state'
+                    session['google_oauth2_csrf_token'] = 'tokenz'
 
-                rv = c.get('/oauth2callback?state=state&code=codez')
+                state = json.dumps({
+                    'csrf_token': 'tokenz',
+                    'return_url': '/return_url'
+                })
+
+                rv = c.get('/oauth2callback?state=%s&code=codez' % state)
                 self.assertEqual(rv.status_code, httplib.BAD_REQUEST)
+
+        # Invalid state json
+        with self.app.test_client() as c:
+            with c.session_transaction() as session:
+                session['google_oauth2_csrf_token'] = 'tokenz'
+
+            state = '[{'
+            rv = c.get('/oauth2callback?state=%s&code=codez' % state)
+            self.assertEqual(rv.status_code, httplib.BAD_REQUEST)
 
     def test_no_credentials(self):
         with self.app.test_request_context():
@@ -271,6 +312,8 @@ class FlaskOAuth2Tests(unittest.TestCase):
             self.assertRaises(
                 ValueError,
                 self.oauth2.http)
+            self.assertFalse(self.oauth2.storage.get())
+            self.oauth2.storage.delete()
 
     def test_with_credentials(self):
         credentials = self._generate_credentials()
