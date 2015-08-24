@@ -60,32 +60,41 @@ VALID_CLIENT = {
 
 class Error(Exception):
     """Base error for this module."""
-    pass
 
 
 class InvalidClientSecretsError(Error):
     """Format of ClientSecrets file is invalid."""
-    pass
 
 
-def _validate_clientsecrets(obj):
+def _validate_clientsecrets(clientsecrets_dict):
+    """Validate parsed client secrets from a file.
+
+    Args:
+        clientsecrets_dict: dict, a dictionary holding the client secrets.
+
+    Returns:
+        tuple, a string of the client type and the information parsed
+        from the file.
+    """
     _INVALID_FILE_FORMAT_MSG = (
         'Invalid file format. See '
         'https://developers.google.com/api-client-library/'
         'python/guide/aaa_client_secrets')
 
-    if obj is None:
+    if clientsecrets_dict is None:
         raise InvalidClientSecretsError(_INVALID_FILE_FORMAT_MSG)
-    if len(obj) != 1:
+    try:
+        (client_type, client_info), = clientsecrets_dict.items()
+    except (ValueError, AttributeError):
         raise InvalidClientSecretsError(
             _INVALID_FILE_FORMAT_MSG + ' '
             'Expected a JSON object with a single property for a "web" or '
             '"installed" application')
-    client_type = tuple(obj)[0]
+
     if client_type not in VALID_CLIENT:
         raise InvalidClientSecretsError(
             'Unknown client type: %s.' % (client_type,))
-    client_info = obj[client_type]
+
     for prop_name in VALID_CLIENT[client_type]['required']:
         if prop_name not in client_info:
             raise InvalidClientSecretsError(
