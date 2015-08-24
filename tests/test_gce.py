@@ -34,7 +34,23 @@ from oauth2client.gce import AppAssertionCredentials
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 
-class AssertionCredentialsTests(unittest.TestCase):
+class AppAssertionCredentialsTests(unittest.TestCase):
+
+    def test_constructor(self):
+        scope = 'http://example.com/a http://example.com/b'
+        scopes = scope.split()
+        credentials = AppAssertionCredentials(scope=scopes, foo='bar')
+        self.assertEqual(credentials.scope, scope)
+        self.assertEqual(credentials.kwargs, {'foo': 'bar'})
+        self.assertEqual(credentials.assertion_type, None)
+
+    def test_to_json_and_from_json(self):
+        credentials = AppAssertionCredentials(
+            scope=['http://example.com/a', 'http://example.com/b'])
+        json = credentials.to_json()
+        credentials_from_json = Credentials.new_from_json(json)
+        self.assertEqual(credentials.access_token,
+                         credentials_from_json.access_token)
 
     def _refresh_success_helper(self, bytes_response=False):
         access_token = u'this-is-a-token'
@@ -63,22 +79,58 @@ class AssertionCredentialsTests(unittest.TestCase):
     def test_refresh_success_bytes(self):
         self._refresh_success_helper(bytes_response=True)
 
-    def test_fail_refresh(self):
+    def test_refresh_failure_bad_json(self):
         http = mock.MagicMock()
+        content = '{BADJSON'
         http.request = mock.MagicMock(
-            return_value=(mock.Mock(status=400), '{}'))
+            return_value=(mock.Mock(status=200), content))
 
-        c = AppAssertionCredentials(scope=['http://example.com/a',
-                                           'http://example.com/b'])
-        self.assertRaises(AccessTokenRefreshError, c.refresh, http)
+        credentials = AppAssertionCredentials(
+            scope=['http://example.com/a', 'http://example.com/b'])
+        self.assertRaises(AccessTokenRefreshError, credentials.refresh, http)
 
-    def test_to_from_json(self):
-        c = AppAssertionCredentials(scope=['http://example.com/a',
-                                           'http://example.com/b'])
-        json = c.to_json()
-        c2 = Credentials.new_from_json(json)
+    def test_refresh_failure_400(self):
+        http = mock.MagicMock()
+        content = '{}'
+        http.request = mock.MagicMock(
+            return_value=(mock.Mock(status=400), content))
 
-        self.assertEqual(c.access_token, c2.access_token)
+        credentials = AppAssertionCredentials(
+            scope=['http://example.com/a', 'http://example.com/b'])
+
+        exception_caught = None
+        try:
+            credentials.refresh(http)
+        except AccessTokenRefreshError as exc:
+            exception_caught = exc
+
+        self.assertNotEqual(exception_caught, None)
+        self.assertEqual(str(exception_caught), content)
+
+    def test_refresh_failure_404(self):
+        http = mock.MagicMock()
+        content = '{}'
+        http.request = mock.MagicMock(
+            return_value=(mock.Mock(status=404), content))
+
+        credentials = AppAssertionCredentials(
+            scope=['http://example.com/a', 'http://example.com/b'])
+
+        exception_caught = None
+        try:
+            credentials.refresh(http)
+        except AccessTokenRefreshError as exc:
+            exception_caught = exc
+
+        self.assertNotEqual(exception_caught, None)
+        expanded_content = content + (' This can occur if a VM was created'
+                                      ' with no service account or scopes.')
+        self.assertEqual(str(exception_caught), expanded_content)
+
+    def test_serialization_data(self):
+        credentials = AppAssertionCredentials(scope=[])
+        self.assertRaises(NotImplementedError, getattr,
+                          credentials, 'serialization_data')
 
     def test_create_scoped_required_without_scopes(self):
         credentials = AppAssertionCredentials([])
