@@ -19,6 +19,7 @@ Unit tests for oauth2client.keyring_storage.
 
 import datetime
 import keyring
+import threading
 import unittest
 
 import mock
@@ -31,27 +32,97 @@ from oauth2client.keyring_storage import Storage
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 
-class OAuth2ClientKeyringTests(unittest.TestCase):
+class KeyringStorageTests(unittest.TestCase):
 
-    def test_non_existent_credentials_storage(self):
+    def test_constructor(self):
+        service_name = 'my_unit_test'
+        user_name = 'me'
+        store = Storage(service_name, user_name)
+        self.assertEqual(store._service_name, service_name)
+        self.assertEqual(store._user_name, user_name)
+        lock_type = type(threading.Lock())
+        self.assertTrue(isinstance(store._lock, lock_type))
+
+    def test_acquire_lock(self):
+        store = Storage('my_unit_test', 'me')
+        store._lock = lock = _FakeLock()
+        self.assertEqual(lock._acquire_count, 0)
+        store.acquire_lock()
+        self.assertEqual(lock._acquire_count, 1)
+
+    def test_release_lock(self):
+        store = Storage('my_unit_test', 'me')
+        store._lock = lock = _FakeLock()
+        self.assertEqual(lock._release_count, 0)
+        store.release_lock()
+        self.assertEqual(lock._release_count, 1)
+
+    def test_locked_get(self):
+        service_name = 'my_unit_test'
+        user_name = 'me'
+        mock_content = (object(), 'mock_content')
+        mock_return_creds = mock.MagicMock()
+        mock_return_creds.set_store = set_store = mock.MagicMock(
+            name='set_store')
+        with mock.patch.object(keyring, 'get_password',
+                               return_value=mock_content,
+                               autospec=True) as get_password:
+            with mock.patch(
+                    'oauth2client.keyring_storage.Credentials') as MockCreds:
+                MockCreds.new_from_json = new_from_json = mock.MagicMock(
+                    name='new_from_json', return_value=mock_return_creds)
+                store = Storage(service_name, user_name)
+                credentials = store.locked_get()
+                new_from_json.assert_called_once_with(mock_content)
+                get_password.assert_called_once_with(service_name, user_name)
+                self.assertEqual(credentials, mock_return_creds)
+                set_store.assert_called_once_with(store)
+
+    def test_locked_put(self):
+        service_name = 'my_unit_test'
+        user_name = 'me'
+        store = Storage(service_name, user_name)
+        with mock.patch.object(keyring, 'set_password',
+                               return_value=None,
+                               autospec=True) as set_password:
+            credentials = mock.MagicMock()
+            to_json_ret = object()
+            credentials.to_json = to_json = mock.MagicMock(
+                name='to_json', return_value=to_json_ret)
+            store.locked_put(credentials)
+            to_json.assert_called_once_with()
+            set_password.assert_called_once_with(service_name, user_name,
+                                                 to_json_ret)
+
+    def test_locked_delete(self):
+        service_name = 'my_unit_test'
+        user_name = 'me'
+        store = Storage(service_name, user_name)
+        with mock.patch.object(keyring, 'set_password',
+                               return_value=None,
+                               autospec=True) as set_password:
+            store.locked_delete()
+            set_password.assert_called_once_with(service_name, user_name, '')
+
+    def test_get_with_no_credentials_stored(self):
         with mock.patch.object(keyring, 'get_password',
                                return_value=None,
                                autospec=True) as get_password:
-            s = Storage('my_unit_test', 'me')
-            credentials = s.get()
+            store = Storage('my_unit_test', 'me')
+            credentials = store.get()
             self.assertEquals(None, credentials)
             get_password.assert_called_once_with('my_unit_test', 'me')
 
-    def test_malformed_credentials_in_storage(self):
+    def test_get_with_malformed_json_credentials_stored(self):
         with mock.patch.object(keyring, 'get_password',
                                return_value='{',
                                autospec=True) as get_password:
-            s = Storage('my_unit_test', 'me')
-            credentials = s.get()
+            store = Storage('my_unit_test', 'me')
+            credentials = store.get()
             self.assertEquals(None, credentials)
             get_password.assert_called_once_with('my_unit_test', 'me')
 
-    def test_json_credentials_storage(self):
+    def test_get_and_set_with_json_credentials_stored(self):
         access_token = 'foo'
         client_id = 'some_client_id'
         client_secret = 'cOuDdkfjxxnv+'
@@ -73,10 +144,10 @@ class OAuth2ClientKeyringTests(unittest.TestCase):
             with mock.patch.object(keyring, 'set_password',
                                    return_value=None,
                                    autospec=True) as set_password:
-                s = Storage('my_unit_test', 'me')
-                self.assertEquals(None, s.get())
+                store = Storage('my_unit_test', 'me')
+                self.assertEquals(None, store.get())
 
-                s.put(credentials)
+                store.put(credentials)
 
                 set_password.assert_called_once_with(
                     'my_unit_test', 'me', credentials.to_json())
@@ -85,7 +156,19 @@ class OAuth2ClientKeyringTests(unittest.TestCase):
         with mock.patch.object(keyring, 'get_password',
                                return_value=credentials.to_json(),
                                autospec=True) as get_password:
-            restored = s.get()
+            restored = store.get()
             self.assertEqual('foo', restored.access_token)
             self.assertEqual('some_client_id', restored.client_id)
             get_password.assert_called_once_with('my_unit_test', 'me')
+
+
+class _FakeLock(object):
+
+    _acquire_count = 0
+    _release_count = 0
+
+    def acquire(self):
+        self._acquire_count += 1
+
+    def release(self):
+        self._release_count += 1
