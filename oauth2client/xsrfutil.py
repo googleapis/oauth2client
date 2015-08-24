@@ -16,10 +16,12 @@
 """Helper methods for creating & verifying XSRF tokens."""
 
 import base64
+import binascii
 import hmac
+import six
 import time
 
-import six
+from oauth2client._helpers import _to_bytes
 from oauth2client import util
 
 __authors__ = [
@@ -31,20 +33,11 @@ __authors__ = [
 DELIMITER = b':'
 
 # 1 hour in seconds
-DEFAULT_TIMEOUT_SECS = 1 * 60 * 60
-
-
-def _force_bytes(s):
-    if isinstance(s, bytes):
-        return s
-    s = str(s)
-    if isinstance(s, six.text_type):
-        return s.encode('utf-8')
-    return s
+DEFAULT_TIMEOUT_SECS = 60 * 60
 
 
 @util.positional(2)
-def generate_token(key, user_id, action_id="", when=None):
+def generate_token(key, user_id, action_id='', when=None):
     """Generates a URL-safe token for the given user, action, time tuple.
 
     Args:
@@ -58,12 +51,12 @@ def generate_token(key, user_id, action_id="", when=None):
     Returns:
         A string XSRF protection token.
     """
-    when = _force_bytes(when or int(time.time()))
-    digester = hmac.new(_force_bytes(key))
-    digester.update(_force_bytes(user_id))
+    digester = hmac.new(_to_bytes(key, encoding='utf-8'))
+    digester.update(_to_bytes(str(user_id), encoding='utf-8'))
     digester.update(DELIMITER)
-    digester.update(_force_bytes(action_id))
+    digester.update(_to_bytes(action_id, encoding='utf-8'))
     digester.update(DELIMITER)
+    when = _to_bytes(str(when or int(time.time())), encoding='utf-8')
     digester.update(when)
     digest = digester.digest()
 
@@ -94,7 +87,7 @@ def validate_token(key, token, user_id, action_id="", current_time=None):
     try:
         decoded = base64.urlsafe_b64decode(token)
         token_time = int(decoded.split(DELIMITER)[-1])
-    except (TypeError, ValueError):
+    except (TypeError, ValueError, binascii.Error):
         return False
     if current_time is None:
         current_time = time.time()
