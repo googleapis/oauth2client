@@ -74,3 +74,84 @@ class Test_pkcs12_key_as_pem(unittest.TestCase):
         self.assertRaises(crypto.Error, crypt.pkcs12_key_as_pem,
                           credentials.private_key,
                           credentials.private_key_password)
+
+
+class Test__verify_signature(unittest.TestCase):
+
+    def test_success_single_cert(self):
+        cert_value = 'cert-value'
+        certs = {None: cert_value}
+        message = object()
+        signature = object()
+
+        verifier = mock.MagicMock()
+        verifier.verify = mock.MagicMock(name='verify', return_value=True)
+        with mock.patch('oauth2client.crypt.Verifier') as Verifier:
+            Verifier.from_string = mock.MagicMock(name='from_string',
+                                                  return_value=verifier)
+            result = crypt._verify_signature(message, signature, certs)
+            self.assertEqual(result, None)
+
+            # Make sure our mocks were called as expected.
+            Verifier.from_string.assert_called_once_with(cert_value,
+                                                         is_x509_cert=True)
+            verifier.verify.assert_called_once_with(message, signature)
+
+    def test_success_multiple_certs(self):
+        cert_value1 = 'cert-value1'
+        cert_value2 = 'cert-value2'
+        cert_value3 = 'cert-value3'
+        certs = _MockOrderedDict(cert_value1, cert_value2, cert_value3)
+        message = object()
+        signature = object()
+
+        verifier = mock.MagicMock()
+        # Use side_effect to force all 3 cert values to be used by failing
+        # to verify on the first two.
+        verifier.verify = mock.MagicMock(name='verify',
+                                         side_effect=[False, False, True])
+        with mock.patch('oauth2client.crypt.Verifier') as Verifier:
+            Verifier.from_string = mock.MagicMock(name='from_string',
+                                                  return_value=verifier)
+            result = crypt._verify_signature(message, signature, certs)
+            self.assertEqual(result, None)
+
+            # Make sure our mocks were called three times.
+            expected_from_string_calls = [
+                mock.call(cert_value1, is_x509_cert=True),
+                mock.call(cert_value2, is_x509_cert=True),
+                mock.call(cert_value3, is_x509_cert=True),
+            ]
+            self.assertEqual(Verifier.from_string.mock_calls,
+                             expected_from_string_calls)
+            expected_verify_calls = [mock.call(message, signature)] * 3
+            self.assertEqual(verifier.verify.mock_calls,
+                             expected_verify_calls)
+
+    def test_failure(self):
+        cert_value = 'cert-value'
+        certs = {None: cert_value}
+        message = object()
+        signature = object()
+
+        verifier = mock.MagicMock()
+        verifier.verify = mock.MagicMock(name='verify', return_value=False)
+        with mock.patch('oauth2client.crypt.Verifier') as Verifier:
+            Verifier.from_string = mock.MagicMock(name='from_string',
+                                                  return_value=verifier)
+            self.assertRaises(crypt.AppIdentityError, crypt._verify_signature,
+                              message, signature, certs)
+
+            # Make sure our mocks were called as expected.
+            Verifier.from_string.assert_called_once_with(cert_value,
+                                                         is_x509_cert=True)
+            verifier.verify.assert_called_once_with(message, signature)
+
+
+class _MockOrderedDict(object):
+
+    def __init__(self, *values):
+        self._values = values
+
+    def values(self):
+        return self._values

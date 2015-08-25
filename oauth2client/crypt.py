@@ -97,6 +97,28 @@ def make_signed_jwt(signer, payload):
     return b'.'.join(segments)
 
 
+def _verify_signature(message, signature, certs):
+    """Verifies signed content using a list of certificates.
+
+    Args:
+        message: string or bytes, The message to verify.
+        signature: string or bytes, The signature on the message.
+        certs: dict, with the keys as certificate ID strings and the values
+               certificates in PEM format.
+
+    Raises:
+        AppIdentityError: If none of the certificates can verify the message
+                          against the signature.
+    """
+    for pem in certs.values():
+        verifier = Verifier.from_string(pem, is_x509_cert=True)
+        if verifier.verify(message, signature):
+            return
+
+    # If we have not returned, no certificate confirms the signature.
+    raise AppIdentityError('Invalid token signature')
+
+
 def verify_signed_jwt_with_certs(jwt, certs, audience):
     """Verify a JWT against public certs.
 
@@ -119,7 +141,7 @@ def verify_signed_jwt_with_certs(jwt, certs, audience):
 
     if len(segments) != 3:
         raise AppIdentityError('Wrong number of segments in token: %s' % jwt)
-    signed = segments[0] + b'.' + segments[1]
+    message_to_sign = segments[0] + b'.' + segments[1]
 
     signature = _urlsafe_b64decode(segments[2])
 
@@ -131,14 +153,7 @@ def verify_signed_jwt_with_certs(jwt, certs, audience):
         raise AppIdentityError('Can\'t parse token: %s' % json_body)
 
     # Check signature.
-    verified = False
-    for pem in certs.values():
-        verifier = Verifier.from_string(pem, True)
-        if verifier.verify(signed, signature):
-            verified = True
-            break
-    if not verified:
-        raise AppIdentityError('Invalid token signature: %s' % jwt)
+    _verify_signature(message_to_sign, signature, certs)
 
     # Check creation timestamp.
     iat = parsed.get('iat')
