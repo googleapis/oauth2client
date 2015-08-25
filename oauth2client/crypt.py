@@ -137,16 +137,17 @@ def verify_signed_jwt_with_certs(jwt, certs, audience):
         AppIdentityError if any checks are failed.
     """
     jwt = _to_bytes(jwt)
-    segments = jwt.split(b'.')
 
-    if len(segments) != 3:
-        raise AppIdentityError('Wrong number of segments in token: %s' % jwt)
-    message_to_sign = segments[0] + b'.' + segments[1]
+    if jwt.count(b'.') != 2:
+        raise AppIdentityError(
+            'Wrong number of segments in token: %s' % (jwt,))
 
-    signature = _urlsafe_b64decode(segments[2])
+    header, payload, signature = jwt.split(b'.')
+    message_to_sign = header + b'.' + payload
+    signature = _urlsafe_b64decode(signature)
 
     # Parse token.
-    json_body = _urlsafe_b64decode(segments[1])
+    json_body = _urlsafe_b64decode(payload)
     try:
         parsed = json.loads(_from_bytes(json_body))
     except:
