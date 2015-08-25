@@ -34,24 +34,26 @@ logger = logging.getLogger(__name__)
 
 
 class AppIdentityError(Exception):
-    pass
+    """Error to indicate crypto failure."""
+
+
+def _bad_pkcs12_key_as_pem(*args, **kwargs):
+    raise NotImplementedError('pkcs12_key_as_pem requires OpenSSL.')
 
 
 try:
     from oauth2client._openssl_crypt import OpenSSLVerifier
     from oauth2client._openssl_crypt import OpenSSLSigner
     from oauth2client._openssl_crypt import pkcs12_key_as_pem
-except ImportError:
+except ImportError:  # pragma: NO COVER
     OpenSSLVerifier = None
     OpenSSLSigner = None
-
-    def pkcs12_key_as_pem(*args, **kwargs):
-        raise NotImplementedError('pkcs12_key_as_pem requires OpenSSL.')
+    pkcs12_key_as_pem = _bad_pkcs12_key_as_pem
 
 try:
     from oauth2client._pycrypto_crypt import PyCryptoVerifier
     from oauth2client._pycrypto_crypt import PyCryptoSigner
-except ImportError:
+except ImportError:  # pragma: NO COVER
     PyCryptoVerifier = None
     PyCryptoSigner = None
 
@@ -59,10 +61,10 @@ except ImportError:
 if OpenSSLSigner:
     Signer = OpenSSLSigner
     Verifier = OpenSSLVerifier
-elif PyCryptoSigner:
+elif PyCryptoSigner:  # pragma: NO COVER
     Signer = PyCryptoSigner
     Verifier = PyCryptoVerifier
-else:
+else:  # pragma: NO COVER
     raise ImportError('No encryption library found. Please install either '
                       'PyOpenSSL, or PyCrypto 2.6 or later')
 

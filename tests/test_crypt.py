@@ -12,16 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import mock
 import os
 import sys
 import unittest
 
-try:
-    reload
-except NameError:
-    # For Python3 (though importlib should be used, silly 3.3).
-    from imp import reload
+import mock
 
 from oauth2client import _helpers
 from oauth2client.client import HAS_OPENSSL
@@ -34,6 +29,12 @@ def datafile(filename):
     data = f.read()
     f.close()
     return data
+
+
+class Test__bad_pkcs12_key_as_pem(unittest.TestCase):
+
+    def test_fails(self):
+        self.assertRaises(NotImplementedError, crypt._bad_pkcs12_key_as_pem)
 
 
 class Test_pkcs12_key_as_pem(unittest.TestCase):
