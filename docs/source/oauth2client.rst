@@ -18,7 +18,6 @@ Submodules
    oauth2client.keyring_storage
    oauth2client.locked_file
    oauth2client.multistore_file
-   oauth2client.old_run
    oauth2client.service_account
    oauth2client.tools
    oauth2client.util

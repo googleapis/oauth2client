@@ -34,7 +34,7 @@ from oauth2client import util
 
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
-__all__ = ['argparser', 'run_flow', 'run', 'message_if_missing']
+__all__ = ['argparser', 'run_flow', 'message_if_missing']
 
 _CLIENT_SECRETS_MESSAGE = """WARNING: Please configure OAuth 2.0
 
@@ -242,14 +242,3 @@ def run_flow(flow, storage, flags, http=None):
 def message_if_missing(filename):
     """Helpful message to display if the CLIENT_SECRETS file is missing."""
     return _CLIENT_SECRETS_MESSAGE % filename
-
-
-try:
-    from oauth2client.old_run import run
-    from oauth2client.old_run import FLAGS
-except ImportError:
-    def run(*args, **kwargs):
-        raise NotImplementedError(
-            'The gflags library must be installed to use tools.run(). '
-            'Please install gflags or preferrably switch to using '
-            'tools.run_flow().')
