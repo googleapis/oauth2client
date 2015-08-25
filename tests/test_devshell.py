@@ -14,17 +14,91 @@
 
 """Tests for oauth2client.devshell."""
 
+import json
 import os
 import socket
 import threading
 import unittest
 
+import mock
+
+from oauth2client._helpers import _to_bytes
 from oauth2client.client import save_to_well_known_file
 from oauth2client.devshell import _SendRecv
 from oauth2client.devshell import CREDENTIAL_INFO_REQUEST_JSON
+from oauth2client.devshell import CommunicationError
+from oauth2client.devshell import CredentialInfoResponse
 from oauth2client.devshell import DEVSHELL_ENV
 from oauth2client.devshell import DevshellCredentials
 from oauth2client.devshell import NoDevshellServer
+
+
+class TestCredentialInfoResponse(unittest.TestCase):
+
+    def test_constructor_with_non_list(self):
+        json_non_list = '{}'
+        self.assertRaises(ValueError, CredentialInfoResponse,
+                          json_non_list)
+
+    def test_constructor_with_bad_json(self):
+        json_non_list = '{BADJSON'
+        self.assertRaises(ValueError, CredentialInfoResponse,
+                          json_non_list)
+
+    def test_constructor_empty_list(self):
+        info_response = CredentialInfoResponse('[]')
+        self.assertEqual(info_response.user_email, None)
+        self.assertEqual(info_response.project_id, None)
+        self.assertEqual(info_response.access_token, None)
+
+    def test_constructor_full_list(self):
+        user_email = 'user_email'
+        project_id = 'project_id'
+        access_token = 'access_token'
+        json_string = json.dumps([user_email, project_id, access_token])
+        info_response = CredentialInfoResponse(json_string)
+        self.assertEqual(info_response.user_email, user_email)
+        self.assertEqual(info_response.project_id, project_id)
+        self.assertEqual(info_response.access_token, access_token)
+
+
+class Test_SendRecv(unittest.TestCase):
+
+    def test_port_zero(self):
+        with mock.patch('oauth2client.devshell.os') as os_mod:
+            os_mod.getenv = mock.MagicMock(name='getenv', return_value=0)
+            self.assertRaises(NoDevshellServer, _SendRecv)
+            os_mod.getenv.assert_called_once_with(DEVSHELL_ENV, 0)
+
+    def test_no_newline_in_received_header(self):
+        non_zero_port = 1
+        sock = mock.MagicMock()
+
+        header_without_newline = ''
+        sock.recv(6).decode = mock.MagicMock(
+            name='decode', return_value=header_without_newline)
+
+        with mock.patch('oauth2client.devshell.os') as os_mod:
+            os_mod.getenv = mock.MagicMock(name='getenv',
+                                           return_value=non_zero_port)
+            with mock.patch('oauth2client.devshell.socket') as socket:
+                socket.socket = mock.MagicMock(name='socket',
+                                               return_value=sock)
+                self.assertRaises(CommunicationError, _SendRecv)
+                os_mod.getenv.assert_called_once_with(DEVSHELL_ENV, 0)
+                socket.socket.assert_called_once_with()
+                sock.recv(6).decode.assert_called_once_with()
+
+                data = CREDENTIAL_INFO_REQUEST_JSON
+                msg = _to_bytes('%s\n%s' % (len(data), data), encoding='utf-8')
+                expected_sock_calls = [
+                    mock.call.recv(6),  # From the set-up above
+                    mock.call.connect(('localhost', non_zero_port)),
+                    mock.call.sendall(msg),
+                    mock.call.recv(6),
+                    mock.call.recv(6),  # From the check above
+                ]
+                self.assertEqual(sock.method_calls, expected_sock_calls)
 
 
 class _AuthReferenceServer(threading.Thread):
@@ -138,3 +212,13 @@ class DevshellCredentialsTests(unittest.TestCase):
                                   save_to_well_known_file, creds)
         finally:
             os.path.isdir = ORIGINAL_ISDIR
+
+    def test_from_json(self):
+        self.assertRaises(NotImplementedError,
+                          DevshellCredentials.from_json, None)
+
+    def test_serialization_data(self):
+        with _AuthReferenceServer('[]'):
+            credentials = DevshellCredentials()
+            self.assertRaises(NotImplementedError, getattr,
+                              credentials, 'serialization_data')

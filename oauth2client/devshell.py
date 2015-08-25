@@ -16,6 +16,7 @@
 
 import json
 import os
+import socket
 
 from oauth2client._helpers import _to_bytes
 from oauth2client import client
@@ -70,8 +71,6 @@ def _SendRecv():
     port = int(os.getenv(DEVSHELL_ENV, 0))
     if port == 0:
         raise NoDevshellServer()
-
-    import socket
 
     sock = socket.socket()
     sock.connect(('localhost', port))
