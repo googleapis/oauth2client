@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import base64
 import os
 import sys
 import unittest
@@ -257,6 +258,59 @@ class Test__verify_time_range(unittest.TestCase):
 
             exception_caught = self._exception_helper(payload_dict)
             self.assertEqual(exception_caught, None)
+
+
+class Test_verify_signed_jwt_with_certs(unittest.TestCase):
+
+    def test_jwt_no_segments(self):
+        exception_caught = None
+        try:
+            crypt.verify_signed_jwt_with_certs(b'', None)
+        except crypt.AppIdentityError as exc:
+            exception_caught = exc
+
+        self.assertNotEqual(exception_caught, None)
+        self.assertTrue(str(exception_caught).startswith(
+            'Wrong number of segments in token'))
+
+    def test_jwt_payload_bad_json(self):
+        header = signature = b''
+        payload = base64.b64encode(b'{BADJSON')
+        jwt = b'.'.join([header, payload, signature])
+
+        exception_caught = None
+        try:
+            crypt.verify_signed_jwt_with_certs(jwt, None)
+        except crypt.AppIdentityError as exc:
+            exception_caught = exc
+
+        self.assertNotEqual(exception_caught, None)
+        self.assertTrue(str(exception_caught).startswith(
+            'Can\'t parse token'))
+
+    @mock.patch('oauth2client.crypt._check_audience')
+    @mock.patch('oauth2client.crypt._verify_time_range')
+    @mock.patch('oauth2client.crypt._verify_signature')
+    def test_success(self, verify_sig, verify_time, check_aud):
+        certs = object()
+        audience = object()
+
+        header = b'header'
+        signature_bytes = b'signature'
+        signature = base64.b64encode(signature_bytes)
+        payload_dict = {'a': 'b'}
+        payload = base64.b64encode(b'{"a": "b"}')
+        jwt = b'.'.join([header, payload, signature])
+
+        result = crypt.verify_signed_jwt_with_certs(
+            jwt, certs, audience=audience)
+        self.assertEqual(result, payload_dict)
+
+        message_to_sign = header + b'.' + payload
+        verify_sig.assert_called_once_with(
+            message_to_sign, signature_bytes, certs)
+        verify_time.assert_called_once_with(payload_dict)
+        check_aud.assert_called_once_with(payload_dict, audience)
 
 
 class _MockOrderedDict(object):
