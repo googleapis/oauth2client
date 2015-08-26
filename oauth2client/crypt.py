@@ -119,7 +119,29 @@ def _verify_signature(message, signature, certs):
     raise AppIdentityError('Invalid token signature')
 
 
-def verify_signed_jwt_with_certs(jwt, certs, audience):
+def _check_audience(payload_dict, audience):
+    """Checks audience field from a JWT payload.
+
+    Does nothing if the passed in ``audience`` is null.
+
+    Args:
+        payload_dict: dict, A dictionary containing a JWT payload.
+        audience: string or NoneType, an audience to check for in
+                  the JWT payload.
+    """
+    if audience is None:
+        return
+
+    audience_in_payload = payload_dict.get('aud')
+    if audience_in_payload is None:
+        raise AppIdentityError('No aud field in token: %s' %
+                               (payload_dict,))
+    if audience_in_payload != audience:
+        raise AppIdentityError('Wrong recipient, %s != %s: %s' %
+                               (audience_in_payload, audience, payload_dict))
+
+
+def verify_signed_jwt_with_certs(jwt, certs, audience=None):
     """Verify a JWT against public certs.
 
     See http://self-issued.info/docs/draft-jones-json-web-token.html.
@@ -180,13 +202,6 @@ def verify_signed_jwt_with_certs(jwt, certs, audience):
                                (now, latest, payload_bytes))
 
     # Check audience.
-    if audience is not None:
-        aud = payload_dict.get('aud')
-        if aud is None:
-            raise AppIdentityError('No aud field in token: %s' %
-                                   (payload_bytes,))
-        if aud != audience:
-            raise AppIdentityError('Wrong recipient, %s != %s: %s' %
-                                   (aud, audience, payload_bytes))
+    _check_audience(payload_dict, audience)
 
     return payload_dict

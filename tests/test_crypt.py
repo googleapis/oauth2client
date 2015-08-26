@@ -148,6 +148,34 @@ class Test__verify_signature(unittest.TestCase):
             verifier.verify.assert_called_once_with(message, signature)
 
 
+class Test__check_audience(unittest.TestCase):
+
+    def test_null_audience(self):
+        result = crypt._check_audience(None, None)
+        self.assertEqual(result, None)
+
+    def test_success(self):
+        audience = 'audience'
+        payload_dict = {'aud': audience}
+        result = crypt._check_audience(payload_dict, audience)
+        # No exception and no result.
+        self.assertEqual(result, None)
+
+    def test_missing_aud(self):
+        audience = 'audience'
+        payload_dict = {}
+        self.assertRaises(crypt.AppIdentityError, crypt._check_audience,
+                          payload_dict, audience)
+
+    def test_wrong_aud(self):
+        audience1 = 'audience1'
+        audience2 = 'audience2'
+        self.assertNotEqual(audience1, audience2)
+        payload_dict = {'aud': audience1}
+        self.assertRaises(crypt.AppIdentityError, crypt._check_audience,
+                          payload_dict, audience2)
+
+
 class _MockOrderedDict(object):
 
     def __init__(self, *values):
