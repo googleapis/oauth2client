@@ -147,44 +147,46 @@ def verify_signed_jwt_with_certs(jwt, certs, audience):
     signature = _urlsafe_b64decode(signature)
 
     # Parse token.
-    json_body = _urlsafe_b64decode(payload)
+    payload_bytes = _urlsafe_b64decode(payload)
     try:
-        parsed = json.loads(_from_bytes(json_body))
+        payload_dict = json.loads(_from_bytes(payload_bytes))
     except:
-        raise AppIdentityError('Can\'t parse token: %s' % json_body)
+        raise AppIdentityError('Can\'t parse token: %s' % (payload_bytes,))
 
     # Check signature.
     _verify_signature(message_to_sign, signature, certs)
 
     # Check creation timestamp.
-    iat = parsed.get('iat')
-    if iat is None:
-        raise AppIdentityError('No iat field in token: %s' % json_body)
-    earliest = iat - CLOCK_SKEW_SECS
+    issued_at = payload_dict.get('iat')
+    if issued_at is None:
+        raise AppIdentityError('No iat field in token: %s' % (payload_bytes,))
+    earliest = issued_at - CLOCK_SKEW_SECS
 
     # Check expiration timestamp.
     now = int(time.time())
-    exp = parsed.get('exp')
-    if exp is None:
-        raise AppIdentityError('No exp field in token: %s' % json_body)
-    if exp >= now + MAX_TOKEN_LIFETIME_SECS:
-        raise AppIdentityError('exp field too far in future: %s' % json_body)
-    latest = exp + CLOCK_SKEW_SECS
+    expiration = payload_dict.get('exp')
+    if expiration is None:
+        raise AppIdentityError('No exp field in token: %s' % (payload_bytes,))
+    if expiration >= now + MAX_TOKEN_LIFETIME_SECS:
+        raise AppIdentityError('exp field too far in future: %s' %
+                               (payload_bytes,))
+    latest = expiration + CLOCK_SKEW_SECS
 
     if now < earliest:
         raise AppIdentityError('Token used too early, %d < %d: %s' %
-                               (now, earliest, json_body))
+                               (now, earliest, payload_bytes))
     if now > latest:
         raise AppIdentityError('Token used too late, %d > %d: %s' %
-                               (now, latest, json_body))
+                               (now, latest, payload_bytes))
 
     # Check audience.
     if audience is not None:
-        aud = parsed.get('aud')
+        aud = payload_dict.get('aud')
         if aud is None:
-            raise AppIdentityError('No aud field in token: %s' % json_body)
+            raise AppIdentityError('No aud field in token: %s' %
+                                   (payload_bytes,))
         if aud != audience:
             raise AppIdentityError('Wrong recipient, %s != %s: %s' %
-                                   (aud, audience, json_body))
+                                   (aud, audience, payload_bytes))
 
-    return parsed
+    return payload_dict
