@@ -175,6 +175,89 @@ class Test__check_audience(unittest.TestCase):
         self.assertRaises(crypt.AppIdentityError, crypt._check_audience,
                           payload_dict, audience2)
 
+class Test__verify_time_range(unittest.TestCase):
+
+    def _exception_helper(self, payload_dict):
+        exception_caught = None
+        try:
+            crypt._verify_time_range(payload_dict)
+        except crypt.AppIdentityError as exc:
+            exception_caught = exc
+
+        return exception_caught
+
+    def test_without_issued_at(self):
+        payload_dict = {}
+        exception_caught = self._exception_helper(payload_dict)
+        self.assertNotEqual(exception_caught, None)
+        self.assertTrue(str(exception_caught).startswith(
+            'No iat field in token'))
+
+    def test_without_expiration(self):
+        payload_dict = {'iat': 'iat'}
+        exception_caught = self._exception_helper(payload_dict)
+        self.assertNotEqual(exception_caught, None)
+        self.assertTrue(str(exception_caught).startswith(
+            'No exp field in token'))
+
+    def test_with_bad_token_lifetime(self):
+        current_time = 123456
+        payload_dict = {
+            'iat': 'iat',
+            'exp': current_time + crypt.MAX_TOKEN_LIFETIME_SECS + 1,
+        }
+        with mock.patch('oauth2client.crypt.time') as time:
+            time.time = mock.MagicMock(name='time',
+                                       return_value=current_time)
+
+            exception_caught = self._exception_helper(payload_dict)
+            self.assertNotEqual(exception_caught, None)
+            self.assertTrue(str(exception_caught).startswith(
+                'exp field too far in future'))
+
+    def test_with_issued_at_in_future(self):
+        current_time = 123456
+        payload_dict = {
+            'iat': current_time + crypt.CLOCK_SKEW_SECS + 1,
+            'exp': current_time + crypt.MAX_TOKEN_LIFETIME_SECS - 1,
+        }
+        with mock.patch('oauth2client.crypt.time') as time:
+            time.time = mock.MagicMock(name='time',
+                                       return_value=current_time)
+
+            exception_caught = self._exception_helper(payload_dict)
+            self.assertNotEqual(exception_caught, None)
+            self.assertTrue(str(exception_caught).startswith(
+                'Token used too early'))
+
+    def test_with_expiration_in_the_past(self):
+        current_time = 123456
+        payload_dict = {
+            'iat': current_time,
+            'exp': current_time - crypt.CLOCK_SKEW_SECS - 1,
+        }
+        with mock.patch('oauth2client.crypt.time') as time:
+            time.time = mock.MagicMock(name='time',
+                                       return_value=current_time)
+
+            exception_caught = self._exception_helper(payload_dict)
+            self.assertNotEqual(exception_caught, None)
+            self.assertTrue(str(exception_caught).startswith(
+                'Token used too late'))
+
+    def test_success(self):
+        current_time = 123456
+        payload_dict = {
+            'iat': current_time,
+            'exp': current_time + crypt.MAX_TOKEN_LIFETIME_SECS - 1,
+        }
+        with mock.patch('oauth2client.crypt.time') as time:
+            time.time = mock.MagicMock(name='time',
+                                       return_value=current_time)
+
+            exception_caught = self._exception_helper(payload_dict)
+            self.assertEqual(exception_caught, None)
+
 
 class _MockOrderedDict(object):
 

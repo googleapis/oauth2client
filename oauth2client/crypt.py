@@ -128,6 +128,12 @@ def _check_audience(payload_dict, audience):
         payload_dict: dict, A dictionary containing a JWT payload.
         audience: string or NoneType, an audience to check for in
                   the JWT payload.
+
+    Raises:
+        AppIdentityError: If there is no ``'aud'`` field in the payload
+                          dictionary but there is an ``audience`` to check.
+        AppIdentityError: If the ``'aud'`` field in the payload dictionary
+                          does not match the ``audience``.
     """
     if audience is None:
         return
@@ -139,6 +145,57 @@ def _check_audience(payload_dict, audience):
     if audience_in_payload != audience:
         raise AppIdentityError('Wrong recipient, %s != %s: %s' %
                                (audience_in_payload, audience, payload_dict))
+
+
+def _verify_time_range(payload_dict):
+    """Verifies the issued at and expiration from a JWT payload.
+
+    Makes sure the current time (in UTC) falls between the issued at and
+    expiration for the JWT (with some skew allowed for via
+    ``CLOCK_SKEW_SECS``).
+
+    Args:
+        payload_dict: dict, A dictionary containing a JWT payload.
+
+    Raises:
+        AppIdentityError: If there is no ``'iat'`` field in the payload
+                          dictionary.
+        AppIdentityError: If there is no ``'exp'`` field in the payload
+                          dictionary.
+        AppIdentityError: If the JWT expiration is too far in the future (i.e.
+                          if the expiration would imply a token lifetime
+                          longer than what is allowed.)
+        AppIdentityError: If the token appears to have been issued in the
+                          future (up to clock skew).
+        AppIdentityError: If the token appears to have expired in the past
+                          (up to clock skew).
+    """
+    # Get the current time to use throughout.
+    now = int(time.time())
+
+    # Make sure issued at and expiration are in the payload.
+    issued_at = payload_dict.get('iat')
+    if issued_at is None:
+        raise AppIdentityError('No iat field in token: %s' % (payload_dict,))
+    expiration = payload_dict.get('exp')
+    if expiration is None:
+        raise AppIdentityError('No exp field in token: %s' % (payload_dict,))
+
+    # Make sure the expiration gives an acceptable token lifetime.
+    if expiration >= now + MAX_TOKEN_LIFETIME_SECS:
+        raise AppIdentityError('exp field too far in future: %s' %
+                               (payload_dict,))
+
+    # Make sure (up to clock skew) that the token wasn't issued in the future.
+    earliest = issued_at - CLOCK_SKEW_SECS
+    if now < earliest:
+        raise AppIdentityError('Token used too early, %d < %d: %s' %
+                               (now, earliest, payload_dict))
+    # Make sure (up to clock skew) that the token isn't already expired.
+    latest = expiration + CLOCK_SKEW_SECS
+    if now > latest:
+        raise AppIdentityError('Token used too late, %d > %d: %s' %
+                               (now, latest, payload_dict))
 
 
 def verify_signed_jwt_with_certs(jwt, certs, audience=None):
@@ -156,7 +213,7 @@ def verify_signed_jwt_with_certs(jwt, certs, audience=None):
         dict, The deserialized JSON payload in the JWT.
 
     Raises:
-        AppIdentityError if any checks are failed.
+        AppIdentityError: if any checks are failed.
     """
     jwt = _to_bytes(jwt)
 
@@ -175,31 +232,11 @@ def verify_signed_jwt_with_certs(jwt, certs, audience=None):
     except:
         raise AppIdentityError('Can\'t parse token: %s' % (payload_bytes,))
 
-    # Check signature.
+    # Verify that the signature matches the message.
     _verify_signature(message_to_sign, signature, certs)
 
-    # Check creation timestamp.
-    issued_at = payload_dict.get('iat')
-    if issued_at is None:
-        raise AppIdentityError('No iat field in token: %s' % (payload_bytes,))
-    earliest = issued_at - CLOCK_SKEW_SECS
-
-    # Check expiration timestamp.
-    now = int(time.time())
-    expiration = payload_dict.get('exp')
-    if expiration is None:
-        raise AppIdentityError('No exp field in token: %s' % (payload_bytes,))
-    if expiration >= now + MAX_TOKEN_LIFETIME_SECS:
-        raise AppIdentityError('exp field too far in future: %s' %
-                               (payload_bytes,))
-    latest = expiration + CLOCK_SKEW_SECS
-
-    if now < earliest:
-        raise AppIdentityError('Token used too early, %d < %d: %s' %
-                               (now, earliest, payload_bytes))
-    if now > latest:
-        raise AppIdentityError('Token used too late, %d > %d: %s' %
-                               (now, latest, payload_bytes))
+    # Verify the issued at and created times in the payload.
+    _verify_time_range(payload_dict)
 
     # Check audience.
     _check_audience(payload_dict, audience)
