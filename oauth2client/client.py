@@ -110,6 +110,11 @@ DEFAULT_ENV_NAME = 'UNKNOWN'
 # If set to True _get_environment avoid GCE check (_detect_gce_environment)
 NO_GCE_CHECK = os.environ.setdefault('NO_GCE_CHECK', 'False')
 
+_SERVER_SOFTWARE = 'SERVER_SOFTWARE'
+_GCE_METADATA_HOST = '169.254.169.254'
+_METADATA_FLAVOR_HEADER = 'Metadata-Flavor'
+_DESIRED_METADATA_FLAVOR = 'Google'
+
 
 class SETTINGS(object):
     """Settings namespace for globally defined values."""
@@ -1053,34 +1058,34 @@ class AccessTokenCredentials(OAuth2Credentials):
         self._do_revoke(http_request, self.access_token)
 
 
-def _detect_gce_environment(urlopen=None):
+def _detect_gce_environment():
     """Determine if the current environment is Compute Engine.
-
-    Args:
-        urlopen: Optional argument. Function used to open a connection to a
-                 URL.
 
     Returns:
         Boolean indicating whether or not the current environment is Google
         Compute Engine.
     """
-    urlopen = urlopen or urllib.request.urlopen
-    # Note: the explicit `timeout` below is a workaround. The underlying
-    # issue is that resolving an unknown host on some networks will take
-    # 20-30 seconds; making this timeout short fixes the issue, but
-    # could lead to false negatives in the event that we are on GCE, but
-    # the metadata resolution was particularly slow. The latter case is
-    # "unlikely".
+    # NOTE: The explicit ``timeout`` is a workaround. The underlying
+    #       issue is that resolving an unknown host on some networks will take
+    #       20-30 seconds; making this timeout short fixes the issue, but
+    #       could lead to false negatives in the event that we are on GCE, but
+    #       the metadata resolution was particularly slow. The latter case is
+    #       "unlikely".
+    connection = six.moves.http_client.HTTPConnection(
+        _GCE_METADATA_HOST, timeout=1)
+
     try:
-        response = urlopen('http://169.254.169.254/', timeout=1)
-        return response.info().get('Metadata-Flavor', '') == 'Google'
-    except socket.timeout:
+        headers = {_METADATA_FLAVOR_HEADER: _DESIRED_METADATA_FLAVOR}
+        connection.request('GET', '/', headers=headers)
+        response = connection.getresponse()
+        if response.status == 200:
+            return (response.getheader(_METADATA_FLAVOR_HEADER) ==
+                    _DESIRED_METADATA_FLAVOR)
+    except socket.error:  # socket.timeout or socket.error(64, 'Host is down')
         logger.info('Timeout attempting to reach GCE metadata service.')
         return False
-    except urllib.error.URLError as e:
-        if isinstance(getattr(e, 'reason', None), socket.timeout):
-            logger.info('Timeout attempting to reach GCE metadata service.')
-        return False
+    finally:
+        connection.close()
 
 
 def _in_gae_environment():
@@ -1094,7 +1099,7 @@ def _in_gae_environment():
 
     try:
         import google.appengine
-        server_software = os.environ.get('SERVER_SOFTWARE', '')
+        server_software = os.environ.get(_SERVER_SOFTWARE, '')
         if server_software.startswith('Google App Engine/'):
             SETTINGS.env_name = 'GAE_PRODUCTION'
             return True
@@ -1107,12 +1112,8 @@ def _in_gae_environment():
     return False
 
 
-def _in_gce_environment(urlopen=None):
+def _in_gce_environment():
     """Detect if the code is running in the Compute Engine environment.
-
-    Args:
-        urlopen: Optional argument. Function used to open a connection to a
-                 URL.
 
     Returns:
         True if running in the GCE environment, False otherwise.
@@ -1120,7 +1121,7 @@ def _in_gce_environment(urlopen=None):
     if SETTINGS.env_name is not None:
         return SETTINGS.env_name == 'GCE_PRODUCTION'
 
-    if NO_GCE_CHECK != 'True' and _detect_gce_environment(urlopen=urlopen):
+    if NO_GCE_CHECK != 'True' and _detect_gce_environment():
         SETTINGS.env_name = 'GCE_PRODUCTION'
         return True
     return False
