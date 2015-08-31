@@ -225,27 +225,18 @@ class GoogleCredentialsTests(unittest.TestCase):
 
     def test_environment_check_gae_production(self):
         with mock_module_import('google.appengine'):
-            os.environ['SERVER_SOFTWARE'] = 'Google App Engine/XYZ'
-            self.assertTrue(_in_gae_environment())
-            self.assertFalse(_in_gce_environment())
+            self._environment_check_gce_helper(
+                server_software='Google App Engine/XYZ')
 
     def test_environment_check_gae_local(self):
         with mock_module_import('google.appengine'):
-            os.environ['SERVER_SOFTWARE'] = 'Development/XYZ'
-            self.assertTrue(_in_gae_environment())
-            self.assertFalse(_in_gce_environment())
+            self._environment_check_gce_helper(
+                server_software='Development/XYZ')
 
     def test_environment_check_fastpath(self):
-        os.environ['SERVER_SOFTWARE'] = 'Development/XYZ'
         with mock_module_import('google.appengine'):
-            with mock.patch.object(urllib.request, 'urlopen',
-                                   return_value=MockResponse({}),
-                                   autospec=True) as urlopen:
-                self.assertTrue(_in_gae_environment())
-                self.assertFalse(_in_gce_environment())
-                # We already know are in GAE, so we shouldn't actually do
-                # the urlopen.
-                self.assertFalse(urlopen.called)
+            self._environment_check_gce_helper(
+                server_software='Development/XYZ')
 
     def test_environment_caching(self):
         os.environ['SERVER_SOFTWARE'] = 'Development/XYZ'
@@ -256,68 +247,82 @@ class GoogleCredentialsTests(unittest.TestCase):
             # is cached.
             self.assertTrue(_in_gae_environment())
 
-    def test_environment_check_gae_module_on_gce(self):
-        with mock_module_import('google.appengine'):
-            os.environ['SERVER_SOFTWARE'] = ''
-            response = MockResponse({'Metadata-Flavor': 'Google'})
-            with mock.patch.object(urllib.request, 'urlopen',
-                                   return_value=response,
-                                   autospec=True) as urlopen:
-                self.assertFalse(_in_gae_environment())
-                self.assertTrue(_in_gce_environment())
-                urlopen.assert_called_once_with(
-                    'http://169.254.169.254/', timeout=1)
+    def _environment_check_gce_helper(self, status_ok=True, socket_error=False,
+                                      server_software=''):
+        response = mock.MagicMock()
+        if status_ok:
+            response.status = 200
+            response.getheader = mock.MagicMock(
+                name='getheader',
+                return_value=client._DESIRED_METADATA_FLAVOR)
+        else:
+            response.status = 404
 
-    def test_environment_check_gae_module_unknown(self):
-        with mock_module_import('google.appengine'):
-            os.environ['SERVER_SOFTWARE'] = ''
-            with mock.patch.object(urllib.request, 'urlopen',
-                                   return_value=MockResponse({}),
-                                   autospec=True) as urlopen:
-                self.assertFalse(_in_gae_environment())
-                self.assertFalse(_in_gce_environment())
-                urlopen.assert_called_once_with(
-                    'http://169.254.169.254/', timeout=1)
+        connection = mock.MagicMock()
+        connection.getresponse = mock.MagicMock(name='getresponse',
+                                                return_value=response)
+        if socket_error:
+            connection.getresponse.side_effect = socket.error()
+
+        with mock.patch('oauth2client.client.os') as os_module:
+            os_module.environ = {client._SERVER_SOFTWARE: server_software}
+            with mock.patch('oauth2client.client.six') as six_module:
+                http_client = six_module.moves.http_client
+                http_client.HTTPConnection = mock.MagicMock(
+                    name='HTTPConnection', return_value=connection)
+
+                if server_software == '':
+                    self.assertFalse(_in_gae_environment())
+                else:
+                    self.assertTrue(_in_gae_environment())
+
+                if status_ok and not socket_error and server_software == '':
+                    self.assertTrue(_in_gce_environment())
+                else:
+                    self.assertFalse(_in_gce_environment())
+
+                if server_software == '':
+                    http_client.HTTPConnection.assert_called_once_with(
+                        client._GCE_METADATA_HOST, timeout=1)
+                    connection.getresponse.assert_called_once_with()
+                    # Remaining calls are not "getresponse"
+                    headers = {
+                        client._METADATA_FLAVOR_HEADER: (
+                            client._DESIRED_METADATA_FLAVOR),
+                    }
+                    self.assertEqual(connection.method_calls, [
+                        mock.call.request('GET', '/',
+                                          headers=headers),
+                        mock.call.close(),
+                    ])
+                    self.assertEqual(response.method_calls, [])
+                    if status_ok and not socket_error:
+                        response.getheader.assert_called_once_with(
+                            client._METADATA_FLAVOR_HEADER)
+                else:
+                    self.assertEqual(http_client.HTTPConnection.mock_calls, [])
+                    self.assertEqual(connection.getresponse.mock_calls, [])
+                    # Remaining calls are not "getresponse"
+                    self.assertEqual(connection.method_calls, [])
+                    self.assertEqual(response.method_calls, [])
+                    self.assertEqual(response.getheader.mock_calls, [])
 
     def test_environment_check_gce_production(self):
-        os.environ['SERVER_SOFTWARE'] = ''
-        response = MockResponse({'Metadata-Flavor': 'Google'})
-        with mock.patch.object(urllib.request, 'urlopen',
-                               return_value=response,
-                               autospec=True) as urlopen:
-            self.assertFalse(_in_gae_environment())
-            self.assertTrue(_in_gce_environment())
-            urlopen.assert_called_once_with(
-                'http://169.254.169.254/', timeout=1)
+        self._environment_check_gce_helper(status_ok=True)
+
+    def test_environment_check_gce_prod_with_working_gae_imports(self):
+        with mock_module_import('google.appengine'):
+            self._environment_check_gce_helper(status_ok=True)
 
     def test_environment_check_gce_timeout(self):
-        os.environ['SERVER_SOFTWARE'] = ''
-        response = MockResponse({'Metadata-Flavor': 'Google'})
-        with mock.patch.object(urllib.request, 'urlopen',
-                               return_value=response,
-                               autospec=True) as urlopen:
-            urlopen.side_effect = socket.timeout()
-            self.assertFalse(_in_gce_environment())
-            urlopen.assert_called_once_with(
-                'http://169.254.169.254/', timeout=1)
+        self._environment_check_gce_helper(socket_error=True)
 
-        with mock.patch.object(urllib.request, 'urlopen',
-                               return_value=response,
-                               autospec=True) as urlopen:
-            urlopen.side_effect = urllib.error.URLError(socket.timeout())
-            self.assertFalse(_in_gce_environment())
-            urlopen.assert_called_once_with(
-                'http://169.254.169.254/', timeout=1)
+    def test_environ_check_gae_module_unknown(self):
+        with mock_module_import('google.appengine'):
+            self._environment_check_gce_helper(status_ok=False)
 
     def test_environment_check_unknown(self):
-        os.environ['SERVER_SOFTWARE'] = ''
-        with mock.patch.object(urllib.request, 'urlopen',
-                               return_value=MockResponse({}),
-                               autospec=True) as urlopen:
-            self.assertFalse(_in_gce_environment())
-            self.assertFalse(_in_gae_environment())
-            urlopen.assert_called_once_with(
-                'http://169.254.169.254/', timeout=1)
+        self._environment_check_gce_helper(status_ok=False)
 
     def test_get_environment_variable_file(self):
         environment_variable_file = datafile(
