@@ -81,7 +81,7 @@ class Test__verify_signature(unittest.TestCase):
 
     def test_success_single_cert(self):
         cert_value = 'cert-value'
-        certs = {None: cert_value}
+        certs = [cert_value]
         message = object()
         signature = object()
 
@@ -102,7 +102,7 @@ class Test__verify_signature(unittest.TestCase):
         cert_value1 = 'cert-value1'
         cert_value2 = 'cert-value2'
         cert_value3 = 'cert-value3'
-        certs = _MockOrderedDict(cert_value1, cert_value2, cert_value3)
+        certs = [cert_value1, cert_value2, cert_value3]
         message = object()
         signature = object()
 
@@ -131,7 +131,7 @@ class Test__verify_signature(unittest.TestCase):
 
     def test_failure(self):
         cert_value = 'cert-value'
-        certs = {None: cert_value}
+        certs = [cert_value]
         message = object()
         signature = object()
 
@@ -292,7 +292,10 @@ class Test_verify_signed_jwt_with_certs(unittest.TestCase):
     @mock.patch('oauth2client.crypt._verify_time_range')
     @mock.patch('oauth2client.crypt._verify_signature')
     def test_success(self, verify_sig, verify_time, check_aud):
-        certs = object()
+        certs = mock.MagicMock()
+        cert_values = object()
+        certs.values = mock.MagicMock(name='values',
+                                      return_value=cert_values)
         audience = object()
 
         header = b'header'
@@ -308,15 +311,7 @@ class Test_verify_signed_jwt_with_certs(unittest.TestCase):
 
         message_to_sign = header + b'.' + payload
         verify_sig.assert_called_once_with(
-            message_to_sign, signature_bytes, certs)
+            message_to_sign, signature_bytes, cert_values)
         verify_time.assert_called_once_with(payload_dict)
         check_aud.assert_called_once_with(payload_dict, audience)
-
-
-class _MockOrderedDict(object):
-
-    def __init__(self, *values):
-        self._values = values
-
-    def values(self):
-        return self._values
+        certs.values.assert_called_once_with()

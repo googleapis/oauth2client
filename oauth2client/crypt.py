@@ -103,14 +103,13 @@ def _verify_signature(message, signature, certs):
     Args:
         message: string or bytes, The message to verify.
         signature: string or bytes, The signature on the message.
-        certs: dict, with the keys as certificate ID strings and the values
-               certificates in PEM format.
+        certs: iterable, certificates in PEM format.
 
     Raises:
         AppIdentityError: If none of the certificates can verify the message
                           against the signature.
     """
-    for pem in certs.values():
+    for pem in certs:
         verifier = Verifier.from_string(pem, is_x509_cert=True)
         if verifier.verify(message, signature):
             return
@@ -233,7 +232,7 @@ def verify_signed_jwt_with_certs(jwt, certs, audience=None):
         raise AppIdentityError('Can\'t parse token: %s' % (payload_bytes,))
 
     # Verify that the signature matches the message.
-    _verify_signature(message_to_sign, signature, certs)
+    _verify_signature(message_to_sign, signature, certs.values())
 
     # Verify the issued at and created times in the payload.
     _verify_time_range(payload_dict)
