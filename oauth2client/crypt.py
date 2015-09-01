@@ -34,24 +34,26 @@ logger = logging.getLogger(__name__)
 
 
 class AppIdentityError(Exception):
-    pass
+    """Error to indicate crypto failure."""
+
+
+def _bad_pkcs12_key_as_pem(*args, **kwargs):
+    raise NotImplementedError('pkcs12_key_as_pem requires OpenSSL.')
 
 
 try:
     from oauth2client._openssl_crypt import OpenSSLVerifier
     from oauth2client._openssl_crypt import OpenSSLSigner
     from oauth2client._openssl_crypt import pkcs12_key_as_pem
-except ImportError:
+except ImportError:  # pragma: NO COVER
     OpenSSLVerifier = None
     OpenSSLSigner = None
-
-    def pkcs12_key_as_pem(*args, **kwargs):
-        raise NotImplementedError('pkcs12_key_as_pem requires OpenSSL.')
+    pkcs12_key_as_pem = _bad_pkcs12_key_as_pem
 
 try:
     from oauth2client._pycrypto_crypt import PyCryptoVerifier
     from oauth2client._pycrypto_crypt import PyCryptoSigner
-except ImportError:
+except ImportError:  # pragma: NO COVER
     PyCryptoVerifier = None
     PyCryptoSigner = None
 
@@ -59,10 +61,10 @@ except ImportError:
 if OpenSSLSigner:
     Signer = OpenSSLSigner
     Verifier = OpenSSLVerifier
-elif PyCryptoSigner:
+elif PyCryptoSigner:  # pragma: NO COVER
     Signer = PyCryptoSigner
     Verifier = PyCryptoVerifier
-else:
+else:  # pragma: NO COVER
     raise ImportError('No encryption library found. Please install either '
                       'PyOpenSSL, or PyCrypto 2.6 or later')
 
@@ -95,7 +97,107 @@ def make_signed_jwt(signer, payload):
     return b'.'.join(segments)
 
 
-def verify_signed_jwt_with_certs(jwt, certs, audience):
+def _verify_signature(message, signature, certs):
+    """Verifies signed content using a list of certificates.
+
+    Args:
+        message: string or bytes, The message to verify.
+        signature: string or bytes, The signature on the message.
+        certs: iterable, certificates in PEM format.
+
+    Raises:
+        AppIdentityError: If none of the certificates can verify the message
+                          against the signature.
+    """
+    for pem in certs:
+        verifier = Verifier.from_string(pem, is_x509_cert=True)
+        if verifier.verify(message, signature):
+            return
+
+    # If we have not returned, no certificate confirms the signature.
+    raise AppIdentityError('Invalid token signature')
+
+
+def _check_audience(payload_dict, audience):
+    """Checks audience field from a JWT payload.
+
+    Does nothing if the passed in ``audience`` is null.
+
+    Args:
+        payload_dict: dict, A dictionary containing a JWT payload.
+        audience: string or NoneType, an audience to check for in
+                  the JWT payload.
+
+    Raises:
+        AppIdentityError: If there is no ``'aud'`` field in the payload
+                          dictionary but there is an ``audience`` to check.
+        AppIdentityError: If the ``'aud'`` field in the payload dictionary
+                          does not match the ``audience``.
+    """
+    if audience is None:
+        return
+
+    audience_in_payload = payload_dict.get('aud')
+    if audience_in_payload is None:
+        raise AppIdentityError('No aud field in token: %s' %
+                               (payload_dict,))
+    if audience_in_payload != audience:
+        raise AppIdentityError('Wrong recipient, %s != %s: %s' %
+                               (audience_in_payload, audience, payload_dict))
+
+
+def _verify_time_range(payload_dict):
+    """Verifies the issued at and expiration from a JWT payload.
+
+    Makes sure the current time (in UTC) falls between the issued at and
+    expiration for the JWT (with some skew allowed for via
+    ``CLOCK_SKEW_SECS``).
+
+    Args:
+        payload_dict: dict, A dictionary containing a JWT payload.
+
+    Raises:
+        AppIdentityError: If there is no ``'iat'`` field in the payload
+                          dictionary.
+        AppIdentityError: If there is no ``'exp'`` field in the payload
+                          dictionary.
+        AppIdentityError: If the JWT expiration is too far in the future (i.e.
+                          if the expiration would imply a token lifetime
+                          longer than what is allowed.)
+        AppIdentityError: If the token appears to have been issued in the
+                          future (up to clock skew).
+        AppIdentityError: If the token appears to have expired in the past
+                          (up to clock skew).
+    """
+    # Get the current time to use throughout.
+    now = int(time.time())
+
+    # Make sure issued at and expiration are in the payload.
+    issued_at = payload_dict.get('iat')
+    if issued_at is None:
+        raise AppIdentityError('No iat field in token: %s' % (payload_dict,))
+    expiration = payload_dict.get('exp')
+    if expiration is None:
+        raise AppIdentityError('No exp field in token: %s' % (payload_dict,))
+
+    # Make sure the expiration gives an acceptable token lifetime.
+    if expiration >= now + MAX_TOKEN_LIFETIME_SECS:
+        raise AppIdentityError('exp field too far in future: %s' %
+                               (payload_dict,))
+
+    # Make sure (up to clock skew) that the token wasn't issued in the future.
+    earliest = issued_at - CLOCK_SKEW_SECS
+    if now < earliest:
+        raise AppIdentityError('Token used too early, %d < %d: %s' %
+                               (now, earliest, payload_dict))
+    # Make sure (up to clock skew) that the token isn't already expired.
+    latest = expiration + CLOCK_SKEW_SECS
+    if now > latest:
+        raise AppIdentityError('Token used too late, %d > %d: %s' %
+                               (now, latest, payload_dict))
+
+
+def verify_signed_jwt_with_certs(jwt, certs, audience=None):
     """Verify a JWT against public certs.
 
     See http://self-issued.info/docs/draft-jones-json-web-token.html.
@@ -110,63 +212,32 @@ def verify_signed_jwt_with_certs(jwt, certs, audience):
         dict, The deserialized JSON payload in the JWT.
 
     Raises:
-        AppIdentityError if any checks are failed.
+        AppIdentityError: if any checks are failed.
     """
     jwt = _to_bytes(jwt)
-    segments = jwt.split(b'.')
 
-    if len(segments) != 3:
-        raise AppIdentityError('Wrong number of segments in token: %s' % jwt)
-    signed = segments[0] + b'.' + segments[1]
+    if jwt.count(b'.') != 2:
+        raise AppIdentityError(
+            'Wrong number of segments in token: %s' % (jwt,))
 
-    signature = _urlsafe_b64decode(segments[2])
+    header, payload, signature = jwt.split(b'.')
+    message_to_sign = header + b'.' + payload
+    signature = _urlsafe_b64decode(signature)
 
     # Parse token.
-    json_body = _urlsafe_b64decode(segments[1])
+    payload_bytes = _urlsafe_b64decode(payload)
     try:
-        parsed = json.loads(_from_bytes(json_body))
+        payload_dict = json.loads(_from_bytes(payload_bytes))
     except:
-        raise AppIdentityError('Can\'t parse token: %s' % json_body)
+        raise AppIdentityError('Can\'t parse token: %s' % (payload_bytes,))
 
-    # Check signature.
-    verified = False
-    for pem in certs.values():
-        verifier = Verifier.from_string(pem, True)
-        if verifier.verify(signed, signature):
-            verified = True
-            break
-    if not verified:
-        raise AppIdentityError('Invalid token signature: %s' % jwt)
+    # Verify that the signature matches the message.
+    _verify_signature(message_to_sign, signature, certs.values())
 
-    # Check creation timestamp.
-    iat = parsed.get('iat')
-    if iat is None:
-        raise AppIdentityError('No iat field in token: %s' % json_body)
-    earliest = iat - CLOCK_SKEW_SECS
-
-    # Check expiration timestamp.
-    now = int(time.time())
-    exp = parsed.get('exp')
-    if exp is None:
-        raise AppIdentityError('No exp field in token: %s' % json_body)
-    if exp >= now + MAX_TOKEN_LIFETIME_SECS:
-        raise AppIdentityError('exp field too far in future: %s' % json_body)
-    latest = exp + CLOCK_SKEW_SECS
-
-    if now < earliest:
-        raise AppIdentityError('Token used too early, %d < %d: %s' %
-                               (now, earliest, json_body))
-    if now > latest:
-        raise AppIdentityError('Token used too late, %d > %d: %s' %
-                               (now, latest, json_body))
+    # Verify the issued at and created times in the payload.
+    _verify_time_range(payload_dict)
 
     # Check audience.
-    if audience is not None:
-        aud = parsed.get('aud')
-        if aud is None:
-            raise AppIdentityError('No aud field in token: %s' % json_body)
-        if aud != audience:
-            raise AppIdentityError('Wrong recipient, %s != %s: %s' %
-                                   (aud, audience, json_body))
+    _check_audience(payload_dict, audience)
 
-    return parsed
+    return payload_dict
