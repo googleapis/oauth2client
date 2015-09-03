@@ -1,5 +1,24 @@
 # CHANGELOG
 
+## v1.5.0
+
+* Fix (more like clarify) `bytes` / `str` handling in crypto
+  methods. (#203, #250, #272)
+* Replacing `webapp` with `webapp2` in `oauth2client.appengine` (#217)
+* Added optional `state` parameter to
+  `step1_get_authorize_url`. (#219 and #222)
+* Added `flask_util` module that provides a Flask extension to aid
+  with using OAuth2 web server flow. This provides the same functionality
+  as the `appengine.webapp2` OAuth2Decorator, but will work with any Flask
+  application regardless of hosting environment. (#226, #273)
+* Track scopes used on credentials objects (#230)
+* Moving docs to [readthedocs.org][1] (#237, #238, #244)
+* Removing `old_run` module. Was deprecated July 2, 2013. (#285)
+* Avoid proxies when querying for GCE metadata (to check if
+  running on GCE) (#114, #293)
+
+[1]: https://readthedocs.org/
+
 ## v1.4.12
 
 * Fix OS X flaky test failure (#189).
