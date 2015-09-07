@@ -177,15 +177,15 @@ def run_flow(flow, storage, flags, http=None):
                 success = True
                 break
         flags.noauth_local_webserver = not success
-    if not success:
-        print('Failed to start a local webserver listening '
-              'on either port 8080')
-        print('or port 8090. Please check your firewall settings and locally')
-        print('running programs that may be blocking or using those ports.')
-        print()
-        print('Falling back to --noauth_local_webserver and continuing with')
-        print('authorization.')
-        print()
+        if not success:
+            print('Failed to start a local webserver listening '
+                  'on either port 8080')
+            print('or port 8090. Please check your firewall settings and locally')
+            print('running programs that may be blocking or using those ports.')
+            print()
+            print('Falling back to --noauth_local_webserver and continuing with')
+            print('authorization.')
+            print()
 
     if not flags.noauth_local_webserver:
         oauth_callback = 'http://%s:%s/' % (flags.auth_host_name, port_number)
