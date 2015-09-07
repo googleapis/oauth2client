@@ -180,7 +180,7 @@ def run_flow(flow, storage, flags, http=None):
     if not success:
         print('Failed to start a local webserver listening '
               'on either port 8080')
-        print('or port 9090. Please check your firewall settings and locally')
+        print('or port 8090. Please check your firewall settings and locally')
         print('running programs that may be blocking or using those ports.')
         print()
         print('Falling back to --noauth_local_webserver and continuing with')
