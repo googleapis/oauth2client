@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.5.1
+
+* Fix bad indent in `tools.run_flow()` (#301, bug was
+  introduced when switching from 2 space indents to 4)
+
 ## v1.5.0
 
 * Fix (more like clarify) `bytes` / `str` handling in crypto
