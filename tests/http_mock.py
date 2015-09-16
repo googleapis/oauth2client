@@ -24,21 +24,15 @@ import httplib2
 class HttpMock(object):
     """Mock of httplib2.Http"""
 
-    def __init__(self, filename=None, headers=None):
+    def __init__(self, headers=None):
         """HttpMock constructor.
 
         Args:
-            filename: string, absolute filename to read response from
             headers: dict, header to return with response
         """
         if headers is None:
-            headers = {'status': '200 OK'}
-        if filename:
-            f = file(filename, 'r')
-            self.data = f.read()
-            f.close()
-        else:
-            self.data = None
+            headers = {'status': '200'}
+        self.data = None
         self.response_headers = headers
         self.headers = None
         self.uri = None
@@ -78,10 +72,7 @@ class HttpMockSequence(object):
 
     * 'echo_request_headers' means return the request headers in the response
        body
-    * 'echo_request_headers_as_json' means return the request headers in
-      the response body
     * 'echo_request_body' means return the request body in the response body
-    * 'echo_request_uri' means return the request uri in the response body
     """
 
     def __init__(self, iterable):
@@ -107,13 +98,17 @@ class HttpMockSequence(object):
                                if getattr(body, 'read', None) else None)
         if content == 'echo_request_headers':
             content = headers
-        elif content == 'echo_request_headers_as_json':
-            content = json.dumps(headers)
         elif content == 'echo_request_body':
             content = (body
                        if body_stream_content is None else body_stream_content)
-        elif content == 'echo_request_uri':
-            content = uri
-        elif not isinstance(content, bytes):
-            raise TypeError('http content should be bytes: %r' % (content,))
         return httplib2.Response(resp), content
+
+
+class CacheMock(object):
+
+    def __init__(self):
+        self.cache = {}
+
+    def get(self, key, namespace=''):
+        # ignoring namespace for easier testing
+        return self.cache.get(key, None)

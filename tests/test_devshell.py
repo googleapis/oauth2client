@@ -22,6 +22,7 @@ import unittest
 
 import mock
 
+from oauth2client._helpers import _from_bytes
 from oauth2client._helpers import _to_bytes
 from oauth2client.client import save_to_well_known_file
 from oauth2client.devshell import _SendRecv
@@ -107,9 +108,10 @@ class _AuthReferenceServer(threading.Thread):
         super(_AuthReferenceServer, self).__init__(None)
         self.response = (response or
                          '["joe@example.com", "fooproj", "sometoken"]')
+        self.bad_request = False
 
     def __enter__(self):
-        self.start_server()
+        return self.start_server()
 
     def start_server(self):
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -139,27 +141,47 @@ class _AuthReferenceServer(threading.Thread):
             s, unused_addr = self._socket.accept()
             resp_buffer = ''
             resp_1 = s.recv(6).decode()
-            if '\n' not in resp_1:
-                raise Exception('invalid request data')
             nstr, extra = resp_1.split('\n', 1)
             resp_buffer = extra
             n = int(nstr)
             to_read = n - len(extra)
             if to_read > 0:
-                resp_buffer += s.recv(to_read, socket.MSG_WAITALL)
+                resp_buffer += _from_bytes(s.recv(to_read, socket.MSG_WAITALL))
             if resp_buffer != CREDENTIAL_INFO_REQUEST_JSON:
-                raise Exception('bad request')
+                self.bad_request = True
             l = len(self.response)
             s.sendall(('%d\n%s' % (l, self.response)).encode())
         finally:
-            if s:
-                s.close()
+            # Will fail if s is None, but these tests never encounter
+            # that scenario.
+            s.close()
 
 
 class DevshellCredentialsTests(unittest.TestCase):
 
     def test_signals_no_server(self):
         self.assertRaises(NoDevshellServer, DevshellCredentials)
+
+    def test_bad_message_to_mock_server(self):
+        request_content = CREDENTIAL_INFO_REQUEST_JSON + 'extrastuff'
+        request_message = _to_bytes(
+            '%d\n%s' % (len(request_content), request_content))
+        response_message = 'foobar'
+        with _AuthReferenceServer(response_message) as auth_server:
+            self.assertFalse(auth_server.bad_request)
+            sock = socket.socket()
+            port = int(os.getenv(DEVSHELL_ENV, 0))
+            sock.connect(('localhost', port))
+            sock.sendall(request_message)
+
+            # Mimic the receive part of _SendRecv
+            header = sock.recv(6).decode()
+            len_str, result = header.split('\n', 1)
+            to_read = int(len_str) - len(result)
+            result += sock.recv(to_read, socket.MSG_WAITALL).decode()
+
+        self.assertTrue(auth_server.bad_request)
+        self.assertEqual(result, response_message)
 
     def test_request_response(self):
         with _AuthReferenceServer():

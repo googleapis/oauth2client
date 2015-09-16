@@ -21,6 +21,7 @@ import unittest
 
 import httplib2
 
+from oauth2client._helpers import _from_bytes
 from oauth2client import GOOGLE_AUTH_URI
 from oauth2client import GOOGLE_REVOKE_URI
 from oauth2client import GOOGLE_TOKEN_URI
@@ -207,10 +208,7 @@ class OAuth2CredentialsTests(unittest.TestCase):
         ]
         for src, match in ERRORS:
             # Ensure that it is unicode
-            try:
-                src = src.decode('utf-8')
-            except AttributeError:
-                pass
+            src = _from_bytes(src)
             # Test load(s)
             try:
                 clientsecrets.loads(src)
