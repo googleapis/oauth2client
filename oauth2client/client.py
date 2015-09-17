@@ -41,6 +41,7 @@ from oauth2client import GOOGLE_TOKEN_INFO_URI
 from oauth2client._helpers import _from_bytes
 from oauth2client._helpers import _to_bytes
 from oauth2client._helpers import _urlsafe_b64decode
+from oauth2client._helpers import _urlsafe_b64encode
 from oauth2client import clientsecrets
 from oauth2client import util
 
@@ -1602,7 +1603,7 @@ class SignedJwtAssertionCredentials(AssertionCredentials):
         Args:
             service_account_name: string, id for account, usually an email
                                   address.
-            private_key: string, private key in PKCS12 or PEM format.
+            private_key: string or bytes, private key in PKCS12 or PEM format.
             scope: string or iterable of strings, scope(s) of the credentials
                    being requested.
             private_key_password: string, password for private_key, unused if
@@ -1630,8 +1631,7 @@ class SignedJwtAssertionCredentials(AssertionCredentials):
         self.scope = util.scopes_to_string(scope)
 
         # Keep base64 encoded so it can be stored in JSON.
-        self.private_key = base64.b64encode(private_key)
-        self.private_key = _to_bytes(self.private_key, encoding='utf-8')
+        self.private_key = base64.b64encode(_to_bytes(private_key))
         self.private_key_password = private_key_password
         self.service_account_name = service_account_name
         self.kwargs = kwargs
