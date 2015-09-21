@@ -134,6 +134,13 @@ class AccessTokenRefreshError(Error):
     """Error trying to refresh an expired access token."""
 
 
+class HttpAccessTokenRefreshError(AccessTokenRefreshError):
+    """Error (with HTTP status) trying to refresh an expired access token."""
+    def __init__(self, *args, **kwargs):
+        super(HttpAccessTokenRefreshError, self).__init__(*args)
+        self.status = kwargs.get('status')
+
+
 class TokenRevokeError(Error):
     """Error trying to revoke a token."""
 
@@ -830,7 +837,7 @@ class OAuth2Credentials(Credentials):
                           refresh request.
 
         Raises:
-            AccessTokenRefreshError: When the refresh fails.
+            HttpAccessTokenRefreshError: When the refresh fails.
         """
         if not self.store:
             self._do_refresh_request(http_request)
@@ -858,7 +865,7 @@ class OAuth2Credentials(Credentials):
                           refresh request.
 
         Raises:
-            AccessTokenRefreshError: When the refresh fails.
+            HttpAccessTokenRefreshError: When the refresh fails.
         """
         body = self._generate_refresh_request_body()
         headers = self._generate_refresh_request_headers()
@@ -898,7 +905,7 @@ class OAuth2Credentials(Credentials):
                         self.store.locked_put(self)
             except (TypeError, ValueError):
                 pass
-            raise AccessTokenRefreshError(error_msg)
+            raise HttpAccessTokenRefreshError(error_msg, status=resp.status)
 
     def _revoke(self, http_request):
         """Revokes this credential and deletes the stored copy (if it exists).

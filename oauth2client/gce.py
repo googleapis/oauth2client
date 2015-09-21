@@ -23,7 +23,7 @@ from six.moves import urllib
 
 from oauth2client._helpers import _from_bytes
 from oauth2client import util
-from oauth2client.client import AccessTokenRefreshError
+from oauth2client.client import HttpAccessTokenRefreshError
 from oauth2client.client import AssertionCredentials
 
 
@@ -80,7 +80,7 @@ class AppAssertionCredentials(AssertionCredentials):
                           the refresh request.
 
         Raises:
-            AccessTokenRefreshError: When the refresh fails.
+            HttpAccessTokenRefreshError: When the refresh fails.
         """
         query = '?scope=%s' % urllib.parse.quote(self.scope, '')
         uri = META.replace('{?scope}', query)
@@ -90,13 +90,14 @@ class AppAssertionCredentials(AssertionCredentials):
             try:
                 d = json.loads(content)
             except Exception as e:
-                raise AccessTokenRefreshError(str(e))
+                raise HttpAccessTokenRefreshError(str(e),
+                                                  status=response.status)
             self.access_token = d['accessToken']
         else:
             if response.status == 404:
                 content += (' This can occur if a VM was created'
                             ' with no service account or scopes.')
-            raise AccessTokenRefreshError(content)
+            raise HttpAccessTokenRefreshError(content, status=response.status)
 
     @property
     def serialization_data(self):
