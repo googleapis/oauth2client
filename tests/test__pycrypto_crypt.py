@@ -61,3 +61,7 @@ class TestPyCryptoVerifier(unittest.TestCase):
         public_key = public_key.decode('utf-8')
         verifier = PyCryptoVerifier.from_string(public_key, is_x509_cert=True)
         self.assertTrue(isinstance(verifier, PyCryptoVerifier))
+
+
+if __name__ == '__main__':  # pragma: NO COVER
+    unittest.main()

@@ -315,3 +315,7 @@ class Test_verify_signed_jwt_with_certs(unittest.TestCase):
         verify_time.assert_called_once_with(payload_dict)
         check_aud.assert_called_once_with(payload_dict, audience)
         certs.values.assert_called_once_with()
+
+
+if __name__ == '__main__':  # pragma: NO COVER
+    unittest.main()

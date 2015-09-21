@@ -129,3 +129,7 @@ class ServiceAccountCredentialsTests(unittest.TestCase):
         self.assertFalse(self.credentials.access_token_expired)
         self.assertEqual(token_response_second,
                          self.credentials.token_response)
+
+
+if __name__ == '__main__':  # pragma: NO COVER
+    unittest.main()

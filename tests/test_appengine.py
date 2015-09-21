@@ -880,5 +880,5 @@ class DecoratorXsrfProtectionTests(unittest.TestCase):
                           appengine._parse_state_value, state[1:], UserMock())
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: NO COVER
     unittest.main()

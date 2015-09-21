@@ -27,5 +27,5 @@ class TestClientRedirectServer(unittest.TestCase):
         self.assertEqual(httpd.query_params.get('code'), code)
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: NO COVER
     unittest.main()

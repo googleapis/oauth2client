@@ -293,5 +293,5 @@ class CachedClientsecretsTests(unittest.TestCase):
         self.assertEqual('foo_client_secret', client_info['client_secret'])
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: NO COVER
     unittest.main()

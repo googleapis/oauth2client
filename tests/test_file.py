@@ -415,5 +415,5 @@ class OAuth2ClientFileTests(unittest.TestCase):
         self.assertEquals([], keys)
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: NO COVER
     unittest.main()
