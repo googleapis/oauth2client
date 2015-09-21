@@ -31,6 +31,7 @@ import unittest
 
 import mock
 import six
+from six.moves import http_client
 from six.moves import urllib
 
 from .http_mock import CacheMock
@@ -43,7 +44,7 @@ from oauth2client import client
 from oauth2client import util as oauth2client_util
 from oauth2client.client import AccessTokenCredentials
 from oauth2client.client import AccessTokenCredentialsError
-from oauth2client.client import AccessTokenRefreshError
+from oauth2client.client import HttpAccessTokenRefreshError
 from oauth2client.client import ADC_HELP_MSG
 from oauth2client.client import AssertionCredentials
 from oauth2client.client import AUTHORIZED_USER
@@ -690,14 +691,15 @@ class BasicCredentialsTests(unittest.TestCase):
         for status_code in REFRESH_STATUS_CODES:
             http = HttpMockSequence([
                 ({'status': status_code}, b''),
-                ({'status': '400'}, b'{"error":"access_denied"}'),
+                ({'status': http_client.BAD_REQUEST},
+                 b'{"error":"access_denied"}'),
             ])
             http = self.credentials.authorize(http)
             try:
                 http.request('http://example.com')
-                self.fail('should raise AccessTokenRefreshError exception')
-            except AccessTokenRefreshError:
-                pass
+                self.fail('should raise HttpAccessTokenRefreshError exception')
+            except HttpAccessTokenRefreshError as e:
+                self.assertEqual(http_client.BAD_REQUEST, e.status)
             self.assertTrue(self.credentials.access_token_expired)
             self.assertEqual(None, self.credentials.token_response)
 
