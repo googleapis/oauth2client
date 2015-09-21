@@ -33,6 +33,7 @@ import mock
 import six
 from six.moves import urllib
 
+from .http_mock import CacheMock
 from .http_mock import HttpMock
 from .http_mock import HttpMockSequence
 from oauth2client import GOOGLE_REVOKE_URI
@@ -112,42 +113,12 @@ def load_and_cache(existing_file, fakename, cache_mock):
     cache_mock.cache[fakename] = {client_type: client_info}
 
 
-class CacheMock(object):
-    def __init__(self):
-        self.cache = {}
-
-    def get(self, key, namespace=''):
-        # ignoring namespace for easier testing
-        return self.cache.get(key, None)
-
-    def set(self, key, value, namespace=''):
-        # ignoring namespace for easier testing
-        self.cache[key] = value
-
-
 class CredentialsTests(unittest.TestCase):
 
     def test_to_from_json(self):
         credentials = Credentials()
         json = credentials.to_json()
         restored = Credentials.new_from_json(json)
-
-
-class MockResponse(object):
-    """Mock the response of urllib2.urlopen() call."""
-
-    def __init__(self, headers):
-        self._headers = headers
-
-    def info(self):
-        class Info:
-            def __init__(self, headers):
-                self.headers = headers
-
-            def get(self, key, default=None):
-                return self.headers.get(key, default)
-
-        return Info(self._headers)
 
 
 @contextlib.contextmanager
@@ -169,27 +140,19 @@ def mock_module_import(module):
 class GoogleCredentialsTests(unittest.TestCase):
 
     def setUp(self):
-        self.env_server_software = os.environ.get('SERVER_SOFTWARE', None)
-        self.env_google_application_credentials = (
-            os.environ.get(GOOGLE_APPLICATION_CREDENTIALS, None))
-        self.env_appdata = os.environ.get('APPDATA', None)
         self.os_name = os.name
         from oauth2client import client
         client.SETTINGS.env_name = None
 
     def tearDown(self):
-        self.reset_env('SERVER_SOFTWARE', self.env_server_software)
-        self.reset_env(GOOGLE_APPLICATION_CREDENTIALS,
-                       self.env_google_application_credentials)
-        self.reset_env('APPDATA', self.env_appdata)
+        self.reset_env('SERVER_SOFTWARE')
+        self.reset_env(GOOGLE_APPLICATION_CREDENTIALS)
+        self.reset_env('APPDATA')
         os.name = self.os_name
 
-    def reset_env(self, env, value):
+    def reset_env(self, env):
         """Set the environment variable 'env' to 'value'."""
-        if value is not None:
-            os.environ[env] = value
-        else:
-            os.environ.pop(env, '')
+        os.environ.pop(env, None)
 
     def validate_service_account_credentials(self, credentials):
         self.assertTrue(isinstance(credentials, _ServiceAccountCredentials))
@@ -796,7 +759,7 @@ class BasicCredentialsTests(unittest.TestCase):
         # First, test that we correctly encode basic objects, making sure
         # to include a bytes object. Note that oauth2client will normalize
         # everything to bytes, no matter what python version we're in.
-        http = credentials.authorize(HttpMock(headers={'status': '200'}))
+        http = credentials.authorize(HttpMock())
         headers = {u'foo': 3, b'bar': True, 'baz': b'abc'}
         cleaned_headers = {b'foo': b'3', b'bar': b'True', b'baz': b'abc'}
         http.request(u'http://example.com', method=u'GET', headers=headers)
@@ -825,7 +788,7 @@ class BasicCredentialsTests(unittest.TestCase):
                                         refresh_token, token_expiry, token_uri,
                                         user_agent, revoke_uri=revoke_uri)
 
-        http = HttpMock(headers={'status': '200'})
+        http = HttpMock()
         http = credentials.authorize(http)
         http.request(u'http://example.com', method=u'GET',
                      headers={u'foo': u'bar'})
@@ -941,8 +904,6 @@ class AccessTokenCredentialsTests(unittest.TestCase):
                 self.fail('should throw exception if token expires')
             except AccessTokenCredentialsError:
                 pass
-            except Exception:
-                self.fail('should only throw AccessTokenCredentialsError')
 
     def test_token_revoke_success(self):
         _token_revoke_test_helper(

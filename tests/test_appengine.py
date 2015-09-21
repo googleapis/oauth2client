@@ -34,6 +34,7 @@ dev_appserver.fix_sys_path()
 import mock
 import webapp2
 
+from .http_mock import CacheMock
 from google.appengine.api import apiproxy_stub
 from google.appengine.api import apiproxy_stub_map
 from google.appengine.api import app_identity
@@ -78,19 +79,6 @@ def datafile(filename):
 def load_and_cache(existing_file, fakename, cache_mock):
     client_type, client_info = _loadfile(datafile(existing_file))
     cache_mock.cache[fakename] = {client_type: client_info}
-
-
-class CacheMock(object):
-    def __init__(self):
-        self.cache = {}
-
-    def get(self, key, namespace=''):
-        # ignoring namespace for easier testing
-        return self.cache.get(key, None)
-
-    def set(self, key, value, namespace=''):
-        # ignoring namespace for easier testing
-        self.cache[key] = value
 
 
 class UserMock(object):
