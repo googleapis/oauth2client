@@ -407,6 +407,15 @@ class FlaskOAuth2Tests(unittest.TestCase):
             self.assertTrue('include_granted_scopes' in q)
             self.assertEqual(q['scope'][0], 'email one two three')
 
+        # Actually call two() without a redirect.
+        credentials2 = self._generate_credentials(scopes=['two', 'three'])
+        with self.app.test_client() as c:
+            with c.session_transaction() as session:
+                session['google_oauth2_credentials'] = credentials2.to_json()
+
+            rv = c.get('/two')
+            self.assertEqual(rv.status_code, httplib.OK)
+
     def test_refresh(self):
         with self.app.test_request_context():
             with mock.patch('flask.session'):
