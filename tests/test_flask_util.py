@@ -426,5 +426,6 @@ class FlaskOAuth2Tests(unittest.TestCase):
 
             self.assertFalse('google_oauth2_credentials' in flask.session)
 
-if __name__ == '__main__':
+
+if __name__ == '__main__':  # pragma: NO COVER
     unittest.main()

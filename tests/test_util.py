@@ -58,3 +58,7 @@ class KeyConversionTests(unittest.TestCase):
 
         # check we get the original dictionary back
         self.assertEqual(d, dict(tuple_key))
+
+
+if __name__ == '__main__':  # pragma: NO COVER
+    unittest.main()

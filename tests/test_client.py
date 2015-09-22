@@ -1379,5 +1379,5 @@ class Test__save_private_file(unittest.TestCase):
         self._save_helper(filename)
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: NO COVER
     unittest.main()

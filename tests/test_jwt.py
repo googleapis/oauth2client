@@ -337,5 +337,5 @@ class TestHasOpenSSLFlag(unittest.TestCase):
         self.assertEqual(True, HAS_CRYPTO)
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: NO COVER
     unittest.main()

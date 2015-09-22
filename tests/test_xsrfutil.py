@@ -292,5 +292,5 @@ class XsrfUtilTests(unittest.TestCase):
                                                  action_id=TEST_ACTION_ID_1))
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: NO COVER
     unittest.main()

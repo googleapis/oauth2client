@@ -172,3 +172,7 @@ class _FakeLock(object):
 
     def release(self):
         self._release_count += 1
+
+
+if __name__ == '__main__':  # pragma: NO COVER
+    unittest.main()

@@ -88,5 +88,5 @@ class TestFlowField(unittest.TestCase):
         self.assertEqual(prep_value, self.pickle)
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: NO COVER
     unittest.main()

@@ -172,3 +172,7 @@ class AppAssertionCredentialsTests(unittest.TestCase):
                               credentials)
         finally:
             os.path.isdir = ORIGINAL_ISDIR
+
+
+if __name__ == '__main__':  # pragma: NO COVER
+    unittest.main()

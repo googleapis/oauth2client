@@ -115,3 +115,7 @@ class Test__urlsafe_b64decode(unittest.TestCase):
         bad_string = b'+'
         self.assertRaises((TypeError, binascii.Error),
                           _urlsafe_b64decode, bad_string)
+
+
+if __name__ == '__main__':  # pragma: NO COVER
+    unittest.main()

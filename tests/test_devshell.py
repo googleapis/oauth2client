@@ -244,3 +244,7 @@ class DevshellCredentialsTests(unittest.TestCase):
             credentials = DevshellCredentials()
             self.assertRaises(NotImplementedError, getattr,
                               credentials, 'serialization_data')
+
+
+if __name__ == '__main__':  # pragma: NO COVER
+    unittest.main()
