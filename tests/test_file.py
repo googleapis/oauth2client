@@ -41,7 +41,7 @@ from six.moves import http_client
 try:
     # Python2
     from future_builtins import oct
-except:
+except:  # pragma: NO COVER
     pass
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
