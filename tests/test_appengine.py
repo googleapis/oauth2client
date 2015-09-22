@@ -497,9 +497,9 @@ class DecoratorTests(unittest.TestCase):
         class TestRequiredHandler(webapp2.RequestHandler):
             @decorator.oauth_required
             def get(self):
-                if decorator.has_credentials():
-                    parent.had_credentials = True
-                    parent.found_credentials = decorator.credentials
+                parent.assertTrue(decorator.has_credentials())
+                parent.had_credentials = True
+                parent.found_credentials = decorator.credentials
                 if parent.should_raise:
                     raise Exception('')
 
