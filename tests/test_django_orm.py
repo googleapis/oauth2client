@@ -36,10 +36,11 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'django_settings'
 sys.modules['django_settings'] = django_settings = imp.new_module(
     'django_settings')
 django_settings.SECRET_KEY = 'xyzzy'
+from django.db import models
 
 from oauth2client.django_orm import CredentialsField
 from oauth2client.django_orm import FlowField
-
+from oauth2client._helpers import _from_bytes, _to_bytes
 
 __author__ = 'conleyo@google.com (Conley Owens)'
 
@@ -58,10 +59,39 @@ class TestCredentialsField(unittest.TestCase):
         self.assertTrue(isinstance(self.field.to_python(self.pickle),
                                    Credentials))
 
+    def test_field_unpickled_none(self):
+        self.assertEqual(self.field.to_python(None), None)
+
     def test_field_pickled(self):
         prep_value = self.field.get_db_prep_value(self.credentials,
                                                   connection=None)
-        self.assertEqual(prep_value, self.pickle)
+        self.assertEqual(_to_bytes(prep_value), self.pickle)
+
+
+class TestCredentialsFieldViaModel(unittest.TestCase):
+
+    class TestModel(models.Model):
+        credentials = CredentialsField()
+
+    def setUp(self):
+        self.model = self.TestModel()
+        # using the meta api:
+        # https://docs.djangoproject.com/en/1.8/ref/models/meta/#field-access-api
+        self.field = self.model._meta.get_field('credentials')
+        self.credentials = Credentials()
+        self.pickle_str = _from_bytes(base64.b64encode(pickle.dumps(
+            self.credentials
+        )))
+
+    def test_field_value_to_string(self):
+        self.model.credentials = self.credentials
+        value_str = self.field.value_to_string(self.model)
+        self.assertEqual(value_str, self.pickle_str)
+
+    def test_field_value_to_string_none(self):
+        self.model.credentials = None
+        value_str = self.field.value_to_string(self.model)
+        self.assertEqual(value_str, None)
 
 
 class TestFlowField(unittest.TestCase):

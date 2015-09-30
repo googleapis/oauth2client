@@ -21,17 +21,17 @@ the Django datastore.
 import oauth2client
 import base64
 import pickle
+import six
 
 from django.db import models
+from django.utils.encoding import smart_bytes, smart_text
 from oauth2client.client import Storage as BaseStorage
 
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 
-class CredentialsField(models.Field):
-
-    __metaclass__ = models.SubfieldBase
+class CredentialsField(six.with_metaclass(models.SubfieldBase, models.Field)):
 
     def __init__(self, *args, **kwargs):
         if 'null' not in kwargs:
@@ -46,12 +46,24 @@ class CredentialsField(models.Field):
             return None
         if isinstance(value, oauth2client.client.Credentials):
             return value
-        return pickle.loads(base64.b64decode(value))
+        return pickle.loads(base64.b64decode(smart_bytes(value)))
 
-    def get_db_prep_value(self, value, connection, prepared=False):
+    def get_prep_value(self, value):
         if value is None:
             return None
-        return base64.b64encode(pickle.dumps(value))
+        return smart_text(base64.b64encode(pickle.dumps(value)))
+
+    def value_to_string(self, obj):
+        """Convert the field value from the provided model to a string.
+        Used during model serialization.
+
+        Args:
+            obj: db.Model, model object
+        Returns:
+            string, the serialized field value
+        """
+        value = self._get_val_from_obj(obj)
+        return self.get_prep_value(value)
 
 
 class FlowField(models.Field):
