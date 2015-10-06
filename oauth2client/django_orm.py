@@ -39,7 +39,7 @@ class CredentialsField(six.with_metaclass(models.SubfieldBase, models.Field)):
         super(CredentialsField, self).__init__(*args, **kwargs)
 
     def get_internal_type(self):
-        return "TextField"
+        return 'TextField'
 
     def to_python(self, value):
         if value is None:
@@ -55,10 +55,12 @@ class CredentialsField(six.with_metaclass(models.SubfieldBase, models.Field)):
 
     def value_to_string(self, obj):
         """Convert the field value from the provided model to a string.
+
         Used during model serialization.
 
         Args:
             obj: db.Model, model object
+
         Returns:
             string, the serialized field value
         """
@@ -66,9 +68,7 @@ class CredentialsField(six.with_metaclass(models.SubfieldBase, models.Field)):
         return self.get_prep_value(value)
 
 
-class FlowField(models.Field):
-
-    __metaclass__ = models.SubfieldBase
+class FlowField(six.with_metaclass(models.SubfieldBase, models.Field)):
 
     def __init__(self, *args, **kwargs):
         if 'null' not in kwargs:
@@ -76,7 +76,7 @@ class FlowField(models.Field):
         super(FlowField, self).__init__(*args, **kwargs)
 
     def get_internal_type(self):
-        return "TextField"
+        return 'TextField'
 
     def to_python(self, value):
         if value is None:
@@ -85,14 +85,28 @@ class FlowField(models.Field):
             return value
         return pickle.loads(base64.b64decode(value))
 
-    def get_db_prep_value(self, value, connection, prepared=False):
+    def get_prep_value(self, value):
         if value is None:
             return None
-        return base64.b64encode(pickle.dumps(value))
+        return smart_text(base64.b64encode(pickle.dumps(value)))
+
+    def value_to_string(self, obj):
+        """Convert the field value from the provided model to a string.
+
+        Used during model serialization.
+
+        Args:
+            obj: db.Model, model object
+
+        Returns:
+            string, the serialized field value
+        """
+        value = self._get_val_from_obj(obj)
+        return self.get_prep_value(value)
 
 
 class Storage(BaseStorage):
-    """Store and retrieve a single credential to and from the datastore.
+    """Store and retrieve a single credential to and from the Django datastore.
 
     This Storage helper presumes the Credentials
     have been stored as a CredenialsField
@@ -116,7 +130,7 @@ class Storage(BaseStorage):
         self.property_name = property_name
 
     def locked_get(self):
-        """Retrieve Credential from datastore.
+        """Retrieve stored credential.
 
         Returns:
             oauth2client.Credentials
@@ -132,7 +146,7 @@ class Storage(BaseStorage):
         return credential
 
     def locked_put(self, credentials, overwrite=False):
-        """Write a Credentials to the datastore.
+        """Write a Credentials to the Django datastore.
 
         Args:
             credentials: Credentials, the credentials to store.
