@@ -26,6 +26,7 @@ import six.moves.urllib.parse as urlparse
 from oauth2client import GOOGLE_AUTH_URI
 from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client import clientsecrets
+from oauth2client.flask_util import _get_flow_for_token
 from oauth2client.flask_util import UserOAuth2 as FlaskOAuth2
 from oauth2client.client import OAuth2Credentials
 
@@ -201,9 +202,9 @@ class FlaskOAuth2Tests(unittest.TestCase):
             self.assertEqual(flow.params['extra_arg'], 'test')
 
     def test_authorize_view(self):
-        with self.app.test_client() as c:
-            rv = c.get('/oauth2authorize')
-            location = rv.headers['Location']
+        with self.app.test_client() as client:
+            response = client.get('/oauth2authorize')
+            location = response.headers['Location']
             q = urlparse.parse_qs(location.split('?', 1)[1])
             state = json.loads(q['state'][0])
 
@@ -214,35 +215,47 @@ class FlaskOAuth2Tests(unittest.TestCase):
                 flask.session['google_oauth2_csrf_token'], state['csrf_token'])
             self.assertEqual(state['return_url'], '/')
 
-        with self.app.test_client() as c:
-            rv = c.get('/oauth2authorize?return_url=/test')
-            location = rv.headers['Location']
+        with self.app.test_client() as client:
+            response = client.get('/oauth2authorize?return_url=/test')
+            location = response.headers['Location']
             q = urlparse.parse_qs(location.split('?', 1)[1])
             state = json.loads(q['state'][0])
             self.assertEqual(state['return_url'], '/test')
 
-        with self.app.test_client() as c:
-            rv = c.get('/oauth2authorize?extra_param=test')
-            location = rv.headers['Location']
+        with self.app.test_client() as client:
+            response = client.get('/oauth2authorize?extra_param=test')
+            location = response.headers['Location']
             self.assertTrue('extra_param=test' in location)
+
+    def _setup_callback_state(self, client, **kwargs):
+        with self.app.test_request_context():
+            # Flask doesn't create a request context with a session
+            # transaction for some reason, so, set up the flow here,
+            # then apply it to the session in the transaction.
+            if not kwargs:
+                self.oauth2._make_flow(return_url='/return_url')
+            else:
+                self.oauth2._make_flow(**kwargs)
+
+            with client.session_transaction() as session:
+                session.update(flask.session)
+                csrf_token = session['google_oauth2_csrf_token']
+                flow = _get_flow_for_token(csrf_token)
+                state = flow.params['state']
+
+        return state
 
     def test_callback_view(self):
         self.oauth2.storage = mock.Mock()
-
-        with self.app.test_client() as c:
+        with self.app.test_client() as client:
             with Http2Mock() as http:
-                with c.session_transaction() as session:
-                    session['google_oauth2_csrf_token'] = 'tokenz'
+                state = self._setup_callback_state(client)
 
-                state = json.dumps({
-                    'csrf_token': 'tokenz',
-                    'return_url': '/return_url'
-                })
+                response = client.get(
+                    '/oauth2callback?state={0}&code=codez'.format(state))
 
-                rv = c.get('/oauth2callback?state=%s&code=codez' % state)
-
-                self.assertEqual(rv.status_code, httplib.FOUND)
-                self.assertTrue('/return_url' in rv.headers['Location'])
+                self.assertEqual(response.status_code, httplib.FOUND)
+                self.assertTrue('/return_url' in response.headers['Location'])
                 self.assertTrue(self.oauth2.client_secret in http.body)
                 self.assertTrue('codez' in http.body)
                 self.assertTrue(self.oauth2.storage.put.called)
@@ -254,17 +267,17 @@ class FlaskOAuth2Tests(unittest.TestCase):
 
     def test_callback_view_errors(self):
         # Error supplied to callback
-        with self.app.test_client() as c:
-            with c.session_transaction() as session:
+        with self.app.test_client() as client:
+            with client.session_transaction() as session:
                 session['google_oauth2_csrf_token'] = 'tokenz'
 
-            rv = c.get('/oauth2callback?state={}&error=something')
-            self.assertEqual(rv.status_code, httplib.BAD_REQUEST)
-            self.assertTrue('something' in rv.data.decode('utf-8'))
+            response = client.get('/oauth2callback?state={}&error=something')
+            self.assertEqual(response.status_code, httplib.BAD_REQUEST)
+            self.assertTrue('something' in response.data.decode('utf-8'))
 
         # CSRF mismatch
-        with self.app.test_client() as c:
-            with c.session_transaction() as session:
+        with self.app.test_client() as client:
+            with client.session_transaction() as session:
                 session['google_oauth2_csrf_token'] = 'goodstate'
 
             state = json.dumps({
@@ -272,36 +285,47 @@ class FlaskOAuth2Tests(unittest.TestCase):
                 'return_url': '/return_url'
             })
 
-            rv = c.get('/oauth2callback?state=%s&code=codez' % state)
-            self.assertEqual(rv.status_code, httplib.BAD_REQUEST)
+            response = client.get(
+                '/oauth2callback?state={0}&code=codez'.format(state))
+            self.assertEqual(response.status_code, httplib.BAD_REQUEST)
 
         # KeyError, no CSRF state.
-        with self.app.test_client() as c:
-            rv = c.get('/oauth2callback?state={}&code=codez')
-            self.assertEqual(rv.status_code, httplib.BAD_REQUEST)
+        with self.app.test_client() as client:
+            response = client.get('/oauth2callback?state={}&code=codez')
+            self.assertEqual(response.status_code, httplib.BAD_REQUEST)
 
         # Code exchange error
-        with self.app.test_client() as c:
-            with Http2Mock(status=500):
-                with c.session_transaction() as session:
-                    session['google_oauth2_csrf_token'] = 'tokenz'
+        with self.app.test_client() as client:
+            state = self._setup_callback_state(client)
 
-                state = json.dumps({
-                    'csrf_token': 'tokenz',
-                    'return_url': '/return_url'
-                })
-
-                rv = c.get('/oauth2callback?state=%s&code=codez' % state)
-                self.assertEqual(rv.status_code, httplib.BAD_REQUEST)
+            with Http2Mock(status=httplib.INTERNAL_SERVER_ERROR):
+                response = client.get(
+                    '/oauth2callback?state={0}&code=codez'.format(state))
+                self.assertEqual(response.status_code, httplib.BAD_REQUEST)
 
         # Invalid state json
-        with self.app.test_client() as c:
-            with c.session_transaction() as session:
+        with self.app.test_client() as client:
+            with client.session_transaction() as session:
                 session['google_oauth2_csrf_token'] = 'tokenz'
 
             state = '[{'
-            rv = c.get('/oauth2callback?state=%s&code=codez' % state)
-            self.assertEqual(rv.status_code, httplib.BAD_REQUEST)
+            response = client.get(
+                '/oauth2callback?state={0}&code=codez'.format(state))
+            self.assertEqual(response.status_code, httplib.BAD_REQUEST)
+
+        # Missing flow.
+        with self.app.test_client() as client:
+            with client.session_transaction() as session:
+                session['google_oauth2_csrf_token'] = 'tokenz'
+
+            state = json.dumps({
+                'csrf_token': 'tokenz',
+                'return_url': '/return_url'
+            })
+
+            response = client.get(
+                '/oauth2callback?state={0}&code=codez'.format(state))
+            self.assertEqual(response.status_code, httplib.BAD_REQUEST)
 
     def test_no_credentials(self):
         with self.app.test_request_context():
@@ -343,24 +367,24 @@ class FlaskOAuth2Tests(unittest.TestCase):
             return 'Hello'
 
         # No credentials, should redirect
-        with self.app.test_client() as c:
-            rv = c.get('/protected')
-            self.assertEqual(rv.status_code, httplib.FOUND)
-            self.assertTrue('oauth2authorize' in rv.headers['Location'])
-            self.assertTrue('protected' in rv.headers['Location'])
+        with self.app.test_client() as client:
+            response = client.get('/protected')
+            self.assertEqual(response.status_code, httplib.FOUND)
+            self.assertTrue('oauth2authorize' in response.headers['Location'])
+            self.assertTrue('protected' in response.headers['Location'])
 
-        credentials = self._generate_credentials()
+        credentials = self._generate_credentials(scopes=self.oauth2.scopes)
 
         # With credentials, should allow
-        with self.app.test_client() as c:
-            with c.session_transaction() as session:
+        with self.app.test_client() as client:
+            with client.session_transaction() as session:
                 session['google_oauth2_credentials'] = credentials.to_json()
 
-            rv = c.get('/protected')
-            self.assertEqual(rv.status_code, httplib.OK)
-            self.assertTrue('Hello' in rv.data.decode('utf-8'))
+            response = client.get('/protected')
+            self.assertEqual(response.status_code, httplib.OK)
+            self.assertTrue('Hello' in response.data.decode('utf-8'))
 
-    def test_incremental_auth(self):
+    def _create_incremental_auth_app(self):
         self.app = flask.Flask(__name__)
         self.app.testing = True
         self.app.config['SECRET_KEY'] = 'notasecert'
@@ -380,41 +404,67 @@ class FlaskOAuth2Tests(unittest.TestCase):
         def two():
             return 'Hello'
 
+    def test_incremental_auth(self):
+        self._create_incremental_auth_app()
+
         # No credentials, should redirect
-        with self.app.test_client() as c:
-            rv = c.get('/one')
-            self.assertTrue('one' in rv.headers['Location'])
-            self.assertEqual(rv.status_code, httplib.FOUND)
+        with self.app.test_client() as client:
+            response = client.get('/one')
+            self.assertTrue('one' in response.headers['Location'])
+            self.assertEqual(response.status_code, httplib.FOUND)
 
         # Credentials for one. /one should allow, /two should redirect.
-        credentials = self._generate_credentials(scopes=['one'])
+        credentials = self._generate_credentials(scopes=['email', 'one'])
 
-        with self.app.test_client() as c:
-            with c.session_transaction() as session:
+        with self.app.test_client() as client:
+            with client.session_transaction() as session:
                 session['google_oauth2_credentials'] = credentials.to_json()
 
-            rv = c.get('/one')
-            self.assertEqual(rv.status_code, httplib.OK)
+            response = client.get('/one')
+            self.assertEqual(response.status_code, httplib.OK)
 
-            rv = c.get('/two')
-            self.assertTrue('two' in rv.headers['Location'])
-            self.assertEqual(rv.status_code, httplib.FOUND)
+            response = client.get('/two')
+            self.assertTrue('two' in response.headers['Location'])
+            self.assertEqual(response.status_code, httplib.FOUND)
 
             # Starting the authorization flow should include the
             # include_granted_scopes parameter as well as the scopes.
-            rv = c.get(rv.headers['Location'][17:])
-            q = urlparse.parse_qs(rv.headers['Location'].split('?', 1)[1])
+            response = client.get(response.headers['Location'][17:])
+            q = urlparse.parse_qs(response.headers['Location'].split('?', 1)[1])
             self.assertTrue('include_granted_scopes' in q)
-            self.assertEqual(q['scope'][0], 'email one two three')
+            self.assertEqual(
+                set(q['scope'][0].split(' ')),
+                set(['one', 'email', 'two', 'three']))
 
         # Actually call two() without a redirect.
-        credentials2 = self._generate_credentials(scopes=['two', 'three'])
-        with self.app.test_client() as c:
-            with c.session_transaction() as session:
+        credentials2 = self._generate_credentials(
+            scopes=['email', 'two', 'three'])
+
+        with self.app.test_client() as client:
+            with client.session_transaction() as session:
                 session['google_oauth2_credentials'] = credentials2.to_json()
 
-            rv = c.get('/two')
-            self.assertEqual(rv.status_code, httplib.OK)
+            response = client.get('/two')
+            self.assertEqual(response.status_code, httplib.OK)
+
+    def test_incremental_auth_exchange(self):
+        self._create_incremental_auth_app()
+
+        with Http2Mock():
+            with self.app.test_client() as client:
+                state = self._setup_callback_state(
+                    client,
+                    return_url='/return_url',
+                    # Incremental auth scopes.
+                    scopes=['one', 'two'])
+
+                response = client.get(
+                    '/oauth2callback?state={0}&code=codez'.format(state))
+                self.assertEqual(response.status_code, httplib.FOUND)
+
+                credentials = self.oauth2.credentials
+                self.assertTrue(
+                    credentials.has_scopes(['email', 'one', 'two']))
 
     def test_refresh(self):
         with self.app.test_request_context():
