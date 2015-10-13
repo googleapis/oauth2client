@@ -35,10 +35,11 @@ apiui/credential>`__.
 
     app.config['SECRET_KEY'] = 'your-secret-key'
 
-    app.config['OAUTH2_CLIENT_SECRETS_JSON'] = 'client_secrets.json'
+    app.config['GOOGLE_OAUTH2_CLIENT_SECRETS_JSON'] = 'client_secrets.json'
+
     # or, specify the client id and secret separately
-    app.config['OAUTH2_CLIENT_ID'] = 'your-client-id'
-    app.config['OAUTH2_CLIENT_SECRET'] = 'your-client-secret'
+    app.config['GOOGLE_OAUTH2_CLIENT_ID'] = 'your-client-id'
+    app.config['GOOGLE_OAUTH2_CLIENT_SECRET'] = 'your-client-secret'
 
     oauth2 = UserOAuth2(app)
 
@@ -202,9 +203,9 @@ class UserOAuth2(object):
           file, obtained from the credentials screen in the Google Developers
           console.
         * ``GOOGLE_OAUTH2_CLIENT_ID`` the oauth2 credentials' client ID. This
-          is only needed if ``OAUTH2_CLIENT_SECRETS_JSON`` is not specified.
+          is only needed if ``GOOGLE_OAUTH2_CLIENT_SECRETS_JSON`` is not specified.
         * ``GOOGLE_OAUTH2_CLIENT_SECRET`` the oauth2 credentials' client
-          secret. This is only needed if ``OAUTH2_CLIENT_SECRETS_JSON`` is not
+          secret. This is only needed if ``GOOGLE_OAUTH2_CLIENT_SECRETS_JSON`` is not
           specified.
 
     If app is specified, all arguments will be passed along to init_app.
@@ -227,7 +228,7 @@ class UserOAuth2(object):
             app: A Flask application.
             scopes: Optional list of scopes to authorize.
             client_secrets_file: Path to a file containing client secrets. You
-                can also specify the OAUTH2_CLIENT_SECRETS_JSON config value.
+                can also specify the GOOGLE_OAUTH2_CLIENT_SECRETS_JSON config value.
             client_id: If not specifying a client secrets file, specify the
                 OAuth2 client id. You can also specify the
                 GOOGLE_OAUTH2_CLIENT_ID config value. You must also provide a
