@@ -1,6 +1,13 @@
 oauth2client.contrib package
 ============================
 
+Subpackages
+-----------
+
+.. toctree::
+
+    oauth2client.contrib.django_util
+
 Module contents
 ---------------
 

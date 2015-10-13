@@ -11,6 +11,9 @@ docs/_build
 # Test files
 .tox/
 
+# Django test database
+db.sqlite3
+
 # Coverage files
 .coverage
 coverage.xml
