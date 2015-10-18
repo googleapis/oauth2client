@@ -48,14 +48,14 @@ def get_sdk_urls(sdk_versions):
 
 def main(argv):
     if len(argv) > 2:
-        print 'Usage: {} [<destination_dir>]'.format(argv[0])
+        print('Usage: {0} [<destination_dir>]'.format(argv[0]))
         return 1
     dest_dir = argv[1] if len(argv) > 1 else '.'
     if not os.path.exists(dest_dir):
         os.makedirs(dest_dir)
 
     if os.path.exists(os.path.join(dest_dir, 'google_appengine')):
-        print 'GAE SDK already installed at {}, exiting.'.format(dest_dir)
+        print('GAE SDK already installed at {0}, exiting.'.format(dest_dir))
         return 0
 
     sdk_versions = get_gae_versions()
