@@ -18,4 +18,4 @@ service = build('compute', 'v1', credentials=credentials)
 request = service.instances().list(project=PROJECT, zone=ZONE)
 response = request.execute()
 
-print response
+print(response)
