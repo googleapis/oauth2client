@@ -7,6 +7,7 @@ Usage:
 Current releases are listed here:
     https://www.googleapis.com/storage/v1/b/appengine-sdks/o?prefix=featured
 """
+from __future__ import print_function
 
 import json
 import os
@@ -60,7 +61,7 @@ def main(argv):
 
     sdk_versions = get_gae_versions()
     if not sdk_versions:
-        print 'Error fetching GAE SDK version info'
+        print('Error fetching GAE SDK version info')
         return 1
     sdk_urls = get_sdk_urls(sdk_versions)
     for sdk_url in sdk_urls:
@@ -70,14 +71,14 @@ def main(argv):
         except:
             pass
     else:
-        print 'Could not read SDK from any of ', sdk_urls
+        print('Could not read SDK from any of ', sdk_urls)
         return 1
     sdk_contents.seek(0)
     try:
         zip_contents = zipfile.ZipFile(sdk_contents)
         zip_contents.extractall(dest_dir)
     except:
-        print 'Error extracting SDK contents'
+        print('Error extracting SDK contents')
         return 1
 
 
