@@ -20,8 +20,6 @@
 import functools
 import inspect
 import logging
-import sys
-import types
 
 import six
 from six.moves import urllib

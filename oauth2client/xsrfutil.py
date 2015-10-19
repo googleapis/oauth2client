@@ -18,7 +18,6 @@
 import base64
 import binascii
 import hmac
-import six
 import time
 
 from oauth2client._helpers import _to_bytes

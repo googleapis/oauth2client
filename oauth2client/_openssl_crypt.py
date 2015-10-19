@@ -14,7 +14,7 @@
 """OpenSSL Crypto-related routines for oauth2client."""
 
 import base64
-import six
+
 from OpenSSL import crypto
 
 from oauth2client._helpers import _parse_pem_key

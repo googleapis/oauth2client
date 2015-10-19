@@ -37,7 +37,6 @@ django_settings.SECRET_KEY = 'xyzzy'
 from django.db import models
 
 from oauth2client._helpers import _from_bytes
-from oauth2client._helpers import _to_bytes
 from oauth2client.client import Credentials
 from oauth2client.client import Flow
 from oauth2client.client import OAuth2Credentials
