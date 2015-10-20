@@ -19,8 +19,6 @@ import os
 import tempfile
 import unittest
 
-import httplib2
-
 from oauth2client._helpers import _from_bytes
 from oauth2client import GOOGLE_AUTH_URI
 from oauth2client import GOOGLE_REVOKE_URI

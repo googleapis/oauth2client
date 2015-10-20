@@ -14,8 +14,6 @@
 
 """Copy of googleapiclient.http's mock functionality."""
 
-import json
-
 import httplib2
 
 # TODO(craigcitro): Find a cleaner way to share this code with googleapiclient.

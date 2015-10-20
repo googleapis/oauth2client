@@ -41,7 +41,6 @@ from oauth2client import GOOGLE_TOKEN_INFO_URI
 from oauth2client._helpers import _from_bytes
 from oauth2client._helpers import _to_bytes
 from oauth2client._helpers import _urlsafe_b64decode
-from oauth2client._helpers import _urlsafe_b64encode
 from oauth2client import clientsecrets
 from oauth2client import util
 
@@ -1106,7 +1105,10 @@ def _in_gae_environment():
         return SETTINGS.env_name in ('GAE_PRODUCTION', 'GAE_LOCAL')
 
     try:
-        import google.appengine
+        import google.appengine  # noqa: unused import
+    except ImportError:
+        pass
+    else:
         server_software = os.environ.get(_SERVER_SOFTWARE, '')
         if server_software.startswith('Google App Engine/'):
             SETTINGS.env_name = 'GAE_PRODUCTION'
@@ -1114,8 +1116,6 @@ def _in_gae_environment():
         elif server_software.startswith('Development/'):
             SETTINGS.env_name = 'GAE_LOCAL'
             return True
-    except ImportError:
-        pass
 
     return False
 

@@ -14,7 +14,6 @@
 
 import base64
 import os
-import sys
 import unittest
 
 import mock

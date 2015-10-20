@@ -13,7 +13,6 @@ import json
 import os
 import StringIO
 import sys
-import tempfile
 import urllib2
 import zipfile
 

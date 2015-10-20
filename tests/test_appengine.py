@@ -44,7 +44,6 @@ from google.appengine.api.memcache import memcache_stub
 from google.appengine.ext import db
 from google.appengine.ext import ndb
 from google.appengine.ext import testbed
-from google.appengine.runtime import apiproxy_errors
 from oauth2client import appengine
 from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client.clientsecrets import _loadfile
@@ -60,7 +59,6 @@ from oauth2client.appengine import StorageByKeyName
 from oauth2client.client import _CLOUDSDK_CONFIG_ENV_VAR
 from oauth2client.client import AccessTokenRefreshError
 from oauth2client.client import Credentials
-from oauth2client.client import FlowExchangeError
 from oauth2client.client import OAuth2Credentials
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import save_to_well_known_file

@@ -21,7 +21,6 @@ import json
 from six.moves import urllib
 import unittest
 
-import httplib2
 import mock
 
 from oauth2client._helpers import _to_bytes

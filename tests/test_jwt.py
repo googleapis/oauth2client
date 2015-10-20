@@ -20,14 +20,11 @@ Unit tests for oauth2client.
 """
 
 import os
-import mock
-import sys
 import tempfile
 import time
 import unittest
 
 from .http_mock import HttpMockSequence
-from oauth2client import client
 from oauth2client.client import Credentials
 from oauth2client.client import SignedJwtAssertionCredentials
 from oauth2client.client import VerifyJwtTokenError
