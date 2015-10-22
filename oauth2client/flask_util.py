@@ -23,7 +23,7 @@ available.
 Configuration
 =============
 
-To configure, you'll need a set of OAuth2 client ID from the
+To configure, you'll need a set of OAuth2 web application credentials from the
 `Google Developer's Console <https://console.developers.google.com/project/_/\
 apiui/credential>`__.
 
@@ -165,6 +165,7 @@ available outside of a request context, you will need to implement your own
 import hashlib
 import json
 import os
+import pickle
 from functools import wraps
 
 import six.moves.http_client as httplib
@@ -186,12 +187,26 @@ from oauth2client.client import OAuth2Credentials
 from oauth2client.client import OAuth2WebServerFlow
 from oauth2client.client import Storage
 from oauth2client import clientsecrets
-from oauth2client import util
 
 
 __author__ = 'jonwayne@google.com (Jon Wayne Parrott)'
 
-DEFAULT_SCOPES = ('email',)
+_DEFAULT_SCOPES = ('email',)
+_CREDENTIALS_KEY = 'google_oauth2_credentials'
+_FLOW_KEY = 'google_oauth2_flow_{0}'
+_CSRF_KEY = 'google_oauth2_csrf_token'
+
+
+def _get_flow_for_token(csrf_token):
+    """Retrieves the flow instance associated with a given CSRF token from
+    the Flask session."""
+    flow_pickle = session.get(
+        _FLOW_KEY.format(csrf_token), None)
+
+    if flow_pickle is None:
+        return None
+    else:
+        return pickle.loads(flow_pickle)
 
 
 class UserOAuth2(object):
@@ -251,7 +266,7 @@ class UserOAuth2(object):
         self.storage = storage
 
         if scopes is None:
-            scopes = app.config.get('GOOGLE_OAUTH2_SCOPES', DEFAULT_SCOPES)
+            scopes = app.config.get('GOOGLE_OAUTH2_SCOPES', _DEFAULT_SCOPES)
         self.scopes = scopes
 
         self._load_config(client_secrets_file, client_id, client_secret)
@@ -301,7 +316,8 @@ class UserOAuth2(object):
         client_type, client_info = clientsecrets.loadfile(filename)
         if client_type != clientsecrets.TYPE_WEB:
             raise ValueError(
-                'The flow specified in %s is not supported.' % client_type)
+                'The flow specified in {0} is not supported.'.format(
+                    client_type))
 
         self.client_id = client_info['client_id']
         self.client_secret = client_info['client_secret']
@@ -311,7 +327,7 @@ class UserOAuth2(object):
         # Generate a CSRF token to prevent malicious requests.
         csrf_token = hashlib.sha256(os.urandom(1024)).hexdigest()
 
-        session['google_oauth2_csrf_token'] = csrf_token
+        session[_CSRF_KEY] = csrf_token
 
         state = json.dumps({
             'csrf_token': csrf_token,
@@ -321,16 +337,21 @@ class UserOAuth2(object):
         kw = self.flow_kwargs.copy()
         kw.update(kwargs)
 
-        extra_scopes = util.scopes_to_string(kw.pop('scopes', ''))
-        scopes = ' '.join([util.scopes_to_string(self.scopes), extra_scopes])
+        extra_scopes = kw.pop('scopes', [])
+        scopes = set(self.scopes).union(set(extra_scopes))
 
-        return OAuth2WebServerFlow(
+        flow = OAuth2WebServerFlow(
             client_id=self.client_id,
             client_secret=self.client_secret,
             scope=scopes,
             state=state,
             redirect_uri=url_for('oauth2.callback', _external=True),
             **kw)
+
+        flow_key = _FLOW_KEY.format(csrf_token)
+        session[flow_key] = pickle.dumps(flow)
+
+        return flow
 
     def _create_blueprint(self):
         bp = Blueprint('oauth2', __name__)
@@ -368,11 +389,12 @@ class UserOAuth2(object):
         if 'error' in request.args:
             reason = request.args.get(
                 'error_description', request.args.get('error', ''))
-            return 'Authorization failed: %s' % reason, httplib.BAD_REQUEST
+            return ('Authorization failed: {0}'.format(reason),
+                    httplib.BAD_REQUEST)
 
         try:
             encoded_state = request.args['state']
-            server_csrf = session['google_oauth2_csrf_token']
+            server_csrf = session[_CSRF_KEY]
             code = request.args['code']
         except KeyError:
             return 'Invalid request', httplib.BAD_REQUEST
@@ -387,14 +409,17 @@ class UserOAuth2(object):
         if client_csrf != server_csrf:
             return 'Invalid request state', httplib.BAD_REQUEST
 
-        flow = self._make_flow()
+        flow = _get_flow_for_token(server_csrf)
+
+        if flow is None:
+            return 'Invalid request state', httplib.BAD_REQUEST
 
         # Exchange the auth code for credentials.
         try:
             credentials = flow.step2_exchange(code)
         except FlowExchangeError as exchange_error:
             current_app.logger.exception(exchange_error)
-            content = 'An error occurred: %s' % (exchange_error,)
+            content = 'An error occurred: {0}'.format(exchange_error)
             return content, httplib.BAD_REQUEST
 
         # Save the credentials to the storage.
@@ -410,7 +435,7 @@ class UserOAuth2(object):
         """The credentials for the current user or None if unavailable."""
         ctx = _app_ctx_stack.top
 
-        if not hasattr(ctx, 'google_oauth2_credentials'):
+        if not hasattr(ctx, _CREDENTIALS_KEY):
             ctx.google_oauth2_credentials = self.storage.get()
 
         return ctx.google_oauth2_credentials
@@ -433,7 +458,7 @@ class UserOAuth2(object):
             return self.credentials.id_token['email']
         except KeyError:
             current_app.logger.error(
-                'Invalid id_token %s', self.credentials.id_token)
+                'Invalid id_token {0}'.format(self.credentials.id_token))
 
     @property
     def user_id(self):
@@ -449,7 +474,7 @@ class UserOAuth2(object):
             return self.credentials.id_token['sub']
         except KeyError:
             current_app.logger.error(
-                'Invalid id_token %s', self.credentials.id_token)
+                'Invalid id_token {0}'.format(self.credentials.id_token))
 
     def authorize_url(self, return_url, **kwargs):
         """Creates a URL that can be used to start the authorization flow.
@@ -474,27 +499,29 @@ class UserOAuth2(object):
         def curry_wrapper(wrapped_function):
             @wraps(wrapped_function)
             def required_wrapper(*args, **kwargs):
-
                 return_url = decorator_kwargs.pop('return_url', request.url)
 
-                # No credentials, redirect for new authorization.
-                if not self.has_credentials():
+                requested_scopes = set(self.scopes)
+                if scopes is not None:
+                    requested_scopes |= set(scopes)
+                if self.has_credentials():
+                    requested_scopes |= self.credentials.scopes
+
+                requested_scopes = list(requested_scopes)
+
+                # Does the user have credentials and does the credentials have
+                # all of the needed scopes?
+                if (self.has_credentials() and
+                        self.credentials.has_scopes(requested_scopes)):
+                    return wrapped_function(*args, **kwargs)
+                # Otherwise, redirect to authorization
+                else:
                     auth_url = self.authorize_url(
                         return_url,
-                        scopes=scopes,
+                        scopes=requested_scopes,
                         **decorator_kwargs)
-                    return redirect(auth_url)
 
-                # Existing credentials but mismatching scopes, redirect for
-                # incremental authorization.
-                if scopes and not self.credentials.has_scopes(scopes):
-                    auth_url = self.authorize_url(
-                        return_url,
-                        scopes=list(self.credentials.scopes) + scopes,
-                        **decorator_kwargs)
                     return redirect(auth_url)
-
-                return wrapped_function(*args, **kwargs)
 
             return required_wrapper
 
@@ -531,7 +558,7 @@ class FlaskSessionStorage(Storage):
     """
 
     def locked_get(self):
-        serialized = session.get('google_oauth2_credentials')
+        serialized = session.get(_CREDENTIALS_KEY)
 
         if serialized is None:
             return None
@@ -542,8 +569,8 @@ class FlaskSessionStorage(Storage):
         return credentials
 
     def locked_put(self, credentials):
-        session['google_oauth2_credentials'] = credentials.to_json()
+        session[_CREDENTIALS_KEY] = credentials.to_json()
 
     def locked_delete(self):
-        if 'google_oauth2_credentials' in session:
-            del session['google_oauth2_credentials']
+        if _CREDENTIALS_KEY in session:
+            del session[_CREDENTIALS_KEY]
