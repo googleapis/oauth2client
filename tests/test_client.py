@@ -886,6 +886,27 @@ class BasicCredentialsTests(unittest.TestCase):
             self.credentials.retrieve_scopes,
             http)
 
+    def test_refresh_updates_id_token(self):
+        for status_code in REFRESH_STATUS_CODES:
+            body = {'foo': 'bar'}
+            body_json = json.dumps(body).encode('ascii')
+            payload = base64.urlsafe_b64encode(body_json).strip(b'=')
+            jwt = b'stuff.' + payload + b'.signature'
+
+            token_response = (b'{'
+                              b'  "access_token":"1/3w",'
+                              b'  "expires_in":3600,'
+                              b'  "id_token": "' + jwt + b'"'
+                              b'}')
+            http = HttpMockSequence([
+                ({'status': status_code}, b''),
+                ({'status': '200'}, token_response),
+                ({'status': '200'}, 'echo_request_headers'),
+            ])
+            http = self.credentials.authorize(http)
+            resp, content = http.request('http://example.com')
+            self.assertEqual(self.credentials.id_token, body)
+
 
 class AccessTokenCredentialsTests(unittest.TestCase):
 
