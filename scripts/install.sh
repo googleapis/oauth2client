@@ -16,7 +16,7 @@
 
 set -ev
 
-pip install tox
+pip install tox==2.1.1
 if [[ "${TOX_ENV}" == "pypy" ]]; then
     git clone https://github.com/yyuu/pyenv.git ${HOME}/.pyenv
     PYENV_ROOT="${HOME}/.pyenv"
