@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v1.5.2
+
+* Add access token refresh error class that includes HTTP status (#310)
+* Python3 compatibility fixes for Django (#316, #318)
+* Fix incremental auth in flask_util (#322)
+* Fall back to credential refresh on EDEADLK in multistore_file (#336)
+
 ## v1.5.1
 
 * Fix bad indent in `tools.run_flow()` (#301, bug was
