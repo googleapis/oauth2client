@@ -290,6 +290,9 @@ class _MultiStore(object):
             elif e.errno == errno.ENOLCK:
                 logger.warn('File system is out of resources for writing the '
                             'credentials file (is your disk full?).')
+            elif e.errno == errno.EDEADLK:
+                logger.warn('Lock contention on multistore file, opening '
+                            'in read-only mode.')
             else:
                 raise
         if not self._file.is_locked():
