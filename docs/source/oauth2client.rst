@@ -1,6 +1,13 @@
 oauth2client package
 ====================
 
+Subpackages
+-----------
+
+.. toctree::
+
+    oauth2client.contrib
+
 Submodules
 ----------
 
