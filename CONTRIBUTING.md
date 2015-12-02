@@ -125,6 +125,10 @@ Running Tests
     least version 2.6 of `pypy` installed. See the [docs][13] for
     more information.
 
+-   **Note** that `django` related tests are turned off for Python 2.6
+    and 3.3. This is because `django` dropped support for
+    [2.6 in `django==1.7`][14] and for [3.3 in `django==1.9`][15].
+
 Running System Tests
 --------------------
 
@@ -196,3 +200,5 @@ we'll be able to accept your pull requests.
 [11]: #include-tests
 [12]: #make-the-pull-request
 [13]: http://oauth2client.readthedocs.org/en/latest/#using-pypy
+[14]: https://docs.djangoproject.com/en/1.7/faq/install/#what-python-version-can-i-use-with-django
+[15]: https://docs.djangoproject.com/en/1.9/faq/install/#what-python-version-can-i-use-with-django

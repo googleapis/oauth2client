@@ -14,6 +14,7 @@
 
 """Unit tests for oauth2client.clientsecrets."""
 
+import errno
 from io import StringIO
 import os
 import tempfile
@@ -32,7 +33,8 @@ __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 VALID_FILE = os.path.join(DATA_DIR, 'client_secrets.json')
 INVALID_FILE = os.path.join(DATA_DIR, 'unfilled_client_secrets.json')
-NONEXISTENT_FILE = os.path.join(__file__, '..', 'afilethatisntthere.json')
+NONEXISTENT_FILE = os.path.join(
+    os.path.dirname(__file__), 'afilethatisntthere.json')
 
 
 class Test__validate_clientsecrets(unittest.TestCase):
@@ -222,12 +224,15 @@ class OAuth2CredentialsTests(unittest.TestCase):
             except clientsecrets.InvalidClientSecretsError as e:
                 self.assertTrue(str(e).startswith(match))
 
-    def test_load_by_filename(self):
+    def test_load_by_filename_missing_file(self):
+        caught_exception = None
         try:
             clientsecrets._loadfile(NONEXISTENT_FILE)
-            self.fail('should fail to load a missing client_secrets file.')
-        except clientsecrets.InvalidClientSecretsError as e:
-            self.assertTrue(str(e).startswith('File'))
+        except clientsecrets.InvalidClientSecretsError as exc:
+            caught_exception = exc
+
+        self.assertEquals(caught_exception.args[1], NONEXISTENT_FILE)
+        self.assertEquals(caught_exception.args[3], errno.ENOENT)
 
 
 class CachedClientsecretsTests(unittest.TestCase):
