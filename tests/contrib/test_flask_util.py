@@ -26,8 +26,8 @@ import six.moves.urllib.parse as urlparse
 from oauth2client import GOOGLE_AUTH_URI
 from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client import clientsecrets
-from oauth2client.flask_util import _get_flow_for_token
-from oauth2client.flask_util import UserOAuth2 as FlaskOAuth2
+from oauth2client.contrib.flask_util import _get_flow_for_token
+from oauth2client.contrib.flask_util import UserOAuth2 as FlaskOAuth2
 from oauth2client.client import OAuth2Credentials
 
 

@@ -239,6 +239,7 @@ class OAuth2ClientFileTests(unittest.TestCase):
 
         self.assertNotEquals(None, credentials)
         self.assertEquals('foo', credentials.access_token)
+
         self.assertTrue(os.path.exists(FILENAME))
 
         if os.name == 'posix':

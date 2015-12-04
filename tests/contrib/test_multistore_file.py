@@ -9,8 +9,8 @@ import unittest
 
 from oauth2client import util
 from oauth2client.client import OAuth2Credentials
-from oauth2client import locked_file
-from oauth2client import multistore_file
+from oauth2client.contrib import locked_file
+from oauth2client.contrib import multistore_file
 
 _filehandle, FILENAME = tempfile.mkstemp('oauth2client_test.data')
 os.close(_filehandle)
