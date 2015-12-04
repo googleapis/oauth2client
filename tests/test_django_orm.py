@@ -26,16 +26,28 @@ import os
 import pickle
 import sys
 import unittest
-
 # Mock a Django environment
 from django.conf import global_settings
-global_settings.SECRET_KEY = 'NotASecret'
-os.environ['DJANGO_SETTINGS_MODULE'] = 'django_settings'
-sys.modules['django_settings'] = django_settings = imp.new_module(
-    'django_settings')
-django_settings.SECRET_KEY = 'xyzzy'
-from django.db import models
 
+os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.test_django_settings'
+from django.conf import settings
+
+settings.SECRET_KEY = 'this string is not a real Django SECRET_KEY'
+settings.INSTALLED_APPS = ['tests.test_django_orm']
+
+import django
+
+django.setup()
+from django.apps import AppConfig
+
+
+class DjangoOrmTestApp(AppConfig):
+    """App Config for Django Helper."""
+    name = 'oauth2client.tests.test_django_orm'
+    verbose_name = "Django Test App"
+
+
+from django.db import models
 from oauth2client._helpers import _from_bytes
 from oauth2client.client import Credentials
 from oauth2client.client import Flow
