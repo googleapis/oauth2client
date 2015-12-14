@@ -1,5 +1,3 @@
-#!/usr/bin/python2.4
-#
 # Copyright 2014 Google Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -61,17 +59,11 @@ class ServiceAccountCredentialsTests(unittest.TestCase):
 
         self.assertTrue(rsa.pkcs1.verify(b'Google', signature, pub_key))
 
-        try:
-            rsa.pkcs1.verify(b'Orest', signature, pub_key)
-            self.fail('Verification should have failed!')
-        except rsa.pkcs1.VerificationError:
-            pass  # Expected
-
-        try:
-            rsa.pkcs1.verify(b'Google', b'bad signature', pub_key)
-            self.fail('Verification should have failed!')
-        except rsa.pkcs1.VerificationError:
-            pass  # Expected
+        self.assertRaises(rsa.pkcs1.VerificationError,
+                          rsa.pkcs1.verify, b'Orest', signature, pub_key)
+        self.assertRaises(rsa.pkcs1.VerificationError,
+                          rsa.pkcs1.verify,
+                          b'Google', b'bad signature', pub_key)
 
     def test_service_account_email(self):
         self.assertEqual(self.service_account_email,
