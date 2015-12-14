@@ -29,11 +29,11 @@ import unittest
 # Mock a Django environment
 from django.conf import global_settings
 
-os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.test_django_settings'
+os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.contrib.test_django_settings'
 from django.conf import settings
 
 settings.SECRET_KEY = 'this string is not a real Django SECRET_KEY'
-settings.INSTALLED_APPS = ['tests.test_django_orm']
+settings.INSTALLED_APPS = ['tests.contrib.test_django_orm']
 
 import django
 
@@ -43,7 +43,7 @@ from django.apps import AppConfig
 
 class DjangoOrmTestApp(AppConfig):
     """App Config for Django Helper."""
-    name = 'oauth2client.tests.test_django_orm'
+    name = 'oauth2client.tests.contrib.test_django_orm'
     verbose_name = "Django Test App"
 
 
@@ -52,9 +52,9 @@ from oauth2client._helpers import _from_bytes
 from oauth2client.client import Credentials
 from oauth2client.client import Flow
 from oauth2client.client import OAuth2Credentials
-from oauth2client.django_orm import CredentialsField
-from oauth2client.django_orm import FlowField
-from oauth2client.django_orm import Storage
+from oauth2client.contrib.django_orm import CredentialsField
+from oauth2client.contrib.django_orm import FlowField
+from oauth2client.contrib.django_orm import Storage
 from oauth2client import GOOGLE_TOKEN_URI
 
 __author__ = 'conleyo@google.com (Conley Owens)'

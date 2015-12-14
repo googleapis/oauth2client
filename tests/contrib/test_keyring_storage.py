@@ -12,10 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Tests for oauth2client.keyring_storage tests.
-
-Unit tests for oauth2client.keyring_storage.
-"""
+"""Tests for oauth2client.contrib.keyring_storage."""
 
 import datetime
 import keyring
@@ -26,7 +23,7 @@ import mock
 
 from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client.client import OAuth2Credentials
-from oauth2client.keyring_storage import Storage
+from oauth2client.contrib.keyring_storage import Storage
 
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
@@ -67,8 +64,8 @@ class KeyringStorageTests(unittest.TestCase):
         with mock.patch.object(keyring, 'get_password',
                                return_value=mock_content,
                                autospec=True) as get_password:
-            with mock.patch(
-                    'oauth2client.keyring_storage.Credentials') as MockCreds:
+            class_name = 'oauth2client.contrib.keyring_storage.Credentials'
+            with mock.patch(class_name) as MockCreds:
                 MockCreds.new_from_json = new_from_json = mock.MagicMock(
                     name='new_from_json', return_value=mock_return_creds)
                 store = Storage(service_name, user_name)

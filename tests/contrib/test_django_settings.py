@@ -31,4 +31,4 @@ GOOGLE_OAUTH2_CLIENT_ID = 'client_id2'
 GOOGLE_OAUTH2_CLIENT_SECRET = 'hunter2'
 GOOGLE_OAUTH2_SCOPES = ('https://www.googleapis.com/auth/cloud-platform',)
 
-ROOT_URLCONF = 'tests.test_django_util'
+ROOT_URLCONF = 'tests.contrib.test_django_util'

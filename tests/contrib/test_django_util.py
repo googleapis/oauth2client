@@ -65,8 +65,11 @@ class OAuth2SetupTest(unittest.TestCase):
             }
         )
 
-        self.assertRaises(ValueError, django_util.OAuth2Settings.__init__,
-                          object.__new__(django_util.OAuth2Settings), django.conf.settings)
+        self.assertRaises(
+            ValueError,
+            django_util.OAuth2Settings.__init__,
+            object.__new__(django_util.OAuth2Settings),
+            django.conf.settings)
 
     @mock.patch("oauth2client.contrib.django_util.clientsecrets")
     def test_no_settings(self, clientsecrets):
@@ -74,18 +77,22 @@ class OAuth2SetupTest(unittest.TestCase):
         django.conf.settings.GOOGLE_OAUTH2_CLIENT_SECRET = None
         django.conf.settings.GOOGLE_OAUTH2_CLIENT_ID = None
 
-        self.assertRaises(exceptions.ImproperlyConfigured, django_util.OAuth2Settings.__init__,
-                          object.__new__(django_util.OAuth2Settings), django.conf.settings)
+        self.assertRaises(
+            exceptions.ImproperlyConfigured,
+            django_util.OAuth2Settings.__init__,
+            object.__new__(django_util.OAuth2Settings),
+            django.conf.settings)
 
     @mock.patch("oauth2client.contrib.django_util.clientsecrets")
     def test_no_session_middleware(self, clientsecrets):
         old_classes = django.conf.settings.MIDDLEWARE_CLASSES
         django.conf.settings.MIDDLEWARE_CLASSES = ()
 
-        self.assertRaises(exceptions.ImproperlyConfigured,
-                          django_util.OAuth2Settings.__init__, object.__new__(
-                          django_util.OAuth2Settings),
-                          django.conf.settings)
+        self.assertRaises(
+            exceptions.ImproperlyConfigured,
+            django_util.OAuth2Settings.__init__,
+            object.__new__(django_util.OAuth2Settings),
+            django.conf.settings)
         django.conf.settings.MIDDLEWARE_CLASSES = old_classes
 
 
@@ -113,7 +120,6 @@ class OAuth2EnabledDecoratorTest(TestWithSession):
         self.assertIsNotNone(request.oauth)
         self.assertFalse(request.oauth.has_credentials())
         self.assertIsNone(request.oauth.http)
-
 
     @mock.patch("oauth2client.client.OAuth2Credentials")
     def test_has_credentials_in_storage(self, OAuth2Credentials):
@@ -170,7 +176,8 @@ class OAuth2RequiredDecoratorTest(TestWithSession):
         self.assertTrue(isinstance(response, http.HttpResponseRedirect))
         self.assertEquals(parse.urlparse(response['Location']).path,
                           "/oauth2/oauth2authorize/")
-        self.assertTrue("return_url=%2Ftest" in parse.urlparse(response['Location']).query)
+        self.assertTrue(
+            "return_url=%2Ftest" in parse.urlparse(response['Location']).query)
 
         self.assertEquals(response.status_code, 302)
 
@@ -178,7 +185,6 @@ class OAuth2RequiredDecoratorTest(TestWithSession):
     def test_has_credentials_in_storage(self, UserOAuth2):
         request = self.factory.get('/test')
         request.session = mock.MagicMock()
-
 
         @decorators.oauth_required
         def test_view(request):
@@ -198,7 +204,8 @@ class OAuth2RequiredDecoratorTest(TestWithSession):
         request = self.factory.get('/test')
 
         request.session = mock.MagicMock()
-        credentials_mock = mock.Mock(scopes=set(django.conf.settings.GOOGLE_OAUTH2_SCOPES))
+        credentials_mock = mock.Mock(
+            scopes=set(django.conf.settings.GOOGLE_OAUTH2_SCOPES))
         credentials_mock.has_scopes.return_value = False
 
         OAuth2Credentials.from_json.return_value = credentials_mock
@@ -215,13 +222,14 @@ class OAuth2RequiredDecoratorTest(TestWithSession):
         request = self.factory.get('/test')
         request.session = mock.MagicMock()
 
-        credentials_mock = mock.Mock(scopes=set(django.conf.settings.GOOGLE_OAUTH2_SCOPES))
+        credentials_mock = mock.Mock(
+            scopes=set(django.conf.settings.GOOGLE_OAUTH2_SCOPES))
         credentials_mock.has_scopes = False
         OAuth2Credentials.from_json.return_value = credentials_mock
 
         @decorators.oauth_required(scopes=['additional-scope'])
         def test_view(request):
-            return http.HttpResponse("hello world") # pragma: NO COVER
+            return http.HttpResponse("hello world")  # pragma: NO COVER
 
         response = test_view(request)
         self.assertEquals(response.status_code, 302)
@@ -242,6 +250,7 @@ class Oauth2AuthorizeTest(TestWithSession):
         request.session = self.session
         response = views.oauth2_authorize(request)
         self.assertTrue(isinstance(response, http.HttpResponseRedirect))
+
 
 class Oauth2CallbackTest(TestWithSession):
 
@@ -331,7 +340,8 @@ class Oauth2CallbackTest(TestWithSession):
         request.session = self.session
         response = views.oauth2_callback(request)
         self.assertTrue(isinstance(response, http.HttpResponseBadRequest))
-        self.assertEquals(response.content, b'No existing session for this flow.')
+        self.assertEquals(
+            response.content, b'No existing session for this flow.')
 
     def test_missing_state_returns_bad_request(self):
         request = self.factory.get('oauth2/oauth2callback', data={

@@ -163,9 +163,6 @@ oauth2_authorized signal:
 
 """
 
-import sys
-
-
 import django.conf
 from django.core import exceptions
 from django.core import urlresolvers
@@ -235,7 +232,7 @@ class OAuth2Settings(object):
             _get_oauth2_client_id_and_secret(settings_instance)
 
         if ('django.contrib.sessions.middleware.SessionMiddleware'
-            not in settings_instance.MIDDLEWARE_CLASSES):
+                not in settings_instance.MIDDLEWARE_CLASSES):
             raise exceptions.ImproperlyConfigured(
                 "The Google OAuth2 Helper requires session middleware to "
                 "be installed. Edit your MIDDLEWARE_CLASSES setting"
@@ -292,8 +289,8 @@ class UserOAuth2(object):
     def has_credentials(self):
         """Returns True if there are valid credentials for the current user
         and required scopes."""
-        return self.credentials and not self.credentials.invalid \
-               and self.credentials.has_scopes(self.scopes)
+        return (self.credentials and not self.credentials.invalid
+                and self.credentials.has_scopes(self.scopes))
 
     @property
     def credentials(self):

@@ -34,7 +34,7 @@ dev_appserver.fix_sys_path()
 import mock
 import webapp2
 
-from .http_mock import CacheMock
+from ..http_mock import CacheMock
 from google.appengine.api import apiproxy_stub
 from google.appengine.api import apiproxy_stub_map
 from google.appengine.api import app_identity
@@ -44,18 +44,18 @@ from google.appengine.api.memcache import memcache_stub
 from google.appengine.ext import db
 from google.appengine.ext import ndb
 from google.appengine.ext import testbed
-from oauth2client import appengine
+from oauth2client.contrib import appengine
 from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client.clientsecrets import _loadfile
 from oauth2client.clientsecrets import InvalidClientSecretsError
-from oauth2client.appengine import AppAssertionCredentials
-from oauth2client.appengine import CredentialsModel
-from oauth2client.appengine import CredentialsNDBModel
-from oauth2client.appengine import FlowNDBProperty
-from oauth2client.appengine import FlowProperty
-from oauth2client.appengine import OAuth2Decorator
-from oauth2client.appengine import OAuth2DecoratorFromClientSecrets
-from oauth2client.appengine import StorageByKeyName
+from oauth2client.contrib.appengine import AppAssertionCredentials
+from oauth2client.contrib.appengine import CredentialsModel
+from oauth2client.contrib.appengine import CredentialsNDBModel
+from oauth2client.contrib.appengine import FlowNDBProperty
+from oauth2client.contrib.appengine import FlowProperty
+from oauth2client.contrib.appengine import OAuth2Decorator
+from oauth2client.contrib.appengine import OAuth2DecoratorFromClientSecrets
+from oauth2client.contrib.appengine import StorageByKeyName
 from oauth2client.client import _CLOUDSDK_CONFIG_ENV_VAR
 from oauth2client.client import AccessTokenRefreshError
 from oauth2client.client import Credentials
@@ -67,7 +67,7 @@ from webtest import TestApp
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
-DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
+DATA_DIR = os.path.join(os.path.dirname(__file__), '..', 'data')
 
 
 def datafile(filename):
