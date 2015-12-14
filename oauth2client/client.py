@@ -883,6 +883,10 @@ class OAuth2Credentials(Credentials):
                     seconds=int(d['expires_in'])) + datetime.datetime.utcnow()
             else:
                 self.token_expiry = None
+            if 'id_token' in d:
+                self.id_token = _extract_id_token(d['id_token'])
+            else:
+                self.id_token = None
             # On temporary refresh errors, the user does not actually have to
             # re-authorize, so we unflag here.
             self.invalid = False
