@@ -1,5 +1,3 @@
-#!/usr/bin/python2.4
-#
 # Copyright 2014 Google Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,15 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Oauth2client tests
-
-Unit tests for oauth2client.
-"""
+"""Unit tests for JWT related methods in oauth2client."""
 
 import os
 import tempfile
 import time
-import unittest
+import unittest2
 
 from .http_mock import HttpMockSequence
 from oauth2client.client import Credentials
@@ -45,7 +40,7 @@ def datafile(filename):
     return data
 
 
-class CryptTests(unittest.TestCase):
+class CryptTests(unittest2.TestCase):
 
     def setUp(self):
         self.format = 'p12'
@@ -83,11 +78,11 @@ class CryptTests(unittest.TestCase):
         certs = {'foo': public_key}
         audience = ('https://www.googleapis.com/auth/id?client_id='
                     'external_public_key@testing.gserviceaccount.com')
-        try:
+
+        with self.assertRaises(crypt.AppIdentityError) as exc_manager:
             crypt.verify_signed_jwt_with_certs(jwt, certs, audience)
-            self.fail()
-        except crypt.AppIdentityError as e:
-            self.assertTrue(expected_error in str(e))
+
+        self.assertTrue(expected_error in str(exc_manager.exception))
 
     def _create_signed_jwt(self):
         private_key = datafile('privatekey.%s' % self.format)
@@ -216,7 +211,7 @@ class PEMCryptTestsOpenSSL(CryptTests):
         self.verifier = crypt.OpenSSLVerifier
 
 
-class SignedJwtAssertionCredentialsTests(unittest.TestCase):
+class SignedJwtAssertionCredentialsTests(unittest2.TestCase):
 
     def setUp(self):
         self.format = 'p12'
@@ -310,7 +305,7 @@ class PEMSignedJwtAssertionCredentialsPyCryptoTests(
         crypt.Signer = crypt.PyCryptoSigner
 
 
-class PKCSSignedJwtAssertionCredentialsPyCryptoTests(unittest.TestCase):
+class PKCSSignedJwtAssertionCredentialsPyCryptoTests(unittest2.TestCase):
 
     def test_for_failure(self):
         crypt.Signer = crypt.PyCryptoSigner
@@ -320,14 +315,12 @@ class PKCSSignedJwtAssertionCredentialsPyCryptoTests(unittest.TestCase):
             private_key,
             scope='read+write',
             sub='joe@example.org')
-        try:
-            credentials._generate_assertion()
-            self.fail()
-        except NotImplementedError:
-            pass
+
+        self.assertRaises(NotImplementedError,
+                          credentials._generate_assertion)
 
 
-class TestHasOpenSSLFlag(unittest.TestCase):
+class TestHasOpenSSLFlag(unittest2.TestCase):
 
     def test_true(self):
         self.assertEqual(True, HAS_OPENSSL)
@@ -335,4 +328,4 @@ class TestHasOpenSSLFlag(unittest.TestCase):
 
 
 if __name__ == '__main__':  # pragma: NO COVER
-    unittest.main()
+    unittest2.main()
