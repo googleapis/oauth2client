@@ -7,7 +7,7 @@ This is a client library for accessing resources protected by OAuth 2.0.
 Installation
 ============
 
-To install, simply say
+To install, simply run the following command in your terminal:
 
 ```bash
 $ pip install --upgrade oauth2client
