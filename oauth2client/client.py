@@ -101,6 +101,8 @@ ADC_HELP_MSG = (
     'https://developers.google.com/accounts/docs/'
     'application-default-credentials for more information.')
 
+_WELL_KNOWN_CREDENTIALS_FILE = 'application_default_credentials.json'
+
 # The access token along with the seconds in which it expires.
 AccessTokenInfo = collections.namedtuple(
     'AccessTokenInfo', ['access_token', 'expires_in'])
@@ -1419,9 +1421,6 @@ def _get_well_known_file():
     """Get the well known file produced by command 'gcloud auth login'."""
     # TODO(orestica): Revisit this method once gcloud provides a better way
     # of pinpointing the exact location of the file.
-
-    WELL_KNOWN_CREDENTIALS_FILE = 'application_default_credentials.json'
-
     default_config_dir = os.getenv(_CLOUDSDK_CONFIG_ENV_VAR)
     if default_config_dir is None:
         if os.name == 'nt':
@@ -1439,7 +1438,7 @@ def _get_well_known_file():
                                               '.config',
                                               _CLOUDSDK_CONFIG_DIRECTORY)
 
-    return os.path.join(default_config_dir, WELL_KNOWN_CREDENTIALS_FILE)
+    return os.path.join(default_config_dir, _WELL_KNOWN_CREDENTIALS_FILE)
 
 
 def _get_application_default_credential_from_file(filename):

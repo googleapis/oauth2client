@@ -27,12 +27,12 @@ import os
 import socket
 import sys
 import time
-import unittest
 
 import mock
 import six
 from six.moves import http_client
 from six.moves import urllib
+import unittest2
 
 from .http_mock import CacheMock
 from .http_mock import HttpMock
@@ -74,6 +74,7 @@ from oauth2client.client import _in_gce_environment
 from oauth2client.client import _raise_exception_for_missing_fields
 from oauth2client.client import _raise_exception_for_reading_json
 from oauth2client.client import _update_query_params
+from oauth2client.client import _WELL_KNOWN_CREDENTIALS_FILE
 from oauth2client.client import credentials_from_clientsecrets_and_code
 from oauth2client.client import credentials_from_code
 from oauth2client.client import flow_from_clientsecrets
@@ -114,7 +115,7 @@ def load_and_cache(existing_file, fakename, cache_mock):
     cache_mock.cache[fakename] = {client_type: client_info}
 
 
-class CredentialsTests(unittest.TestCase):
+class CredentialsTests(unittest2.TestCase):
 
     def test_to_from_json(self):
         credentials = Credentials()
@@ -138,7 +139,7 @@ def mock_module_import(module):
             del sys.modules[entry]
 
 
-class GoogleCredentialsTests(unittest.TestCase):
+class GoogleCredentialsTests(unittest2.TestCase):
 
     def setUp(self):
         self.os_name = os.name
@@ -290,7 +291,7 @@ class GoogleCredentialsTests(unittest.TestCase):
 
     def test_get_environment_variable_file(self):
         environment_variable_file = datafile(
-            os.path.join('gcloud', 'application_default_credentials.json'))
+            os.path.join('gcloud', _WELL_KNOWN_CREDENTIALS_FILE))
         os.environ[GOOGLE_APPLICATION_CREDENTIALS] = environment_variable_file
         self.assertEqual(environment_variable_file,
                          _get_environment_variable_file())
@@ -315,7 +316,7 @@ class GoogleCredentialsTests(unittest.TestCase):
             os.path.isdir = lambda path: True
             well_known_file = datafile(
                 os.path.join(client._CLOUDSDK_CONFIG_DIRECTORY,
-                             'application_default_credentials.json'))
+                             _WELL_KNOWN_CREDENTIALS_FILE))
             os.name = 'nt'
             os.environ['APPDATA'] = DATA_DIR
             self.assertEqual(well_known_file, _get_well_known_file())
@@ -327,7 +328,7 @@ class GoogleCredentialsTests(unittest.TestCase):
         ORIGINAL_ISDIR = os.path.isdir
         CUSTOM_DIR = 'CUSTOM_DIR'
         EXPECTED_FILE = os.path.join(CUSTOM_DIR,
-                                     'application_default_credentials.json')
+                                     _WELL_KNOWN_CREDENTIALS_FILE)
         try:
             os.environ = {client._CLOUDSDK_CONFIG_ENV_VAR: CUSTOM_DIR}
             os.path.isdir = lambda path: True
@@ -339,14 +340,14 @@ class GoogleCredentialsTests(unittest.TestCase):
 
     def test_get_adc_from_file_service_account(self):
         credentials_file = datafile(
-            os.path.join('gcloud', 'application_default_credentials.json'))
+            os.path.join('gcloud', _WELL_KNOWN_CREDENTIALS_FILE))
         credentials = _get_application_default_credential_from_file(
             credentials_file)
         self.validate_service_account_credentials(credentials)
 
     def test_save_to_well_known_file_service_account(self):
         credential_file = datafile(
-            os.path.join('gcloud', 'application_default_credentials.json'))
+            os.path.join('gcloud', _WELL_KNOWN_CREDENTIALS_FILE))
         credentials = _get_application_default_credential_from_file(
             credential_file)
         temp_credential_file = datafile(
@@ -363,7 +364,7 @@ class GoogleCredentialsTests(unittest.TestCase):
 
     def test_save_well_known_file_with_non_existent_config_dir(self):
         credential_file = datafile(
-            os.path.join('gcloud', 'application_default_credentials.json'))
+            os.path.join('gcloud', _WELL_KNOWN_CREDENTIALS_FILE))
         credentials = _get_application_default_credential_from_file(
             credential_file)
         ORIGINAL_ISDIR = os.path.isdir
@@ -464,13 +465,23 @@ class GoogleCredentialsTests(unittest.TestCase):
                              extra_help + ': ' + str(error),
                              str(ex))
 
-    def test_get_adc_from_environment_variable_service_account(self):
-        os.environ['SERVER_SOFTWARE'] = ''
-        environment_variable_file = datafile(
-            os.path.join('gcloud', 'application_default_credentials.json'))
-        os.environ[GOOGLE_APPLICATION_CREDENTIALS] = environment_variable_file
-        self.validate_service_account_credentials(
-            GoogleCredentials.get_application_default())
+    @mock.patch('oauth2client.client._in_gce_environment')
+    @mock.patch('oauth2client.client._in_gae_environment', return_value=False)
+    @mock.patch('oauth2client.client._get_environment_variable_file')
+    @mock.patch('oauth2client.client._get_well_known_file')
+    def test_get_adc_from_environment_variable_service_account(self, *stubs):
+        # Set up stubs.
+        get_well_known, get_env_file, in_gae, in_gce = stubs
+        get_env_file.return_value = datafile(
+            os.path.join('gcloud', _WELL_KNOWN_CREDENTIALS_FILE))
+
+        credentials = GoogleCredentials.get_application_default()
+        self.validate_service_account_credentials(credentials)
+
+        get_well_known.assert_not_called()
+        in_gce.assert_not_called()
+        get_env_file.assert_called_once_with()
+        in_gae.assert_called_once_with()
 
     def test_env_name(self):
         from oauth2client import client
@@ -478,57 +489,75 @@ class GoogleCredentialsTests(unittest.TestCase):
         self.test_get_adc_from_environment_variable_service_account()
         self.assertEqual(DEFAULT_ENV_NAME, client.SETTINGS.env_name)
 
-    def test_get_adc_from_environment_variable_authorized_user(self):
-        os.environ['SERVER_SOFTWARE'] = ''
-        environment_variable_file = datafile(os.path.join(
+    @mock.patch('oauth2client.client._in_gce_environment')
+    @mock.patch('oauth2client.client._in_gae_environment', return_value=False)
+    @mock.patch('oauth2client.client._get_environment_variable_file')
+    @mock.patch('oauth2client.client._get_well_known_file')
+    def test_get_adc_from_environment_variable_authorized_user(self, *stubs):
+        # Set up stubs.
+        get_well_known, get_env_file, in_gae, in_gce = stubs
+        get_env_file.return_value = datafile(os.path.join(
             'gcloud',
             'application_default_credentials_authorized_user.json'))
-        os.environ[GOOGLE_APPLICATION_CREDENTIALS] = environment_variable_file
-        self.validate_google_credentials(
-            GoogleCredentials.get_application_default())
 
-    def test_get_adc_from_environment_variable_malformed_file(self):
-        os.environ['SERVER_SOFTWARE'] = ''
-        environment_variable_file = datafile(
+        credentials = GoogleCredentials.get_application_default()
+        self.validate_google_credentials(credentials)
+
+        get_well_known.assert_not_called()
+        in_gce.assert_not_called()
+        get_env_file.assert_called_once_with()
+        in_gae.assert_called_once_with()
+
+    @mock.patch('oauth2client.client._in_gce_environment')
+    @mock.patch('oauth2client.client._in_gae_environment', return_value=False)
+    @mock.patch('oauth2client.client._get_environment_variable_file')
+    @mock.patch('oauth2client.client._get_well_known_file')
+    def test_get_adc_from_environment_variable_malformed_file(self, *stubs):
+        # Set up stubs.
+        get_well_known, get_env_file, in_gae, in_gce = stubs
+        get_env_file.return_value = datafile(
             os.path.join('gcloud',
                          'application_default_credentials_malformed_3.json'))
-        os.environ[GOOGLE_APPLICATION_CREDENTIALS] = environment_variable_file
-        # we can't use self.assertRaisesRegexp() because it is only in
-        # Python 2.7+
-        try:
-            GoogleCredentials.get_application_default()
-            self.fail('An exception was expected!')
-        except ApplicationDefaultCredentialsError as error:
-            self.assertTrue(str(error).startswith(
-                'An error was encountered while reading json file: ' +
-                environment_variable_file + ' (pointed to by ' +
-                GOOGLE_APPLICATION_CREDENTIALS + ' environment variable):'))
 
-    def test_get_application_default_environment_not_set_up(self):
-        # It is normal for this test to fail if run inside
-        # a Google Compute Engine VM or after 'gcloud auth login' command
-        # has been executed on a non Windows machine.
-        os.environ['SERVER_SOFTWARE'] = ''
-        os.environ[GOOGLE_APPLICATION_CREDENTIALS] = ''
-        os.environ['APPDATA'] = ''
-        # we can't use self.assertRaisesRegexp() because it is only in
-        # Python 2.7+
-        VALID_CONFIG_DIR = client._CLOUDSDK_CONFIG_DIRECTORY
-        ORIGINAL_ISDIR = os.path.isdir
-        try:
-            os.path.isdir = lambda path: True
-            client._CLOUDSDK_CONFIG_DIRECTORY = 'BOGUS_CONFIG_DIR'
+        expected_err = ApplicationDefaultCredentialsError
+        with self.assertRaises(expected_err) as exc_manager:
             GoogleCredentials.get_application_default()
-            self.fail('An exception was expected!')
-        except ApplicationDefaultCredentialsError as error:
-            self.assertEqual(ADC_HELP_MSG, str(error))
-        finally:
-            os.path.isdir = ORIGINAL_ISDIR
-            client._CLOUDSDK_CONFIG_DIRECTORY = VALID_CONFIG_DIR
+
+        self.assertTrue(str(exc_manager.exception).startswith(
+            'An error was encountered while reading json file: ' +
+            get_env_file.return_value + ' (pointed to by ' +
+            GOOGLE_APPLICATION_CREDENTIALS + ' environment variable):'))
+
+        get_well_known.assert_not_called()
+        in_gce.assert_not_called()
+        get_env_file.assert_called_once_with()
+        in_gae.assert_called_once_with()
+
+    @mock.patch('oauth2client.client._in_gce_environment', return_value=False)
+    @mock.patch('oauth2client.client._in_gae_environment', return_value=False)
+    @mock.patch('oauth2client.client._get_environment_variable_file',
+                return_value=None)
+    @mock.patch('oauth2client.client._get_well_known_file',
+                return_value='BOGUS_FILE')
+    def test_get_application_default_environment_not_set_up(self, *stubs):
+        # Unpack stubs.
+        get_well_known, get_env_file, in_gae, in_gce = stubs
+        # Make sure the well-known file actually doesn't exist.
+        self.assertFalse(os.path.exists(get_well_known.return_value))
+
+        expected_err = ApplicationDefaultCredentialsError
+        with self.assertRaises(expected_err) as exc_manager:
+            GoogleCredentials.get_application_default()
+
+        self.assertEqual(ADC_HELP_MSG, str(exc_manager.exception))
+        get_well_known.assert_called_once_with()
+        get_env_file.assert_called_once_with()
+        in_gae.assert_called_once_with()
+        in_gce.assert_called_once_with()
 
     def test_from_stream_service_account(self):
         credentials_file = datafile(
-            os.path.join('gcloud', 'application_default_credentials.json'))
+            os.path.join('gcloud', _WELL_KNOWN_CREDENTIALS_FILE))
         credentials = self.get_a_google_credentials_object().from_stream(
             credentials_file)
         self.validate_service_account_credentials(credentials)
@@ -627,7 +656,7 @@ def _token_revoke_test_helper(testcase, status, revoke_raise,
     testcase.credentials.set_store(current_store)
 
 
-class BasicCredentialsTests(unittest.TestCase):
+class BasicCredentialsTests(unittest2.TestCase):
 
     def setUp(self):
         access_token = 'foo'
@@ -908,7 +937,7 @@ class BasicCredentialsTests(unittest.TestCase):
             self.assertEqual(self.credentials.id_token, body)
 
 
-class AccessTokenCredentialsTests(unittest.TestCase):
+class AccessTokenCredentialsTests(unittest2.TestCase):
 
     def setUp(self):
         access_token = 'foo'
@@ -955,7 +984,7 @@ class AccessTokenCredentialsTests(unittest.TestCase):
         self.assertEqual(b'Bearer foo', content[b'Authorization'])
 
 
-class TestAssertionCredentials(unittest.TestCase):
+class TestAssertionCredentials(unittest2.TestCase):
     assertion_text = 'This is the assertion'
     assertion_type = 'http://www.google.com/assertionType'
 
@@ -996,7 +1025,7 @@ class TestAssertionCredentials(unittest.TestCase):
             valid_bool_value=False, token_attr='access_token')
 
 
-class UpdateQueryParamsTest(unittest.TestCase):
+class UpdateQueryParamsTest(unittest2.TestCase):
     def test_update_query_params_no_params(self):
         uri = 'http://www.google.com'
         updated = _update_query_params(uri, {'a': 'b'})
@@ -1009,7 +1038,7 @@ class UpdateQueryParamsTest(unittest.TestCase):
         assertUrisEqual(self, updated, hardcoded_update)
 
 
-class ExtractIdTokenTest(unittest.TestCase):
+class ExtractIdTokenTest(unittest2.TestCase):
     """Tests _extract_id_token()."""
 
     def test_extract_success(self):
@@ -1029,7 +1058,7 @@ class ExtractIdTokenTest(unittest.TestCase):
         self.assertRaises(VerifyJwtTokenError, _extract_id_token, jwt)
 
 
-class OAuth2WebServerFlowTest(unittest.TestCase):
+class OAuth2WebServerFlowTest(unittest2.TestCase):
 
     def setUp(self):
         self.flow = OAuth2WebServerFlow(
@@ -1269,7 +1298,7 @@ class OAuth2WebServerFlowTest(unittest.TestCase):
         self.assertEqual(credentials.id_token, body)
 
 
-class FlowFromCachedClientsecrets(unittest.TestCase):
+class FlowFromCachedClientsecrets(unittest2.TestCase):
 
     def test_flow_from_clientsecrets_cached(self):
         cache_mock = CacheMock()
@@ -1280,7 +1309,7 @@ class FlowFromCachedClientsecrets(unittest.TestCase):
         self.assertEqual('foo_client_secret', flow.client_secret)
 
 
-class CredentialsFromCodeTests(unittest.TestCase):
+class CredentialsFromCodeTests(unittest2.TestCase):
 
     def setUp(self):
         self.client_id = 'client_id_abc'
@@ -1358,7 +1387,7 @@ class CredentialsFromCodeTests(unittest.TestCase):
             pass
 
 
-class MemoryCacheTests(unittest.TestCase):
+class MemoryCacheTests(unittest2.TestCase):
 
     def test_get_set_delete(self):
         m = MemoryCache()
@@ -1370,7 +1399,7 @@ class MemoryCacheTests(unittest.TestCase):
         self.assertEqual(None, m.get('foo'))
 
 
-class Test__save_private_file(unittest.TestCase):
+class Test__save_private_file(unittest2.TestCase):
 
     def _save_helper(self, filename):
         contents = []
@@ -1401,4 +1430,4 @@ class Test__save_private_file(unittest.TestCase):
 
 
 if __name__ == '__main__':  # pragma: NO COVER
-    unittest.main()
+    unittest2.main()
