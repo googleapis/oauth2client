@@ -1498,13 +1498,13 @@ def _raise_exception_for_reading_json(credential_file,
 
 
 def _get_application_default_credential_GAE():
-    from oauth2client.appengine import AppAssertionCredentials
+    from oauth2client.contrib.appengine import AppAssertionCredentials
 
     return AppAssertionCredentials([])
 
 
 def _get_application_default_credential_GCE():
-    from oauth2client.gce import AppAssertionCredentials
+    from oauth2client.contrib.gce import AppAssertionCredentials
 
     return AppAssertionCredentials([])
 

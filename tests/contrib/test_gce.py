@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Tests for oauth2client.gce.
+"""Tests for oauth2client.contrib.gce.
 
-Unit tests for oauth2client.gce.
+Unit tests for oauth2client.contrib.gce.
 """
 
 import json
@@ -27,7 +27,7 @@ from oauth2client._helpers import _to_bytes
 from oauth2client.client import AccessTokenRefreshError
 from oauth2client.client import Credentials
 from oauth2client.client import save_to_well_known_file
-from oauth2client.gce import AppAssertionCredentials
+from oauth2client.contrib.gce import AppAssertionCredentials
 
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'

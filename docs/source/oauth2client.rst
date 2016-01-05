@@ -18,7 +18,6 @@ Submodules
    oauth2client.crypt
    oauth2client.devshell
    oauth2client.file
-   oauth2client.gce
    oauth2client.service_account
    oauth2client.tools
    oauth2client.util
