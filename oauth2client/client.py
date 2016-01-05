@@ -117,6 +117,10 @@ _GCE_METADATA_HOST = '169.254.169.254'
 _METADATA_FLAVOR_HEADER = 'Metadata-Flavor'
 _DESIRED_METADATA_FLAVOR = 'Google'
 
+# Expose utcnow() at module level to allow for
+# easier testing (by replacing with a stub).
+_UTCNOW = datetime.datetime.utcnow
+
 
 class SETTINGS(object):
     """Settings namespace for globally defined values."""
@@ -737,7 +741,7 @@ class OAuth2Credentials(Credentials):
         if not self.token_expiry:
             return False
 
-        now = datetime.datetime.utcnow()
+        now = _UTCNOW()
         if now >= self.token_expiry:
             logger.info('access_token is expired. Now: %s, token_expiry: %s',
                         now, self.token_expiry)
@@ -780,7 +784,7 @@ class OAuth2Credentials(Credentials):
         valid; we just don't know anything about it.
         """
         if self.token_expiry:
-            now = datetime.datetime.utcnow()
+            now = _UTCNOW()
             if self.token_expiry > now:
                 time_delta = self.token_expiry - now
                 # TODO(orestica): return time_delta.total_seconds()
@@ -881,8 +885,8 @@ class OAuth2Credentials(Credentials):
             self.access_token = d['access_token']
             self.refresh_token = d.get('refresh_token', self.refresh_token)
             if 'expires_in' in d:
-                self.token_expiry = datetime.timedelta(
-                    seconds=int(d['expires_in'])) + datetime.datetime.utcnow()
+                delta = datetime.timedelta(seconds=int(d['expires_in']))
+                self.token_expiry = delta + _UTCNOW()
             else:
                 self.token_expiry = None
             if 'id_token' in d:
@@ -2149,9 +2153,8 @@ class OAuth2WebServerFlow(Flow):
                     "reauthenticating with approval_prompt='force'.")
             token_expiry = None
             if 'expires_in' in d:
-                token_expiry = (
-                    datetime.datetime.utcnow() +
-                    datetime.timedelta(seconds=int(d['expires_in'])))
+                delta = datetime.timedelta(seconds=int(d['expires_in']))
+                token_expiry = delta + _UTCNOW()
 
             extracted_id_token = None
             if 'id_token' in d:
