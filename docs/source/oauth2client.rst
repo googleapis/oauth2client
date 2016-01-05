@@ -22,7 +22,6 @@ Submodules
    oauth2client.service_account
    oauth2client.tools
    oauth2client.util
-   oauth2client.xsrfutil
 
 Module contents
 ---------------

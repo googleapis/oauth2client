@@ -19,6 +19,7 @@ Submodules
    oauth2client.contrib.keyring_storage
    oauth2client.contrib.locked_file
    oauth2client.contrib.multistore_file
+   oauth2client.contrib.xsrfutil
 
 Module contents
 ---------------
