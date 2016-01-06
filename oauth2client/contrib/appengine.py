@@ -408,6 +408,8 @@ class StorageByKeyName(Storage):
             user: users.User object, optional. Can be used to grab user ID as a
                   key_name if no key name is specified.
         """
+        super(StorageByKeyName, self).__init__()
+
         if key_name is None:
             if user is None:
                 raise ValueError('StorageByKeyName called with no '
