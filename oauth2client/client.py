@@ -346,21 +346,31 @@ class Storage(object):
     such that multiple processes and threads can operate on a single
     store.
     """
+    def __init__(self, lock=None):
+        """Create a Storage instance.
+
+        Args:
+            lock: An optional threading.Lock-like object. Must implement at
+                  least acquire() and release(). Does not need to be re-entrant.
+        """
+        self._lock = lock
 
     def acquire_lock(self):
         """Acquires any lock necessary to access this Storage.
 
         This lock is not reentrant.
         """
-        pass
+        if self._lock is not None:
+            self._lock.acquire()
 
     def release_lock(self):
         """Release the Storage lock.
 
         Trying to release a lock that isn't held will result in a
-        RuntimeError.
+        RuntimeError in the case of a threading.Lock or multiprocessing.Lock.
         """
-        pass
+        if self._lock is not None:
+            self._lock.release()
 
     def locked_get(self):
         """Retrieve credential.

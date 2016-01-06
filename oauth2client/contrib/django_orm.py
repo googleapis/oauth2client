@@ -124,6 +124,7 @@ class Storage(BaseStorage):
             property_name: string, name of the property that is an
                            CredentialsProperty
         """
+        super(Storage, self).__init__()
         self.model_class = model_class
         self.key_name = key_name
         self.key_value = key_value

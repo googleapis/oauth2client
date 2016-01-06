@@ -31,6 +31,7 @@ class DjangoSessionStorage(client.Storage):
     """Storage implementation that uses Django sessions."""
 
     def __init__(self, session):
+        super(DjangoSessionStorage, self).__init__()
         self.session = session
 
     def locked_get(self):
