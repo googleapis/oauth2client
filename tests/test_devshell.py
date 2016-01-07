@@ -14,6 +14,7 @@
 
 """Tests for oauth2client.devshell."""
 
+import datetime
 import json
 import os
 import socket
@@ -22,6 +23,7 @@ import unittest
 
 import mock
 
+from oauth2client import devshell
 from oauth2client._helpers import _from_bytes
 from oauth2client._helpers import _to_bytes
 from oauth2client.client import save_to_well_known_file
@@ -32,6 +34,16 @@ from oauth2client.devshell import CredentialInfoResponse
 from oauth2client.devshell import DEVSHELL_ENV
 from oauth2client.devshell import DevshellCredentials
 from oauth2client.devshell import NoDevshellServer
+
+# A dummy value to use for the expires_in field
+# in CredentialInfoResponse.
+EXPIRES_IN = 1000
+DEFAULT_CREDENTIAL_JSON = json.dumps([
+    'joe@example.com',
+    'fooproj',
+    'sometoken',
+    EXPIRES_IN
+])
 
 
 class TestCredentialInfoResponse(unittest.TestCase):
@@ -51,16 +63,20 @@ class TestCredentialInfoResponse(unittest.TestCase):
         self.assertEqual(info_response.user_email, None)
         self.assertEqual(info_response.project_id, None)
         self.assertEqual(info_response.access_token, None)
+        self.assertEqual(info_response.expires_in, None)
 
     def test_constructor_full_list(self):
         user_email = 'user_email'
         project_id = 'project_id'
         access_token = 'access_token'
-        json_string = json.dumps([user_email, project_id, access_token])
+        expires_in = 1
+        json_string = json.dumps(
+            [user_email, project_id, access_token, expires_in])
         info_response = CredentialInfoResponse(json_string)
         self.assertEqual(info_response.user_email, user_email)
         self.assertEqual(info_response.project_id, project_id)
         self.assertEqual(info_response.access_token, access_token)
+        self.assertEqual(info_response.expires_in, expires_in)
 
 
 class Test_SendRecv(unittest.TestCase):
@@ -106,8 +122,7 @@ class _AuthReferenceServer(threading.Thread):
 
     def __init__(self, response=None):
         super(_AuthReferenceServer, self).__init__(None)
-        self.response = (response or
-                         '["joe@example.com", "fooproj", "sometoken"]')
+        self.response = response or DEFAULT_CREDENTIAL_JSON
         self.bad_request = False
 
     def __enter__(self):
@@ -195,19 +210,27 @@ class DevshellCredentialsTests(unittest.TestCase):
             creds = DevshellCredentials()
             self.assertEquals(None, creds.refresh_token)
 
-    def test_reads_credentials(self):
+    @mock.patch.object(devshell, '_UTCNOW')
+    def test_reads_credentials(self, utcnow):
+        NOW = datetime.datetime(1992, 12, 31)
+        utcnow.return_value = NOW
         with _AuthReferenceServer():
             creds = DevshellCredentials()
             self.assertEqual('joe@example.com', creds.user_email)
             self.assertEqual('fooproj', creds.project_id)
             self.assertEqual('sometoken', creds.access_token)
-
+            self.assertEqual(
+                NOW + datetime.timedelta(seconds=EXPIRES_IN),
+                creds.token_expiry)
+            utcnow.assert_called_once_with()
+            
     def test_handles_skipped_fields(self):
         with _AuthReferenceServer('["joe@example.com"]'):
             creds = DevshellCredentials()
             self.assertEqual('joe@example.com', creds.user_email)
             self.assertEqual(None, creds.project_id)
             self.assertEqual(None, creds.access_token)
+            self.assertEqual(None, creds.token_expiry)
 
     def test_handles_tiny_response(self):
         with _AuthReferenceServer('[]'):
@@ -218,7 +241,7 @@ class DevshellCredentialsTests(unittest.TestCase):
 
     def test_handles_ignores_extra_fields(self):
         with _AuthReferenceServer(
-                '["joe@example.com", "fooproj", "sometoken", "extra"]'):
+                '["joe@example.com", "fooproj", "sometoken", 1, "extra"]'):
             creds = DevshellCredentials()
             self.assertEqual('joe@example.com', creds.user_email)
             self.assertEqual('fooproj', creds.project_id)
