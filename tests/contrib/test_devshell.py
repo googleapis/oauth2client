@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Tests for oauth2client.devshell."""
+"""Tests for oauth2client.contrib.devshell."""
 
 import datetime
 import json
@@ -23,17 +23,17 @@ import unittest
 
 import mock
 
-from oauth2client import devshell
+from oauth2client.contrib import devshell
 from oauth2client._helpers import _from_bytes
 from oauth2client._helpers import _to_bytes
 from oauth2client.client import save_to_well_known_file
-from oauth2client.devshell import _SendRecv
-from oauth2client.devshell import CREDENTIAL_INFO_REQUEST_JSON
-from oauth2client.devshell import CommunicationError
-from oauth2client.devshell import CredentialInfoResponse
-from oauth2client.devshell import DEVSHELL_ENV
-from oauth2client.devshell import DevshellCredentials
-from oauth2client.devshell import NoDevshellServer
+from oauth2client.contrib.devshell import _SendRecv
+from oauth2client.contrib.devshell import CREDENTIAL_INFO_REQUEST_JSON
+from oauth2client.contrib.devshell import CommunicationError
+from oauth2client.contrib.devshell import CredentialInfoResponse
+from oauth2client.contrib.devshell import DEVSHELL_ENV
+from oauth2client.contrib.devshell import DevshellCredentials
+from oauth2client.contrib.devshell import NoDevshellServer
 
 # A dummy value to use for the expires_in field
 # in CredentialInfoResponse.
@@ -82,7 +82,7 @@ class TestCredentialInfoResponse(unittest.TestCase):
 class Test_SendRecv(unittest.TestCase):
 
     def test_port_zero(self):
-        with mock.patch('oauth2client.devshell.os') as os_mod:
+        with mock.patch('oauth2client.contrib.devshell.os') as os_mod:
             os_mod.getenv = mock.MagicMock(name='getenv', return_value=0)
             self.assertRaises(NoDevshellServer, _SendRecv)
             os_mod.getenv.assert_called_once_with(DEVSHELL_ENV, 0)
@@ -95,10 +95,10 @@ class Test_SendRecv(unittest.TestCase):
         sock.recv(6).decode = mock.MagicMock(
             name='decode', return_value=header_without_newline)
 
-        with mock.patch('oauth2client.devshell.os') as os_mod:
+        with mock.patch('oauth2client.contrib.devshell.os') as os_mod:
             os_mod.getenv = mock.MagicMock(name='getenv',
                                            return_value=non_zero_port)
-            with mock.patch('oauth2client.devshell.socket') as socket:
+            with mock.patch('oauth2client.contrib.devshell.socket') as socket:
                 socket.socket = mock.MagicMock(name='socket',
                                                return_value=sock)
                 self.assertRaises(CommunicationError, _SendRecv)
@@ -223,7 +223,7 @@ class DevshellCredentialsTests(unittest.TestCase):
                 NOW + datetime.timedelta(seconds=EXPIRES_IN),
                 creds.token_expiry)
             utcnow.assert_called_once_with()
-            
+
     def test_handles_skipped_fields(self):
         with _AuthReferenceServer('["joe@example.com"]'):
             creds = DevshellCredentials()
