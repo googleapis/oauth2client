@@ -183,9 +183,8 @@ except ImportError:  # pragma: NO COVER
     raise ImportError('The flask utilities require flask 0.9 or newer.')
 
 from oauth2client.client import FlowExchangeError
-from oauth2client.client import OAuth2Credentials
 from oauth2client.client import OAuth2WebServerFlow
-from oauth2client.client import Storage
+from oauth2client.contrib.dictionary_storage import DictionaryStorage
 from oauth2client import clientsecrets
 
 
@@ -264,7 +263,7 @@ class UserOAuth2(object):
         self.flow_kwargs = kwargs
 
         if storage is None:
-            storage = FlaskSessionStorage()
+            storage = DictionaryStorage(session, key=_CREDENTIALS_KEY)
         self.storage = storage
 
         if scopes is None:
@@ -548,31 +547,3 @@ class UserOAuth2(object):
         if not self.credentials:
             raise ValueError('No credentials available.')
         return self.credentials.authorize(httplib2.Http(*args, **kwargs))
-
-
-class FlaskSessionStorage(Storage):
-    """Storage implementation that uses Flask sessions.
-
-    Note that flask's default sessions are signed but not encrypted. Users
-    can see their own credentials and non-https connections can intercept user
-    credentials. We strongly recommend using a server-side session
-    implementation.
-    """
-
-    def locked_get(self):
-        serialized = session.get(_CREDENTIALS_KEY)
-
-        if serialized is None:
-            return None
-
-        credentials = OAuth2Credentials.from_json(serialized)
-        credentials.set_store(self)
-
-        return credentials
-
-    def locked_put(self, credentials):
-        session[_CREDENTIALS_KEY] = credentials.to_json()
-
-    def locked_delete(self):
-        if _CREDENTIALS_KEY in session:
-            del session[_CREDENTIALS_KEY]
