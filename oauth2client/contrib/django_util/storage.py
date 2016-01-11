@@ -12,7 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from oauth2client import client
+from oauth2client.contrib.dictionary_storage import DictionaryStorage
+
+_CREDENTIALS_KEY = 'google_oauth2_credentials'
 
 
 def get_storage(request):
@@ -22,32 +24,4 @@ def get_storage(request):
     :param request: Reference to the current request object
     :return: A OAuth2Client Storage implementation based on sessions
     """
-    return DjangoSessionStorage(request.session)
-
-_CREDENTIALS_KEY = 'google_oauth2_credentials'
-
-
-class DjangoSessionStorage(client.Storage):
-    """Storage implementation that uses Django sessions."""
-
-    def __init__(self, session):
-        super(DjangoSessionStorage, self).__init__()
-        self.session = session
-
-    def locked_get(self):
-        serialized = self.session.get(_CREDENTIALS_KEY)
-
-        if serialized is None:
-            return None
-
-        credentials = client.OAuth2Credentials.from_json(serialized)
-        credentials.set_store(self)
-
-        return credentials
-
-    def locked_put(self, credentials):
-        self.session[_CREDENTIALS_KEY] = credentials.to_json()
-
-    def locked_delete(self):
-        if _CREDENTIALS_KEY in self.session:
-            del self.session[_CREDENTIALS_KEY]
+    return DictionaryStorage(request.session, key=_CREDENTIALS_KEY)
