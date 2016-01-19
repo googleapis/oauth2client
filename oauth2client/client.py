@@ -198,6 +198,13 @@ class MemoryCache(object):
         self.cache.pop(key, None)
 
 
+def _parse_expiry(expiry):
+    if expiry and isinstance(expiry, datetime.datetime):
+        return expiry.strftime(EXPIRY_FORMAT)
+    else:
+        return None
+
+
 class Credentials(object):
     """Base class for all Credentials objects.
 
@@ -208,7 +215,7 @@ class Credentials(object):
     JSON string as input and returns an instantiated Credentials object.
     """
 
-    NON_SERIALIZED_MEMBERS = ['store']
+    NON_SERIALIZED_MEMBERS = frozenset(['store'])
 
     def authorize(self, http):
         """Take an httplib2.Http instance (or equivalent) and authorizes it.
@@ -265,9 +272,7 @@ class Credentials(object):
         for member in strip:
             if member in d:
                 del d[member]
-        if (d.get('token_expiry') and
-                isinstance(d['token_expiry'], datetime.datetime)):
-            d['token_expiry'] = d['token_expiry'].strftime(EXPIRY_FORMAT)
+        d['token_expiry'] = _parse_expiry(d.get('token_expiry'))
         # Add in information we will need later to reconsistitue this instance.
         d['_class'] = t.__name__
         d['_module'] = t.__module__
@@ -285,7 +290,7 @@ class Credentials(object):
             string, a JSON representation of this instance, suitable to pass to
             from_json().
         """
-        return self._to_json(Credentials.NON_SERIALIZED_MEMBERS)
+        return self._to_json(self.NON_SERIALIZED_MEMBERS)
 
     @classmethod
     def new_from_json(cls, s):
@@ -698,9 +703,6 @@ class OAuth2Credentials(Credentials):
         """
         self._retrieve_scopes(http.request)
         return self.scopes
-
-    def to_json(self):
-        return self._to_json(Credentials.NON_SERIALIZED_MEMBERS)
 
     @classmethod
     def from_json(cls, s):
@@ -1180,6 +1182,11 @@ class GoogleCredentials(OAuth2Credentials):
         print(response)
     """
 
+    NON_SERIALIZED_MEMBERS =  (
+        frozenset(['_private_key']) |
+        OAuth2Credentials.NON_SERIALIZED_MEMBERS)
+
+
     def __init__(self, access_token, client_id, client_secret, refresh_token,
                  token_expiry, token_uri, user_agent,
                  revoke_uri=GOOGLE_REVOKE_URI):
@@ -1221,6 +1228,32 @@ class GoogleCredentials(OAuth2Credentials):
         The Credentials type is preserved.
         """
         return self
+
+    @classmethod
+    def from_json(cls, s):
+        # TODO(issue 388): eliminate the circularity that is the reason for
+        # this non-top-level import.
+        from oauth2client.service_account import _ServiceAccountCredentials
+        data = json.loads(_from_bytes(s))
+
+        # We handle service_account._ServiceAccountCredentials since it is a
+        # possible return type of GoogleCredentials.get_application_default()
+        if (data['_module'] == 'oauth2client.service_account' and
+            data['_class'] == '_ServiceAccountCredentials'):
+            return _ServiceAccountCredentials.from_json(s)
+
+        token_expiry = _parse_expiry(data.get('token_expiry'))
+        google_credentials = cls(
+            data['access_token'],
+            data['client_id'],
+            data['client_secret'],
+            data['refresh_token'],
+            token_expiry,
+            data['token_uri'],
+            data['user_agent'],
+            revoke_uri=data.get('revoke_uri', None))
+        google_credentials.invalid = data['invalid']
+        return google_credentials
 
     @property
     def serialization_data(self):

@@ -618,6 +618,35 @@ class GoogleCredentialsTests(unittest2.TestCase):
             self.get_a_google_credentials_object().from_stream,
             credentials_file)
 
+    def test_to_from_json_authorized_user(self):
+        credentials_file = datafile(
+            os.path.join('gcloud', 'application_default_credentials_authorized_user.json'))
+        creds = GoogleCredentials.from_stream(credentials_file)
+        json = creds.to_json()
+        creds2 = GoogleCredentials.from_json(json)
+
+        self.assertEqual(creds.__dict__, creds2.__dict__)
+
+    def test_to_from_json_service_account(self):
+        self.maxDiff=None
+        credentials_file = datafile(
+            os.path.join('gcloud', _WELL_KNOWN_CREDENTIALS_FILE))
+        creds = GoogleCredentials.from_stream(credentials_file)
+
+        json = creds.to_json()
+        creds2 = GoogleCredentials.from_json(json)
+
+        self.assertEqual(creds.__dict__, creds2.__dict__)
+
+    def test_parse_expiry(self):
+        dt = datetime.datetime(2016, 1, 1)
+        parsed_expiry = client._parse_expiry(dt)
+        self.assertEqual('2016-01-01T00:00:00Z', parsed_expiry)
+
+    def test_bad_expiry(self):
+        dt = object()
+        parsed_expiry = client._parse_expiry(dt)
+        self.assertEqual(None, parsed_expiry)
 
 class DummyDeleteStorage(Storage):
     delete_called = False
@@ -771,6 +800,12 @@ class BasicCredentialsTests(unittest2.TestCase):
     def test_from_json_token_expiry(self):
         data = json.loads(self.credentials.to_json())
         data['token_expiry'] = None
+        instance = OAuth2Credentials.from_json(json.dumps(data))
+        self.assertTrue(isinstance(instance, OAuth2Credentials))
+
+    def test_from_json_bad_token_expiry(self):
+        data = json.loads(self.credentials.to_json())
+        data['token_expiry'] = 'foobar'
         instance = OAuth2Credentials.from_json(json.dumps(data))
         self.assertTrue(isinstance(instance, OAuth2Credentials))
 
