@@ -18,6 +18,8 @@ This credentials class is implemented on top of rsa library.
 """
 
 import base64
+import datetime
+import json
 import time
 
 from pyasn1.codec.ber import decoder
@@ -27,16 +29,23 @@ import rsa
 from oauth2client import GOOGLE_REVOKE_URI
 from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client._helpers import _json_encode
+from oauth2client._helpers import _from_bytes
 from oauth2client._helpers import _to_bytes
 from oauth2client._helpers import _urlsafe_b64encode
 from oauth2client import util
 from oauth2client.client import AssertionCredentials
+from oauth2client.client import EXPIRY_FORMAT
 
 
 class _ServiceAccountCredentials(AssertionCredentials):
     """Class representing a service account (signed JWT) credential."""
 
     MAX_TOKEN_LIFETIME_SECS = 3600  # 1 hour in seconds
+
+    NON_SERIALIZED_MEMBERS =  (
+        frozenset(['_private_key']) |
+        AssertionCredentials.NON_SERIALIZED_MEMBERS)
+
 
     def __init__(self, service_account_id, service_account_email,
                  private_key_id, private_key_pkcs8_text, scopes,
@@ -107,6 +116,25 @@ class _ServiceAccountCredentials(AssertionCredentials):
             'private_key_id': self._private_key_id,
             'private_key': self._private_key_pkcs8_text
         }
+
+    @classmethod
+    def from_json(cls, s):
+        data = json.loads(_from_bytes(s))
+
+        credentials = cls(
+            service_account_id=data['_service_account_id'],
+            service_account_email=data['_service_account_email'],
+            private_key_id=data['_private_key_id'],
+            private_key_pkcs8_text=data['_private_key_pkcs8_text'],
+            scopes=[],
+            user_agent=data['_user_agent'])
+        credentials.invalid = data['invalid']
+        credentials.access_token = data['access_token']
+        token_expiry = data.get('token_expiry', None)
+        if token_expiry is not None:
+            credentials.token_expiry = datetime.datetime.strptime(
+                token_expiry, EXPIRY_FORMAT)
+        return credentials
 
     def create_scoped_required(self):
         return not self._scopes
