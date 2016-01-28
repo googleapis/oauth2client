@@ -82,7 +82,8 @@ class MultistoreFileTests(unittest.TestCase):
         os.close(filehandle)
 
         try:
-            for error_code in (errno.EDEADLK, errno.ENOSYS, errno.ENOLCK):
+            for error_code in (errno.EDEADLK, errno.ENOSYS, errno.ENOLCK,
+                               errno.EACCES):
                 multistore = multistore_file._MultiStore(filename)
                 multistore._file = _MockLockedFile(filename, error_code)
                 # Should not raise even though the underlying file class did.

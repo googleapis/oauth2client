@@ -293,6 +293,8 @@ class _MultiStore(object):
             elif e.errno == errno.EDEADLK:
                 logger.warn('Lock contention on multistore file, opening '
                             'in read-only mode.')
+            elif e.errno == errno.EACCES:
+                logger.warn('Cannot access credentials file.')
             else:
                 raise
         if not self._file.is_locked():
