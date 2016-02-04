@@ -71,7 +71,7 @@ else:  # pragma: NO COVER
     Verifier = RsaVerifier
 
 
-def make_signed_jwt(signer, payload):
+def make_signed_jwt(signer, payload, key_id=None):
     """Make a signed JWT.
 
     See http://self-issued.info/docs/draft-jones-json-web-token.html.
@@ -79,11 +79,14 @@ def make_signed_jwt(signer, payload):
     Args:
         signer: crypt.Signer, Cryptographic signer.
         payload: dict, Dictionary of data to convert to JSON and then sign.
+        key_id: string, (Optional) Key ID header.
 
     Returns:
         string, The JWT for the payload.
     """
     header = {'typ': 'JWT', 'alg': 'RS256'}
+    if key_id is not None:
+        header['kid'] = key_id
 
     segments = [
       _urlsafe_b64encode(_json_encode(header)),
@@ -91,7 +94,7 @@ def make_signed_jwt(signer, payload):
     ]
     signing_input = b'.'.join(segments)
 
-    signature = signer.sign(signing_input)
+    signature = signer.sign(signing_input).rstrip(b'=')
     segments.append(_urlsafe_b64encode(signature))
 
     logger.debug(str(segments))

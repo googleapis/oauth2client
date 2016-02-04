@@ -628,15 +628,17 @@ class GoogleCredentialsTests(unittest2.TestCase):
         self.assertEqual(creds.__dict__, creds2.__dict__)
 
     def test_to_from_json_service_account(self):
-        self.maxDiff=None
         credentials_file = datafile(
             os.path.join('gcloud', _WELL_KNOWN_CREDENTIALS_FILE))
-        creds = GoogleCredentials.from_stream(credentials_file)
+        creds1 = GoogleCredentials.from_stream(credentials_file)
+        # Convert to and then back from json.
+        creds2 = GoogleCredentials.from_json(creds1.to_json())
 
-        json = creds.to_json()
-        creds2 = GoogleCredentials.from_json(json)
-
-        self.assertEqual(creds.__dict__, creds2.__dict__)
+        creds1_vals = creds1.__dict__
+        creds1_vals.pop('_signer')
+        creds2_vals = creds2.__dict__
+        creds2_vals.pop('_signer')
+        self.assertEqual(creds1_vals, creds2_vals)
 
     def test_parse_expiry(self):
         dt = datetime.datetime(2016, 1, 1)

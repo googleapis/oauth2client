@@ -112,7 +112,7 @@ class OpenSSLSigner(object):
         Raises:
             OpenSSL.crypto.Error if the key can't be parsed.
         """
-        parsed_pem_key = _parse_pem_key(key)
+        parsed_pem_key = _parse_pem_key(_to_bytes(key))
         if parsed_pem_key:
             pkey = crypto.load_privatekey(crypto.FILETYPE_PEM, parsed_pem_key)
         else:
