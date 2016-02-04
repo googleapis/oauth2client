@@ -216,12 +216,12 @@ class GoogleCredentialsTests(unittest2.TestCase):
                                       server_software=''):
         response = mock.MagicMock()
         if status_ok:
-            response.status = 200
+            response.status = http_client.OK
             response.getheader = mock.MagicMock(
                 name='getheader',
                 return_value=client._DESIRED_METADATA_FLAVOR)
         else:
-            response.status = 404
+            response.status = http_client.NOT_FOUND
 
         connection = mock.MagicMock()
         connection.getresponse = mock.MagicMock(name='getresponse',
@@ -232,8 +232,8 @@ class GoogleCredentialsTests(unittest2.TestCase):
         with mock.patch('oauth2client.client.os') as os_module:
             os_module.environ = {client._SERVER_SOFTWARE: server_software}
             with mock.patch('oauth2client.client.six') as six_module:
-                http_client = six_module.moves.http_client
-                http_client.HTTPConnection = mock.MagicMock(
+                http_client_module = six_module.moves.http_client
+                http_client_module.HTTPConnection = mock.MagicMock(
                     name='HTTPConnection', return_value=connection)
 
                 if server_software == '':
@@ -247,7 +247,7 @@ class GoogleCredentialsTests(unittest2.TestCase):
                     self.assertFalse(_in_gce_environment())
 
                 if server_software == '':
-                    http_client.HTTPConnection.assert_called_once_with(
+                    http_client_module.HTTPConnection.assert_called_once_with(
                         client._GCE_METADATA_HOST, timeout=1)
                     connection.getresponse.assert_called_once_with()
                     # Remaining calls are not "getresponse"
@@ -265,7 +265,8 @@ class GoogleCredentialsTests(unittest2.TestCase):
                         response.getheader.assert_called_once_with(
                             client._METADATA_FLAVOR_HEADER)
                 else:
-                    self.assertEqual(http_client.HTTPConnection.mock_calls, [])
+                    self.assertEqual(
+                            http_client_module.HTTPConnection.mock_calls, [])
                     self.assertEqual(connection.getresponse.mock_calls, [])
                     # Remaining calls are not "getresponse"
                     self.assertEqual(connection.method_calls, [])
@@ -785,7 +786,7 @@ class BasicCredentialsTests(unittest2.TestCase):
         ])
         http = self.credentials.authorize(http)
         resp, content = http.request('http://example.com')
-        self.assertEqual(400, resp.status)
+        self.assertEqual(http_client.BAD_REQUEST, resp.status)
         self.assertEqual(None, self.credentials.token_response)
 
     def test_to_from_json(self):
@@ -1058,7 +1059,7 @@ class AccessTokenCredentialsTests(unittest2.TestCase):
         ])
         http = self.credentials.authorize(http)
         resp, content = http.request('http://example.com')
-        self.assertEqual(400, resp.status)
+        self.assertEqual(http_client.BAD_REQUEST, resp.status)
 
     def test_auth_header_sent(self):
         http = HttpMockSequence([

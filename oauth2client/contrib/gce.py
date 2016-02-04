@@ -19,6 +19,7 @@ Utilities for making it easier to use OAuth 2.0 on Google Compute Engine.
 
 import json
 import logging
+from six.moves import http_client
 from six.moves import urllib
 
 from oauth2client._helpers import _from_bytes
@@ -86,7 +87,7 @@ class AppAssertionCredentials(AssertionCredentials):
         uri = META.replace('{?scope}', query)
         response, content = http_request(uri)
         content = _from_bytes(content)
-        if response.status == 200:
+        if response.status == http_client.OK:
             try:
                 d = json.loads(content)
             except Exception as e:
@@ -94,7 +95,7 @@ class AppAssertionCredentials(AssertionCredentials):
                                                   status=response.status)
             self.access_token = d['accessToken']
         else:
-            if response.status == 404:
+            if response.status == http_client.NOT_FOUND:
                 content += (' This can occur if a VM was created'
                             ' with no service account or scopes.')
             raise HttpAccessTokenRefreshError(content, status=response.status)

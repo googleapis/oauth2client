@@ -30,6 +30,7 @@ import tempfile
 import time
 import shutil
 import six
+from six.moves import http_client
 from six.moves import urllib
 
 import httplib2
@@ -73,7 +74,7 @@ ID_TOKEN_VERIFICATON_CERTS = ID_TOKEN_VERIFICATION_CERTS
 OOB_CALLBACK_URN = 'urn:ietf:wg:oauth:2.0:oob'
 
 # Google Data client libraries may need to set this to [401, 403].
-REFRESH_STATUS_CODES = [401]
+REFRESH_STATUS_CODES = (http_client.UNAUTHORIZED,)
 
 # The value representing user credentials.
 AUTHORIZED_USER = 'authorized_user'
@@ -891,7 +892,7 @@ class OAuth2Credentials(Credentials):
         resp, content = http_request(
             self.token_uri, method='POST', body=body, headers=headers)
         content = _from_bytes(content)
-        if resp.status == 200:
+        if resp.status == http_client.OK:
             d = json.loads(content)
             self.token_response = d
             self.access_token = d['access_token']
@@ -956,7 +957,7 @@ class OAuth2Credentials(Credentials):
         query_params = {'token': token}
         token_revoke_uri = _update_query_params(self.revoke_uri, query_params)
         resp, content = http_request(token_revoke_uri)
-        if resp.status == 200:
+        if resp.status == http_client.OK:
             self.invalid = True
         else:
             error_msg = 'Invalid response %s.' % resp.status
@@ -1001,7 +1002,7 @@ class OAuth2Credentials(Credentials):
                                               query_params)
         resp, content = http_request(token_info_uri)
         content = _from_bytes(content)
-        if resp.status == 200:
+        if resp.status == http_client.OK:
             d = json.loads(content)
             self.scopes = set(util.string_to_scopes(d.get('scope', '')))
         else:
@@ -1107,7 +1108,7 @@ def _detect_gce_environment():
         headers = {_METADATA_FLAVOR_HEADER: _DESIRED_METADATA_FLAVOR}
         connection.request('GET', '/', headers=headers)
         response = connection.getresponse()
-        if response.status == 200:
+        if response.status == http_client.OK:
             return (response.getheader(_METADATA_FLAVOR_HEADER) ==
                     _DESIRED_METADATA_FLAVOR)
     except socket.error:  # socket.timeout or socket.error(64, 'Host is down')
@@ -1759,7 +1760,7 @@ def verify_id_token(id_token, audience, http=None,
         http = _cached_http
 
     resp, content = http.request(cert_uri)
-    if resp.status == 200:
+    if resp.status == http_client.OK:
         certs = json.loads(_from_bytes(content))
         return crypt.verify_signed_jwt_with_certs(id_token, certs, audience)
     else:
@@ -2104,7 +2105,7 @@ class OAuth2WebServerFlow(Flow):
         resp, content = http.request(self.device_uri, method='POST', body=body,
                                      headers=headers)
         content = _from_bytes(content)
-        if resp.status == 200:
+        if resp.status == http_client.OK:
             try:
                 flow_info = json.loads(content)
             except ValueError as e:
@@ -2187,7 +2188,7 @@ class OAuth2WebServerFlow(Flow):
         resp, content = http.request(self.token_uri, method='POST', body=body,
                                      headers=headers)
         d = _parse_exchange_token_response(content)
-        if resp.status == 200 and 'access_token' in d:
+        if resp.status == http_client.OK and 'access_token' in d:
             access_token = d['access_token']
             refresh_token = d.get('refresh_token', None)
             if not refresh_token:

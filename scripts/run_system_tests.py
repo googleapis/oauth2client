@@ -2,6 +2,7 @@ import json
 import os
 
 import httplib2
+from six.moves import http_client
 from oauth2client import client
 from oauth2client import service_account
 
@@ -41,8 +42,8 @@ def _require_environ():
 def _check_user_info(credentials, expected_email):
     http = credentials.authorize(httplib2.Http())
     response, content = http.request(USER_INFO)
-    if response.status != 200:
-        raise ValueError('Expected 200 response.')
+    if response.status != http_client.OK:
+        raise ValueError('Expected 200 OK response.')
 
     content = content.decode('utf-8')
     payload = json.loads(content)

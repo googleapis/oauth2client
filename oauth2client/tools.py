@@ -26,6 +26,7 @@ import socket
 import sys
 
 from six.moves import BaseHTTPServer
+from six.moves import http_client
 from six.moves import urllib
 from six.moves import input
 
@@ -95,7 +96,7 @@ class ClientRedirectHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         if the flow has completed. Note that we can't detect
         if an error occurred.
         """
-        self.send_response(200)
+        self.send_response(http_client.OK)
         self.send_header("Content-type", "text/html")
         self.end_headers()
         query = self.path.split('?', 1)[-1]
