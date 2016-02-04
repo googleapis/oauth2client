@@ -24,6 +24,8 @@ from oauth2client._helpers import _json_encode
 from oauth2client._helpers import _to_bytes
 from oauth2client._helpers import _urlsafe_b64decode
 from oauth2client._helpers import _urlsafe_b64encode
+from oauth2client._pure_python_crypt import RsaSigner
+from oauth2client._pure_python_crypt import RsaVerifier
 
 
 CLOCK_SKEW_SECS = 300  # 5 minutes in seconds
@@ -65,8 +67,8 @@ elif PyCryptoSigner:  # pragma: NO COVER
     Signer = PyCryptoSigner
     Verifier = PyCryptoVerifier
 else:  # pragma: NO COVER
-    raise ImportError('No encryption library found. Please install either '
-                      'PyOpenSSL, or PyCrypto 2.6 or later')
+    Signer = RsaSigner
+    Verifier = RsaVerifier
 
 
 def make_signed_jwt(signer, payload):

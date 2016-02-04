@@ -58,7 +58,7 @@ class CryptTests(unittest2.TestCase):
 
     def _check_sign_and_verify(self, private_key_file):
         private_key = datafile(private_key_file)
-        public_key = datafile('publickey.pem')
+        public_key = datafile('public_cert.pem')
 
         # We pass in a non-bytes password to make sure all branches
         # are traversed in tests.
@@ -74,7 +74,7 @@ class CryptTests(unittest2.TestCase):
         self.assertFalse(verifier.verify(b'foo', u'bad signagure'))
 
     def _check_jwt_failure(self, jwt, expected_error):
-        public_key = datafile('publickey.pem')
+        public_key = datafile('public_cert.pem')
         certs = {'foo': public_key}
         audience = ('https://www.googleapis.com/auth/id?client_id='
                     'external_public_key@testing.gserviceaccount.com')
@@ -100,7 +100,7 @@ class CryptTests(unittest2.TestCase):
 
     def test_verify_id_token(self):
         jwt = self._create_signed_jwt()
-        public_key = datafile('publickey.pem')
+        public_key = datafile('public_cert.pem')
         certs = {'foo': public_key}
         audience = 'some_audience_address@testing.gserviceaccount.com'
         contents = crypt.verify_signed_jwt_with_certs(jwt, certs, audience)
