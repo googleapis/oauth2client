@@ -22,13 +22,13 @@ from oauth2client.crypt import PyCryptoVerifier
 
 class TestPyCryptoVerifier(unittest.TestCase):
 
-    PUBLIC_KEY_FILENAME = os.path.join(os.path.dirname(__file__),
-                                       'data', 'publickey.pem')
+    PUBLIC_CERT_FILENAME = os.path.join(os.path.dirname(__file__),
+                                        'data', 'public_cert.pem')
     PRIVATE_KEY_FILENAME = os.path.join(os.path.dirname(__file__),
                                         'data', 'privatekey.pem')
 
     def _load_public_key_bytes(self):
-        with open(self.PUBLIC_KEY_FILENAME, 'rb') as fh:
+        with open(self.PUBLIC_CERT_FILENAME, 'rb') as fh:
             return fh.read()
 
     def _load_private_key_bytes(self):
