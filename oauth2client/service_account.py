@@ -12,19 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""A service account credentials class.
-
-This credentials class is implemented on top of rsa library.
-"""
+"""oauth2client Service account credentials class."""
 
 import base64
 import datetime
 import json
 import time
-
-from pyasn1.codec.ber import decoder
-from pyasn1_modules.rfc5208 import PrivateKeyInfo
-import rsa
 
 from oauth2client import GOOGLE_REVOKE_URI
 from oauth2client import GOOGLE_TOKEN_URI
@@ -35,6 +28,7 @@ from oauth2client._helpers import _urlsafe_b64encode
 from oauth2client import util
 from oauth2client.client import AssertionCredentials
 from oauth2client.client import EXPIRY_FORMAT
+from oauth2client import crypt
 
 
 class _ServiceAccountCredentials(AssertionCredentials):
@@ -43,9 +37,8 @@ class _ServiceAccountCredentials(AssertionCredentials):
     MAX_TOKEN_LIFETIME_SECS = 3600  # 1 hour in seconds
 
     NON_SERIALIZED_MEMBERS =  (
-        frozenset(['_private_key']) |
+        frozenset(['_signer']) |
         AssertionCredentials.NON_SERIALIZED_MEMBERS)
-
 
     def __init__(self, service_account_id, service_account_email,
                  private_key_id, private_key_pkcs8_text, scopes,
@@ -59,8 +52,8 @@ class _ServiceAccountCredentials(AssertionCredentials):
         self._service_account_id = service_account_id
         self._service_account_email = service_account_email
         self._private_key_id = private_key_id
-        self._private_key = _get_private_key(private_key_pkcs8_text)
         self._private_key_pkcs8_text = private_key_pkcs8_text
+        self._signer = crypt.Signer.from_string(self._private_key_pkcs8_text)
         self._scopes = util.scopes_to_string(scopes)
         self._user_agent = user_agent
         self._token_uri = token_uri
@@ -69,39 +62,20 @@ class _ServiceAccountCredentials(AssertionCredentials):
 
     def _generate_assertion(self):
         """Generate the assertion that will be used in the request."""
-
-        header = {
-            'alg': 'RS256',
-            'typ': 'JWT',
-            'kid': self._private_key_id
-        }
-
         now = int(time.time())
         payload = {
             'aud': self._token_uri,
             'scope': self._scopes,
             'iat': now,
-            'exp': now + _ServiceAccountCredentials.MAX_TOKEN_LIFETIME_SECS,
-            'iss': self._service_account_email
+            'exp': now + self.MAX_TOKEN_LIFETIME_SECS,
+            'iss': self._service_account_email,
         }
         payload.update(self._kwargs)
-
-        first_segment = _urlsafe_b64encode(_json_encode(header))
-        second_segment = _urlsafe_b64encode(_json_encode(payload))
-        assertion_input = first_segment + b'.' + second_segment
-
-        # Sign the assertion.
-        rsa_bytes = rsa.pkcs1.sign(assertion_input, self._private_key,
-                                   'SHA-256')
-        signature = base64.urlsafe_b64encode(rsa_bytes).rstrip(b'=')
-
-        return assertion_input + b'.' + signature
+        return crypt.make_signed_jwt(self._signer, payload,
+                                     key_id=self._private_key_id)
 
     def sign_blob(self, blob):
-        # Ensure that it is bytes
-        blob = _to_bytes(blob, encoding='utf-8')
-        return (self._private_key_id,
-                rsa.pkcs1.sign(blob, self._private_key, 'SHA-256'))
+        return self._private_key_id, self._signer.sign(blob)
 
     @property
     def service_account_email(self):
@@ -149,13 +123,3 @@ class _ServiceAccountCredentials(AssertionCredentials):
                                           token_uri=self._token_uri,
                                           revoke_uri=self._revoke_uri,
                                           **self._kwargs)
-
-
-def _get_private_key(private_key_pkcs8_text):
-    """Get an RSA private key object from a pkcs8 representation."""
-    private_key_pkcs8_text = _to_bytes(private_key_pkcs8_text)
-    der = rsa.pem.load_pem(private_key_pkcs8_text, 'PRIVATE KEY')
-    asn1_private_key, _ = decoder.decode(der, asn1Spec=PrivateKeyInfo())
-    return rsa.PrivateKey.load_pkcs1(
-        asn1_private_key.getComponentByName('privateKey').asOctets(),
-        format='DER')
