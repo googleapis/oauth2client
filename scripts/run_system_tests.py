@@ -58,15 +58,8 @@ def run_json():
 
 
 def run_p12():
-    with open(P12_KEY_PATH, 'rb') as file_object:
-        private_key_contents = file_object.read()
-
-    credentials = client.SignedJwtAssertionCredentials(
-        service_account_name=P12_KEY_EMAIL,
-        private_key=private_key_contents,
-        scope=SCOPE,
-    )
-
+    credentials = ServiceAccountCredentials.from_p12_keyfile(
+        P12_KEY_EMAIL, P12_KEY_PATH, scopes=SCOPE)
     _check_user_info(credentials, P12_KEY_EMAIL)
 
 

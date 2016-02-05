@@ -129,6 +129,33 @@ class ServiceAccountCredentialsTests(unittest2.TestCase):
         with self.assertRaises(KeyError):
             self._from_json_keyfile_name_helper(payload)
 
+    def _from_p12_keyfile_helper(self, private_key_password=None, scopes=''):
+        service_account_email = 'name@email.com'
+        filename = data_filename('privatekey.p12')
+        with open(filename, 'rb') as file_obj:
+            key_contents = file_obj.read()
+        creds = ServiceAccountCredentials.from_p12_keyfile(
+            service_account_email, filename,
+            private_key_password=private_key_password,
+            scopes=scopes)
+        self.assertIsInstance(creds, ServiceAccountCredentials)
+        self.assertEqual(creds.client_id, None)
+        self.assertEqual(creds._service_account_email, service_account_email)
+        self.assertEqual(creds._private_key_id, None)
+        self.assertEqual(creds._private_key_pkcs8_pem, None)
+        self.assertEqual(creds._private_key_pkcs12, key_contents)
+        if private_key_password is not None:
+            self.assertEqual(creds._private_key_password, private_key_password)
+        self.assertEqual(creds._scopes, ' '.join(scopes))
+
+    def test_from_p12_keyfile_defaults(self):
+        self._from_p12_keyfile_helper()
+
+    def test_from_p12_keyfile_explicit(self):
+        password = 'notasecret'
+        self._from_p12_keyfile_helper(private_key_password=password,
+                                      scopes=['foo', 'bar'])
+
     def test_create_scoped_required_without_scopes(self):
         self.assertTrue(self.credentials.create_scoped_required())
 
