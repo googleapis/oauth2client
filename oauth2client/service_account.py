@@ -15,6 +15,7 @@
 """oauth2client Service account credentials class."""
 
 import base64
+import copy
 import datetime
 import json
 import time
@@ -31,6 +32,18 @@ from oauth2client.client import SERVICE_ACCOUNT
 from oauth2client import crypt
 
 
+_PASSWORD_DEFAULT = 'notasecret'
+_PKCS12_KEY = '_private_key_pkcs12'
+_PKCS12_ERROR = r"""
+This library only implements PKCS#12 support via the pyOpenSSL library.
+Either install pyOpenSSL, or please convert the .p12 file
+to .pem format:
+    $ cat key.p12 | \
+    >   openssl pkcs12 -nodes -nocerts -passin pass:notasecret | \
+    >   openssl rsa > key.pem
+"""
+
+
 class ServiceAccountCredentials(AssertionCredentials):
     """Service Account credential for OAuth 2.0 signed JWT grants.
 
@@ -38,6 +51,7 @@ class ServiceAccountCredentials(AssertionCredentials):
 
     * JSON keyfile (typically contains a PKCS8 key stored as
       PEM text)
+    * ``.p12`` key (stores PKCS12 key and certificate)
 
     Makes an assertion to server using a signed JWT assertion in exchange
     for an access token.
@@ -74,6 +88,8 @@ class ServiceAccountCredentials(AssertionCredentials):
     # Can be over-ridden by factory constructors. Used for
     # serialization/deserialization purposes.
     _private_key_pkcs8_pem = None
+    _private_key_pkcs12 = None
+    _private_key_password = None
 
     def __init__(self,
                  service_account_email,
@@ -94,6 +110,31 @@ class ServiceAccountCredentials(AssertionCredentials):
         self.client_id = client_id
         self._user_agent = user_agent
         self._kwargs = kwargs
+
+    def _to_json(self, strip, to_serialize=None):
+        """Utility function that creates JSON repr. of a credentials object.
+
+        Over-ride is needed since PKCS#12 keys will not in general be JSON
+        serializable.
+
+        Args:
+            strip: array, An array of names of members to exclude from the
+                   JSON.
+            to_serialize: dict, (Optional) The properties for this object
+                          that will be serialized. This allows callers to modify
+                          before serializing.
+
+        Returns:
+            string, a JSON representation of this instance, suitable to pass to
+            from_json().
+        """
+        if to_serialize is None:
+            to_serialize = copy.copy(self.__dict__)
+        pkcs12_val = to_serialize.get(_PKCS12_KEY)
+        if pkcs12_val is not None:
+            to_serialize[_PKCS12_KEY] = base64.b64encode(pkcs12_val)
+        return super(ServiceAccountCredentials, self)._to_json(
+            strip, to_serialize=to_serialize)
 
     @classmethod
     def _from_parsed_json_keyfile(cls, keyfile_dict, scopes):
@@ -174,6 +215,39 @@ class ServiceAccountCredentials(AssertionCredentials):
         """
         return cls._from_parsed_json_keyfile(keyfile_dict, scopes)
 
+    @classmethod
+    def from_p12_keyfile(cls, service_account_email, filename,
+                         private_key_password=None, scopes=''):
+        """Factory constructor from JSON keyfile.
+
+        Args:
+            service_account_email: string, The email associated with the
+                                   service account.
+            filename: string, The location of the PKCS#12 keyfile.
+            private_key_password: string, (Optional) Password for PKCS#12
+                                  private key. Defaults to ``notasecret``.
+            scopes: List or string, (Optional) Scopes to use when acquiring an
+                    access token.
+
+        Returns:
+            ServiceAccountCredentials, a credentials object created from
+            the keyfile.
+
+        Raises:
+            NotImplementedError if pyOpenSSL is not installed / not the
+            active crypto library.
+        """
+        with open(filename, 'rb') as file_obj:
+            private_key_pkcs12 = file_obj.read()
+        if private_key_password is None:
+            private_key_password = _PASSWORD_DEFAULT
+        signer = crypt.Signer.from_string(private_key_pkcs12,
+                                          private_key_password)
+        credentials = cls(service_account_email, signer, scopes=scopes)
+        credentials._private_key_pkcs12 = private_key_pkcs12
+        credentials._private_key_password = private_key_password
+        return credentials
+
     def _generate_assertion(self):
         """Generate the assertion that will be used in the request."""
         now = int(time.time())
@@ -197,6 +271,7 @@ class ServiceAccountCredentials(AssertionCredentials):
 
     @property
     def serialization_data(self):
+        # NOTE: This is only useful for JSON keyfile.
         return {
             'type': 'service_account',
             'client_email': self._service_account_email,
@@ -221,8 +296,21 @@ class ServiceAccountCredentials(AssertionCredentials):
         if not isinstance(json_data, dict):
             json_data = json.loads(_from_bytes(json_data))
 
-        private_key_pkcs8_pem = json_data['_private_key_pkcs8_pem']
-        signer = crypt.Signer.from_string(private_key_pkcs8_pem)
+        private_key_pkcs8_pem = None
+        pkcs12_val = json_data.get(_PKCS12_KEY)
+        password = None
+        if pkcs12_val is None:
+            private_key_pkcs8_pem = json_data['_private_key_pkcs8_pem']
+            signer = crypt.Signer.from_string(private_key_pkcs8_pem)
+        else:
+            # NOTE: This assumes that private_key_pkcs8_pem is not also
+            #       in the serialized data. This would be very incorrect
+            #       state.
+            pkcs12_val = base64.b64decode(pkcs12_val)
+            password = json_data['_private_key_password']
+            signer = crypt.Signer.from_string(private_key_pkcs12,
+                                              private_key_password)
+
         credentials = cls(
             json_data['_service_account_email'],
             signer,
@@ -232,7 +320,12 @@ class ServiceAccountCredentials(AssertionCredentials):
             user_agent=json_data['_user_agent'],
             **json_data['_kwargs']
         )
-        credentials._private_key_pkcs8_pem = private_key_pkcs8_pem
+        if private_key_pkcs8_pem is not None:
+            credentials._private_key_pkcs8_pem = private_key_pkcs8_pem
+        if pkcs12_val is not None:
+            credentials._private_key_pkcs12 = pkcs12_val
+        if password is not None:
+            credentials._private_key_password = password
         credentials.invalid = json_data['invalid']
         credentials.access_token = json_data['access_token']
         credentials.token_uri = json_data['token_uri']
@@ -256,4 +349,7 @@ class ServiceAccountCredentials(AssertionCredentials):
                                 **self._kwargs)
         result.token_uri = self.token_uri
         result.revoke_uri = self.revoke_uri
+        result._private_key_pkcs8_pem = self._private_key_pkcs8_pem
+        result._private_key_pkcs12 = self._private_key_pkcs12
+        result._private_key_password = self._private_key_password
         return result
