@@ -123,19 +123,17 @@ class OpenSSLSigner(object):
         return OpenSSLSigner(pkey)
 
 
-def pkcs12_key_as_pem(private_key_text, private_key_password):
-    """Convert the contents of a PKCS12 key to PEM using OpenSSL.
+def pkcs12_key_as_pem(private_key_bytes, private_key_password):
+    """Convert the contents of a PKCS#12 key to PEM using pyOpenSSL.
 
     Args:
-        private_key_text: String. Private key.
-        private_key_password: String. Password for PKCS12.
+        private_key_bytes: Bytes. PKCS#12 key in DER format.
+        private_key_password: String. Password for PKCS#12 key.
 
     Returns:
-        String. PEM contents of ``private_key_text``.
+        String. PEM contents of ``private_key_bytes``.
     """
-    decoded_body = base64.b64decode(private_key_text)
     private_key_password = _to_bytes(private_key_password)
-
-    pkcs12 = crypto.load_pkcs12(decoded_body, private_key_password)
+    pkcs12 = crypto.load_pkcs12(private_key_bytes, private_key_password)
     return crypto.dump_privatekey(crypto.FILETYPE_PEM,
                                   pkcs12.get_privatekey())

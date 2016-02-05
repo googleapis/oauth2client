@@ -20,15 +20,17 @@ import mock
 
 from oauth2client import _helpers
 from oauth2client.client import HAS_OPENSSL
-from oauth2client.client import SignedJwtAssertionCredentials
 from oauth2client import crypt
+from oauth2client.service_account import ServiceAccountCredentials
+
+
+def data_filename(filename):
+    return os.path.join(os.path.dirname(__file__), 'data', filename)
 
 
 def datafile(filename):
-    f = open(os.path.join(os.path.dirname(__file__), 'data', filename), 'rb')
-    data = f.read()
-    f.close()
-    return data
+    with open(data_filename(filename), 'rb') as file_obj:
+        return file_obj.read()
 
 
 class Test__bad_pkcs12_key_as_pem(unittest.TestCase):
@@ -39,23 +41,23 @@ class Test__bad_pkcs12_key_as_pem(unittest.TestCase):
 
 class Test_pkcs12_key_as_pem(unittest.TestCase):
 
-    def _make_signed_jwt_creds(self, private_key_file='privatekey.p12',
-                               private_key=None):
-        private_key = private_key or datafile(private_key_file)
-        return SignedJwtAssertionCredentials(
+    def _make_svc_account_creds(self, private_key_file='privatekey.p12'):
+        filename = data_filename(private_key_file)
+        credentials = ServiceAccountCredentials.from_p12_keyfile(
             'some_account@example.com',
-            private_key,
-            scope='read+write',
-            sub='joe@example.org')
+            filename,
+            scopes='read+write')
+        credentials._kwargs['sub'] ='joe@example.org'
+        return credentials
 
     def _succeeds_helper(self, password=None):
         self.assertEqual(True, HAS_OPENSSL)
 
-        credentials = self._make_signed_jwt_creds()
+        credentials = self._make_svc_account_creds()
         if password is None:
-            password = credentials.private_key_password
-        pem_contents = crypt.pkcs12_key_as_pem(credentials.private_key,
-                                               password)
+            password = credentials._private_key_password
+        pem_contents = crypt.pkcs12_key_as_pem(
+            credentials._private_key_pkcs12, password)
         pkcs12_key_as_pem = datafile('pem_from_pkcs12.pem')
         pkcs12_key_as_pem = _helpers._parse_pem_key(pkcs12_key_as_pem)
         alternate_pem = datafile('pem_from_pkcs12_alternate.pem')
@@ -67,13 +69,6 @@ class Test_pkcs12_key_as_pem(unittest.TestCase):
     def test_succeeds_with_unicode_password(self):
         password = u'notasecret'
         self._succeeds_helper(password)
-
-    def test_with_nonsense_key(self):
-        from OpenSSL import crypto
-        credentials = self._make_signed_jwt_creds(private_key=b'NOT_A_KEY')
-        self.assertRaises(crypto.Error, crypt.pkcs12_key_as_pem,
-                          credentials.private_key,
-                          credentials.private_key_password)
 
 
 class Test__verify_signature(unittest.TestCase):
