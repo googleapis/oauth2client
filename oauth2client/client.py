@@ -298,20 +298,20 @@ class Credentials(object):
         return self._to_json(self.NON_SERIALIZED_MEMBERS)
 
     @classmethod
-    def new_from_json(cls, s):
+    def new_from_json(cls, json_data):
         """Utility class method to instantiate a Credentials subclass from JSON.
 
         Expects the JSON string to have been produced by to_json().
 
         Args:
-            s: string or bytes, JSON from to_json().
+            json_data: string or bytes, JSON from to_json().
 
         Returns:
             An instance of the subclass of Credentials that was serialized with
             to_json().
         """
-        json_string_as_unicode = _from_bytes(s)
-        data = json.loads(json_string_as_unicode)
+        json_data_as_unicode = _from_bytes(json_data)
+        data = json.loads(json_data_as_unicode)
         # Find and call the right classmethod from_json() to restore
         # the object.
         module_name = data['_module']
@@ -326,8 +326,7 @@ class Credentials(object):
         module_obj = __import__(module_name,
                                 fromlist=module_name.split('.')[:-1])
         kls = getattr(module_obj, data['_class'])
-        from_json = getattr(kls, 'from_json')
-        return from_json(json_string_as_unicode)
+        return kls.from_json(json_data_as_unicode)
 
     @classmethod
     def from_json(cls, unused_data):
@@ -710,19 +709,18 @@ class OAuth2Credentials(Credentials):
         return self.scopes
 
     @classmethod
-    def from_json(cls, s):
+    def from_json(cls, json_data):
         """Instantiate a Credentials object from a JSON description of it.
 
         The JSON should have been produced by calling .to_json() on the object.
 
         Args:
-            data: dict, A deserialized JSON object.
+            json_data: string or bytes, JSON to deserialize.
 
         Returns:
             An instance of a Credentials subclass.
         """
-        s = _from_bytes(s)
-        data = json.loads(s)
+        data = json.loads(_from_bytes(json_data))
         if (data.get('token_expiry') and
                 not isinstance(data['token_expiry'], datetime.datetime)):
             try:
@@ -1070,8 +1068,8 @@ class AccessTokenCredentials(OAuth2Credentials):
             revoke_uri=revoke_uri)
 
     @classmethod
-    def from_json(cls, s):
-        data = json.loads(_from_bytes(s))
+    def from_json(cls, json_data):
+        data = json.loads(_from_bytes(json_data))
         retval = AccessTokenCredentials(
             data['access_token'],
             data['user_agent'])
@@ -1190,7 +1188,7 @@ class GoogleCredentials(OAuth2Credentials):
     NON_SERIALIZED_MEMBERS =  (
         frozenset(['_private_key']) |
         OAuth2Credentials.NON_SERIALIZED_MEMBERS)
-
+    """Members that aren't serialized when object is converted to JSON."""
 
     def __init__(self, access_token, client_id, client_secret, refresh_token,
                  token_expiry, token_uri, user_agent,
@@ -1629,101 +1627,6 @@ def _RequireCryptoOrDie():
     if not HAS_CRYPTO:
         raise CryptoUnavailableError('No crypto library available')
 
-
-class SignedJwtAssertionCredentials(AssertionCredentials):
-    """Credentials object used for OAuth 2.0 Signed JWT assertion grants.
-
-    This credential does not require a flow to instantiate because it
-    represents a two legged flow, and therefore has all of the required
-    information to generate and refresh its own access tokens.
-
-    SignedJwtAssertionCredentials requires either PyOpenSSL, or PyCrypto
-    2.6 or later. For App Engine you may also consider using
-    AppAssertionCredentials.
-    """
-
-    MAX_TOKEN_LIFETIME_SECS = 3600  # 1 hour in seconds
-
-    @util.positional(4)
-    def __init__(self,
-                 service_account_name,
-                 private_key,
-                 scope,
-                 private_key_password='notasecret',
-                 user_agent=None,
-                 token_uri=GOOGLE_TOKEN_URI,
-                 revoke_uri=GOOGLE_REVOKE_URI,
-                 **kwargs):
-        """Constructor for SignedJwtAssertionCredentials.
-
-        Args:
-            service_account_name: string, id for account, usually an email
-                                  address.
-            private_key: string or bytes, private key in PKCS12 or PEM format.
-            scope: string or iterable of strings, scope(s) of the credentials
-                   being requested.
-            private_key_password: string, password for private_key, unused if
-                                  private_key is in PEM format.
-            user_agent: string, HTTP User-Agent to provide for this
-                        application.
-            token_uri: string, URI for token endpoint. For convenience defaults
-                       to Google's endpoints but any OAuth 2.0 provider can be
-                       used.
-            revoke_uri: string, URI for revoke endpoint.
-            kwargs: kwargs, Additional parameters to add to the JWT token, for
-                    example sub=joe@xample.org.
-
-        Raises:
-            CryptoUnavailableError if no crypto library is available.
-        """
-        _RequireCryptoOrDie()
-        super(SignedJwtAssertionCredentials, self).__init__(
-            None,
-            user_agent=user_agent,
-            token_uri=token_uri,
-            revoke_uri=revoke_uri,
-        )
-
-        self.scope = util.scopes_to_string(scope)
-
-        # Keep base64 encoded so it can be stored in JSON.
-        self.private_key = base64.b64encode(_to_bytes(private_key))
-        self.private_key_password = private_key_password
-        self.service_account_name = service_account_name
-        self.kwargs = kwargs
-
-    @classmethod
-    def from_json(cls, s):
-        data = json.loads(_from_bytes(s))
-        retval = SignedJwtAssertionCredentials(
-            data['service_account_name'],
-            base64.b64decode(data['private_key']),
-            data['scope'],
-            private_key_password=data['private_key_password'],
-            user_agent=data['user_agent'],
-            token_uri=data['token_uri'],
-            **data['kwargs']
-        )
-        retval.invalid = data['invalid']
-        retval.access_token = data['access_token']
-        return retval
-
-    def _generate_assertion(self):
-        """Generate the assertion that will be used in the request."""
-        now = int(time.time())
-        payload = {
-            'aud': self.token_uri,
-            'scope': self.scope,
-            'iat': now,
-            'exp': now + SignedJwtAssertionCredentials.MAX_TOKEN_LIFETIME_SECS,
-            'iss': self.service_account_name
-        }
-        payload.update(self.kwargs)
-        logger.debug(str(payload))
-
-        private_key = base64.b64decode(self.private_key)
-        return crypt.make_signed_jwt(crypt.Signer.from_string(
-            private_key, self.private_key_password), payload)
 
 # Only used in verify_id_token(), which is always calling to the same URI
 # for the certs.

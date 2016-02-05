@@ -308,8 +308,7 @@ class ServiceAccountCredentials(AssertionCredentials):
             #       state.
             pkcs12_val = base64.b64decode(pkcs12_val)
             password = json_data['_private_key_password']
-            signer = crypt.Signer.from_string(private_key_pkcs12,
-                                              private_key_password)
+            signer = crypt.Signer.from_string(pkcs12_val, password)
 
         credentials = cls(
             json_data['_service_account_email'],

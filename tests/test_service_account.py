@@ -57,6 +57,23 @@ class ServiceAccountCredentialsTests(unittest2.TestCase):
             client_id=self.client_id,
         )
 
+    def test__to_json_override(self):
+        signer = object()
+        creds = ServiceAccountCredentials('name@email.com',
+                                          signer)
+        self.assertEqual(creds._signer, signer)
+        # Serialize over-ridden data (unrelated to ``creds``).
+        to_serialize = {'unrelated': 'data'}
+        serialized_str = creds._to_json([], to_serialize.copy())
+        serialized_data = json.loads(serialized_str)
+        expected_serialized = {
+            '_class': 'ServiceAccountCredentials',
+            '_module': 'oauth2client.service_account',
+            'token_expiry': None,
+        }
+        expected_serialized.update(to_serialize)
+        self.assertEqual(serialized_data, expected_serialized)
+
     def test_sign_blob(self):
         private_key_id, signature = self.credentials.sign_blob('Google')
         self.assertEqual(self.private_key_id, private_key_id)
