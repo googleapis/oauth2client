@@ -80,7 +80,7 @@ from oauth2client.client import credentials_from_code
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import save_to_well_known_file
 from oauth2client.clientsecrets import _loadfile
-from oauth2client.service_account import _ServiceAccountCredentials
+from oauth2client.service_account import ServiceAccountCredentials
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
@@ -157,8 +157,8 @@ class GoogleCredentialsTests(unittest2.TestCase):
         os.environ.pop(env, None)
 
     def validate_service_account_credentials(self, credentials):
-        self.assertTrue(isinstance(credentials, _ServiceAccountCredentials))
-        self.assertEqual('123', credentials._service_account_id)
+        self.assertTrue(isinstance(credentials, ServiceAccountCredentials))
+        self.assertEqual('123', credentials.client_id)
         self.assertEqual('dummy@google.com',
                          credentials._service_account_email)
         self.assertEqual('ABCDEF', credentials._private_key_id)
@@ -619,8 +619,8 @@ class GoogleCredentialsTests(unittest2.TestCase):
             credentials_file)
 
     def test_to_from_json_authorized_user(self):
-        credentials_file = datafile(
-            os.path.join('gcloud', 'application_default_credentials_authorized_user.json'))
+        filename = 'application_default_credentials_authorized_user.json'
+        credentials_file = datafile(os.path.join('gcloud', filename))
         creds = GoogleCredentials.from_stream(credentials_file)
         json = creds.to_json()
         creds2 = GoogleCredentials.from_json(json)

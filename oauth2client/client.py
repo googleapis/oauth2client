@@ -1230,17 +1230,17 @@ class GoogleCredentials(OAuth2Credentials):
         return self
 
     @classmethod
-    def from_json(cls, s):
+    def from_json(cls, json_data):
         # TODO(issue 388): eliminate the circularity that is the reason for
-        # this non-top-level import.
-        from oauth2client.service_account import _ServiceAccountCredentials
-        data = json.loads(_from_bytes(s))
+        #                  this non-top-level import.
+        from oauth2client.service_account import ServiceAccountCredentials
+        data = json.loads(_from_bytes(json_data))
 
-        # We handle service_account._ServiceAccountCredentials since it is a
+        # We handle service_account.ServiceAccountCredentials since it is a
         # possible return type of GoogleCredentials.get_application_default()
         if (data['_module'] == 'oauth2client.service_account' and
-            data['_class'] == '_ServiceAccountCredentials'):
-            return _ServiceAccountCredentials.from_json(s)
+            data['_class'] == 'ServiceAccountCredentials'):
+            return ServiceAccountCredentials.from_json(data)
 
         token_expiry = _parse_expiry(data.get('token_expiry'))
         google_credentials = cls(
@@ -1490,9 +1490,6 @@ def _get_well_known_file():
 
 def _get_application_default_credential_from_file(filename):
     """Build the Application Default Credentials from file."""
-
-    from oauth2client import service_account
-
     # read the credentials from the file
     with open(filename) as file_obj:
         client_credentials = json.load(file_obj)
@@ -1523,12 +1520,9 @@ def _get_application_default_credential_from_file(filename):
             token_uri=GOOGLE_TOKEN_URI,
             user_agent='Python client library')
     else:  # client_credentials['type'] == SERVICE_ACCOUNT
-        return service_account._ServiceAccountCredentials(
-            service_account_id=client_credentials['client_id'],
-            service_account_email=client_credentials['client_email'],
-            private_key_id=client_credentials['private_key_id'],
-            private_key_pkcs8_text=client_credentials['private_key'],
-            scopes=[])
+        from oauth2client.service_account import ServiceAccountCredentials
+        return ServiceAccountCredentials.from_json_keyfile_dict(
+            client_credentials)
 
 
 def _raise_exception_for_missing_fields(missing_fields):

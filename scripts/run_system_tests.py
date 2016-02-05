@@ -3,7 +3,7 @@ import os
 
 import httplib2
 from oauth2client import client
-from oauth2client import service_account
+from oauth2client.service_account import ServiceAccountCredentials
 
 
 JSON_KEY_PATH = os.getenv('OAUTH2CLIENT_TEST_JSON_KEY_PATH')
@@ -51,18 +51,10 @@ def _check_user_info(credentials, expected_email):
 
 
 def run_json():
-    with open(JSON_KEY_PATH, 'r') as file_object:
-        client_credentials = json.load(file_object)
-
-    credentials = service_account._ServiceAccountCredentials(
-        service_account_id=client_credentials['client_id'],
-        service_account_email=client_credentials['client_email'],
-        private_key_id=client_credentials['private_key_id'],
-        private_key_pkcs8_text=client_credentials['private_key'],
-        scopes=SCOPE,
-    )
-
-    _check_user_info(credentials, client_credentials['client_email'])
+    credentials = ServiceAccountCredentials.from_json_keyfile_name(
+        JSON_KEY_PATH, scopes=SCOPE)
+    service_account_email = credentials._service_account_email
+    _check_user_info(credentials, service_account_email)
 
 
 def run_p12():

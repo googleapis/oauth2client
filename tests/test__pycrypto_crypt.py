@@ -27,7 +27,7 @@ class TestPyCryptoVerifier(unittest.TestCase):
     PRIVATE_KEY_FILENAME = os.path.join(os.path.dirname(__file__),
                                         'data', 'privatekey.pem')
 
-    def _load_public_key_bytes(self):
+    def _load_public_cert_bytes(self):
         with open(self.PUBLIC_CERT_FILENAME, 'rb') as fh:
             return fh.read()
 
@@ -40,24 +40,24 @@ class TestPyCryptoVerifier(unittest.TestCase):
         signer = PyCryptoSigner.from_string(self._load_private_key_bytes())
         actual_signature = signer.sign(to_sign)
 
-        verifier = PyCryptoVerifier.from_string(self._load_public_key_bytes(),
+        verifier = PyCryptoVerifier.from_string(self._load_public_cert_bytes(),
                                                 is_x509_cert=True)
         self.assertTrue(verifier.verify(to_sign, actual_signature))
 
     def test_verify_failure(self):
-        verifier = PyCryptoVerifier.from_string(self._load_public_key_bytes(),
+        verifier = PyCryptoVerifier.from_string(self._load_public_cert_bytes(),
                                                 is_x509_cert=True)
         bad_signature = b''
         self.assertFalse(verifier.verify(b'foo', bad_signature))
 
     def test_verify_bad_key(self):
-        verifier = PyCryptoVerifier.from_string(self._load_public_key_bytes(),
+        verifier = PyCryptoVerifier.from_string(self._load_public_cert_bytes(),
                                                 is_x509_cert=True)
         bad_signature = b''
         self.assertFalse(verifier.verify(b'foo', bad_signature))
 
     def test_from_string_unicode_key(self):
-        public_key = self._load_public_key_bytes()
+        public_key = self._load_public_cert_bytes()
         public_key = public_key.decode('utf-8')
         verifier = PyCryptoVerifier.from_string(public_key, is_x509_cert=True)
         self.assertTrue(isinstance(verifier, PyCryptoVerifier))

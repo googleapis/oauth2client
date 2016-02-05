@@ -68,6 +68,7 @@ class OpenSSLVerifier(object):
         Raises:
             OpenSSL.crypto.Error: if the key_pem can't be parsed.
         """
+        key_pem = _to_bytes(key_pem)
         if is_x509_cert:
             pubkey = crypto.load_certificate(crypto.FILETYPE_PEM, key_pem)
         else:
@@ -112,7 +113,8 @@ class OpenSSLSigner(object):
         Raises:
             OpenSSL.crypto.Error if the key can't be parsed.
         """
-        parsed_pem_key = _parse_pem_key(_to_bytes(key))
+        key = _to_bytes(key)
+        parsed_pem_key = _parse_pem_key(key)
         if parsed_pem_key:
             pkey = crypto.load_privatekey(crypto.FILETYPE_PEM, parsed_pem_key)
         else:
