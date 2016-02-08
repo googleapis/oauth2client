@@ -27,6 +27,7 @@ from oauth2client.contrib.django_util import decorators
 from oauth2client.contrib.django_util import site
 from oauth2client.contrib.django_util import storage
 from oauth2client.contrib.django_util import views
+from six.moves import http_client
 from six.moves.urllib import parse
 
 urlpatterns = [
@@ -116,7 +117,7 @@ class OAuth2EnabledDecoratorTest(TestWithSession):
             return http.HttpResponse("test")  # pragma: NO COVER
 
         response = test_view(request)
-        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.status_code, http_client.OK)
         self.assertIsNotNone(request.oauth)
         self.assertFalse(request.oauth.has_credentials())
         self.assertIsNone(request.oauth.http)
@@ -137,7 +138,7 @@ class OAuth2EnabledDecoratorTest(TestWithSession):
             return http.HttpResponse("test")
 
         response = test_view(request)
-        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.status_code, http_client.OK)
         self.assertEquals(response.content, b"test")
         self.assertTrue(request.oauth.has_credentials())
         self.assertIsNotNone(request.oauth.http)
@@ -158,7 +159,7 @@ class OAuth2EnabledDecoratorTest(TestWithSession):
             return http.HttpResponse("hello world")  # pragma: NO COVER
 
         response = test_view(request)
-        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.status_code, http_client.OK)
         self.assertIsNotNone(request.oauth)
         self.assertFalse(request.oauth.has_credentials())
 
@@ -196,7 +197,7 @@ class OAuth2RequiredDecoratorTest(TestWithSession):
         my_user_oauth.has_credentials.return_value = True
 
         response = test_view(request)
-        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.status_code, http_client.OK)
         self.assertEquals(response.content, b"test")
 
     @mock.patch('oauth2client.contrib.dictionary_storage.OAuth2Credentials')

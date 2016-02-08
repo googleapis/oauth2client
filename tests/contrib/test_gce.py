@@ -18,6 +18,7 @@ Unit tests for oauth2client.contrib.gce.
 """
 
 import json
+from six.moves import http_client
 from six.moves import urllib
 import unittest
 
@@ -58,7 +59,7 @@ class AppAssertionCredentialsTests(unittest.TestCase):
             return_val = _to_bytes(return_val)
         http = mock.MagicMock()
         http.request = mock.MagicMock(
-            return_value=(mock.Mock(status=200), return_val))
+            return_value=(mock.Mock(status=http_client.OK), return_val))
 
         scopes = ['http://example.com/a', 'http://example.com/b']
         credentials = AppAssertionCredentials(scope=scopes)
@@ -82,7 +83,7 @@ class AppAssertionCredentialsTests(unittest.TestCase):
         http = mock.MagicMock()
         content = '{BADJSON'
         http.request = mock.MagicMock(
-            return_value=(mock.Mock(status=200), content))
+            return_value=(mock.Mock(status=http_client.OK), content))
 
         credentials = AppAssertionCredentials(
             scope=['http://example.com/a', 'http://example.com/b'])
@@ -92,7 +93,7 @@ class AppAssertionCredentialsTests(unittest.TestCase):
         http = mock.MagicMock()
         content = '{}'
         http.request = mock.MagicMock(
-            return_value=(mock.Mock(status=400), content))
+            return_value=(mock.Mock(status=http_client.BAD_REQUEST), content))
 
         credentials = AppAssertionCredentials(
             scope=['http://example.com/a', 'http://example.com/b'])
@@ -110,7 +111,7 @@ class AppAssertionCredentialsTests(unittest.TestCase):
         http = mock.MagicMock()
         content = '{}'
         http.request = mock.MagicMock(
-            return_value=(mock.Mock(status=404), content))
+            return_value=(mock.Mock(status=http_client.NOT_FOUND), content))
 
         credentials = AppAssertionCredentials(
             scope=['http://example.com/a', 'http://example.com/b'])
@@ -149,7 +150,7 @@ class AppAssertionCredentialsTests(unittest.TestCase):
     def test_get_access_token(self):
         http = mock.MagicMock()
         http.request = mock.MagicMock(
-            return_value=(mock.Mock(status=200),
+            return_value=(mock.Mock(status=http_client.OK),
                           '{"accessToken": "this-is-a-token"}'))
 
         credentials = AppAssertionCredentials(['dummy_scope'])
