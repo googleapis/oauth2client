@@ -33,8 +33,8 @@ __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 logger = logging.getLogger(__name__)
 
 # URI Template for the endpoint that returns access_tokens.
-META = ('http://metadata.google.internal/0.1/meta-data/service-accounts/'
-        'default/acquire{?scope}')
+META = ('http://metadata.google.internal/computeMetadata/v1/instance/'
+        'service-accounts/default/acquire{?scope}')
 
 
 class AppAssertionCredentials(AssertionCredentials):
@@ -85,7 +85,8 @@ class AppAssertionCredentials(AssertionCredentials):
         """
         query = '?scope=%s' % urllib.parse.quote(self.scope, '')
         uri = META.replace('{?scope}', query)
-        response, content = http_request(uri)
+        response, content = http_request(
+            uri, headers={'Metadata-Flavor': 'Google'})
         content = _from_bytes(content)
         if response.status == http_client.OK:
             try:

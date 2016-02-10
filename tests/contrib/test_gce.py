@@ -67,11 +67,13 @@ class AppAssertionCredentialsTests(unittest.TestCase):
         credentials.refresh(http)
         self.assertEquals(access_token, credentials.access_token)
 
-        base_metadata_uri = ('http://metadata.google.internal/0.1/meta-data/'
-                             'service-accounts/default/acquire')
+        base_metadata_uri = (
+            'http://metadata.google.internal/computeMetadata/v1/instance/'
+            'service-accounts/default/acquire')
         escaped_scopes = urllib.parse.quote(' '.join(scopes), safe='')
         request_uri = base_metadata_uri + '?scope=' + escaped_scopes
-        http.request.assert_called_once_with(request_uri)
+        http.request.assert_called_once_with(
+            request_uri, headers={'Metadata-Flavor': 'Google'})
 
     def test_refresh_success(self):
         self._refresh_success_helper(bytes_response=False)
@@ -159,8 +161,9 @@ class AppAssertionCredentialsTests(unittest.TestCase):
         self.assertEqual(None, token.expires_in)
 
         http.request.assert_called_once_with(
-            'http://metadata.google.internal/0.1/meta-data/service-accounts/'
-            'default/acquire?scope=dummy_scope')
+            'http://metadata.google.internal/computeMetadata/v1/instance/'
+            'service-accounts/default/acquire?scope=dummy_scope',
+            headers={'Metadata-Flavor': 'Google'})
 
     def test_save_to_well_known_file(self):
         import os
