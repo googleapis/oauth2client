@@ -89,12 +89,12 @@ def make_signed_jwt(signer, payload, key_id=None):
         header['kid'] = key_id
 
     segments = [
-      _urlsafe_b64encode(_json_encode(header)),
-      _urlsafe_b64encode(_json_encode(payload)),
+        _urlsafe_b64encode(_json_encode(header)),
+        _urlsafe_b64encode(_json_encode(payload)),
     ]
     signing_input = b'.'.join(segments)
 
-    signature = signer.sign(signing_input).rstrip(b'=')
+    signature = signer.sign(signing_input)
     segments.append(_urlsafe_b64encode(signature))
 
     logger.debug(str(segments))
