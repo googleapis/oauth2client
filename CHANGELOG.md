@@ -1,5 +1,64 @@
 # CHANGELOG
 
+## v2.0.0
+
+* Add django_util (#332)
+* Avoid OAuth2Credentials `id_token` going out of sync after a token
+  refresh (#337)
+* Move to a `contrib` sub-package code not considered a core part of
+  the library (#346, #353, #370, #375, #376, #382)
+* Add `token_expiry` to `devshell` credentials (#372)
+* Move `Storage` locking into a base class (#379)
+* Added dictionary storage (#380)
+* Added `to_json` and `from_json` methods to all `Credentials`
+  classes (#385)
+* Fall back to read-only credentials on EACCES errors (#389)
+* Coalesced the two `ServiceAccountCredentials`
+  classes (#395, #396, #397, #398, #400)
+
+### Special Note About `ServiceAccountCredentials`:
+-------------------------------------------------
+
+For JSON keys, you can create a credential via
+
+```py
+from oauth2client.service_account import ServiceAccountCredentials
+credentials = ServiceAccountCredentials.from_json_keyfile_name(
+    key_file_name, scopes=[...])
+```
+
+You can still rely on
+
+```py
+from oauth2client.client import GoogleCredentials
+credentials = GoogleCredentials.get_application_default()
+```
+
+returning these credentials when you set the `GOOGLE_APPLICATION_CREDENTIALS`
+environment variable.
+
+For `.p12` keys, construct via
+
+```py
+credentials = ServiceAccountCredentials.from_p12_keyfil(
+    service_account_email, key_file_name, scopes=[...])
+```
+
+though we urge you to use JSON keys (rather than `.p12` keys) if you can.
+
+This is equivalent to the previous method
+
+```py
+# PRE-oauth2client 2.0.0 EXAMPLE CODE!
+from oauth2client.client import SignedJwtAssertionCredentials
+
+with open(key_file_name, 'rb') as key_file:
+    private_key = key_file.read()
+
+credentials = SignedJwtAssertionCredentials(
+    service_account_email, private_key, scope=[...])
+```
+
 ## v1.5.2
 
 * Add access token refresh error class that includes HTTP status (#310)
