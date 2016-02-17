@@ -216,6 +216,38 @@ class ServiceAccountCredentials(AssertionCredentials):
         return cls._from_parsed_json_keyfile(keyfile_dict, scopes)
 
     @classmethod
+    def _from_p12_keyfile_contents(cls, service_account_email,
+                                   private_key_pkcs12,
+                                   private_key_password=None, scopes=''):
+        """Factory constructor from JSON keyfile.
+
+        Args:
+            service_account_email: string, The email associated with the
+                                   service account.
+            private_key_pkcs12: string, The contents of a PKCS#12 keyfile.
+            private_key_password: string, (Optional) Password for PKCS#12
+                                  private key. Defaults to ``notasecret``.
+            scopes: List or string, (Optional) Scopes to use when acquiring an
+                    access token.
+
+        Returns:
+            ServiceAccountCredentials, a credentials object created from
+            the keyfile.
+
+        Raises:
+            NotImplementedError if pyOpenSSL is not installed / not the
+            active crypto library.
+        """
+        if private_key_password is None:
+            private_key_password = _PASSWORD_DEFAULT
+        signer = crypt.Signer.from_string(private_key_pkcs12,
+                                          private_key_password)
+        credentials = cls(service_account_email, signer, scopes=scopes)
+        credentials._private_key_pkcs12 = private_key_pkcs12
+        credentials._private_key_password = private_key_password
+        return credentials
+
+    @classmethod
     def from_p12_keyfile(cls, service_account_email, filename,
                          private_key_password=None, scopes=''):
         """Factory constructor from JSON keyfile.
@@ -239,14 +271,37 @@ class ServiceAccountCredentials(AssertionCredentials):
         """
         with open(filename, 'rb') as file_obj:
             private_key_pkcs12 = file_obj.read()
-        if private_key_password is None:
-            private_key_password = _PASSWORD_DEFAULT
-        signer = crypt.Signer.from_string(private_key_pkcs12,
-                                          private_key_password)
-        credentials = cls(service_account_email, signer, scopes=scopes)
-        credentials._private_key_pkcs12 = private_key_pkcs12
-        credentials._private_key_password = private_key_password
-        return credentials
+        return cls._from_p12_keyfile_contents(
+            service_account_email, private_key_pkcs12,
+            private_key_password=private_key_password, scopes=scopes)
+
+    @classmethod
+    def from_p12_keyfile_buffer(cls, service_account_email, file_buffer,
+                                private_key_password=None, scopes=''):
+        """Factory constructor from JSON keyfile.
+
+        Args:
+            service_account_email: string, The email associated with the
+                                   service account.
+            file_buffer: stream, A buffer that implements ``read()``
+                         and contains the PKCS#12 key contents.
+            private_key_password: string, (Optional) Password for PKCS#12
+                                  private key. Defaults to ``notasecret``.
+            scopes: List or string, (Optional) Scopes to use when acquiring an
+                    access token.
+
+        Returns:
+            ServiceAccountCredentials, a credentials object created from
+            the keyfile.
+
+        Raises:
+            NotImplementedError if pyOpenSSL is not installed / not the
+            active crypto library.
+        """
+        private_key_pkcs12 = file_buffer.read()
+        return cls._from_p12_keyfile_contents(
+            service_account_email, private_key_pkcs12,
+            private_key_password=private_key_password, scopes=scopes)
 
     def _generate_assertion(self):
         """Generate the assertion that will be used in the request."""
