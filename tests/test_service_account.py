@@ -156,10 +156,10 @@ class ServiceAccountCredentialsTests(unittest2.TestCase):
             private_key_password=private_key_password,
             scopes=scopes)
         self.assertIsInstance(creds, ServiceAccountCredentials)
-        self.assertEqual(creds.client_id, None)
+        self.assertIsNone(creds.client_id)
         self.assertEqual(creds._service_account_email, service_account_email)
-        self.assertEqual(creds._private_key_id, None)
-        self.assertEqual(creds._private_key_pkcs8_pem, None)
+        self.assertIsNone(creds._private_key_id)
+        self.assertIsNone(creds._private_key_pkcs8_pem)
         self.assertEqual(creds._private_key_pkcs12, key_contents)
         if private_key_password is not None:
             self.assertEqual(creds._private_key_password, private_key_password)
@@ -172,6 +172,30 @@ class ServiceAccountCredentialsTests(unittest2.TestCase):
         password = 'notasecret'
         self._from_p12_keyfile_helper(private_key_password=password,
                                       scopes=['foo', 'bar'])
+
+    def test_from_p12_keyfile_buffer(self):
+        service_account_email = 'name@email.com'
+        filename = data_filename('privatekey.p12')
+        private_key_password = 'notasecret'
+        scopes = ['foo', 'bar']
+        with open(filename, 'rb') as file_obj:
+            key_contents = file_obj.read()
+            # Seek back to the beginning so the buffer can be
+            # passed to the constructor.
+            file_obj.seek(0)
+            creds = ServiceAccountCredentials.from_p12_keyfile_buffer(
+                service_account_email, file_obj,
+                private_key_password=private_key_password,
+                scopes=scopes)
+        # Check the created object.
+        self.assertIsInstance(creds, ServiceAccountCredentials)
+        self.assertIsNone(creds.client_id)
+        self.assertEqual(creds._service_account_email, service_account_email)
+        self.assertIsNone(creds._private_key_id)
+        self.assertIsNone(creds._private_key_pkcs8_pem)
+        self.assertEqual(creds._private_key_pkcs12, key_contents)
+        self.assertEqual(creds._private_key_password, private_key_password)
+        self.assertEqual(creds._scopes, ' '.join(scopes))
 
     def test_create_scoped_required_without_scopes(self):
         self.assertTrue(self.credentials.create_scoped_required())
@@ -236,9 +260,9 @@ class ServiceAccountCredentialsTests(unittest2.TestCase):
         ])
 
         # Get Access Token, First attempt.
-        self.assertEqual(credentials.access_token, None)
+        self.assertIsNone(credentials.access_token)
         self.assertFalse(credentials.access_token_expired)
-        self.assertEqual(credentials.token_expiry, None)
+        self.assertIsNone(credentials.token_expiry)
         token = credentials.get_access_token(http=http)
         self.assertEqual(credentials.token_expiry, EXPIRY_TIME)
         self.assertEqual(token1, token.access_token)
