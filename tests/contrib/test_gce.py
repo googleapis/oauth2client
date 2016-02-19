@@ -12,10 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Tests for oauth2client.contrib.gce.
-
-Unit tests for oauth2client.contrib.gce.
-"""
+"""Unit tests for oauth2client.contrib.gce."""
 
 import json
 from six.moves import http_client
@@ -54,7 +51,7 @@ class AppAssertionCredentialsTests(unittest.TestCase):
 
     def _refresh_success_helper(self, bytes_response=False):
         access_token = u'this-is-a-token'
-        return_val = json.dumps({u'accessToken': access_token})
+        return_val = json.dumps({u'access_token': access_token})
         if bytes_response:
             return_val = _to_bytes(return_val)
         http = mock.MagicMock()
@@ -69,7 +66,7 @@ class AppAssertionCredentialsTests(unittest.TestCase):
 
         base_metadata_uri = (
             'http://metadata.google.internal/computeMetadata/v1/instance/'
-            'service-accounts/default/acquire')
+            'service-accounts/default/token')
         escaped_scopes = urllib.parse.quote(' '.join(scopes), safe='')
         request_uri = base_metadata_uri + '?scope=' + escaped_scopes
         http.request.assert_called_once_with(
@@ -153,7 +150,7 @@ class AppAssertionCredentialsTests(unittest.TestCase):
         http = mock.MagicMock()
         http.request = mock.MagicMock(
             return_value=(mock.Mock(status=http_client.OK),
-                          '{"accessToken": "this-is-a-token"}'))
+                          '{"access_token": "this-is-a-token"}'))
 
         credentials = AppAssertionCredentials(['dummy_scope'])
         token = credentials.get_access_token(http=http)
@@ -162,7 +159,7 @@ class AppAssertionCredentialsTests(unittest.TestCase):
 
         http.request.assert_called_once_with(
             'http://metadata.google.internal/computeMetadata/v1/instance/'
-            'service-accounts/default/acquire?scope=dummy_scope',
+            'service-accounts/default/token?scope=dummy_scope',
             headers={'Metadata-Flavor': 'Google'})
 
     def test_save_to_well_known_file(self):
