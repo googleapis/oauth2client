@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v2.0.0-post1
+
+* Fix Google Compute Engine breakage (#411, breakage introduced in #387) that
+  made it impossible to obtain access tokens
+* Implement `ServiceAccountCredentials.from_p12_keyfile_buffer()`
+  to allow passing a file-like object in addition to the factory
+  constructor that uses a filename directly (#413)
+* Implement `ServiceAccountCredentials.create_delegated()`
+  to allow upgrading a credential to one that acts on behalf
+  of a given subject (#420)
+
 ## v2.0.0
 
 * Add django_util (#332)
