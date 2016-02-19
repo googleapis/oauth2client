@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 
 # URI Template for the endpoint that returns access_tokens.
 META = ('http://metadata.google.internal/computeMetadata/v1/instance/'
-        'service-accounts/default/acquire{?scope}')
+        'service-accounts/default/token{?scope}')
 
 
 class AppAssertionCredentials(AssertionCredentials):
@@ -90,11 +90,11 @@ class AppAssertionCredentials(AssertionCredentials):
         content = _from_bytes(content)
         if response.status == http_client.OK:
             try:
-                d = json.loads(content)
+                token_content = json.loads(content)
             except Exception as e:
                 raise HttpAccessTokenRefreshError(str(e),
                                                   status=response.status)
-            self.access_token = d['accessToken']
+            self.access_token = token_content['access_token']
         else:
             if response.status == http_client.NOT_FOUND:
                 content += (' This can occur if a VM was created'
