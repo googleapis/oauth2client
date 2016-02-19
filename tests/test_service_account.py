@@ -218,6 +218,27 @@ class ServiceAccountCredentialsTests(unittest2.TestCase):
                               ServiceAccountCredentials)
         self.assertEqual('dummy_scope', new_credentials._scopes)
 
+    def test_create_delegated(self):
+        signer = object()
+        sub = 'foo@email.com'
+        creds = ServiceAccountCredentials('name@email.com', signer)
+        self.assertNotIn('sub', creds._kwargs)
+        delegated_creds = creds.create_delegated(sub)
+        self.assertEqual(delegated_creds._kwargs['sub'], sub)
+        # Make sure the original is unchanged.
+        self.assertNotIn('sub', creds._kwargs)
+
+    def test_create_delegated_existing_sub(self):
+        signer = object()
+        sub1 = 'existing@email.com'
+        sub2 = 'new@email.com'
+        creds = ServiceAccountCredentials('name@email.com', signer, sub=sub1)
+        self.assertEqual(creds._kwargs['sub'], sub1)
+        delegated_creds = creds.create_delegated(sub2)
+        self.assertEqual(delegated_creds._kwargs['sub'], sub2)
+        # Make sure the original is unchanged.
+        self.assertEqual(creds._kwargs['sub'], sub1)
+
     @mock.patch('oauth2client.client._UTCNOW')
     def test_access_token(self, utcnow):
         # Configure the patch.

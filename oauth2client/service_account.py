@@ -407,3 +407,38 @@ class ServiceAccountCredentials(AssertionCredentials):
         result._private_key_pkcs12 = self._private_key_pkcs12
         result._private_key_password = self._private_key_password
         return result
+
+    def create_delegated(self, sub):
+        """Create credentials that act as domain-wide delegation of authority.
+
+        Use the ``sub`` parameter as the subject to delegate on behalf of
+        that user.
+
+        For example::
+
+          >>> account_sub = 'foo@email.com'
+          >>> delegate_creds = creds.create_delegated(account_sub)
+
+        Args:
+            sub: string, An email address that this service account will
+                 act on behalf of (via domain-wide delegation).
+
+        Returns:
+            ServiceAccountCredentials, a copy of the current service account
+            updated to act on behalf of ``sub``.
+        """
+        new_kwargs = dict(self._kwargs)
+        new_kwargs['sub'] = sub
+        result = self.__class__(self._service_account_email,
+                                self._signer,
+                                scopes=self._scopes,
+                                private_key_id=self._private_key_id,
+                                client_id=self.client_id,
+                                user_agent=self._user_agent,
+                                **new_kwargs)
+        result.token_uri = self.token_uri
+        result.revoke_uri = self.revoke_uri
+        result._private_key_pkcs8_pem = self._private_key_pkcs8_pem
+        result._private_key_pkcs12 = self._private_key_pkcs12
+        result._private_key_password = self._private_key_password
+        return result
