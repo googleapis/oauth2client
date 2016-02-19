@@ -19,6 +19,8 @@ Utilities for making it easier to use OAuth 2.0 on Google Compute Engine.
 
 import json
 import logging
+import warnings
+
 from six.moves import http_client
 from six.moves import urllib
 
@@ -34,7 +36,13 @@ logger = logging.getLogger(__name__)
 
 # URI Template for the endpoint that returns access_tokens.
 META = ('http://metadata.google.internal/computeMetadata/v1/instance/'
-        'service-accounts/default/token{?scope}')
+        'service-accounts/default/token')
+_SCOPES_WARNING = """\
+You have requested explicit scopes to be used with a GCE service account.
+Using this argument will have no effect on the actual scopes for tokens
+requested. These scopes are set at VM instance creation time and
+can't be overridden in the request.
+"""
 
 
 class AppAssertionCredentials(AssertionCredentials):
@@ -51,13 +59,19 @@ class AppAssertionCredentials(AssertionCredentials):
     """
 
     @util.positional(2)
-    def __init__(self, scope, **kwargs):
+    def __init__(self, scope='', **kwargs):
         """Constructor for AppAssertionCredentials
 
         Args:
             scope: string or iterable of strings, scope(s) of the credentials
-                   being requested.
+                   being requested. Using this argument will have no effect on
+                   the actual scopes for tokens requested. These scopes are
+                   set at VM instance creation time and won't change.
         """
+        if scope:
+            warnings.warn(_SCOPES_WARNING)
+        # This is just provided for backwards compatibility, but is not
+        # used by this class.
         self.scope = util.scopes_to_string(scope)
         self.kwargs = kwargs
 
@@ -83,10 +97,8 @@ class AppAssertionCredentials(AssertionCredentials):
         Raises:
             HttpAccessTokenRefreshError: When the refresh fails.
         """
-        query = '?scope=%s' % urllib.parse.quote(self.scope, '')
-        uri = META.replace('{?scope}', query)
         response, content = http_request(
-            uri, headers={'Metadata-Flavor': 'Google'})
+            META, headers={'Metadata-Flavor': 'Google'})
         content = _from_bytes(content)
         if response.status == http_client.OK:
             try:
@@ -107,7 +119,7 @@ class AppAssertionCredentials(AssertionCredentials):
             'Cannot serialize credentials for GCE service accounts.')
 
     def create_scoped_required(self):
-        return not self.scope
+        return False
 
     def create_scoped(self, scopes):
         return AppAssertionCredentials(scopes, **self.kwargs)

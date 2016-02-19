@@ -25,6 +25,7 @@ from oauth2client._helpers import _to_bytes
 from oauth2client.client import AccessTokenRefreshError
 from oauth2client.client import Credentials
 from oauth2client.client import save_to_well_known_file
+from oauth2client.contrib.gce import _SCOPES_WARNING
 from oauth2client.contrib.gce import AppAssertionCredentials
 
 
@@ -34,16 +35,23 @@ __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 class AppAssertionCredentialsTests(unittest.TestCase):
 
     def test_constructor(self):
+        credentials = AppAssertionCredentials(foo='bar')
+        self.assertEqual(credentials.scope, '')
+        self.assertEqual(credentials.kwargs, {'foo': 'bar'})
+        self.assertEqual(credentials.assertion_type, None)
+
+    @mock.patch('warnings.warn')
+    def test_constructor_with_scopes(self, warn_mock):
         scope = 'http://example.com/a http://example.com/b'
         scopes = scope.split()
         credentials = AppAssertionCredentials(scope=scopes, foo='bar')
         self.assertEqual(credentials.scope, scope)
         self.assertEqual(credentials.kwargs, {'foo': 'bar'})
         self.assertEqual(credentials.assertion_type, None)
+        warn_mock.assert_called_once_with(_SCOPES_WARNING)
 
     def test_to_json_and_from_json(self):
-        credentials = AppAssertionCredentials(
-            scope=['http://example.com/a', 'http://example.com/b'])
+        credentials = AppAssertionCredentials()
         json = credentials.to_json()
         credentials_from_json = Credentials.new_from_json(json)
         self.assertEqual(credentials.access_token,
@@ -58,8 +66,7 @@ class AppAssertionCredentialsTests(unittest.TestCase):
         http.request = mock.MagicMock(
             return_value=(mock.Mock(status=http_client.OK), return_val))
 
-        scopes = ['http://example.com/a', 'http://example.com/b']
-        credentials = AppAssertionCredentials(scope=scopes)
+        credentials = AppAssertionCredentials()
         self.assertEquals(None, credentials.access_token)
         credentials.refresh(http)
         self.assertEquals(access_token, credentials.access_token)
@@ -67,10 +74,8 @@ class AppAssertionCredentialsTests(unittest.TestCase):
         base_metadata_uri = (
             'http://metadata.google.internal/computeMetadata/v1/instance/'
             'service-accounts/default/token')
-        escaped_scopes = urllib.parse.quote(' '.join(scopes), safe='')
-        request_uri = base_metadata_uri + '?scope=' + escaped_scopes
         http.request.assert_called_once_with(
-            request_uri, headers={'Metadata-Flavor': 'Google'})
+            base_metadata_uri, headers={'Metadata-Flavor': 'Google'})
 
     def test_refresh_success(self):
         self._refresh_success_helper(bytes_response=False)
@@ -84,8 +89,7 @@ class AppAssertionCredentialsTests(unittest.TestCase):
         http.request = mock.MagicMock(
             return_value=(mock.Mock(status=http_client.OK), content))
 
-        credentials = AppAssertionCredentials(
-            scope=['http://example.com/a', 'http://example.com/b'])
+        credentials = AppAssertionCredentials()
         self.assertRaises(AccessTokenRefreshError, credentials.refresh, http)
 
     def test_refresh_failure_400(self):
@@ -94,9 +98,7 @@ class AppAssertionCredentialsTests(unittest.TestCase):
         http.request = mock.MagicMock(
             return_value=(mock.Mock(status=http_client.BAD_REQUEST), content))
 
-        credentials = AppAssertionCredentials(
-            scope=['http://example.com/a', 'http://example.com/b'])
-
+        credentials = AppAssertionCredentials()
         exception_caught = None
         try:
             credentials.refresh(http)
@@ -112,9 +114,7 @@ class AppAssertionCredentialsTests(unittest.TestCase):
         http.request = mock.MagicMock(
             return_value=(mock.Mock(status=http_client.NOT_FOUND), content))
 
-        credentials = AppAssertionCredentials(
-            scope=['http://example.com/a', 'http://example.com/b'])
-
+        credentials = AppAssertionCredentials()
         exception_caught = None
         try:
             credentials.refresh(http)
@@ -127,24 +127,28 @@ class AppAssertionCredentialsTests(unittest.TestCase):
         self.assertEqual(str(exception_caught), expanded_content)
 
     def test_serialization_data(self):
-        credentials = AppAssertionCredentials(scope=[])
+        credentials = AppAssertionCredentials()
         self.assertRaises(NotImplementedError, getattr,
                           credentials, 'serialization_data')
 
     def test_create_scoped_required_without_scopes(self):
-        credentials = AppAssertionCredentials([])
-        self.assertTrue(credentials.create_scoped_required())
-
-    def test_create_scoped_required_with_scopes(self):
-        credentials = AppAssertionCredentials(['dummy_scope'])
+        credentials = AppAssertionCredentials()
         self.assertFalse(credentials.create_scoped_required())
 
-    def test_create_scoped(self):
-        credentials = AppAssertionCredentials([])
+    @mock.patch('warnings.warn')
+    def test_create_scoped_required_with_scopes(self, warn_mock):
+        credentials = AppAssertionCredentials(['dummy_scope'])
+        self.assertFalse(credentials.create_scoped_required())
+        warn_mock.assert_called_once_with(_SCOPES_WARNING)
+
+    @mock.patch('warnings.warn')
+    def test_create_scoped(self, warn_mock):
+        credentials = AppAssertionCredentials()
         new_credentials = credentials.create_scoped(['dummy_scope'])
         self.assertNotEqual(credentials, new_credentials)
         self.assertTrue(isinstance(new_credentials, AppAssertionCredentials))
         self.assertEqual('dummy_scope', new_credentials.scope)
+        warn_mock.assert_called_once_with(_SCOPES_WARNING)
 
     def test_get_access_token(self):
         http = mock.MagicMock()
@@ -152,14 +156,14 @@ class AppAssertionCredentialsTests(unittest.TestCase):
             return_value=(mock.Mock(status=http_client.OK),
                           '{"access_token": "this-is-a-token"}'))
 
-        credentials = AppAssertionCredentials(['dummy_scope'])
+        credentials = AppAssertionCredentials()
         token = credentials.get_access_token(http=http)
         self.assertEqual('this-is-a-token', token.access_token)
         self.assertEqual(None, token.expires_in)
 
         http.request.assert_called_once_with(
             'http://metadata.google.internal/computeMetadata/v1/instance/'
-            'service-accounts/default/token?scope=dummy_scope',
+            'service-accounts/default/token',
             headers={'Metadata-Flavor': 'Google'})
 
     def test_save_to_well_known_file(self):
@@ -167,7 +171,7 @@ class AppAssertionCredentialsTests(unittest.TestCase):
         ORIGINAL_ISDIR = os.path.isdir
         try:
             os.path.isdir = lambda path: True
-            credentials = AppAssertionCredentials([])
+            credentials = AppAssertionCredentials()
             self.assertRaises(NotImplementedError, save_to_well_known_file,
                               credentials)
         finally:
