@@ -165,6 +165,21 @@ class ServiceAccountCredentialsTests(unittest2.TestCase):
             self.assertEqual(creds._private_key_password, private_key_password)
         self.assertEqual(creds._scopes, ' '.join(scopes))
 
+    def _p12_not_implemented_helper(self):
+        service_account_email = 'name@email.com'
+        filename = data_filename('privatekey.p12')
+        with self.assertRaises(NotImplementedError):
+            ServiceAccountCredentials.from_p12_keyfile(
+                service_account_email, filename)
+
+    @mock.patch('oauth2client.crypt.Signer', new=crypt.PyCryptoSigner)
+    def test_from_p12_keyfile_with_pycrypto(self):
+        self._p12_not_implemented_helper()
+
+    @mock.patch('oauth2client.crypt.Signer', new=crypt.RsaSigner)
+    def test_from_p12_keyfile_with_rsa(self):
+        self._p12_not_implemented_helper()
+
     def test_from_p12_keyfile_defaults(self):
         self._from_p12_keyfile_helper()
 
