@@ -240,6 +240,8 @@ class ServiceAccountCredentials(AssertionCredentials):
         """
         if private_key_password is None:
             private_key_password = _PASSWORD_DEFAULT
+        if crypt.Signer is not crypt.OpenSSLSigner:
+            raise NotImplementedError(_PKCS12_ERROR)
         signer = crypt.Signer.from_string(private_key_pkcs12,
                                           private_key_password)
         credentials = cls(service_account_email, signer, scopes=scopes)
