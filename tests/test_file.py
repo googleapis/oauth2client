@@ -24,7 +24,7 @@ import os
 import pickle
 import stat
 import tempfile
-import unittest
+import unittest2
 
 from .http_mock import HttpMockSequence
 import six
@@ -45,7 +45,7 @@ _filehandle, FILENAME = tempfile.mkstemp('oauth2client_test.data')
 os.close(_filehandle)
 
 
-class OAuth2ClientFileTests(unittest.TestCase):
+class OAuth2ClientFileTests(unittest2.TestCase):
 
     def tearDown(self):
         try:
@@ -85,10 +85,8 @@ class OAuth2ClientFileTests(unittest.TestCase):
             os.symlink(FILENAME, SYMFILENAME)
             s = file.Storage(SYMFILENAME)
             try:
-                s.get()
-                self.fail('Should have raised an exception.')
-            except file.CredentialsFileSymbolicLinkError:
-                pass
+                with self.assertRaises(file.CredentialsFileSymbolicLinkError):
+                    s.get()
             finally:
                 os.unlink(SYMFILENAME)
 
@@ -246,4 +244,4 @@ class OAuth2ClientFileTests(unittest.TestCase):
 
 
 if __name__ == '__main__':  # pragma: NO COVER
-    unittest.main()
+    unittest2.main()

@@ -298,16 +298,12 @@ class GoogleCredentialsTests(unittest2.TestCase):
     def test_get_environment_variable_file_error(self):
         nonexistent_file = datafile('nonexistent')
         os.environ[GOOGLE_APPLICATION_CREDENTIALS] = nonexistent_file
-        # we can't use self.assertRaisesRegexp() because it is only in
-        # Python 2.7+
-        try:
+        expected_err_msg = ('File ' + nonexistent_file +
+                            ' \(pointed by ' + GOOGLE_APPLICATION_CREDENTIALS +
+                            ' environment variable\) does not exist!')
+        with self.assertRaisesRegexp(ApplicationDefaultCredentialsError,
+                                     expected_err_msg):
             _get_environment_variable_file()
-            self.fail(nonexistent_file + ' should not exist.')
-        except ApplicationDefaultCredentialsError as error:
-            self.assertEqual('File ' + nonexistent_file +
-                             ' (pointed by ' + GOOGLE_APPLICATION_CREDENTIALS +
-                             ' environment variable) does not exist!',
-                             str(error))
 
     def test_get_well_known_file_on_windows(self):
         ORIGINAL_ISDIR = os.path.isdir
@@ -403,30 +399,22 @@ class GoogleCredentialsTests(unittest2.TestCase):
         credentials_file = datafile(
             os.path.join('gcloud',
                          'application_default_credentials_malformed_1.json'))
-        # we can't use self.assertRaisesRegexp() because it is only in
-        # Python 2.7+
-        try:
+        expected_err_msg = ("'type' field should be defined "
+                            "\(and have one of the '" + AUTHORIZED_USER +
+                            "' or '" + SERVICE_ACCOUNT + "' values\)")
+        with self.assertRaisesRegexp(ApplicationDefaultCredentialsError,
+                                     expected_err_msg):
             _get_application_default_credential_from_file(credentials_file)
-            self.fail('An exception was expected!')
-        except ApplicationDefaultCredentialsError as error:
-            self.assertEqual("'type' field should be defined "
-                             "(and have one of the '" + AUTHORIZED_USER +
-                             "' or '" + SERVICE_ACCOUNT + "' values)",
-                             str(error))
 
     def test_get_application_default_credential_from_malformed_file_2(self):
         credentials_file = datafile(
             os.path.join('gcloud',
                          'application_default_credentials_malformed_2.json'))
-        # we can't use self.assertRaisesRegexp() because it is only in
-        # Python 2.7+
-        try:
+        expected_err_msg = (
+            'The following field\(s\) must be defined: private_key_id')
+        with self.assertRaisesRegexp(ApplicationDefaultCredentialsError,
+                                     expected_err_msg):
             _get_application_default_credential_from_file(credentials_file)
-            self.fail('An exception was expected!')
-        except ApplicationDefaultCredentialsError as error:
-            self.assertEqual(
-                'The following field(s) must be defined: private_key_id',
-                str(error))
 
     def test_get_application_default_credential_from_malformed_file_3(self):
         credentials_file = datafile(
@@ -438,31 +426,23 @@ class GoogleCredentialsTests(unittest2.TestCase):
 
     def test_raise_exception_for_missing_fields(self):
         missing_fields = ['first', 'second', 'third']
-        # we can't use self.assertRaisesRegexp() because it is only in
-        # Python 2.7+
-        try:
+        expected_err_msg = ('The following field\(s\) must be defined: ' +
+                            ', '.join(missing_fields))
+        with self.assertRaisesRegexp(ApplicationDefaultCredentialsError,
+                                     expected_err_msg):
             _raise_exception_for_missing_fields(missing_fields)
-            self.fail('An exception was expected!')
-        except ApplicationDefaultCredentialsError as error:
-            self.assertEqual('The following field(s) must be defined: ' +
-                             ', '.join(missing_fields),
-                             str(error))
 
     def test_raise_exception_for_reading_json(self):
         credential_file = 'any_file'
         extra_help = ' be good'
         error = ApplicationDefaultCredentialsError('stuff happens')
-        # we can't use self.assertRaisesRegexp() because it is only in
-        # Python 2.7+
-        try:
+        expected_err_msg = ('An error was encountered while reading '
+                            'json file: ' + credential_file +
+                            extra_help + ': ' + str(error))
+        with self.assertRaisesRegexp(ApplicationDefaultCredentialsError,
+                                     expected_err_msg):
             _raise_exception_for_reading_json(credential_file,
                                               extra_help, error)
-            self.fail('An exception was expected!')
-        except ApplicationDefaultCredentialsError as ex:
-            self.assertEqual('An error was encountered while reading '
-                             'json file: ' + credential_file +
-                             extra_help + ': ' + str(error),
-                             str(ex))
 
     @mock.patch('oauth2client.client._in_gce_environment')
     @mock.patch('oauth2client.client._in_gae_environment', return_value=False)
@@ -573,40 +553,32 @@ class GoogleCredentialsTests(unittest2.TestCase):
         credentials_file = datafile(
             os.path.join('gcloud',
                          'application_default_credentials_malformed_1.json'))
-        # we can't use self.assertRaisesRegexp() because it is only in
-        # Python 2.7+
-        try:
+        expected_err_msg = (
+            'An error was encountered while reading json file: ' +
+            credentials_file +
+            ' \(provided as parameter to the from_stream\(\) method\): ' +
+            "'type' field should be defined \(and have one of the '" +
+            AUTHORIZED_USER + "' or '" + SERVICE_ACCOUNT +
+            "' values\)")
+        with self.assertRaisesRegexp(ApplicationDefaultCredentialsError,
+                                     expected_err_msg):
             self.get_a_google_credentials_object().from_stream(
                 credentials_file)
-            self.fail('An exception was expected!')
-        except ApplicationDefaultCredentialsError as error:
-            self.assertEqual(
-                "An error was encountered while reading json file: " +
-                credentials_file +
-                " (provided as parameter to the from_stream() method): "
-                "'type' field should be defined (and have one of the '" +
-                AUTHORIZED_USER + "' or '" + SERVICE_ACCOUNT +
-                "' values)",
-                str(error))
 
     def test_from_stream_malformed_file_2(self):
         credentials_file = datafile(
             os.path.join('gcloud',
                          'application_default_credentials_malformed_2.json'))
-        # we can't use self.assertRaisesRegexp() because it is only in
-        # Python 2.7+
-        try:
+        expected_err_msg = (
+            'An error was encountered while reading json file: ' +
+            credentials_file +
+            ' \(provided as parameter to the from_stream\(\) method\): '
+            'The following field\(s\) must be defined: '
+            'private_key_id')
+        with self.assertRaisesRegexp(ApplicationDefaultCredentialsError,
+                                     expected_err_msg):
             self.get_a_google_credentials_object().from_stream(
                 credentials_file)
-            self.fail('An exception was expected!')
-        except ApplicationDefaultCredentialsError as error:
-            self.assertEqual(
-                'An error was encountered while reading json file: ' +
-                credentials_file +
-                ' (provided as parameter to the from_stream() method): '
-                'The following field(s) must be defined: '
-                'private_key_id',
-                str(error))
 
     def test_from_stream_malformed_file_3(self):
         credentials_file = datafile(
@@ -754,11 +726,10 @@ class BasicCredentialsTests(unittest2.TestCase):
                  b'{"error":"access_denied"}'),
             ])
             http = self.credentials.authorize(http)
-            try:
+            with self.assertRaises(HttpAccessTokenRefreshError) as exc_manager:
                 http.request('http://example.com')
-                self.fail('should raise HttpAccessTokenRefreshError exception')
-            except HttpAccessTokenRefreshError as e:
-                self.assertEqual(http_client.BAD_REQUEST, e.status)
+            self.assertEqual(http_client.BAD_REQUEST,
+                             exc_manager.exception.status)
             self.assertTrue(self.credentials.access_token_expired)
             self.assertEqual(None, self.credentials.token_response)
 
@@ -865,13 +836,10 @@ class BasicCredentialsTests(unittest2.TestCase):
 
         # Test again with unicode strings that can't simply be converted
         # to ASCII.
-        try:
+        with self.assertRaises(NonAsciiHeaderError):
             http.request(
                 u'http://example.com', method=u'GET',
                 headers={u'foo': u'\N{COMET}'})
-            self.fail('Expected exception to be raised.')
-        except NonAsciiHeaderError:
-            pass
 
         self.credentials.token_response = 'foobar'
         instance = OAuth2Credentials.from_json(self.credentials.to_json())
@@ -1037,11 +1005,8 @@ class AccessTokenCredentialsTests(unittest2.TestCase):
                 ({'status': status_code}, b''),
             ])
             http = self.credentials.authorize(http)
-            try:
+            with self.assertRaises(AccessTokenCredentialsError):
                 resp, content = http.request('http://example.com')
-                self.fail('should throw exception if token expires')
-            except AccessTokenCredentialsError:
-                pass
 
     def test_token_revoke_success(self):
         _token_revoke_test_helper(
@@ -1197,24 +1162,19 @@ class OAuth2WebServerFlowTest(unittest2.TestCase):
             ({'status': '400'}, b'{"error":"invalid_request"}'),
         ])
 
-        try:
+        with self.assertRaises(FlowExchangeError):
             credentials = self.flow.step2_exchange('some random code',
                                                    http=http)
-            self.fail('should raise exception if exchange doesn\'t get 200')
-        except FlowExchangeError:
-            pass
 
     def test_urlencoded_exchange_failure(self):
         http = HttpMockSequence([
             ({'status': '400'}, b'error=invalid_request'),
         ])
 
-        try:
+        with self.assertRaisesRegexp(FlowExchangeError,
+                                     'invalid_request'):
             credentials = self.flow.step2_exchange('some random code',
                                                    http=http)
-            self.fail('should raise exception if exchange doesn\'t get 200')
-        except FlowExchangeError as e:
-            self.assertEqual('invalid_request', str(e))
 
     def test_exchange_failure_with_json_error(self):
         # Some providers have 'error' attribute as a JSON object
@@ -1229,12 +1189,9 @@ class OAuth2WebServerFlowTest(unittest2.TestCase):
                    b'}')
         http = HttpMockSequence([({'status': '400'}, payload)])
 
-        try:
+        with self.assertRaises(FlowExchangeError):
             credentials = self.flow.step2_exchange('some random code',
                                                    http=http)
-            self.fail('should raise exception if exchange doesn\'t get 200')
-        except FlowExchangeError as e:
-            pass
 
     def test_exchange_success(self):
         payload = (b'{'
@@ -1350,11 +1307,9 @@ class OAuth2WebServerFlowTest(unittest2.TestCase):
         http = HttpMockSequence([({'status': '200'}, payload)])
 
         code = {'error': 'thou shall not pass'}
-        try:
+        with self.assertRaisesRegexp(FlowExchangeError,
+                                     'shall not pass'):
             credentials = self.flow.step2_exchange(code, http=http)
-            self.fail('should raise exception if no code in dictionary.')
-        except FlowExchangeError as e:
-            self.assertTrue('shall not pass' in str(e))
 
     def test_exchange_id_token_fail(self):
         payload = (b'{'
@@ -1423,15 +1378,12 @@ class CredentialsFromCodeTests(unittest2.TestCase):
             ({'status': '400'}, b'{"error":"invalid_request"}'),
         ])
 
-        try:
+        with self.assertRaises(FlowExchangeError):
             credentials = credentials_from_code(self.client_id,
                                                 self.client_secret,
                                                 self.scope, self.code,
                                                 redirect_uri=self.redirect_uri,
                                                 http=http)
-            self.fail('should raise exception if exchange doesn\'t get 200')
-        except FlowExchangeError:
-            pass
 
     def test_exchange_code_and_file_for_token(self):
         payload = (b'{'
@@ -1464,13 +1416,10 @@ class CredentialsFromCodeTests(unittest2.TestCase):
             ({'status': '400'}, b'{"error":"invalid_request"}'),
         ])
 
-        try:
+        with self.assertRaises(FlowExchangeError):
             credentials = credentials_from_clientsecrets_and_code(
                 datafile('client_secrets.json'), self.scope,
                 self.code, http=http)
-            self.fail('should raise exception if exchange doesn\'t get 200')
-        except FlowExchangeError:
-            pass
 
 
 class MemoryCacheTests(unittest2.TestCase):
