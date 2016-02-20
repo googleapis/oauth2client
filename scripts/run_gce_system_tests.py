@@ -48,8 +48,6 @@ class TestComputeEngine(unittest.TestCase):
 
         content = content.decode('utf-8')
         payload = json.loads(content)
-        self.assertTrue(payload['email'].endswith(
-            '-compute@developer.gserviceaccount.com'))
         self.assertEqual(payload['access_type'], 'offline')
         self.assertLessEqual(int(payload['expires_in']), 3600)
 
