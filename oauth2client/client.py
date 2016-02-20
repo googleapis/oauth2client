@@ -1551,7 +1551,7 @@ def _get_application_default_credential_GAE():
 def _get_application_default_credential_GCE():
     from oauth2client.contrib.gce import AppAssertionCredentials
 
-    return AppAssertionCredentials([])
+    return AppAssertionCredentials()
 
 
 class AssertionCredentials(GoogleCredentials):
