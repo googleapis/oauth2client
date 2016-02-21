@@ -19,7 +19,7 @@ import errno
 import os
 import stat
 import tempfile
-import unittest
+import unittest2
 
 from oauth2client import util
 from oauth2client.client import OAuth2Credentials
@@ -48,7 +48,7 @@ class _MockLockedFile(object):
         return self.filename_str
 
 
-class MultistoreFileTests(unittest.TestCase):
+class MultistoreFileTests(unittest2.TestCase):
 
     def tearDown(self):
         try:
@@ -105,25 +105,25 @@ class MultistoreFileTests(unittest.TestCase):
             ['some-scope', 'some-other-scope'])
 
         store.put(credentials)
-        if os.name == 'posix':
+        if os.name == 'posix':  # pragma: NO COVER
             self.assertTrue(store._multistore._read_only)
         os.chmod(FILENAME, 0o600)
 
+    @unittest2.skipIf(not hasattr(os, 'symlink'), 'No symlink available')
     def test_multistore_no_symbolic_link_files(self):
-        if hasattr(os, 'symlink'):
-            SYMFILENAME = FILENAME + 'sym'
-            os.symlink(FILENAME, SYMFILENAME)
-            store = multistore_file.get_credential_storage(
-                SYMFILENAME,
-                'some_client_id',
-                'user-agent/1.0',
-                ['some-scope', 'some-other-scope'])
-            try:
-                self.assertRaises(
-                    locked_file.CredentialsFileSymbolicLinkError,
-                    store.get)
-            finally:
-                os.unlink(SYMFILENAME)
+        SYMFILENAME = FILENAME + 'sym'
+        os.symlink(FILENAME, SYMFILENAME)
+        store = multistore_file.get_credential_storage(
+            SYMFILENAME,
+            'some_client_id',
+            'user-agent/1.0',
+            ['some-scope', 'some-other-scope'])
+        try:
+            self.assertRaises(
+                locked_file.CredentialsFileSymbolicLinkError,
+                store.get)
+        finally:
+            os.unlink(SYMFILENAME)
 
     def test_multistore_non_existent_file(self):
         store = multistore_file.get_credential_storage(
@@ -155,7 +155,7 @@ class MultistoreFileTests(unittest.TestCase):
 
         self.assertEquals(None, credentials)
 
-        if os.name == 'posix':
+        if os.name == 'posix':  # pragma: NO COVER
             self.assertEquals(
                 0o600, stat.S_IMODE(os.stat(FILENAME).st_mode))
 

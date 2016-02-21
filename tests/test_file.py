@@ -79,16 +79,16 @@ class OAuth2ClientFileTests(unittest2.TestCase):
         credentials = s.get()
         self.assertEquals(None, credentials)
 
+    @unittest2.skipIf(not hasattr(os, 'symlink'), 'No symlink available')
     def test_no_sym_link_credentials(self):
-        if hasattr(os, 'symlink'):
-            SYMFILENAME = FILENAME + '.sym'
-            os.symlink(FILENAME, SYMFILENAME)
-            s = file.Storage(SYMFILENAME)
-            try:
-                with self.assertRaises(file.CredentialsFileSymbolicLinkError):
-                    s.get()
-            finally:
-                os.unlink(SYMFILENAME)
+        SYMFILENAME = FILENAME + '.sym'
+        os.symlink(FILENAME, SYMFILENAME)
+        s = file.Storage(SYMFILENAME)
+        try:
+            with self.assertRaises(file.CredentialsFileSymbolicLinkError):
+                s.get()
+        finally:
+            os.unlink(SYMFILENAME)
 
     def test_pickle_and_json_interop(self):
         # Write a file with a pickled OAuth2Credentials.
@@ -177,7 +177,7 @@ class OAuth2ClientFileTests(unittest2.TestCase):
         new_cred.access_token = 'bar'
         s.put(new_cred)
 
-        credentials._refresh(lambda x: x)
+        credentials._refresh(None)
         self.assertEquals(credentials.access_token, 'bar')
 
     def test_token_refresh_stream_body(self):
@@ -238,7 +238,7 @@ class OAuth2ClientFileTests(unittest2.TestCase):
 
         self.assertTrue(os.path.exists(FILENAME))
 
-        if os.name == 'posix':
+        if os.name == 'posix':  # pragma: NO COVER
             mode = os.stat(FILENAME).st_mode
             self.assertEquals('0o600', oct(stat.S_IMODE(mode)))
 

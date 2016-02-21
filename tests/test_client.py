@@ -305,33 +305,23 @@ class GoogleCredentialsTests(unittest2.TestCase):
                                      expected_err_msg):
             _get_environment_variable_file()
 
+    @mock.patch('os.name', new='nt')
+    @mock.patch.dict(os.environ, {'APPDATA': DATA_DIR}, clear=True)
     def test_get_well_known_file_on_windows(self):
-        ORIGINAL_ISDIR = os.path.isdir
-        try:
-            os.path.isdir = lambda path: True
-            well_known_file = datafile(
-                os.path.join(client._CLOUDSDK_CONFIG_DIRECTORY,
-                             _WELL_KNOWN_CREDENTIALS_FILE))
-            os.name = 'nt'
-            os.environ['APPDATA'] = DATA_DIR
-            self.assertEqual(well_known_file, _get_well_known_file())
-        finally:
-            os.path.isdir = ORIGINAL_ISDIR
+        well_known_file = datafile(
+            os.path.join(client._CLOUDSDK_CONFIG_DIRECTORY,
+                         _WELL_KNOWN_CREDENTIALS_FILE))
+        self.assertEqual(well_known_file, _get_well_known_file())
 
+    @mock.patch.dict(os.environ,
+                     {client._CLOUDSDK_CONFIG_ENV_VAR: 'CUSTOM_DIR'},
+                     clear=True)
     def test_get_well_known_file_with_custom_config_dir(self):
-        ORIGINAL_ENVIRON = os.environ
-        ORIGINAL_ISDIR = os.path.isdir
-        CUSTOM_DIR = 'CUSTOM_DIR'
+        CUSTOM_DIR = os.environ[client._CLOUDSDK_CONFIG_ENV_VAR]
         EXPECTED_FILE = os.path.join(CUSTOM_DIR,
                                      _WELL_KNOWN_CREDENTIALS_FILE)
-        try:
-            os.environ = {client._CLOUDSDK_CONFIG_ENV_VAR: CUSTOM_DIR}
-            os.path.isdir = lambda path: True
-            well_known_file = _get_well_known_file()
-            self.assertEqual(well_known_file, EXPECTED_FILE)
-        finally:
-            os.environ = ORIGINAL_ENVIRON
-            os.path.isdir = ORIGINAL_ISDIR
+        well_known_file = _get_well_known_file()
+        self.assertEqual(well_known_file, EXPECTED_FILE)
 
     def test_get_adc_from_file_service_account(self):
         credentials_file = datafile(
@@ -357,17 +347,16 @@ class GoogleCredentialsTests(unittest2.TestCase):
         self.assertEqual('ABCDEF', d['private_key_id'])
         os.remove(temp_credential_file)
 
-    def test_save_well_known_file_with_non_existent_config_dir(self):
+    @mock.patch('os.path.isdir', return_value=False)
+    def test_save_well_known_file_with_non_existent_config_dir(self,
+                                                               isdir_mock):
         credential_file = datafile(
             os.path.join('gcloud', _WELL_KNOWN_CREDENTIALS_FILE))
         credentials = _get_application_default_credential_from_file(
             credential_file)
-        ORIGINAL_ISDIR = os.path.isdir
-        try:
-            os.path.isdir = lambda path: False
-            self.assertRaises(OSError, save_to_well_known_file, credentials)
-        finally:
-            os.path.isdir = ORIGINAL_ISDIR
+        self.assertRaises(OSError, save_to_well_known_file, credentials)
+        config_dir = os.path.join(os.path.expanduser('~'), '.config', 'gcloud')
+        isdir_mock.assert_called_once_with(config_dir)
 
     def test_get_adc_from_file_authorized_user(self):
         credentials_file = datafile(os.path.join(
