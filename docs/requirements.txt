@@ -1,6 +1,7 @@
 django
 flask
 keyring
+mock
 pycrypto>=2.6
 pyopenssl>=0.14
 python-gflags
