@@ -51,7 +51,7 @@ environment variable.
 For `.p12` keys, construct via
 
 ```py
-credentials = ServiceAccountCredentials.from_p12_keyfil(
+credentials = ServiceAccountCredentials.from_p12_keyfile(
     service_account_email, key_file_name, scopes=[...])
 ```
 
