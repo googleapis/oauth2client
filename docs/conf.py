@@ -8,6 +8,31 @@ import os
 from pkg_resources import get_distribution
 import sys
 
+import mock
+
+# See
+# (http://read-the-docs.readthedocs.org/en/latest/faq.html#\
+#  i-get-import-errors-on-libraries-that-depend-on-c-modules)
+
+class Mock(mock.Mock):
+
+    @classmethod
+    def __getattr__(cls, name):
+            return Mock()
+
+
+MOCK_MODULES = (
+    'google',
+    'google.appengine',
+    'google.appengine.api',
+    'google.appengine.api.app_identiy',
+    'google.appengine.api.urlfetch',
+    'google.appengine.ext',
+    'google.appengine.ext.webapp',
+    'google.appengine.ext.webapp.util',
+)
+
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
@@ -40,32 +65,18 @@ exclude_patterns = ['_build']
 # settings module and load it. This assumes django has been installed
 # (but it must be for the docs to build), so if it has not already
 # been installed run `pip install -r docs/requirements.txt`.
+os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.contrib.test_django_settings'
 import django
 if django.VERSION[1] < 7:
     sys.path.insert(0, '.')
-    os.environ['DJANGO_SETTINGS_MODULE'] = 'django_settings'
 
 # -- Options for HTML output ----------------------------------------------
 
+# We fake our more expensive imports when building the docs.
+sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
+
 # We want to set the RTD theme, but not if we're on RTD.
-if os.environ.get('READTHEDOCS', None) == 'True':
-    # Download the GAE SDK if we are building on READTHEDOCS.
-    docs_dir = os.path.dirname(os.path.abspath(__file__))
-    root_dir = os.path.abspath(os.path.join(docs_dir, '..'))
-    gae_dir = os.path.join(root_dir, 'google_appengine')
-    if not os.path.isdir(gae_dir):
-        scripts_dir = os.path.join(root_dir, 'scripts')
-        sys.path.append(scripts_dir)
-        import fetch_gae_sdk
-        # The first argument is the script name and the second is
-        # the destination dir (where google_appengine is downloaded).
-        result = fetch_gae_sdk.main([None, root_dir])
-        if result not in (0, None):
-            sys.stderr.write('Result failed %d\n' % (result,))
-            sys.exit(result)
-        # Allow imports from the GAE directory as well.
-        sys.path.append(gae_dir)
-else:
+if os.environ.get('READTHEDOCS', None) != 'True':
     import sphinx_rtd_theme
     html_theme = 'sphinx_rtd_theme'
     html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]

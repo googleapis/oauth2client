@@ -14,14 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Build the oauth2client docs, installing the GAE SDK as needed.
+# Build the oauth2client docs.
 
 set -e
-
-if [[ -z "${SKIP_GAE_SDK}" ]]; then
-  scripts/fetch_gae_sdk.py
-  export PYTHONPATH="${PWD}/google_appengine:${PYTHONPATH}"
-fi
 
 rm -rf docs/_build/* docs/source/*
 sphinx-apidoc --separate --force -o docs/source oauth2client
