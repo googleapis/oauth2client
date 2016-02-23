@@ -12,11 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Discovery document tests
-
-Unit tests for objects created from discovery documents.
-"""
-
 import datetime
 import httplib2
 import json
@@ -49,7 +44,6 @@ from oauth2client.clientsecrets import InvalidClientSecretsError
 from oauth2client.contrib.appengine import AppAssertionCredentials
 from oauth2client.contrib.appengine import CredentialsModel
 from oauth2client.contrib.appengine import CredentialsNDBModel
-from oauth2client.contrib.appengine import FlowNDBProperty
 from oauth2client.contrib.appengine import FlowProperty
 from oauth2client.contrib.appengine import OAuth2Decorator
 from oauth2client.contrib.appengine import OAuth2DecoratorFromClientSecrets
@@ -311,33 +305,6 @@ class FlowPropertyTest(unittest.TestCase):
         )
         instance.put()
         retrieved = TestFlowModel.get_by_key_name('foo')
-
-        self.assertEqual('foo_client_id', retrieved.flow.client_id)
-
-
-class TestFlowNDBModel(ndb.Model):
-    flow = FlowNDBProperty()
-
-
-class FlowNDBPropertyTest(unittest.TestCase):
-
-    def setUp(self):
-        self.testbed = testbed.Testbed()
-        self.testbed.activate()
-        self.testbed.init_datastore_v3_stub()
-        self.testbed.init_memcache_stub()
-
-    def tearDown(self):
-        self.testbed.deactivate()
-
-    def test_flow_get_put(self):
-        instance = TestFlowNDBModel(
-            flow=flow_from_clientsecrets(datafile('client_secrets.json'),
-                                         'foo', redirect_uri='oob'),
-            id='foo'
-        )
-        instance.put()
-        retrieved = TestFlowNDBModel.get_by_id('foo')
 
         self.assertEqual('foo_client_id', retrieved.flow.client_id)
 
