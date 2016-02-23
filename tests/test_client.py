@@ -1064,6 +1064,11 @@ class TestAssertionCredentials(unittest2.TestCase):
             self, '400', revoke_raise=True,
             valid_bool_value=False, token_attr='access_token')
 
+    def test_sign_blob_abstract(self):
+        credentials = AssertionCredentials(None)
+        with self.assertRaises(NotImplementedError):
+            credentials.sign_blob(b'blob')
+
 
 class UpdateQueryParamsTest(unittest2.TestCase):
     def test_update_query_params_no_params(self):

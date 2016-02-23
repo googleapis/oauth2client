@@ -116,13 +116,28 @@ class TestAppAssertionCredentials(unittest.TestCase):
 
     class AppIdentityStubImpl(apiproxy_stub.APIProxyStub):
 
-        def __init__(self):
+        def __init__(self, key_name=None, sig_bytes=None,
+                     svc_acct=None):
             super(TestAppAssertionCredentials.AppIdentityStubImpl,
                   self).__init__('app_identity_service')
+            self._key_name = key_name
+            self._sig_bytes = sig_bytes
+            self._sign_calls = []
+            self._svc_acct = svc_acct
+            self._get_acct_name_calls = 0
 
         def _Dynamic_GetAccessToken(self, request, response):
             response.set_access_token('a_token_123')
             response.set_expiration_time(time.time() + 1800)
+
+        def _Dynamic_SignForApp(self, request, response):
+            response.set_key_name(self._key_name)
+            response.set_signature_bytes(self._sig_bytes)
+            self._sign_calls.append(request.bytes_to_sign())
+
+        def _Dynamic_GetServiceAccountName(self, request, response):
+            response.set_service_account_name(self._svc_acct)
+            self._get_acct_name_calls += 1
 
     class ErroringAppIdentityStubImpl(apiproxy_stub.APIProxyStub):
 
@@ -209,6 +224,49 @@ class TestAppAssertionCredentials(unittest.TestCase):
         self.assertNotEqual(credentials, new_credentials)
         self.assertTrue(isinstance(new_credentials, AppAssertionCredentials))
         self.assertEqual('dummy_scope', new_credentials.scope)
+
+    def test_sign_blob(self):
+        key_name = b'1234567890'
+        sig_bytes = b'himom'
+        app_identity_stub = self.AppIdentityStubImpl(
+            key_name=key_name, sig_bytes=sig_bytes)
+        apiproxy_stub_map.apiproxy = apiproxy_stub_map.APIProxyStubMap()
+        apiproxy_stub_map.apiproxy.RegisterStub('app_identity_service',
+                                                app_identity_stub)
+        credentials = AppAssertionCredentials([])
+        to_sign = b'blob'
+        self.assertEqual(app_identity_stub._sign_calls, [])
+        result = credentials.sign_blob(to_sign)
+        self.assertEqual(result, (key_name, sig_bytes))
+        self.assertEqual(app_identity_stub._sign_calls, [to_sign])
+
+    def test_service_account_email(self):
+        acct_name = 'new-value@appspot.gserviceaccount.com'
+        app_identity_stub = self.AppIdentityStubImpl(svc_acct=acct_name)
+        apiproxy_stub_map.apiproxy = apiproxy_stub_map.APIProxyStubMap()
+        apiproxy_stub_map.apiproxy.RegisterStub('app_identity_service',
+                                                app_identity_stub)
+
+        credentials = AppAssertionCredentials([])
+        self.assertIsNone(credentials._service_account_email)
+        self.assertEqual(app_identity_stub._get_acct_name_calls, 0)
+        self.assertEqual(credentials.service_account_email, acct_name)
+        self.assertIsNotNone(credentials._service_account_email)
+        self.assertEqual(app_identity_stub._get_acct_name_calls, 1)
+
+    def test_service_account_email_already_set(self):
+        acct_name = 'existing@appspot.gserviceaccount.com'
+        credentials = AppAssertionCredentials([])
+        credentials._service_account_email = acct_name
+
+        app_identity_stub = self.AppIdentityStubImpl(svc_acct=acct_name)
+        apiproxy_stub_map.apiproxy = apiproxy_stub_map.APIProxyStubMap()
+        apiproxy_stub_map.apiproxy.RegisterStub('app_identity_service',
+                                                app_identity_stub)
+
+        self.assertEqual(app_identity_stub._get_acct_name_calls, 0)
+        self.assertEqual(credentials.service_account_email, acct_name)
+        self.assertEqual(app_identity_stub._get_acct_name_calls, 0)
 
     def test_get_access_token(self):
         app_identity_stub = self.AppIdentityStubImpl()

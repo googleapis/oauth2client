@@ -17,14 +17,17 @@
 import json
 from six.moves import http_client
 from six.moves import urllib
-import unittest
+import unittest2
 
 import mock
 
+import httplib2
 from oauth2client._helpers import _to_bytes
 from oauth2client.client import AccessTokenRefreshError
 from oauth2client.client import Credentials
 from oauth2client.client import save_to_well_known_file
+from oauth2client.contrib.gce import _DEFAULT_EMAIL_METADATA
+from oauth2client.contrib.gce import _get_service_account_email
 from oauth2client.contrib.gce import _SCOPES_WARNING
 from oauth2client.contrib.gce import AppAssertionCredentials
 
@@ -32,7 +35,7 @@ from oauth2client.contrib.gce import AppAssertionCredentials
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 
-class AppAssertionCredentialsTests(unittest.TestCase):
+class AppAssertionCredentialsTests(unittest2.TestCase):
 
     def test_constructor(self):
         credentials = AppAssertionCredentials(foo='bar')
@@ -150,6 +153,49 @@ class AppAssertionCredentialsTests(unittest.TestCase):
         self.assertEqual('dummy_scope', new_credentials.scope)
         warn_mock.assert_called_once_with(_SCOPES_WARNING)
 
+    def test_sign_blob_not_implemented(self):
+        credentials = AppAssertionCredentials([])
+        with self.assertRaises(NotImplementedError):
+            credentials.sign_blob(b'blob')
+
+    @mock.patch('oauth2client.contrib.gce._get_service_account_email',
+                return_value=(None, 'retrieved@email.com'))
+    def test_service_account_email(self, get_email):
+        credentials = AppAssertionCredentials([])
+        self.assertIsNone(credentials._service_account_email)
+        self.assertEqual(credentials.service_account_email,
+                         get_email.return_value[1])
+        self.assertIsNotNone(credentials._service_account_email)
+        get_email.assert_called_once_with()
+
+    @mock.patch('oauth2client.contrib.gce._get_service_account_email')
+    def test_service_account_email_already_set(self, get_email):
+        credentials = AppAssertionCredentials([])
+        acct_name = 'existing@email.com'
+        credentials._service_account_email = acct_name
+        self.assertEqual(credentials.service_account_email, acct_name)
+        get_email.assert_not_called()
+
+    @mock.patch('oauth2client.contrib.gce._get_service_account_email')
+    def test_service_account_email_failure(self, get_email):
+        # Set-up the mock.
+        bad_response = httplib2.Response({'status': http_client.NOT_FOUND})
+        content = b'bad-bytes-nothing-here'
+        get_email.return_value = (bad_response, content)
+        # Test the failure.
+        credentials = AppAssertionCredentials([])
+        self.assertIsNone(credentials._service_account_email)
+        with self.assertRaises(AttributeError) as exc_manager:
+            getattr(credentials, 'service_account_email')
+
+        error_msg = ('Failed to retrieve the email from the '
+                     'Google Compute Engine metadata service')
+        self.assertEqual(
+            exc_manager.exception.args,
+            (error_msg, bad_response, content))
+        self.assertIsNone(credentials._service_account_email)
+        get_email.assert_called_once_with()
+
     def test_get_access_token(self):
         http = mock.MagicMock()
         http.request = mock.MagicMock(
@@ -178,5 +224,43 @@ class AppAssertionCredentialsTests(unittest.TestCase):
             os.path.isdir = ORIGINAL_ISDIR
 
 
+class Test__get_service_account_email(unittest2.TestCase):
+
+    def test_success(self):
+        http_request = mock.MagicMock()
+        acct_name = b'1234567890@developer.gserviceaccount.com'
+        http_request.return_value = (
+            httplib2.Response({'status': http_client.OK}), acct_name)
+        result = _get_service_account_email(http_request)
+        self.assertEqual(result, (None, acct_name.decode('utf-8')))
+        http_request.assert_called_once_with(
+            _DEFAULT_EMAIL_METADATA,
+            headers={'Metadata-Flavor': 'Google'})
+
+    @mock.patch.object(httplib2.Http, 'request')
+    def test_success_default_http(self, http_request):
+        # Don't make _from_bytes() work too hard.
+        acct_name = u'1234567890@developer.gserviceaccount.com'
+        http_request.return_value = (
+            httplib2.Response({'status': http_client.OK}), acct_name)
+        result = _get_service_account_email()
+        self.assertEqual(result, (None, acct_name))
+        http_request.assert_called_once_with(
+            _DEFAULT_EMAIL_METADATA,
+            headers={'Metadata-Flavor': 'Google'})
+
+    def test_failure(self):
+        http_request = mock.MagicMock()
+        response = httplib2.Response({'status': http_client.NOT_FOUND})
+        content = b'Not found'
+        http_request.return_value = (response, content)
+        result = _get_service_account_email(http_request)
+
+        self.assertEqual(result, (response, content))
+        http_request.assert_called_once_with(
+            _DEFAULT_EMAIL_METADATA,
+            headers={'Metadata-Flavor': 'Google'})
+
+
 if __name__ == '__main__':  # pragma: NO COVER
-    unittest.main()
+    unittest2.main()

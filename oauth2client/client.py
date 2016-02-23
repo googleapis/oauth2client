@@ -1617,6 +1617,18 @@ class AssertionCredentials(GoogleCredentials):
         """
         self._do_revoke(http_request, self.access_token)
 
+    def sign_blob(self, blob):
+        """Cryptographically sign a blob (of bytes).
+
+        Args:
+            blob: bytes, Message to be signed.
+
+        Returns:
+            tuple, A pair of the private key ID used to sign the blob and
+            the signed contents.
+        """
+        raise NotImplementedError('This method is abstract.')
+
 
 def _RequireCryptoOrDie():
     """Ensure we have a crypto library, or throw CryptoUnavailableError.

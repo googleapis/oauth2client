@@ -166,6 +166,7 @@ class AppAssertionCredentials(AssertionCredentials):
         self.scope = util.scopes_to_string(scope)
         self._kwargs = kwargs
         self.service_account_id = kwargs.get('service_account_id', None)
+        self._service_account_email = None
 
         # Assertion type is no longer used, but still in the
         # parent class signature.
@@ -209,6 +210,34 @@ class AppAssertionCredentials(AssertionCredentials):
 
     def create_scoped(self, scopes):
         return AppAssertionCredentials(scopes, **self._kwargs)
+
+    def sign_blob(self, blob):
+        """Cryptographically sign a blob (of bytes).
+
+        Implements abstract method
+        :meth:`oauth2client.client.AssertionCredentials.sign_blob`.
+
+        Args:
+            blob: bytes, Message to be signed.
+
+        Returns:
+            tuple, A pair of the private key ID used to sign the blob and
+            the signed contents.
+        """
+        return app_identity.sign_blob(blob)
+
+    @property
+    def service_account_email(self):
+        """Get the email for the current service account.
+
+        Returns:
+            string, The email associated with the Google App Engine
+            service account.
+        """
+        if self._service_account_email is None:
+            self._service_account_email = (
+                app_identity.get_service_account_name())
+        return self._service_account_email
 
 
 class FlowProperty(db.Property):
