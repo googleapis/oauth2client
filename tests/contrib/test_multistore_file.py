@@ -48,6 +48,30 @@ class _MockLockedFile(object):
         return self.filename_str
 
 
+class Test__dict_to_tuple_key(unittest2.TestCase):
+
+    def test_key_conversions(self):
+        key1, val1 = 'somekey', 'some value'
+        key2, val2 = 'another', 'something else'
+        key3, val3 = 'onemore', 'foo'
+        test_dict = {
+            key1: val1,
+            key2: val2,
+            key3: val3,
+        }
+        tuple_key = multistore_file._dict_to_tuple_key(test_dict)
+
+        # the resulting key should be naturally sorted
+        expected_output = (
+            (key2, val2),
+            (key3, val3),
+            (key1, val1),
+        )
+        self.assertTupleEqual(expected_output, tuple_key)
+        # check we get the original dictionary back
+        self.assertDictEqual(test_dict, dict(tuple_key))
+
+
 class MultistoreFileTests(unittest2.TestCase):
 
     def tearDown(self):
@@ -257,3 +281,7 @@ class MultistoreFileTests(unittest2.TestCase):
         store2.delete()
         keys = multistore_file.get_all_credential_keys(FILENAME)
         self.assertEquals([], keys)
+
+
+if __name__ == '__main__':  # pragma: NO COVER
+    unittest2.main()
