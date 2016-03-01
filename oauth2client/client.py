@@ -2069,7 +2069,7 @@ class OAuth2WebServerFlow(Flow):
 
         if code is None:
             code = device_flow_info.device_code
-        elif not isinstance(code, six.string_types):
+        elif not isinstance(code, (six.string_types, six.binary_type)):
             if 'code' not in code:
                 raise FlowExchangeError(code.get(
                     'error', 'No code was supplied in the query parameters.'))
