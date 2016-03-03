@@ -79,6 +79,7 @@ from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import save_to_well_known_file
 from oauth2client.clientsecrets import _loadfile
 from oauth2client.service_account import ServiceAccountCredentials
+from oauth2client._helpers import _to_bytes
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
@@ -1199,6 +1200,26 @@ class OAuth2WebServerFlowTest(unittest2.TestCase):
         self.assertNotEqual(None, credentials.token_expiry)
         self.assertEqual('8xLOxBtZp8', credentials.refresh_token)
         self.assertEqual('dummy_revoke_uri', credentials.revoke_uri)
+        self.assertEqual(set(['foo']), credentials.scopes)
+
+    def test_exchange_success_binary_code(self):
+        binary_code = b'some random code'
+        access_token = 'SlAV32hkKG'
+        expires_in = '3600'
+        refresh_token = '8xLOxBtZp8'
+        revoke_uri = 'dummy_revoke_uri'
+
+        payload = ('{'
+                   '  "access_token":"' + access_token + '",'
+                   '  "expires_in":' + expires_in + ','
+                   '  "refresh_token":"' + refresh_token + '"'
+                   '}')
+        http = HttpMockSequence([({'status': '200'}, _to_bytes(payload))])
+        credentials = self.flow.step2_exchange(binary_code, http=http)
+        self.assertEqual(access_token, credentials.access_token)
+        self.assertIsNotNone(credentials.token_expiry)
+        self.assertEqual(refresh_token, credentials.refresh_token)
+        self.assertEqual(revoke_uri, credentials.revoke_uri)
         self.assertEqual(set(['foo']), credentials.scopes)
 
     def test_exchange_dictlike(self):
