@@ -1,5 +1,23 @@
 # CHANGELOG
 
+## v2.0.1
+
+* Making scopes optional on Google Compute Engine `AppAssertionCredentials`
+  and adding a warning that GCE won't honor scopes (#419)
+* Adding common `sign_blob()` to service account types and a
+  `service_account_email` property. (#421)
+* Improving error message in P12 factory
+  `ServiceAccountCredentials.from_p12_keyfile` when pyOpenSSL is
+  missing. (#424)
+* Allowing default flags in `oauth2client.tools.run_flow()`
+  rather than forcing users to create a dummy argparser (#426)
+* Removing `oauth2client.util.dict_to_tuple_key()` from public
+  interface (#429)
+* Adding `oauth2client.contrib._appengine_ndb` helper module
+  for `oauth2client.contrib.appengine` and moving most code that
+  uses the `ndb` library into the helper (#434)
+* Fix error in `django_util` sample code (#438)
+
 ## v2.0.0-post1
 
 * Fix Google Compute Engine breakage (#411, breakage introduced in #387) that
