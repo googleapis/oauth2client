@@ -443,7 +443,14 @@ class UserOAuth2(object):
 
     def has_credentials(self):
         """Returns True if there are valid credentials for the current user."""
-        return self.credentials and not self.credentials.invalid
+        if not self.credentials:
+            return False
+        # Is the access token expired? If so, do we have an refresh token?
+        elif (self.credentials.access_token_expired
+                and not self.credentials.refresh_token):
+            return False
+        else:
+            return True
 
     @property
     def email(self):
