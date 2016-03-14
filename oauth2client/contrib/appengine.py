@@ -273,7 +273,7 @@ class CredentialsProperty(db.Property):
     """App Engine datastore Property for Credentials.
 
     Utility property that allows easy storage and retrieval of
-    oath2client.Credentials
+    oauth2client.Credentials
     """
 
     # Tell what the user type is.
