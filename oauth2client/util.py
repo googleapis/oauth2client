@@ -132,8 +132,6 @@ def positional(max_positional_args):
                     raise TypeError(message)
                 elif positional_parameters_enforcement == POSITIONAL_WARNING:
                     logger.warning(message)
-                else:  # IGNORE
-                    pass
             return wrapped(*args, **kwargs)
         return positional_wrapper
 
