@@ -61,7 +61,7 @@ OAUTH2CLIENT_NAMESPACE = 'oauth2client#ns'
 
 XSRF_MEMCACHE_ID = 'xsrf_secret_key'
 
-if _appengine_ndb is None:
+if _appengine_ndb is None:  # pragma: NO COVER
     CredentialsNDBModel = None
     CredentialsNDBProperty = None
     FlowNDBProperty = None
