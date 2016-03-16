@@ -52,7 +52,7 @@ with information from the APIs Console <https://code.google.com/apis/console>.
 def _CreateArgumentParser():
     try:
         import argparse
-    except ImportError:
+    except ImportError:  # pragma: NO COVER
         return None
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument('--auth_host_name', default='localhost',
