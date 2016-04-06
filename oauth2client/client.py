@@ -53,8 +53,7 @@ HAS_CRYPTO = False
 try:
     from oauth2client import crypt
     HAS_CRYPTO = True
-    if crypt.OpenSSLVerifier is not None:
-        HAS_OPENSSL = True
+    HAS_OPENSSL = crypt.OpenSSLVerifier is not None
 except ImportError:  # pragma: NO COVER
     pass
 
@@ -917,7 +916,7 @@ class OAuth2Credentials(Credentials):
             # An {'error':...} response body means the token is expired or
             # revoked, so we flag the credentials as such.
             logger.info('Failed to retrieve access token: %s', content)
-            error_msg = 'Invalid response %s.' % resp['status']
+            error_msg = 'Invalid response %s.' % (resp['status'],)
             try:
                 d = json.loads(content)
                 if 'error' in d:
@@ -925,7 +924,7 @@ class OAuth2Credentials(Credentials):
                     if 'error_description' in d:
                         error_msg += ': ' + d['error_description']
                     self.invalid = True
-                    if self.store:
+                    if self.store is not None:
                         self.store.locked_put(self)
             except (TypeError, ValueError):
                 pass

@@ -25,7 +25,9 @@ import json
 import os
 import socket
 import sys
+import tempfile
 
+import httplib2
 import mock
 import six
 from six.moves import http_client
@@ -296,7 +298,6 @@ class GoogleCredentialsTests(unittest2.TestCase):
 
     def setUp(self):
         self.os_name = os.name
-        from oauth2client import client
         client.SETTINGS.env_name = None
 
     def tearDown(self):
@@ -607,7 +608,6 @@ class GoogleCredentialsTests(unittest2.TestCase):
         in_gae.assert_called_once_with()
 
     def test_env_name(self):
-        from oauth2client import client
         self.assertEqual(None, client.SETTINGS.env_name)
         self.test_get_adc_from_environment_variable_service_account()
         self.assertEqual(DEFAULT_ENV_NAME, client.SETTINGS.env_name)
@@ -990,6 +990,35 @@ class BasicCredentialsTests(unittest2.TestCase):
         instance = OAuth2Credentials.from_json(self.credentials.to_json())
         self.assertEqual('foobar', instance.token_response)
 
+    def test__expires_in_no_expiry(self):
+        credentials = OAuth2Credentials(None, None, None, None,
+                                        None, None, None)
+        self.assertIsNone(credentials.token_expiry)
+        self.assertIsNone(credentials._expires_in())
+
+    @mock.patch('oauth2client.client._UTCNOW')
+    def test__expires_in_expired(self, utcnow):
+        credentials = OAuth2Credentials(None, None, None, None,
+                                        None, None, None)
+        credentials.token_expiry = datetime.datetime.utcnow()
+        now = credentials.token_expiry + datetime.timedelta(seconds=1)
+        self.assertLess(credentials.token_expiry, now)
+        utcnow.return_value = now
+        self.assertEqual(credentials._expires_in(), 0)
+        utcnow.assert_called_once_with()
+
+    @mock.patch('oauth2client.client._UTCNOW')
+    def test__expires_in_not_expired(self, utcnow):
+        credentials = OAuth2Credentials(None, None, None, None,
+                                        None, None, None)
+        credentials.token_expiry = datetime.datetime.utcnow()
+        seconds = 1234
+        now = credentials.token_expiry - datetime.timedelta(seconds=seconds)
+        self.assertLess(now, credentials.token_expiry)
+        utcnow.return_value = now
+        self.assertEqual(credentials._expires_in(), seconds)
+        utcnow.assert_called_once_with()
+
     @mock.patch('oauth2client.client._UTCNOW')
     def test_get_access_token(self, utcnow):
         # Configure the patch.
@@ -1073,6 +1102,121 @@ class BasicCredentialsTests(unittest2.TestCase):
         # - access_token_expired
         expected_utcnow_calls = [mock.call()] * (2 + 3 + 5)
         self.assertEqual(expected_utcnow_calls, utcnow.mock_calls)
+
+    @mock.patch.object(OAuth2Credentials, 'refresh')
+    @mock.patch.object(OAuth2Credentials, '_expires_in',
+                       return_value=1835)
+    def test_get_access_token_without_http(self, expires_in, refresh_mock):
+        credentials = OAuth2Credentials(None, None, None, None,
+                                        None, None, None)
+        # Make sure access_token_expired returns True
+        credentials.invalid = True
+        # Specify a token so we can use it in the response.
+        credentials.access_token = 'ya29-s3kr3t'
+
+        with mock.patch('httplib2.Http',
+                        return_value=object) as http_kls:
+            token_info = credentials.get_access_token()
+            expires_in.assert_called_once_with()
+            refresh_mock.assert_called_once_with(http_kls.return_value)
+
+        self.assertIsInstance(token_info, client.AccessTokenInfo)
+        self.assertEqual(token_info.access_token,
+                         credentials.access_token)
+        self.assertEqual(token_info.expires_in,
+                         expires_in.return_value)
+
+    @mock.patch.object(OAuth2Credentials, 'refresh')
+    @mock.patch.object(OAuth2Credentials, '_expires_in',
+                       return_value=1835)
+    def test_get_access_token_with_http(self, expires_in, refresh_mock):
+        credentials = OAuth2Credentials(None, None, None, None,
+                                        None, None, None)
+        # Make sure access_token_expired returns True
+        credentials.invalid = True
+        # Specify a token so we can use it in the response.
+        credentials.access_token = 'ya29-s3kr3t'
+
+        http_obj = object()
+        token_info = credentials.get_access_token(http_obj)
+        self.assertIsInstance(token_info, client.AccessTokenInfo)
+        self.assertEqual(token_info.access_token,
+                         credentials.access_token)
+        self.assertEqual(token_info.expires_in,
+                         expires_in.return_value)
+
+        expires_in.assert_called_once_with()
+        refresh_mock.assert_called_once_with(http_obj)
+
+    @mock.patch('oauth2client.client.logger')
+    def _do_refresh_request_test_helper(self, response, content,
+                                        error_msg, logger, store=None):
+        credentials = OAuth2Credentials(None, None, None, None,
+                                        None, None, None)
+        credentials.store = store
+        http_request = mock.Mock()
+        http_request.return_value = response, content
+
+        # HttpAccessTokenRefreshError(error_msg, status=resp.status)
+        with self.assertRaises(HttpAccessTokenRefreshError) as exc_manager:
+            credentials._do_refresh_request(http_request)
+
+        self.assertEqual(exc_manager.exception.args, (error_msg,))
+        self.assertEqual(exc_manager.exception.status, response.status)
+
+        call1 = mock.call('Refreshing access_token')
+        failure_template = 'Failed to retrieve access token: %s'
+        call2 = mock.call(failure_template, content)
+        self.assertEqual(logger.info.mock_calls, [call1, call2])
+        if store is not None:
+            store.locked_put.assert_called_once_with(credentials)
+
+    def test__do_refresh_request_non_json_failure(self):
+        response = httplib2.Response({
+            'status': http_client.BAD_REQUEST,
+        })
+        content = u'Bad request'
+        error_msg = 'Invalid response %s.' % (response.status,)
+        self._do_refresh_request_test_helper(response, content, error_msg)
+
+    def test__do_refresh_request_basic_failure(self):
+        response = httplib2.Response({
+            'status': http_client.INTERNAL_SERVER_ERROR,
+        })
+        content = u'{}'
+        error_msg = 'Invalid response %s.' % (response.status,)
+        self._do_refresh_request_test_helper(response, content, error_msg)
+
+    def test__do_refresh_request_failure_w_json_error(self):
+        response = httplib2.Response({
+            'status': http_client.BAD_GATEWAY,
+        })
+        error_msg = 'Hi I am an error not a bearer'
+        content = json.dumps({'error': error_msg})
+        self._do_refresh_request_test_helper(response, content, error_msg)
+
+    def test__do_refresh_request_failure_w_json_error_and_store(self):
+        response = httplib2.Response({
+            'status': http_client.BAD_GATEWAY,
+        })
+        error_msg = 'Where are we going wearer?'
+        content = json.dumps({'error': error_msg})
+        store = mock.MagicMock()
+        self._do_refresh_request_test_helper(response, content, error_msg,
+                                             store=store)
+
+    def test__do_refresh_request_failure_w_json_error_and_desc(self):
+        response = httplib2.Response({
+            'status': http_client.SERVICE_UNAVAILABLE,
+        })
+        base_error = 'Ruckus'
+        error_desc = 'Can you describe the ruckus'
+        content = json.dumps({
+            'error': base_error,
+            'error_description': error_desc,
+        })
+        error_msg = '%s: %s' % (base_error, error_desc)
+        self._do_refresh_request_test_helper(response, content, error_msg)
 
     def test_has_scopes(self):
         self.assertTrue(self.credentials.has_scopes('foo'))
@@ -1625,13 +1769,11 @@ class Test__save_private_file(unittest2.TestCase):
         self.assertEqual(stat_mode, 0o600)
 
     def test_new(self):
-        import tempfile
         filename = tempfile.mktemp()
         self.assertFalse(os.path.exists(filename))
         self._save_helper(filename)
 
     def test_existing(self):
-        import tempfile
         filename = tempfile.mktemp()
         with open(filename, 'w') as f:
             f.write('a bunch of nonsense longer than []')
