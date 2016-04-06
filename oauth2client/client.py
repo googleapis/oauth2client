@@ -55,7 +55,7 @@ try:
     HAS_CRYPTO = True
     if crypt.OpenSSLVerifier is not None:
         HAS_OPENSSL = True
-except ImportError:
+except ImportError:  # pragma: NO COVER
     pass
 
 
@@ -179,10 +179,6 @@ class CryptoUnavailableError(Error, NotImplementedError):
     """Raised when a crypto library is required, but none is available."""
 
 
-def _abstract():
-    raise NotImplementedError('You need to override this function')
-
-
 class MemoryCache(object):
     """httplib2 Cache implementation which only caches locally."""
 
@@ -229,7 +225,7 @@ class Credentials(object):
             http: httplib2.Http, an http object to be used to make the refresh
                   request.
         """
-        _abstract()
+        raise NotImplementedError
 
     def refresh(self, http):
         """Forces a refresh of the access_token.
@@ -238,7 +234,7 @@ class Credentials(object):
             http: httplib2.Http, an http object to be used to make the refresh
                   request.
         """
-        _abstract()
+        raise NotImplementedError
 
     def revoke(self, http):
         """Revokes a refresh_token and makes the credentials void.
@@ -247,7 +243,7 @@ class Credentials(object):
             http: httplib2.Http, an http object to be used to make the revoke
                   request.
         """
-        _abstract()
+        raise NotImplementedError
 
     def apply(self, headers):
         """Add the authorization to the headers.
@@ -255,7 +251,7 @@ class Credentials(object):
         Args:
             headers: dict, the headers to add the Authorization header to.
         """
-        _abstract()
+        raise NotImplementedError
 
     def _to_json(self, strip, to_serialize=None):
         """Utility function that creates JSON repr. of a Credentials object.
@@ -274,6 +270,9 @@ class Credentials(object):
         curr_type = self.__class__
         if to_serialize is None:
             to_serialize = copy.copy(self.__dict__)
+        else:
+            # Assumes it is a str->str dictionary, so we don't deep copy.
+            to_serialize = copy.copy(to_serialize)
         for member in strip:
             if member in to_serialize:
                 del to_serialize[member]
@@ -390,7 +389,7 @@ class Storage(object):
         Returns:
             oauth2client.client.Credentials
         """
-        _abstract()
+        raise NotImplementedError
 
     def locked_put(self, credentials):
         """Write a credential.
@@ -400,14 +399,14 @@ class Storage(object):
         Args:
             credentials: Credentials, the credentials to store.
         """
-        _abstract()
+        raise NotImplementedError
 
     def locked_delete(self):
         """Delete a credential.
 
         The Storage lock must be held when this is called.
         """
-        _abstract()
+        raise NotImplementedError
 
     def get(self):
         """Retrieve credential.
@@ -1605,7 +1604,7 @@ class AssertionCredentials(GoogleCredentials):
 
     def _generate_assertion(self):
         """Generate assertion string to be used in the access token request."""
-        _abstract()
+        raise NotImplementedError
 
     def _revoke(self, http_request):
         """Revokes the access_token and deletes the store if available.
