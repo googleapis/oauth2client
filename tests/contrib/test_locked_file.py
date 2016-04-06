@@ -14,10 +14,10 @@
 
 import errno
 import os
+import sys
 import tempfile
 
 import mock
-from six.moves import reload_module
 import unittest2
 
 from oauth2client.contrib import locked_file
@@ -85,7 +85,6 @@ class TestPosixOpener(TestOpener):
         # error gets re-raised, but the module lets the if statement fall
         # through.
         instance, _ = self._make_one()
-        fh_mock = mock.Mock()
         mock_open.side_effect = [IOError(errno.ENOENT, '')]
         instance.open_and_lock(1, 1)
 
@@ -188,28 +187,33 @@ class TestLockedFile(unittest2.TestCase):
 
     @mock.patch('oauth2client.contrib.locked_file._PosixOpener')
     def test_ctor_minimal(self, opener_mock):
-        instance = locked_file.LockedFile(
+        locked_file.LockedFile(
             'a_file', 'r+', 'r', use_native_locking=False)
         opener_mock.assert_called_with('a_file', 'r+', 'r')
 
-    @mock.patch('oauth2client.contrib.locked_file._Win32Opener')
-    def test_ctor_native_win32(self, opener_mock):
-        instance = locked_file.LockedFile(
+    @mock.patch.dict('sys.modules', {
+        'oauth2client.contrib._win32_opener': mock.Mock()})
+    def test_ctor_native_win32(self):
+        _win32_opener_mock = sys.modules['oauth2client.contrib._win32_opener']
+        locked_file.LockedFile(
             'a_file', 'r+', 'r', use_native_locking=True)
-        opener_mock.assert_called_with('a_file', 'r+', 'r')
+        _win32_opener_mock._Win32Opener.assert_called_with('a_file', 'r+', 'r')
 
-    @mock.patch('oauth2client.contrib.locked_file._FcntlOpener')
-    @mock.patch.object(locked_file, '_Win32Opener', None)
-    def test_ctor_native_fcntl(self, opener_mock):
-        instance = locked_file.LockedFile(
+    @mock.patch.dict('sys.modules', {
+        'oauth2client.contrib._win32_opener': None,
+        'oauth2client.contrib._fcntl_opener': mock.Mock()})
+    def test_ctor_native_fcntl(self):
+        _fnctl_opener_mock = sys.modules['oauth2client.contrib._fcntl_opener']
+        locked_file.LockedFile(
             'a_file', 'r+', 'r', use_native_locking=True)
-        opener_mock.assert_called_with('a_file', 'r+', 'r')
+        _fnctl_opener_mock._FcntlOpener.assert_called_with('a_file', 'r+', 'r')
 
     @mock.patch('oauth2client.contrib.locked_file._PosixOpener')
-    @mock.patch.object(locked_file, '_Win32Opener', None)
-    @mock.patch.object(locked_file, '_FcntlOpener', None)
+    @mock.patch.dict('sys.modules', {
+        'oauth2client.contrib._win32_opener': None,
+        'oauth2client.contrib._fcntl_opener': None})
     def test_ctor_native_posix_fallback(self, opener_mock):
-        instance = locked_file.LockedFile(
+        locked_file.LockedFile(
             'a_file', 'r+', 'r', use_native_locking=True)
         opener_mock.assert_called_with('a_file', 'r+', 'r')
 
