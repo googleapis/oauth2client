@@ -1148,21 +1148,28 @@ class BasicCredentialsTests(unittest2.TestCase):
         expires_in.assert_called_once_with()
         refresh_mock.assert_called_once_with(http_obj)
 
+    @mock.patch.object(OAuth2Credentials, '_generate_refresh_request_headers',
+                       return_value=object())
+    @mock.patch.object(OAuth2Credentials, '_generate_refresh_request_body',
+                       return_value=object())
     @mock.patch('oauth2client.client.logger')
     def _do_refresh_request_test_helper(self, response, content,
-                                        error_msg, logger, store=None):
+                                        error_msg, logger, gen_body,
+                                        gen_headers, store=None):
         credentials = OAuth2Credentials(None, None, None, None,
                                         None, None, None)
         credentials.store = store
         http_request = mock.Mock()
         http_request.return_value = response, content
 
-        # HttpAccessTokenRefreshError(error_msg, status=resp.status)
         with self.assertRaises(HttpAccessTokenRefreshError) as exc_manager:
             credentials._do_refresh_request(http_request)
 
         self.assertEqual(exc_manager.exception.args, (error_msg,))
         self.assertEqual(exc_manager.exception.status, response.status)
+        http_request.assert_called_once_with(None, body=gen_body.return_value,
+                                             headers=gen_headers.return_value,
+                                             method='POST')
 
         call1 = mock.call('Refreshing access_token')
         failure_template = 'Failed to retrieve access token: %s'
@@ -1217,6 +1224,85 @@ class BasicCredentialsTests(unittest2.TestCase):
         })
         error_msg = '%s: %s' % (base_error, error_desc)
         self._do_refresh_request_test_helper(response, content, error_msg)
+
+    @mock.patch('oauth2client.client.logger')
+    def _do_revoke_test_helper(self, response, content,
+                               error_msg, logger, store=None):
+        credentials = OAuth2Credentials(None, None, None, None,
+                                        None, None, None,
+                                        revoke_uri=GOOGLE_REVOKE_URI)
+        credentials.store = store
+        http_request = mock.Mock()
+        http_request.return_value = response, content
+        token = u's3kr3tz'
+
+        if response.status == http_client.OK:
+            self.assertFalse(credentials.invalid)
+            self.assertIsNone(credentials._do_revoke(http_request, token))
+            self.assertTrue(credentials.invalid)
+            if store is not None:
+                store.delete.assert_called_once_with()
+        else:
+            self.assertFalse(credentials.invalid)
+            with self.assertRaises(TokenRevokeError) as exc_manager:
+                credentials._do_revoke(http_request, token)
+            # Make sure invalid was not flipped on.
+            self.assertFalse(credentials.invalid)
+            self.assertEqual(exc_manager.exception.args, (error_msg,))
+            if store is not None:
+                store.delete.assert_not_called()
+
+        revoke_uri = GOOGLE_REVOKE_URI + '?token=' + token
+        http_request.assert_called_once_with(revoke_uri)
+
+        logger.info.assert_called_once_with('Revoking token')
+
+    def test__do_revoke_success(self):
+        response = httplib2.Response({
+            'status': http_client.OK,
+        })
+        self._do_revoke_test_helper(response, b'', None)
+
+    def test__do_revoke_success_with_store(self):
+        response = httplib2.Response({
+            'status': http_client.OK,
+        })
+        store = mock.MagicMock()
+        self._do_revoke_test_helper(response, b'', None, store=store)
+
+    def test__do_revoke_non_json_failure(self):
+        response = httplib2.Response({
+            'status': http_client.BAD_REQUEST,
+        })
+        content = u'Bad request'
+        error_msg = 'Invalid response %s.' % (response.status,)
+        self._do_revoke_test_helper(response, content, error_msg)
+
+    def test__do_revoke_basic_failure(self):
+        response = httplib2.Response({
+            'status': http_client.INTERNAL_SERVER_ERROR,
+        })
+        content = u'{}'
+        error_msg = 'Invalid response %s.' % (response.status,)
+        self._do_revoke_test_helper(response, content, error_msg)
+
+    def test__do_revoke_failure_w_json_error(self):
+        response = httplib2.Response({
+            'status': http_client.BAD_GATEWAY,
+        })
+        error_msg = 'Hi I am an error not a bearer'
+        content = json.dumps({'error': error_msg})
+        self._do_revoke_test_helper(response, content, error_msg)
+
+    def test__do_revoke_failure_w_json_error_and_store(self):
+        response = httplib2.Response({
+            'status': http_client.BAD_GATEWAY,
+        })
+        error_msg = 'Where are we going wearer?'
+        content = json.dumps({'error': error_msg})
+        store = mock.MagicMock()
+        self._do_revoke_test_helper(response, content, error_msg,
+                                    store=store)
 
     def test_has_scopes(self):
         self.assertTrue(self.credentials.has_scopes('foo'))
