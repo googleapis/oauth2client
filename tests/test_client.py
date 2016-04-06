@@ -121,6 +121,160 @@ class CredentialsTests(unittest2.TestCase):
         json = credentials.to_json()
         restored = Credentials.new_from_json(json)
 
+    def test_authorize_abstract(self):
+        credentials = Credentials()
+        http = object()
+        with self.assertRaises(NotImplementedError):
+            credentials.authorize(http)
+
+    def test_refresh_abstract(self):
+        credentials = Credentials()
+        http = object()
+        with self.assertRaises(NotImplementedError):
+            credentials.refresh(http)
+
+    def test_revoke_abstract(self):
+        credentials = Credentials()
+        http = object()
+        with self.assertRaises(NotImplementedError):
+            credentials.revoke(http)
+
+    def test_apply_abstract(self):
+        credentials = Credentials()
+        headers = {}
+        with self.assertRaises(NotImplementedError):
+            credentials.apply(headers)
+
+    def test__to_json_basic(self):
+        credentials = Credentials()
+        json_payload = credentials._to_json([])
+        # str(bytes) in Python2 and str(unicode) in Python3
+        self.assertIsInstance(json_payload, str)
+        payload = json.loads(json_payload)
+        expected_payload = {
+            '_class': Credentials.__name__,
+            '_module': Credentials.__module__,
+            'token_expiry': None,
+        }
+        self.assertEqual(payload, expected_payload)
+
+    def test__to_json_with_strip(self):
+        credentials = Credentials()
+        credentials.foo = 'bar'
+        credentials.baz = 'quux'
+        to_strip = ['foo']
+        json_payload = credentials._to_json(to_strip)
+        # str(bytes) in Python2 and str(unicode) in Python3
+        self.assertIsInstance(json_payload, str)
+        payload = json.loads(json_payload)
+        expected_payload = {
+            '_class': Credentials.__name__,
+            '_module': Credentials.__module__,
+            'token_expiry': None,
+            'baz': credentials.baz,
+        }
+        self.assertEqual(payload, expected_payload)
+
+    def test__to_json_to_serialize(self):
+        credentials = Credentials()
+        to_serialize = {
+            'foo': b'bar',
+            'baz': u'quux',
+            'st': set(['a', 'b']),
+        }
+        orig_vals = to_serialize.copy()
+        json_payload = credentials._to_json([], to_serialize=to_serialize)
+        # str(bytes) in Python2 and str(unicode) in Python3
+        self.assertIsInstance(json_payload, str)
+        payload = json.loads(json_payload)
+        expected_payload = {
+            '_class': Credentials.__name__,
+            '_module': Credentials.__module__,
+            'token_expiry': None,
+        }
+        expected_payload.update(to_serialize)
+        # Special-case the set.
+        expected_payload['st'] = list(expected_payload['st'])
+        # Special-case the bytes.
+        expected_payload['foo'] = u'bar'
+        self.assertEqual(payload, expected_payload)
+        # Make sure the method call didn't modify our dictionary.
+        self.assertEqual(to_serialize, orig_vals)
+
+    @mock.patch.object(Credentials, '_to_json',
+                       return_value=object())
+    def test_to_json(self, to_json):
+        credentials = Credentials()
+        self.assertEqual(credentials.to_json(), to_json.return_value)
+        to_json.assert_called_once_with(Credentials.NON_SERIALIZED_MEMBERS)
+
+    def test_new_from_json_no_data(self):
+        creds_data = {}
+        json_data = json.dumps(creds_data)
+        with self.assertRaises(KeyError):
+            Credentials.new_from_json(json_data)
+
+    def test_new_from_json_basic_data(self):
+        creds_data = {
+            '_module': 'oauth2client.client',
+            '_class': 'Credentials',
+        }
+        json_data = json.dumps(creds_data)
+        credentials = Credentials.new_from_json(json_data)
+        self.assertIsInstance(credentials, Credentials)
+
+    def test_new_from_json_old_name(self):
+        creds_data = {
+            '_module': 'oauth2client.googleapiclient.client',
+            '_class': 'Credentials',
+        }
+        json_data = json.dumps(creds_data)
+        credentials = Credentials.new_from_json(json_data)
+        self.assertIsInstance(credentials, Credentials)
+
+    def test_new_from_json_bad_module(self):
+        creds_data = {
+            '_module': 'oauth2client.foobar',
+            '_class': 'Credentials',
+        }
+        json_data = json.dumps(creds_data)
+        with self.assertRaises(ImportError):
+            Credentials.new_from_json(json_data)
+
+    def test_new_from_json_bad_class(self):
+        creds_data = {
+            '_module': 'oauth2client.client',
+            '_class': 'NopeNotCredentials',
+        }
+        json_data = json.dumps(creds_data)
+        with self.assertRaises(AttributeError):
+            Credentials.new_from_json(json_data)
+
+    def test_from_json(self):
+        unused_data = {}
+        credentials = Credentials.from_json(unused_data)
+        self.assertIsInstance(credentials, Credentials)
+        self.assertEqual(credentials.__dict__, {})
+
+
+class TestStorage(unittest2.TestCase):
+
+    def test_locked_get_abstract(self):
+        storage = Storage()
+        with self.assertRaises(NotImplementedError):
+            storage.locked_get()
+
+    def test_locked_put_abstract(self):
+        storage = Storage()
+        credentials = object()
+        with self.assertRaises(NotImplementedError):
+            storage.locked_put(credentials)
+
+    def test_locked_delete_abstract(self):
+        storage = Storage()
+        with self.assertRaises(NotImplementedError):
+            storage.locked_delete()
+
 
 @contextlib.contextmanager
 def mock_module_import(module):
@@ -611,6 +765,7 @@ class GoogleCredentialsTests(unittest2.TestCase):
         parsed_expiry = client._parse_expiry(dt)
         self.assertEqual(None, parsed_expiry)
 
+
 class DummyDeleteStorage(Storage):
     delete_called = False
 
@@ -1038,6 +1193,11 @@ class TestAssertionCredentials(unittest2.TestCase):
         user_agent = 'fun/2.0'
         self.credentials = self.AssertionCredentialsTestImpl(
             self.assertion_type, user_agent=user_agent)
+
+    def test__generate_assertion_abstract(self):
+        credentials = AssertionCredentials(None)
+        with self.assertRaises(NotImplementedError):
+            credentials._generate_assertion()
 
     def test_assertion_body(self):
         body = urllib.parse.parse_qs(
