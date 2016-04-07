@@ -1386,6 +1386,80 @@ class BasicCredentialsTests(unittest2.TestCase):
         self._do_revoke_test_helper(response, content, error_msg,
                                     store=store)
 
+    @mock.patch('oauth2client.client.logger')
+    def _do_retrieve_scopes_test_helper(self, response, content,
+                                        error_msg, logger, scopes=None):
+        credentials = OAuth2Credentials(None, None, None, None,
+                                        None, None, None,
+                                        token_info_uri=GOOGLE_TOKEN_INFO_URI)
+        http_request = mock.Mock()
+        http_request.return_value = response, content
+        token = u's3kr3tz'
+
+        if response.status == http_client.OK:
+            self.assertEqual(credentials.scopes, set())
+            self.assertIsNone(
+                credentials._do_retrieve_scopes(http_request, token))
+            self.assertEqual(credentials.scopes, scopes)
+        else:
+            self.assertEqual(credentials.scopes, set())
+            with self.assertRaises(client.Error) as exc_manager:
+                credentials._do_retrieve_scopes(http_request, token)
+            # Make sure scopes were not changed.
+            self.assertEqual(credentials.scopes, set())
+            self.assertEqual(exc_manager.exception.args, (error_msg,))
+
+        token_uri = _update_query_params(
+            GOOGLE_TOKEN_INFO_URI,
+            {'fields': 'scope', 'access_token': token})
+        self.assertEqual(len(http_request.mock_calls), 1)
+        scopes_call = http_request.mock_calls[0]
+        call_args = scopes_call[1]
+        self.assertEqual(len(call_args), 1)
+        called_uri = call_args[0]
+        assertUrisEqual(self, token_uri, called_uri)
+        logger.info.assert_called_once_with('Refreshing scopes')
+
+    def test__do_retrieve_scopes_success_bad_json(self):
+        response = httplib2.Response({
+            'status': http_client.OK,
+        })
+        invalid_json = b'{'
+        with self.assertRaises(ValueError):
+            self._do_retrieve_scopes_test_helper(response, invalid_json, None)
+
+    def test__do_retrieve_scopes_success(self):
+        response = httplib2.Response({
+            'status': http_client.OK,
+        })
+        content = b'{"scope": "foo bar"}'
+        self._do_retrieve_scopes_test_helper(response, content, None,
+                                             scopes=set(['foo', 'bar']))
+
+    def test__do_retrieve_scopes_non_json_failure(self):
+        response = httplib2.Response({
+            'status': http_client.BAD_REQUEST,
+        })
+        content = u'Bad request'
+        error_msg = 'Invalid response %s.' % (response.status,)
+        self._do_retrieve_scopes_test_helper(response, content, error_msg)
+
+    def test__do_retrieve_scopes_basic_failure(self):
+        response = httplib2.Response({
+            'status': http_client.INTERNAL_SERVER_ERROR,
+        })
+        content = u'{}'
+        error_msg = 'Invalid response %s.' % (response.status,)
+        self._do_retrieve_scopes_test_helper(response, content, error_msg)
+
+    def test__do_retrieve_scopes_failure_w_json_error(self):
+        response = httplib2.Response({
+            'status': http_client.BAD_GATEWAY,
+        })
+        error_msg = 'Error desc I sit at a desk'
+        content = json.dumps({'error_description': error_msg})
+        self._do_retrieve_scopes_test_helper(response, content, error_msg)
+
     def test_has_scopes(self):
         self.assertTrue(self.credentials.has_scopes('foo'))
         self.assertTrue(self.credentials.has_scopes(['foo']))
