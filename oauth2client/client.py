@@ -120,6 +120,7 @@ _DESIRED_METADATA_FLAVOR = 'Google'
 # Expose utcnow() at module level to allow for
 # easier testing (by replacing with a stub).
 _UTCNOW = datetime.datetime.utcnow
+_NOW = datetime.datetime.now
 
 
 class SETTINGS(object):
@@ -1862,7 +1863,7 @@ class DeviceFlowInfo(collections.namedtuple('DeviceFlowInfo', (
         })
         if 'expires_in' in response:
             kwargs['user_code_expiry'] = (
-                datetime.datetime.now() +
+                _NOW() +
                 datetime.timedelta(seconds=int(response['expires_in'])))
         return cls(**kwargs)
 
@@ -2201,4 +2202,4 @@ def flow_from_clientsecrets(filename, scope, redirect_uri=None,
             raise
     else:
         raise UnknownClientSecretsFlowError(
-            'This OAuth 2.0 flow is unsupported: %r' % client_type)
+            'This OAuth 2.0 flow is unsupported: %r' % (client_type,))

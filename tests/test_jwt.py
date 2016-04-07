@@ -17,6 +17,8 @@
 import os
 import tempfile
 import time
+
+import mock
 import unittest2
 
 from .http_mock import HttpMockSequence
@@ -126,6 +128,20 @@ class CryptTests(unittest2.TestCase):
         contents = verify_id_token(
             jwt, 'some_audience_address@testing.gserviceaccount.com',
             http=http)
+        self.assertEqual('billy bob', contents['user'])
+        self.assertEqual('data', contents['metadata']['meta'])
+
+    def test_verify_id_token_with_certs_uri_default_http(self):
+        jwt = self._create_signed_jwt()
+
+        http = HttpMockSequence([
+            ({'status': '200'}, datafile('certs.json')),
+        ])
+
+        with mock.patch('oauth2client.client._cached_http', new=http):
+            contents = verify_id_token(
+                jwt, 'some_audience_address@testing.gserviceaccount.com')
+
         self.assertEqual('billy bob', contents['user'])
         self.assertEqual('data', contents['metadata']['meta'])
 
