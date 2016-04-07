@@ -1628,7 +1628,7 @@ class AssertionCredentials(GoogleCredentials):
         raise NotImplementedError('This method is abstract.')
 
 
-def _RequireCryptoOrDie():
+def _require_crypto_or_die():
     """Ensure we have a crypto library, or throw CryptoUnavailableError.
 
     The oauth2client.crypt module requires either PyCrypto or PyOpenSSL
@@ -1667,7 +1667,7 @@ def verify_id_token(id_token, audience, http=None,
         oauth2client.crypt.AppIdentityError: if the JWT fails to verify.
         CryptoUnavailableError: if no crypto library is available.
     """
-    _RequireCryptoOrDie()
+    _require_crypto_or_die()
     if http is None:
         http = _cached_http
 
