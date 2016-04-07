@@ -342,6 +342,40 @@ class GoogleCredentialsTests(unittest2.TestCase):
         self.assertEqual(credentials,
                          credentials.create_scoped(['dummy_scope']))
 
+    @mock.patch.object(GoogleCredentials,
+                       '_implicit_credentials_from_files')
+    @mock.patch.object(GoogleCredentials,
+                       '_implicit_credentials_from_gce')
+    @mock.patch.object(client, '_in_gae_environment',
+                       return_value=True)
+    @mock.patch.object(client, '_get_application_default_credential_GAE',
+                       return_value=object())
+    def test_get_application_default_in_gae(self, gae_adc, in_gae,
+                                            from_gce, from_files):
+        credentials = GoogleCredentials.get_application_default()
+        self.assertEqual(credentials, gae_adc.return_value)
+        in_gae.assert_called_once_with()
+        from_files.assert_not_called()
+        from_gce.assert_not_called()
+
+    @mock.patch.object(GoogleCredentials,
+                       '_implicit_credentials_from_gae',
+                       return_value=None)
+    @mock.patch.object(GoogleCredentials,
+                       '_implicit_credentials_from_files',
+                       return_value=None)
+    @mock.patch.object(client, '_in_gce_environment',
+                       return_value=True)
+    @mock.patch.object(client, '_get_application_default_credential_GCE',
+                       return_value=object())
+    def test_get_application_default_in_gce(self, gce_adc, in_gce,
+                                            from_files, from_gae):
+        credentials = GoogleCredentials.get_application_default()
+        self.assertEqual(credentials, gce_adc.return_value)
+        in_gce.assert_called_once_with()
+        from_gae.assert_called_once_with()
+        from_files.assert_called_once_with()
+
     def test_environment_check_gae_production(self):
         with mock_module_import('google.appengine'):
             self._environment_check_gce_helper(
@@ -461,12 +495,24 @@ class GoogleCredentialsTests(unittest2.TestCase):
                                      expected_err_msg):
             _get_environment_variable_file()
 
+    @mock.patch.dict(os.environ, {}, clear=True)
+    def test_get_environment_variable_file_without_env_var(self):
+        self.assertIsNone(_get_environment_variable_file())
+
     @mock.patch('os.name', new='nt')
     @mock.patch.dict(os.environ, {'APPDATA': DATA_DIR}, clear=True)
     def test_get_well_known_file_on_windows(self):
         well_known_file = datafile(
             os.path.join(client._CLOUDSDK_CONFIG_DIRECTORY,
                          _WELL_KNOWN_CREDENTIALS_FILE))
+        self.assertEqual(well_known_file, _get_well_known_file())
+
+    @mock.patch('os.name', new='nt')
+    @mock.patch.dict(os.environ, {'SystemDrive': 'G:'}, clear=True)
+    def test_get_well_known_file_on_windows_without_appdata(self):
+        well_known_file = os.path.join('G:', '\\',
+                                       client._CLOUDSDK_CONFIG_DIRECTORY,
+                                       client._WELL_KNOWN_CREDENTIALS_FILE)
         self.assertEqual(well_known_file, _get_well_known_file())
 
     @mock.patch.dict(os.environ,
@@ -593,7 +639,7 @@ class GoogleCredentialsTests(unittest2.TestCase):
     @mock.patch('oauth2client.client._in_gae_environment', return_value=False)
     @mock.patch('oauth2client.client._get_environment_variable_file')
     @mock.patch('oauth2client.client._get_well_known_file')
-    def test_get_adc_from_environment_variable_service_account(self, *stubs):
+    def test_get_adc_from_env_var_service_account(self, *stubs):
         # Set up stubs.
         get_well_known, get_env_file, in_gae, in_gce = stubs
         get_env_file.return_value = datafile(
@@ -609,14 +655,14 @@ class GoogleCredentialsTests(unittest2.TestCase):
 
     def test_env_name(self):
         self.assertEqual(None, client.SETTINGS.env_name)
-        self.test_get_adc_from_environment_variable_service_account()
+        self.test_get_adc_from_env_var_service_account()
         self.assertEqual(DEFAULT_ENV_NAME, client.SETTINGS.env_name)
 
     @mock.patch('oauth2client.client._in_gce_environment')
     @mock.patch('oauth2client.client._in_gae_environment', return_value=False)
     @mock.patch('oauth2client.client._get_environment_variable_file')
     @mock.patch('oauth2client.client._get_well_known_file')
-    def test_get_adc_from_environment_variable_authorized_user(self, *stubs):
+    def test_get_adc_from_env_var_authorized_user(self, *stubs):
         # Set up stubs.
         get_well_known, get_env_file, in_gae, in_gce = stubs
         get_env_file.return_value = datafile(os.path.join(
@@ -635,7 +681,7 @@ class GoogleCredentialsTests(unittest2.TestCase):
     @mock.patch('oauth2client.client._in_gae_environment', return_value=False)
     @mock.patch('oauth2client.client._get_environment_variable_file')
     @mock.patch('oauth2client.client._get_well_known_file')
-    def test_get_adc_from_environment_variable_malformed_file(self, *stubs):
+    def test_get_adc_from_env_var_malformed_file(self, *stubs):
         # Set up stubs.
         get_well_known, get_env_file, in_gae, in_gce = stubs
         get_env_file.return_value = datafile(
@@ -662,7 +708,7 @@ class GoogleCredentialsTests(unittest2.TestCase):
                 return_value=None)
     @mock.patch('oauth2client.client._get_well_known_file',
                 return_value='BOGUS_FILE')
-    def test_get_application_default_environment_not_set_up(self, *stubs):
+    def test_get_adc_env_not_set_up(self, *stubs):
         # Unpack stubs.
         get_well_known, get_env_file, in_gae, in_gce = stubs
         # Make sure the well-known file actually doesn't exist.
@@ -678,6 +724,33 @@ class GoogleCredentialsTests(unittest2.TestCase):
         in_gae.assert_called_once_with()
         in_gce.assert_called_once_with()
 
+    @mock.patch('oauth2client.client._in_gce_environment', return_value=False)
+    @mock.patch('oauth2client.client._in_gae_environment', return_value=False)
+    @mock.patch('oauth2client.client._get_environment_variable_file',
+                return_value=None)
+    @mock.patch('oauth2client.client._get_well_known_file')
+    def test_get_adc_env_from_well_known(self, *stubs):
+        # Unpack stubs.
+        get_well_known, get_env_file, in_gae, in_gce = stubs
+        # Make sure the well-known file is an actual file.
+        get_well_known.return_value = __file__
+        # Make sure the well-known file actually doesn't exist.
+        self.assertTrue(os.path.exists(get_well_known.return_value))
+
+        method_name = ('oauth2client.client.'
+                       '_get_application_default_credential_from_file')
+        result_creds = object()
+        with mock.patch(method_name,
+                        return_value=result_creds) as get_from_file:
+            result = GoogleCredentials.get_application_default()
+            self.assertEqual(result, result_creds)
+            get_from_file.assert_called_once_with(__file__)
+
+        get_well_known.assert_called_once_with()
+        get_env_file.assert_called_once_with()
+        in_gae.assert_called_once_with()
+        in_gce.assert_not_called()
+
     def test_from_stream_service_account(self):
         credentials_file = datafile(
             os.path.join('gcloud', _WELL_KNOWN_CREDENTIALS_FILE))
@@ -692,6 +765,15 @@ class GoogleCredentialsTests(unittest2.TestCase):
         credentials = self.get_a_google_credentials_object().from_stream(
             credentials_file)
         self.validate_google_credentials(credentials)
+
+    def test_from_stream_missing_file(self):
+        credentials_filename = None
+        expected_err_msg = (r'The parameter passed to the from_stream\(\) '
+                            r'method should point to a file.')
+        with self.assertRaisesRegexp(ApplicationDefaultCredentialsError,
+                                     expected_err_msg):
+            self.get_a_google_credentials_object().from_stream(
+                credentials_filename)
 
     def test_from_stream_malformed_file_1(self):
         credentials_file = datafile(
@@ -1865,6 +1947,44 @@ class Test__save_private_file(unittest2.TestCase):
             f.write('a bunch of nonsense longer than []')
         self.assertTrue(os.path.exists(filename))
         self._save_helper(filename)
+
+
+class Test__get_application_default_credential_GAE(unittest2.TestCase):
+
+    @mock.patch.dict('sys.modules', {
+        'oauth2client.contrib.appengine': mock.Mock()})
+    def test_it(self):
+        gae_mod = sys.modules['oauth2client.contrib.appengine']
+        gae_mod.AppAssertionCredentials = creds_kls = mock.Mock()
+        creds_kls.return_value = object()
+        credentials = client._get_application_default_credential_GAE()
+        self.assertEqual(credentials, creds_kls.return_value)
+        creds_kls.assert_called_once_with([])
+
+
+class Test__get_application_default_credential_GCE(unittest2.TestCase):
+
+    @mock.patch.dict('sys.modules', {
+        'oauth2client.contrib.gce': mock.Mock()})
+    def test_it(self):
+        gce_mod = sys.modules['oauth2client.contrib.gce']
+        gce_mod.AppAssertionCredentials = creds_kls = mock.Mock()
+        creds_kls.return_value = object()
+        credentials = client._get_application_default_credential_GCE()
+        self.assertEqual(credentials, creds_kls.return_value)
+        creds_kls.assert_called_once_with()
+
+
+class Test__require_crypto_or_die(unittest2.TestCase):
+
+    @mock.patch.object(client, 'HAS_CRYPTO', new=True)
+    def test_with_crypto(self):
+        self.assertIsNone(client._require_crypto_or_die())
+
+    @mock.patch.object(client, 'HAS_CRYPTO', new=False)
+    def test_without_crypto(self):
+        with self.assertRaises(client.CryptoUnavailableError):
+            client._require_crypto_or_die()
 
 
 if __name__ == '__main__':  # pragma: NO COVER
