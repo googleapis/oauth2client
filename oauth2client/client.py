@@ -120,7 +120,6 @@ _DESIRED_METADATA_FLAVOR = 'Google'
 # Expose utcnow() at module level to allow for
 # easier testing (by replacing with a stub).
 _UTCNOW = datetime.datetime.utcnow
-_NOW = datetime.datetime.now
 
 
 class SETTINGS(object):
@@ -1863,7 +1862,7 @@ class DeviceFlowInfo(collections.namedtuple('DeviceFlowInfo', (
         })
         if 'expires_in' in response:
             kwargs['user_code_expiry'] = (
-                _NOW() +
+                _UTCNOW() +
                 datetime.timedelta(seconds=int(response['expires_in'])))
         return cls(**kwargs)
 
