@@ -2021,17 +2021,17 @@ class OAuth2WebServerFlow(Flow):
         if resp.status == http_client.OK:
             try:
                 flow_info = json.loads(content)
-            except ValueError as e:
+            except ValueError as exc:
                 raise OAuth2DeviceCodeError(
                     'Could not parse server response as JSON: "%s", '
-                    'error: "%s"' % (content, e))
+                    'error: "%s"' % (content, exc))
             return DeviceFlowInfo.FromResponse(flow_info)
         else:
-            error_msg = 'Invalid response %s.' % resp.status
+            error_msg = 'Invalid response %s.' % (resp.status,)
             try:
-                d = json.loads(content)
-                if 'error' in d:
-                    error_msg += ' Error: %s' % d['error']
+                error_dict = json.loads(content)
+                if 'error' in error_dict:
+                    error_msg += ' Error: %s' % (error_dict['error'],)
             except ValueError:
                 # Couldn't decode a JSON response, stick with the
                 # default message.
