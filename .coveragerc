@@ -1,5 +1,9 @@
 [report]
-omit = */samples/*
+omit =
+    */samples/*
+    # Don't report coverage over platform-specific modules.
+    oauth2client/contrib/_fcntl_opener.py
+    oauth2client/contrib/_win32_opener.py
 exclude_lines =
     # Re-enable the standard pragma
     pragma: NO COVER
