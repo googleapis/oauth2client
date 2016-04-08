@@ -108,7 +108,7 @@ def get_credential_storage(filename, client_id, user_agent, scope,
     key = {'clientId': client_id, 'userAgent': user_agent,
            'scope': util.scopes_to_string(scope)}
     return get_credential_storage_custom_key(
-      filename, key, warn_on_readonly=warn_on_readonly)
+        filename, key, warn_on_readonly=warn_on_readonly)
 
 
 @util.positional(2)
@@ -131,7 +131,7 @@ def get_credential_storage_custom_string_key(filename, key_string,
     # Create a key dictionary that can be used
     key_dict = {'key': key_string}
     return get_credential_storage_custom_key(
-      filename, key_dict, warn_on_readonly=warn_on_readonly)
+        filename, key_dict, warn_on_readonly=warn_on_readonly)
 
 
 @util.positional(2)
@@ -319,6 +319,7 @@ class _MultiStore(object):
                             'Opening in read-only mode. Any refreshed '
                             'credentials will only be '
                             'valid for this run.', self._file.filename())
+
         if os.path.getsize(self._file.filename()) == 0:
             logger.debug('Initializing empty multistore file')
             # The multistore is empty so write out an empty file.
