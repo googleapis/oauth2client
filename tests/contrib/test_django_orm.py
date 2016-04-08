@@ -65,7 +65,7 @@ class TestCredentialsField(unittest.TestCase):
     def setUp(self):
         self.fake_model = FakeCredentialsModel()
         self.fake_model_field = self.fake_model._meta.get_field('credentials')
-        self.field = CredentialsField()
+        self.field = CredentialsField(null=True)
         self.credentials = Credentials()
         self.pickle_str = _from_bytes(
             base64.b64encode(pickle.dumps(self.credentials)))
@@ -95,6 +95,10 @@ class TestCredentialsField(unittest.TestCase):
         value_str = self.fake_model_field.value_to_string(self.fake_model)
         self.assertEqual(value_str, None)
 
+    def test_credentials_without_null(self):
+        credentials = CredentialsField()
+        self.assertTrue(credentials.null)
+
 
 class TestFlowField(unittest.TestCase):
 
@@ -104,7 +108,7 @@ class TestFlowField(unittest.TestCase):
     def setUp(self):
         self.fake_model = self.FakeFlowModel()
         self.fake_model_field = self.fake_model._meta.get_field('flow')
-        self.field = FlowField()
+        self.field = FlowField(null=True)
         self.flow = Flow()
         self.pickle_str = _from_bytes(
             base64.b64encode(pickle.dumps(self.flow)))
@@ -129,6 +133,10 @@ class TestFlowField(unittest.TestCase):
         self.fake_model.flow = None
         value_str = self.fake_model_field.value_to_string(self.fake_model)
         self.assertEqual(value_str, None)
+
+    def test_flow_with_null(self):
+        flow = FlowField()
+        self.assertTrue(flow.null)
 
 
 class TestStorage(unittest.TestCase):
@@ -171,6 +179,37 @@ class TestStorage(unittest.TestCase):
         FakeCredentialsModelMock.objects = object_mock
 
         storage = Storage(FakeCredentialsModelMock, self.key_name,
+                          self.key_value, self.property_name)
+        credential = storage.locked_get()
+        self.assertEqual(
+            credential, fake_model_with_credentials.credentials)
+
+    @mock.patch('django.db.models')
+    def test_locked_get_no_entities(self, djangoModel):
+        entities = [
+        ]
+        filter_mock = mock.Mock(return_value=entities)
+        object_mock = mock.Mock()
+        object_mock.filter = filter_mock
+        FakeCredentialsModelMock.objects = object_mock
+
+        storage = Storage(FakeCredentialsModelMock, self.key_name,
+                          self.key_value, self.property_name)
+        credential = storage.locked_get()
+        self.assertIsNone(credential)
+
+    @mock.patch('django.db.models')
+    def test_locked_get_no_set_store(self, djangoModel):
+        fake_model_with_credentials = FakeCredentialsModelMockNoSet()
+        entities = [
+            fake_model_with_credentials
+        ]
+        filter_mock = mock.Mock(return_value=entities)
+        object_mock = mock.Mock()
+        object_mock.filter = filter_mock
+        FakeCredentialsModelMockNoSet.objects = object_mock
+
+        storage = Storage(FakeCredentialsModelMockNoSet, self.key_name,
                           self.key_value, self.property_name)
         credential = storage.locked_get()
         self.assertEqual(
@@ -244,6 +283,16 @@ class FakeCredentialsModelMock(object):
         self.saved = True
 
     credentials = CredentialWithSetStore()
+
+
+class FakeCredentialsModelMockNoSet(object):
+
+    def __init__(self, set_store=False, *args, **kwargs):
+        self.model = FakeCredentialsModelMock
+        self.saved = False
+        self.deleted = False
+
+    credentials = CredentialsField()
 
 
 if __name__ == '__main__':  # pragma: NO COVER
