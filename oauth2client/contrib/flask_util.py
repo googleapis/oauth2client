@@ -35,7 +35,7 @@ apiui/credential>`__.
 
     app.config['SECRET_KEY'] = 'your-secret-key'
 
-    app.config['GOOGLE_OAUTH2_CLIENT_SECRETS_JSON'] = 'client_secrets.json'
+    app.config['GOOGLE_OAUTH2_CLIENT_SECRETS_FILE'] = 'client_secrets.json'
 
     # or, specify the client id and secret separately
     app.config['GOOGLE_OAUTH2_CLIENT_ID'] = 'your-client-id'
@@ -213,14 +213,14 @@ class UserOAuth2(object):
 
     Configuration values:
 
-        * ``GOOGLE_OAUTH2_CLIENT_SECRETS_JSON`` path to a client secrets json
+        * ``GOOGLE_OAUTH2_CLIENT_SECRETS_FILE`` path to a client secrets json
           file, obtained from the credentials screen in the Google Developers
           console.
         * ``GOOGLE_OAUTH2_CLIENT_ID`` the oauth2 credentials' client ID. This
-          is only needed if ``GOOGLE_OAUTH2_CLIENT_SECRETS_JSON`` is not
+          is only needed if ``GOOGLE_OAUTH2_CLIENT_SECRETS_FILE`` is not
           specified.
         * ``GOOGLE_OAUTH2_CLIENT_SECRET`` the oauth2 credentials' client
-          secret. This is only needed if ``GOOGLE_OAUTH2_CLIENT_SECRETS_JSON``
+          secret. This is only needed if ``GOOGLE_OAUTH2_CLIENT_SECRETS_FILE``
           is not specified.
 
     If app is specified, all arguments will be passed along to init_app.
@@ -243,7 +243,7 @@ class UserOAuth2(object):
             app: A Flask application.
             scopes: Optional list of scopes to authorize.
             client_secrets_file: Path to a file containing client secrets. You
-                can also specify the GOOGLE_OAUTH2_CLIENT_SECRETS_JSON config
+                can also specify the GOOGLE_OAUTH2_CLIENT_SECRETS_FILE config
                 value.
             client_id: If not specifying a client secrets file, specify the
                 OAuth2 client id. You can also specify the
@@ -307,8 +307,8 @@ class UserOAuth2(object):
         except KeyError:
             raise ValueError(
                 'OAuth2 configuration could not be found. Either specify the '
-                'client_secrets_file or client_id and client_secret or set the'
-                'app configuration variables '
+                'client_secrets_file or client_id and client_secret or set '
+                'the app configuration variables '
                 'GOOGLE_OAUTH2_CLIENT_SECRETS_FILE or '
                 'GOOGLE_OAUTH2_CLIENT_ID and GOOGLE_OAUTH2_CLIENT_SECRET.')
 
