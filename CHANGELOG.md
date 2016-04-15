@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v2.0.2
+
+* Fix issue where `flask_util.UserOAuth2.required` would accept expired credentials (#452).
+* Fix issue where `flask_util` would fill the session with `Flow` objects (#498).
+* Fix issue with Python 3 binary strings in `Flow.step2_exchange` (#446).
+* Improve test coverage to 100%.
+
 ## v2.0.1
 
 * Making scopes optional on Google Compute Engine `AppAssertionCredentials`
