@@ -495,6 +495,26 @@ def _update_query_params(uri, params):
     return urllib.parse.urlunparse(new_parts)
 
 
+def _initialize_headers(headers):
+    """Creates a copy of the headers."""
+    if headers is None:
+        headers = {}
+    else:
+        headers = dict(headers)
+    return headers
+
+
+def _apply_user_agent(headers, user_agent):
+    """Adds a user-agent to the headers."""
+    if user_agent is not None:
+        if 'user-agent' in headers:
+            headers['user-agent'] = (user_agent + ' ' + headers['user-agent'])
+        else:
+            headers['user-agent'] = user_agent
+
+    return headers
+
+
 class OAuth2Credentials(Credentials):
     """Credentials object for OAuth 2.0.
 
@@ -598,18 +618,9 @@ class OAuth2Credentials(Credentials):
 
             # Clone and modify the request headers to add the appropriate
             # Authorization header.
-            if headers is None:
-                headers = {}
-            else:
-                headers = dict(headers)
+            headers = _initialize_headers(headers)
             self.apply(headers)
-
-            if self.user_agent is not None:
-                if 'user-agent' in headers:
-                    headers['user-agent'] = (self.user_agent + ' ' +
-                                             headers['user-agent'])
-                else:
-                    headers['user-agent'] = self.user_agent
+            _apply_user_agent(headers, self.user_agent)
 
             body_stream_position = None
             if all(getattr(body, stream_prop, None) for stream_prop in
@@ -1237,6 +1248,7 @@ class GoogleCredentials(OAuth2Credentials):
         # TODO(issue 388): eliminate the circularity that is the reason for
         #                  this non-top-level import.
         from oauth2client.service_account import ServiceAccountCredentials
+        from oauth2client.service_account import _JWTAccessCredentials
         data = json.loads(_from_bytes(json_data))
 
         # We handle service_account.ServiceAccountCredentials since it is a
@@ -1244,6 +1256,10 @@ class GoogleCredentials(OAuth2Credentials):
         if (data['_module'] == 'oauth2client.service_account' and
             data['_class'] == 'ServiceAccountCredentials'):
             return ServiceAccountCredentials.from_json(data)
+        elif (data['_module'] == 'oauth2client.service_account' and
+              data['_class'] == '_JWTAccessCredentials'):
+            return _JWTAccessCredentials.from_json(data)
+        
 
         token_expiry = _parse_expiry(data.get('token_expiry'))
         google_credentials = cls(
@@ -1523,8 +1539,8 @@ def _get_application_default_credential_from_file(filename):
             token_uri=GOOGLE_TOKEN_URI,
             user_agent='Python client library')
     else:  # client_credentials['type'] == SERVICE_ACCOUNT
-        from oauth2client.service_account import ServiceAccountCredentials
-        return ServiceAccountCredentials.from_json_keyfile_dict(
+        from oauth2client.service_account import _JWTAccessCredentials
+        return _JWTAccessCredentials.from_json_keyfile_dict(
             client_credentials)
 
 

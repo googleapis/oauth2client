@@ -840,6 +840,20 @@ class GoogleCredentialsTests(unittest2.TestCase):
         creds2_vals.pop('_signer')
         self.assertEqual(creds1_vals, creds2_vals)
 
+    def test_to_from_json_service_account_scoped(self):
+        credentials_file = datafile(
+            os.path.join('gcloud', _WELL_KNOWN_CREDENTIALS_FILE))
+        creds1 = GoogleCredentials.from_stream(credentials_file)
+        creds1 = creds1.create_scoped(['dummy_scope'])
+        # Convert to and then back from json.
+        creds2 = GoogleCredentials.from_json(creds1.to_json())
+
+        creds1_vals = creds1.__dict__
+        creds1_vals.pop('_signer')
+        creds2_vals = creds2.__dict__
+        creds2_vals.pop('_signer')
+        self.assertEqual(creds1_vals, creds2_vals)
+
     def test_parse_expiry(self):
         dt = datetime.datetime(2016, 1, 1)
         parsed_expiry = client._parse_expiry(dt)
