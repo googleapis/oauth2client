@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v2.1.0
+
+* Add basic support for JWT access credentials. (#503)
+* Fix `oauth2client.client.DeviceFlowInfo` to use UTC instead of the system timezone when calculating code expiration.
+
 ## v2.0.2
 
 * Fix issue where `flask_util.UserOAuth2.required` would accept expired credentials (#452).
@@ -14,7 +19,7 @@
 * Adding common `sign_blob()` to service account types and a
   `service_account_email` property. (#421)
 * Improving error message in P12 factory
-  `ServiceAccountCredentials.from_p12_keyfile` when pyOpenSSL is
+  `ServiceAccountCredentials.frogit gadm_p12_keyfile` when pyOpenSSL is
   missing. (#424)
 * Allowing default flags in `oauth2client.tools.run_flow()`
   rather than forcing users to create a dummy argparser (#426)
