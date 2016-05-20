@@ -19,7 +19,7 @@
 * Adding common `sign_blob()` to service account types and a
   `service_account_email` property. (#421)
 * Improving error message in P12 factory
-  `ServiceAccountCredentials.frogit gadm_p12_keyfile` when pyOpenSSL is
+  `ServiceAccountCredentials.from_p12_keyfile` when pyOpenSSL is
   missing. (#424)
 * Allowing default flags in `oauth2client.tools.run_flow()`
   rather than forcing users to create a dummy argparser (#426)
