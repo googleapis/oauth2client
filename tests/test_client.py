@@ -2351,8 +2351,8 @@ class TestDeviceFlowInfo(unittest2.TestCase):
         with self.assertRaises(client.OAuth2DeviceCodeError):
             DeviceFlowInfo.FromResponse(response)
 
-    @mock.patch('oauth2client.client._NOW')
-    def test_FromResponse_with_expires_in(self, dt_now):
+    @mock.patch('oauth2client.client._UTCNOW')
+    def test_FromResponse_with_expires_in(self, utcnow):
         expires_in = 23
         response = {
             'device_code': self.DEVICE_CODE,
@@ -2362,7 +2362,7 @@ class TestDeviceFlowInfo(unittest2.TestCase):
         }
         now = datetime.datetime(1999, 1, 1, 12, 30, 27)
         expire = datetime.datetime(1999, 1, 1, 12, 30, 27 + expires_in)
-        dt_now.return_value = now
+        utcnow.return_value = now
 
         result = DeviceFlowInfo.FromResponse(response)
         expected_result = DeviceFlowInfo(self.DEVICE_CODE, self.USER_CODE,
