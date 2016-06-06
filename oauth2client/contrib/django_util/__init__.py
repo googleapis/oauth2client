@@ -20,6 +20,7 @@ that user credentials are available, and an ``oauth_enabled`` decorator to check
 if the user has authorized, and helper shortcuts to create the authorization
 URL otherwise.
 
+Only Django versions 1.8+ are supported.
 
 Configuration
 =============

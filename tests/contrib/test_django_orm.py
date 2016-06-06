@@ -74,8 +74,20 @@ class TestCredentialsField(unittest.TestCase):
         self.assertEquals(self.field.get_internal_type(), 'TextField')
 
     def test_field_unpickled(self):
-        self.assertTrue(isinstance(self.field.to_python(self.pickle_str),
-                                   Credentials))
+        self.assertTrue(
+            isinstance(self.field.to_python(self.pickle_str), Credentials))
+
+    def test_field_already_unpickled(self):
+        self.assertTrue(isinstance(
+            self.field.to_python(self.credentials), Credentials))
+
+    def test_none_field_unpickled(self):
+        self.assertIsNone(self.field.to_python(None))
+
+    def test_from_db_value(self):
+        value = self.field.from_db_value(
+            self.pickle_str, None, None, None)
+        self.assertTrue(isinstance(value, Credentials))
 
     def test_field_unpickled_none(self):
         self.assertEqual(self.field.to_python(None), None)
@@ -118,6 +130,18 @@ class TestFlowField(unittest.TestCase):
 
     def test_field_unpickled(self):
         python_val = self.field.to_python(self.pickle_str)
+        self.assertTrue(isinstance(python_val, Flow))
+
+    def test_field_already_unpickled(self):
+        self.assertTrue(
+            isinstance(self.field.to_python(self.flow), Flow))
+
+    def test_none_field_unpickled(self):
+        self.assertIsNone(self.field.to_python(None))
+
+    def test_from_db_value(self):
+        python_val = self.field.from_db_value(
+            self.pickle_str, None, None, None)
         self.assertTrue(isinstance(python_val, Flow))
 
     def test_field_pickled(self):
