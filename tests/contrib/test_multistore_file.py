@@ -34,14 +34,15 @@ os.close(_filehandle)
 
 class _MockLockedFile(object):
 
-    def __init__(self, filename_str, error_code):
+    def __init__(self, filename_str, error_class, error_code):
         self.filename_str = filename_str
+        self.error_class = error_class
         self.error_code = error_code
         self.open_and_lock_called = False
 
     def open_and_lock(self):
         self.open_and_lock_called = True
-        raise IOError(self.error_code, '')
+        raise self.error_class(self.error_code, '')
 
     def is_locked(self):
         return False
@@ -110,11 +111,13 @@ class MultistoreFileTests(unittest2.TestCase):
         try:
             for error_code in (errno.EDEADLK, errno.ENOSYS, errno.ENOLCK,
                                errno.EACCES):
-                multistore = multistore_file._MultiStore(filename)
-                multistore._file = _MockLockedFile(filename, error_code)
-                # Should not raise even though the underlying file class did.
-                multistore._lock()
-                self.assertTrue(multistore._file.open_and_lock_called)
+                for error_class in (IOError, OSError):
+                    multistore = multistore_file._MultiStore(filename)
+                    multistore._file = _MockLockedFile(
+                        filename, error_class, error_code)
+                    # Should not raise though the underlying file class did.
+                    multistore._lock()
+                    self.assertTrue(multistore._file.open_and_lock_called)
         finally:
             os.unlink(filename)
 
@@ -124,7 +127,7 @@ class MultistoreFileTests(unittest2.TestCase):
 
         try:
             multistore = multistore_file._MultiStore(filename)
-            multistore._file = _MockLockedFile(filename, errno.EBUSY)
+            multistore._file = _MockLockedFile(filename, IOError, errno.EBUSY)
             self.assertRaises(IOError, multistore._lock)
             self.assertTrue(multistore._file.open_and_lock_called)
         finally:

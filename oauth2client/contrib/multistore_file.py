@@ -298,7 +298,7 @@ class _MultiStore(object):
         self._thread_lock.acquire()
         try:
             self._file.open_and_lock()
-        except IOError as e:
+        except (IOError, OSError) as e:
             if e.errno == errno.ENOSYS:
                 logger.warn('File system does not support locking the '
                             'credentials file.')
