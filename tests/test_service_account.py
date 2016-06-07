@@ -33,6 +33,8 @@ from oauth2client.service_account import _JWTAccessCredentials
 from oauth2client.service_account import ServiceAccountCredentials
 from oauth2client.service_account import SERVICE_ACCOUNT
 
+from six import BytesIO
+
 
 def data_filename(filename):
     return os.path.join(os.path.dirname(__file__), 'data', filename)
@@ -96,14 +98,16 @@ class ServiceAccountCredentialsTests(unittest2.TestCase):
                          self.credentials.service_account_email)
 
     @staticmethod
-    def _from_json_keyfile_name_helper(payload, scopes=None):
+    def _from_json_keyfile_name_helper(payload, scopes=None,
+                                       token_uri=None, revoke_uri=None):
         filehandle, filename = tempfile.mkstemp()
         os.close(filehandle)
         try:
             with open(filename, 'w') as file_obj:
                 json.dump(payload, file_obj)
             return ServiceAccountCredentials.from_json_keyfile_name(
-                filename, scopes=scopes)
+                filename, scopes=scopes, token_uri=token_uri,
+                revoke_uri=revoke_uri)
         finally:
             os.remove(filename)
 
@@ -122,16 +126,26 @@ class ServiceAccountCredentialsTests(unittest2.TestCase):
             'private_key': private_key,
         }
         scopes = ['foo', 'bar']
-        creds = self._from_json_keyfile_name_helper(payload, scopes=scopes)
-        self.assertIsInstance(creds, ServiceAccountCredentials)
-        self.assertEqual(creds.client_id, client_id)
-        self.assertEqual(creds._service_account_email, client_email)
-        self.assertEqual(creds._private_key_id, private_key_id)
-        self.assertEqual(creds._private_key_pkcs8_pem, private_key)
-        self.assertEqual(creds._scopes, ' '.join(scopes))
-        # Check stub.
-        self.assertEqual(creds._signer, signer_factory.return_value)
+        token_uri = 'baz'
+        revoke_uri = 'qux'
+        base_creds = self._from_json_keyfile_name_helper(
+            payload, scopes=scopes, token_uri=token_uri, revoke_uri=revoke_uri)
+        self.assertEqual(base_creds._signer, signer_factory.return_value)
         signer_factory.assert_called_once_with(private_key)
+
+        payload['token_uri'] = token_uri
+        payload['revoke_uri'] = revoke_uri
+        creds_with_uris_from_file = self._from_json_keyfile_name_helper(
+            payload, scopes=scopes)
+        for creds in (base_creds, creds_with_uris_from_file):
+            self.assertIsInstance(creds, ServiceAccountCredentials)
+            self.assertEqual(creds.client_id, client_id)
+            self.assertEqual(creds._service_account_email, client_email)
+            self.assertEqual(creds._private_key_id, private_key_id)
+            self.assertEqual(creds._private_key_pkcs8_pem, private_key)
+            self.assertEqual(creds._scopes, ' '.join(scopes))
+            self.assertEqual(creds.token_uri, token_uri)
+            self.assertEqual(creds.revoke_uri, revoke_uri)
 
     def test_from_json_keyfile_name_factory_bad_type(self):
         type_ = 'bad-type'
@@ -148,24 +162,33 @@ class ServiceAccountCredentialsTests(unittest2.TestCase):
         with self.assertRaises(KeyError):
             self._from_json_keyfile_name_helper(payload)
 
-    def _from_p12_keyfile_helper(self, private_key_password=None, scopes=''):
+    def _from_p12_keyfile_helper(self, private_key_password=None, scopes='',
+                                 token_uri=None, revoke_uri=None):
         service_account_email = 'name@email.com'
         filename = data_filename('privatekey.p12')
         with open(filename, 'rb') as file_obj:
             key_contents = file_obj.read()
-        creds = ServiceAccountCredentials.from_p12_keyfile(
+        creds_from_filename = ServiceAccountCredentials.from_p12_keyfile(
             service_account_email, filename,
             private_key_password=private_key_password,
-            scopes=scopes)
-        self.assertIsInstance(creds, ServiceAccountCredentials)
-        self.assertIsNone(creds.client_id)
-        self.assertEqual(creds._service_account_email, service_account_email)
-        self.assertIsNone(creds._private_key_id)
-        self.assertIsNone(creds._private_key_pkcs8_pem)
-        self.assertEqual(creds._private_key_pkcs12, key_contents)
-        if private_key_password is not None:
-            self.assertEqual(creds._private_key_password, private_key_password)
-        self.assertEqual(creds._scopes, ' '.join(scopes))
+            scopes=scopes, token_uri=token_uri, revoke_uri=revoke_uri)
+        creds_from_file_contents = (
+            ServiceAccountCredentials.from_p12_keyfile_buffer(
+                service_account_email, BytesIO(key_contents),
+                private_key_password=private_key_password,
+                scopes=scopes, token_uri=token_uri, revoke_uri=revoke_uri))
+        for creds in (creds_from_filename, creds_from_file_contents):
+            self.assertIsInstance(creds, ServiceAccountCredentials)
+            self.assertIsNone(creds.client_id)
+            self.assertEqual(creds._service_account_email, service_account_email)
+            self.assertIsNone(creds._private_key_id)
+            self.assertIsNone(creds._private_key_pkcs8_pem)
+            self.assertEqual(creds._private_key_pkcs12, key_contents)
+            if private_key_password is not None:
+                self.assertEqual(creds._private_key_password, private_key_password)
+            self.assertEqual(creds._scopes, ' '.join(scopes))
+            self.assertEqual(creds.token_uri, token_uri)
+            self.assertEqual(creds.revoke_uri, revoke_uri)
 
     def _p12_not_implemented_helper(self):
         service_account_email = 'name@email.com'
@@ -188,31 +211,8 @@ class ServiceAccountCredentialsTests(unittest2.TestCase):
     def test_from_p12_keyfile_explicit(self):
         password = 'notasecret'
         self._from_p12_keyfile_helper(private_key_password=password,
-                                      scopes=['foo', 'bar'])
-
-    def test_from_p12_keyfile_buffer(self):
-        service_account_email = 'name@email.com'
-        filename = data_filename('privatekey.p12')
-        private_key_password = 'notasecret'
-        scopes = ['foo', 'bar']
-        with open(filename, 'rb') as file_obj:
-            key_contents = file_obj.read()
-            # Seek back to the beginning so the buffer can be
-            # passed to the constructor.
-            file_obj.seek(0)
-            creds = ServiceAccountCredentials.from_p12_keyfile_buffer(
-                service_account_email, file_obj,
-                private_key_password=private_key_password,
-                scopes=scopes)
-        # Check the created object.
-        self.assertIsInstance(creds, ServiceAccountCredentials)
-        self.assertIsNone(creds.client_id)
-        self.assertEqual(creds._service_account_email, service_account_email)
-        self.assertIsNone(creds._private_key_id)
-        self.assertIsNone(creds._private_key_pkcs8_pem)
-        self.assertEqual(creds._private_key_pkcs12, key_contents)
-        self.assertEqual(creds._private_key_password, private_key_password)
-        self.assertEqual(creds._scopes, ' '.join(scopes))
+                                      scopes=['foo', 'bar'],
+                                      token_uri='baz', revoke_uri='qux')
 
     def test_create_scoped_required_without_scopes(self):
         self.assertTrue(self.credentials.create_scoped_required())
