@@ -1,5 +1,12 @@
 # CHANGELOG
 
+
+## v2.2.0
+
+* Added support to override `token_uri` and `revoke_uri` in `oauth2client.service_account.ServiceAccountCredentials`. (#510)
+* `oauth2client.contrib.multistore_file` now handles `OSError` in addition to `IOError` because Windows may raise `OSError` where other platforms will raise `IOError`.
+* `oauth2client.contrib.django_util` and `oauth2client.contrib.django_orm` have been updated to support Django 1.8 - 1.10. Versions of Django below 1.8 will not work with these modules.
+
 ## v2.1.0
 
 * Add basic support for JWT access credentials. (#503)
