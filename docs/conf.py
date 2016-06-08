@@ -11,7 +11,7 @@ import sys
 import mock
 
 # See
-# (http://read-the-docs.readthedocs.org/en/latest/faq.html#\
+# (https://read-the-docs.readthedocs.io/en/latest/faq.html#\
 #  i-get-import-errors-on-libraries-that-depend-on-c-modules)
 
 class Mock(mock.Mock):

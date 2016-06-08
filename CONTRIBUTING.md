@@ -188,7 +188,7 @@ You can sign these electronically (just scroll to the bottom). After that,
 we'll be able to accept your pull requests.
 
 [1]: https://github.com/google/oauth2client
-[2]: https://tox.readthedocs.org/en/latest/
+[2]: https://tox.readthedocs.io/en/latest/
 [3]: https://cloud.google.com/storage/docs/authentication#generating-a-private-key
 [4]: https://developers.google.com/open-source/cla/individual
 [5]: https://developers.google.com/open-source/cla/corporate
@@ -199,6 +199,6 @@ we'll be able to accept your pull requests.
 [10]: #fork-oauth2client
 [11]: #include-tests
 [12]: #make-the-pull-request
-[13]: http://oauth2client.readthedocs.org/en/latest/#using-pypy
+[13]: https://oauth2client.readthedocs.io/en/latest/#using-pypy
 [14]: https://docs.djangoproject.com/en/1.7/faq/install/#what-python-version-can-i-use-with-django
 [15]: https://docs.djangoproject.com/en/1.9/faq/install/#what-python-version-can-i-use-with-django
