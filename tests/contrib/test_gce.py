@@ -15,6 +15,7 @@
 """Unit tests for oauth2client.contrib.gce."""
 
 import json
+from datetime import datetime
 from six.moves import http_client
 from six.moves import urllib
 import unittest2
@@ -62,7 +63,11 @@ class AppAssertionCredentialsTests(unittest2.TestCase):
 
     def _refresh_success_helper(self, bytes_response=False):
         access_token = u'this-is-a-token'
-        return_val = json.dumps({u'access_token': access_token})
+        expires_in = 600
+        return_val = json.dumps({
+            u'access_token': access_token,
+            u'expires_in': expires_in
+        })
         if bytes_response:
             return_val = _to_bytes(return_val)
         http = mock.MagicMock()
@@ -73,6 +78,8 @@ class AppAssertionCredentialsTests(unittest2.TestCase):
         self.assertEquals(None, credentials.access_token)
         credentials.refresh(http)
         self.assertEquals(access_token, credentials.access_token)
+        self.assertFalse(credentials.access_token_expired)
+        self.assertTrue(credentials.token_expiry > datetime.utcnow())
 
         base_metadata_uri = (
             'http://metadata.google.internal/computeMetadata/v1/instance/'
@@ -200,12 +207,13 @@ class AppAssertionCredentialsTests(unittest2.TestCase):
         http = mock.MagicMock()
         http.request = mock.MagicMock(
             return_value=(mock.Mock(status=http_client.OK),
-                          '{"access_token": "this-is-a-token"}'))
+                          '{"access_token": "this-is-a-token", '
+                          '"expires_in": 600}'))
 
         credentials = AppAssertionCredentials()
         token = credentials.get_access_token(http=http)
         self.assertEqual('this-is-a-token', token.access_token)
-        self.assertEqual(None, token.expires_in)
+        self.assertGreaterEqual(600, token.expires_in)
 
         http.request.assert_called_once_with(
             'http://metadata.google.internal/computeMetadata/v1/instance/'

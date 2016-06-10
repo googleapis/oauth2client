@@ -17,6 +17,7 @@
 Utilities for making it easier to use OAuth 2.0 on Google Compute Engine.
 """
 
+import datetime
 import json
 import logging
 import warnings
@@ -135,6 +136,8 @@ class AppAssertionCredentials(AssertionCredentials):
                 raise HttpAccessTokenRefreshError(str(e),
                                                   status=response.status)
             self.access_token = token_content['access_token']
+            delta = datetime.timedelta(seconds=int(token_content['expires_in']))
+            self.token_expiry = delta + datetime.datetime.utcnow()
         else:
             if response.status == http_client.NOT_FOUND:
                 content += (' This can occur if a VM was created'
