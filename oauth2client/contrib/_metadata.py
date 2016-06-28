@@ -33,7 +33,7 @@ METADATA_ROOT = 'http://metadata.google.internal/computeMetadata/v1/'
 METADATA_HEADERS = {'Metadata-Flavor': 'Google'}
 
 
-def get(path, http_request=None, root=METADATA_ROOT, recursive=None):
+def get(http_request, path, root=METADATA_ROOT, recursive=None):
     """Fetch a resource from the metadata server.
 
     Args:
@@ -53,9 +53,6 @@ def get(path, http_request=None, root=METADATA_ROOT, recursive=None):
     Raises:
         httplib2.Httplib2Error if an error corrured while retrieving metadata.
     """
-    if not http_request:
-        http_request = httplib2.Http().request
-
     url = urlparse.urljoin(root, path)
     url = util._add_query_parameter(url, 'recursive', recursive)
 
@@ -76,7 +73,7 @@ def get(path, http_request=None, root=METADATA_ROOT, recursive=None):
             'metadata service. Response:\n{1}'.format(url, response))
 
 
-def get_service_account_info(service_account='default', http_request=None):
+def get_service_account_info(http_request, service_account='default'):
     """Get information about a service account from the metadata server.
 
     Args:
@@ -97,12 +94,12 @@ def get_service_account_info(service_account='default', http_request=None):
             }
     """
     return get(
-        'instance/service-accounts/{0}'.format(service_account),
-        recursive=True,
-        http_request=http_request)
+        http_request,
+        'instance/service-accounts/{0}/'.format(service_account),
+        recursive=True)
 
 
-def get_token(service_account='default', http_request=None):
+def get_token(http_request, service_account='default'):
     """Fetch an oauth token for the
 
     Args:
@@ -119,8 +116,8 @@ def get_token(service_account='default', http_request=None):
          that indicates when the access token will expire.
     """
     token_json = get(
-        'instance/service-accounts/{0}/token'.format(service_account),
-        http_request=http_request)
+        http_request,
+        'instance/service-accounts/{0}/token'.format(service_account))
     token_expiry = _UTCNOW() + datetime.timedelta(
         seconds=token_json['expires_in'])
     return token_json['access_token'], token_expiry

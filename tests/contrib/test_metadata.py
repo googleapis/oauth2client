@@ -45,7 +45,7 @@ class TestMetadata(unittest2.TestCase):
         http_request = request_mock(
             http_client.OK, 'application/json', json.dumps(DATA))
         self.assertEqual(
-            _metadata.get(PATH, http_request=http_request),
+            _metadata.get(http_request, PATH),
             DATA
         )
         http_request.assert_called_once_with(EXPECTED_URL, **EXPECTED_KWARGS)
@@ -54,7 +54,7 @@ class TestMetadata(unittest2.TestCase):
         http_request = request_mock(
             http_client.OK, 'text/html', '<p>Hello World!</p>')
         self.assertEqual(
-            _metadata.get(PATH, http_request=http_request),
+            _metadata.get(http_request, PATH),
             '<p>Hello World!</p>'
         )
         http_request.assert_called_once_with(EXPECTED_URL, **EXPECTED_KWARGS)
@@ -63,7 +63,7 @@ class TestMetadata(unittest2.TestCase):
         http_request = request_mock(
             http_client.NOT_FOUND, 'text/html', '<p>Error</p>')
         with self.assertRaises(httplib2.HttpLib2Error):
-            _metadata.get(PATH, http_request=http_request)
+            _metadata.get(http_request, PATH)
 
         http_request.assert_called_once_with(EXPECTED_URL, **EXPECTED_KWARGS)
 
@@ -89,9 +89,9 @@ class TestMetadata(unittest2.TestCase):
     def test_service_account_info(self):
         http_request = request_mock(
             http_client.OK, 'application/json', json.dumps(DATA))
-        info = _metadata.get_service_account_info(http_request=http_request)
+        info = _metadata.get_service_account_info(http_request)
         self.assertEqual(info, DATA)
         http_request.assert_called_once_with(
-            EXPECTED_URL+'?recursive=True',
+            EXPECTED_URL+'/?recursive=True',
             **EXPECTED_KWARGS
         )
