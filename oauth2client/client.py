@@ -2210,8 +2210,10 @@ def flow_from_clientsecrets(filename, scope, redirect_uri=None,
                 client_info['client_id'], client_info['client_secret'],
                 scope, **constructor_kwargs)
 
-    except clientsecrets.InvalidClientSecretsError:
-        if message:
+    except clientsecrets.InvalidClientSecretsError as e:
+        if message is not None:
+            if e.args:
+                message = 'The client secrets were invalid: \n{0}\n{1}'.format(e, message)
             sys.exit(message)
         else:
             raise

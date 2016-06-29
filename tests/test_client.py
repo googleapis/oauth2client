@@ -2150,6 +2150,20 @@ class FlowFromCachedClientsecrets(unittest2.TestCase):
         sys_exit.assert_called_once_with(message)
         loadfile_mock.assert_called_once_with(filename, cache=cache)
 
+    @mock.patch('oauth2client.clientsecrets.loadfile',
+                side_effect=InvalidClientSecretsError('foobar'))
+    @mock.patch('sys.exit')
+    def test_flow_from_clientsecrets_invalid_w_msg_and_text(self, sys_exit,
+                                                            loadfile_mock):
+        filename = object()
+        cache = object()
+        message = 'hi mom'
+        expected = 'The client secrets were invalid: \n{0}\n{1}'.format('foobar', 'hi mom')
+
+        flow_from_clientsecrets(filename, None, cache=cache, message=message)
+        sys_exit.assert_called_once_with(expected)
+        loadfile_mock.assert_called_once_with(filename, cache=cache)
+
     @mock.patch('oauth2client.clientsecrets.loadfile')
     def test_flow_from_clientsecrets_unknown_flow(self, loadfile_mock):
         client_type = 'UNKNOWN'
