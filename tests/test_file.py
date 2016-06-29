@@ -151,13 +151,13 @@ class OAuth2ClientFileTests(unittest2.TestCase):
         access_token = '1/3w'
         token_response = {'access_token': access_token, 'expires_in': 3600}
         http = HttpMockSequence([
-            ({'status': str(http_client.UNAUTHORIZED)},
+            ({'status': str(int(http_client.UNAUTHORIZED))},
              b'Initial token expired'),
-            ({'status': str(http_client.UNAUTHORIZED)},
+            ({'status': str(int(http_client.UNAUTHORIZED))},
              b'Store token expired'),
-            ({'status': str(http_client.OK)},
+            ({'status': str(int(http_client.OK))},
              json.dumps(token_response).encode('utf-8')),
-            ({'status': str(http_client.OK)},
+            ({'status': str(int(http_client.OK))},
              b'Valid response to original request')
         ])
 
@@ -196,13 +196,13 @@ class OAuth2ClientFileTests(unittest2.TestCase):
         token_response = {'access_token': valid_access_token,
                           'expires_in': 3600}
         http = HttpMockSequence([
-            ({'status': str(http_client.UNAUTHORIZED)},
+            ({'status': str(int(http_client.UNAUTHORIZED))},
              b'Initial token expired'),
-            ({'status': str(http_client.UNAUTHORIZED)},
+            ({'status': str(int(http_client.UNAUTHORIZED))},
              b'Store token expired'),
-            ({'status': str(http_client.OK)},
+            ({'status': str(int(http_client.OK))},
              json.dumps(token_response).encode('utf-8')),
-            ({'status': str(http_client.OK)}, 'echo_request_body')
+            ({'status': str(int(http_client.OK))}, 'echo_request_body')
         ])
 
         body = six.StringIO('streaming body')

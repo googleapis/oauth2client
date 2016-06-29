@@ -1279,18 +1279,18 @@ class BasicCredentialsTests(unittest2.TestCase):
 
     def test__do_refresh_request_non_json_failure(self):
         response = httplib2.Response({
-            'status': http_client.BAD_REQUEST,
+            'status': int(http_client.BAD_REQUEST),
         })
         content = u'Bad request'
-        error_msg = 'Invalid response %s.' % (response.status,)
+        error_msg = 'Invalid response %s.' % (int(response.status),)
         self._do_refresh_request_test_helper(response, content, error_msg)
 
     def test__do_refresh_request_basic_failure(self):
         response = httplib2.Response({
-            'status': http_client.INTERNAL_SERVER_ERROR,
+            'status': int(http_client.INTERNAL_SERVER_ERROR),
         })
         content = u'{}'
-        error_msg = 'Invalid response %s.' % (response.status,)
+        error_msg = 'Invalid response %s.' % (int(response.status),)
         self._do_refresh_request_test_helper(response, content, error_msg)
 
     def test__do_refresh_request_failure_w_json_error(self):
@@ -1828,21 +1828,21 @@ class OAuth2WebServerFlowTest(unittest2.TestCase):
         self.assertEqual(exc_manager.exception.args, (error_msg,))
 
     def test_step1_get_device_and_user_codes_non_json_failure(self):
-        status = http_client.BAD_REQUEST
+        status = int(http_client.BAD_REQUEST)
         content = 'Nope not JSON.'
         error_msg = 'Invalid response %s.' % (status,)
         self._step1_get_device_and_user_codes_fail_helper(status, content,
                                                           error_msg)
 
     def test_step1_get_device_and_user_codes_basic_failure(self):
-        status = http_client.INTERNAL_SERVER_ERROR
+        status = int(http_client.INTERNAL_SERVER_ERROR)
         content = b'{}'
         error_msg = 'Invalid response %s.' % (status,)
         self._step1_get_device_and_user_codes_fail_helper(status, content,
                                                           error_msg)
 
     def test_step1_get_device_and_user_codes_failure_w_json_error(self):
-        status = http_client.BAD_GATEWAY
+        status = int(http_client.BAD_GATEWAY)
         base_error = 'ZOMG user codes failure.'
         content = json.dumps({'error': base_error})
         error_msg = 'Invalid response %s. Error: %s' % (status, base_error)
