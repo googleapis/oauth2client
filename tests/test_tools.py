@@ -102,7 +102,7 @@ class TestRunFlow(unittest2.TestCase):
         self.assertEqual(self.flow.redirect_uri, OOB_CALLBACK_URN)
         self.flow.step2_exchange.assert_called_once_with(
             'auth_code', http=None)
-    
+
     @mock.patch('oauth2client.tools.logging')
     @mock.patch('oauth2client.tools.input')
     def test_run_flow_no_webserver_exchange_error(
@@ -161,7 +161,7 @@ class TestRunFlow(unittest2.TestCase):
             self, webbrowser_open_mock, server_ctor_mock, logging_mock):
         server_ctor_mock.return_value = self.server
         self.server.query_params = {}
-        
+
         # No code found in response
         with self.assertRaises(SystemExit):
             returned_credentials = tools.run_flow(
@@ -193,7 +193,3 @@ class TestRunFlow(unittest2.TestCase):
 class TestMessageIfMissing(unittest2.TestCase):
     def test_message_if_missing(self):
         self.assertIn('somefile.txt', tools.message_if_missing('somefile.txt'))
-
-
-if __name__ == '__main__':  # pragma: NO COVER
-    unittest.main()

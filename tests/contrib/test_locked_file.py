@@ -76,8 +76,8 @@ class TestPosixOpener(TestOpener):
 
         self.assertTrue(instance.is_locked())
         self.assertIsNotNone(instance.file_handle())
-        self.assertRaises(
-            locked_file.AlreadyLockedException, instance.open_and_lock, 1, 1)
+        with self.assertRaises(locked_file.AlreadyLockedException):
+            instance.open_and_lock(1, 1)
 
     @mock.patch('oauth2client.contrib.locked_file.open', create=True)
     def test_lock_access_error_fallback_mode(self, mock_open):
@@ -107,7 +107,8 @@ class TestPosixOpener(TestOpener):
 
         with mock.patch('os.open') as mock_os_open:
             mock_os_open.side_effect = [OSError(errno.EPERM, '')]
-            self.assertRaises(OSError, instance.open_and_lock, 1, 1)
+            with self.assertRaises(OSError):
+                instance.open_and_lock(1, 1)
 
     @mock.patch('oauth2client.contrib.locked_file.open', create=True)
     @mock.patch('oauth2client.contrib.locked_file.logger')
@@ -241,7 +242,3 @@ class TestLockedFile(unittest2.TestCase):
         instance, opener = self._make_one()
         instance.unlock_and_close()
         opener.unlock_and_close.assert_called_with()
-
-
-if __name__ == '__main__':  # pragma: NO COVER
-    unittest2.main()

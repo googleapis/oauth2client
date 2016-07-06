@@ -137,10 +137,9 @@ class FlaskOAuth2Tests(unittest2.TestCase):
 
         with mock.patch('oauth2client.clientsecrets.loadfile',
                         return_value=return_val):
-            self.assertRaises(
-                ValueError,
-                FlaskOAuth2,
-                flask.Flask(__name__), client_secrets_file='file.json')
+            with self.assertRaises(ValueError):
+                FlaskOAuth2(flask.Flask(__name__),
+                            client_secrets_file='file.json')
 
     def test_app_configuration(self):
         app = flask.Flask(__name__)
@@ -167,10 +166,8 @@ class FlaskOAuth2Tests(unittest2.TestCase):
             self.assertEqual(oauth2.client_secret, 'secret2')
 
     def test_no_configuration(self):
-        self.assertRaises(
-            ValueError,
-            FlaskOAuth2,
-            flask.Flask(__name__))
+        with self.assertRaises(ValueError):
+            FlaskOAuth2(flask.Flask(__name__))
 
     def test_create_flow(self):
         with self.app.test_request_context():
@@ -334,9 +331,8 @@ class FlaskOAuth2Tests(unittest2.TestCase):
             self.assertTrue(self.oauth2.credentials is None)
             self.assertTrue(self.oauth2.user_id is None)
             self.assertTrue(self.oauth2.email is None)
-            self.assertRaises(
-                ValueError,
-                self.oauth2.http)
+            with self.assertRaises(ValueError):
+                self.oauth2.http()
             self.assertFalse(self.oauth2.storage.get())
             self.oauth2.storage.delete()
 
@@ -532,7 +528,3 @@ class FlaskOAuth2Tests(unittest2.TestCase):
             self.oauth2.storage.delete()
 
             self.assertNotIn('google_oauth2_credentials', flask.session)
-
-
-if __name__ == '__main__':  # pragma: NO COVER
-    unittest2.main()

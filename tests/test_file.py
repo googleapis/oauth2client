@@ -241,7 +241,3 @@ class OAuth2ClientFileTests(unittest2.TestCase):
         if os.name == 'posix':  # pragma: NO COVER
             mode = os.stat(FILENAME).st_mode
             self.assertEquals('0o600', oct(stat.S_IMODE(mode)))
-
-
-if __name__ == '__main__':  # pragma: NO COVER
-    unittest2.main()

@@ -14,7 +14,7 @@
 
 import base64
 import os
-import unittest
+import unittest2
 
 import mock
 
@@ -33,13 +33,14 @@ def datafile(filename):
         return file_obj.read()
 
 
-class Test__bad_pkcs12_key_as_pem(unittest.TestCase):
+class Test__bad_pkcs12_key_as_pem(unittest2.TestCase):
 
     def test_fails(self):
-        self.assertRaises(NotImplementedError, crypt._bad_pkcs12_key_as_pem)
+        with self.assertRaises(NotImplementedError):
+            crypt._bad_pkcs12_key_as_pem()
 
 
-class Test_pkcs12_key_as_pem(unittest.TestCase):
+class Test_pkcs12_key_as_pem(unittest2.TestCase):
 
     def _make_svc_account_creds(self, private_key_file='privatekey.p12'):
         filename = data_filename(private_key_file)
@@ -71,7 +72,7 @@ class Test_pkcs12_key_as_pem(unittest.TestCase):
         self._succeeds_helper(password)
 
 
-class Test__verify_signature(unittest.TestCase):
+class Test__verify_signature(unittest2.TestCase):
 
     def test_success_single_cert(self):
         cert_value = 'cert-value'
@@ -134,8 +135,8 @@ class Test__verify_signature(unittest.TestCase):
         with mock.patch('oauth2client.crypt.Verifier') as Verifier:
             Verifier.from_string = mock.MagicMock(name='from_string',
                                                   return_value=verifier)
-            self.assertRaises(crypt.AppIdentityError, crypt._verify_signature,
-                              message, signature, certs)
+            with self.assertRaises(crypt.AppIdentityError):
+                crypt._verify_signature(message, signature, certs)
 
             # Make sure our mocks were called as expected.
             Verifier.from_string.assert_called_once_with(cert_value,
@@ -143,7 +144,7 @@ class Test__verify_signature(unittest.TestCase):
             verifier.verify.assert_called_once_with(message, signature)
 
 
-class Test__check_audience(unittest.TestCase):
+class Test__check_audience(unittest2.TestCase):
 
     def test_null_audience(self):
         result = crypt._check_audience(None, None)
@@ -159,18 +160,18 @@ class Test__check_audience(unittest.TestCase):
     def test_missing_aud(self):
         audience = 'audience'
         payload_dict = {}
-        self.assertRaises(crypt.AppIdentityError, crypt._check_audience,
-                          payload_dict, audience)
+        with self.assertRaises(crypt.AppIdentityError):
+            crypt._check_audience(payload_dict, audience)
 
     def test_wrong_aud(self):
         audience1 = 'audience1'
         audience2 = 'audience2'
         self.assertNotEqual(audience1, audience2)
         payload_dict = {'aud': audience1}
-        self.assertRaises(crypt.AppIdentityError, crypt._check_audience,
-                          payload_dict, audience2)
+        with self.assertRaises(crypt.AppIdentityError):
+            crypt._check_audience(payload_dict, audience2)
 
-class Test__verify_time_range(unittest.TestCase):
+class Test__verify_time_range(unittest2.TestCase):
 
     def _exception_helper(self, payload_dict):
         exception_caught = None
@@ -254,7 +255,7 @@ class Test__verify_time_range(unittest.TestCase):
             self.assertEqual(exception_caught, None)
 
 
-class Test_verify_signed_jwt_with_certs(unittest.TestCase):
+class Test_verify_signed_jwt_with_certs(unittest2.TestCase):
 
     def test_jwt_no_segments(self):
         exception_caught = None
@@ -309,7 +310,3 @@ class Test_verify_signed_jwt_with_certs(unittest.TestCase):
         verify_time.assert_called_once_with(payload_dict)
         check_aud.assert_called_once_with(payload_dict, audience)
         certs.values.assert_called_once_with()
-
-
-if __name__ == '__main__':  # pragma: NO COVER
-    unittest.main()

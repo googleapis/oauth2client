@@ -17,7 +17,7 @@
 import datetime
 import keyring
 import threading
-import unittest
+import unittest2
 
 import mock
 
@@ -29,7 +29,7 @@ from oauth2client.contrib.keyring_storage import Storage
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 
-class KeyringStorageTests(unittest.TestCase):
+class KeyringStorageTests(unittest2.TestCase):
 
     def test_constructor(self):
         service_name = 'my_unit_test'
@@ -169,7 +169,3 @@ class _FakeLock(object):
 
     def release(self):
         self._release_count += 1
-
-
-if __name__ == '__main__':  # pragma: NO COVER
-    unittest.main()

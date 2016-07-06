@@ -166,7 +166,3 @@ class TestCredentialsNDBProperty(unittest2.TestCase):
         creds_prop = TestNDBModel.creds
         creds_json = '{JK-I-AM-NOT-JSON'
         self.assertIsNone(creds_prop._from_base_type(creds_json))
-
-
-if __name__ == '__main__':  # pragma: NO COVER
-    unittest2.main()

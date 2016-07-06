@@ -159,7 +159,8 @@ class TestAppAssertionCredentials(unittest2.TestCase):
         scope = 'http://www.googleapis.com/scope'
         credentials = AppAssertionCredentials(scope)
         http = httplib2.Http()
-        self.assertRaises(AccessTokenRefreshError, credentials.refresh, http)
+        with self.assertRaises(AccessTokenRefreshError):
+            credentials.refresh(http)
 
     def test_get_access_token_on_refresh(self):
         app_identity_stub = self.AppIdentityStubImpl()
@@ -284,8 +285,8 @@ class TestAppAssertionCredentials(unittest2.TestCase):
     def test_save_to_well_known_file(self):
         os.environ[_CLOUDSDK_CONFIG_ENV_VAR] = tempfile.mkdtemp()
         credentials = AppAssertionCredentials([])
-        self.assertRaises(NotImplementedError,
-                          save_to_well_known_file, credentials)
+        with self.assertRaises(NotImplementedError):
+            save_to_well_known_file(credentials)
         del os.environ[_CLOUDSDK_CONFIG_ENV_VAR]
 
 
@@ -323,9 +324,8 @@ class FlowPropertyTest(unittest2.TestCase):
 
     def test_validate(self):
         FlowProperty().validate(None)
-        self.assertRaises(
-            db.BadValueError,
-            FlowProperty().validate, 42)
+        with self.assertRaises(db.BadValueError):
+            FlowProperty().validate(42)
 
 
 class TestCredentialsModel(db.Model):
@@ -382,9 +382,8 @@ class CredentialsPropertyTest(unittest2.TestCase):
     def test_validate(self):
         CredentialsProperty().validate(self.credentials)
         CredentialsProperty().validate(None)
-        self.assertRaises(
-            db.BadValueError,
-            CredentialsProperty().validate, 42)
+        with self.assertRaises(db.BadValueError):
+            CredentialsProperty().validate(42)
 
 
 def _http_request(*args, **kwargs):
@@ -425,12 +424,12 @@ class StorageByKeyNameTest(unittest2.TestCase):
         storage = StorageByKeyName(
             object(), 'foo', 'credentials')
 
-        self.assertRaises(
-            TypeError, storage._is_ndb)
+        with self.assertRaises(TypeError):
+            storage._is_ndb()
 
         storage._model = type(object)
-        self.assertRaises(
-            TypeError, storage._is_ndb)
+        with self.assertRaises(TypeError):
+            storage._is_ndb()
 
         storage._model = CredentialsModel
         self.assertFalse(storage._is_ndb())
@@ -728,7 +727,8 @@ class DecoratorTests(unittest2.TestCase):
 
         # Raising an exception still clears the Credentials.
         self.should_raise = Exception('')
-        self.assertRaises(Exception, self.app.get, '/foo_path')
+        with self.assertRaises(Exception):
+            self.app.get('/foo_path')
         self.should_raise = False
         self.assertEqual(None, self.decorator.credentials)
 
@@ -838,7 +838,8 @@ class DecoratorTests(unittest2.TestCase):
 
         # Raising an exception still clears the Credentials.
         self.should_raise = Exception('')
-        self.assertRaises(Exception, self.app.get, '/bar_path/2012/01')
+        with self.assertRaises(Exception):
+            self.app.get('/bar_path/2012/01')
         self.should_raise = False
         self.assertEqual(None, self.decorator.credentials)
 
@@ -922,11 +923,10 @@ class DecoratorTests(unittest2.TestCase):
             'oauth2client.contrib.appengine.clientsecrets.loadfile')
         with loadfile_patch as loadfile_mock:
             loadfile_mock.return_value = ('badtype', None)
-            self.assertRaises(
-                AppEngineInvalidClientSecretsError,
-                OAuth2DecoratorFromClientSecrets,
-                'doesntmatter.json',
-                scope=['foo_scope', 'bar_scope'])
+            with self.assertRaises(AppEngineInvalidClientSecretsError):
+                OAuth2DecoratorFromClientSecrets(
+                    'doesntmatter.json',
+                    scope=['foo_scope', 'bar_scope'])
 
     def test_decorator_from_client_secrets_kwargs(self):
         decorator = OAuth2DecoratorFromClientSecrets(
@@ -1079,9 +1079,5 @@ class DecoratorXsrfProtectionTests(unittest2.TestCase):
         self.assertEqual(
             'https://example.org',
             appengine._parse_state_value(state, UserMock()))
-        self.assertRaises(appengine.InvalidXsrfTokenError,
-                          appengine._parse_state_value, state[1:], UserMock())
-
-
-if __name__ == '__main__':  # pragma: NO COVER
-    unittest2.main()
+        with self.assertRaises(appengine.InvalidXsrfTokenError):
+            appengine._parse_state_value(state[1:], UserMock())

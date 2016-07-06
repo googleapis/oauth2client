@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import json
-import unittest
+import unittest2
 
 import httplib2
 from six.moves import http_client
@@ -24,7 +24,7 @@ from oauth2client.client import GoogleCredentials
 from oauth2client.contrib.gce import AppAssertionCredentials
 
 
-class TestComputeEngine(unittest.TestCase):
+class TestComputeEngine(unittest2.TestCase):
 
     def test_application_default(self):
         default_creds = GoogleCredentials.get_application_default()
@@ -53,4 +53,4 @@ class TestComputeEngine(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest2.main()

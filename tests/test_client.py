@@ -559,7 +559,8 @@ class GoogleCredentialsTests(unittest2.TestCase):
             os.path.join('gcloud', _WELL_KNOWN_CREDENTIALS_FILE))
         credentials = _get_application_default_credential_from_file(
             credential_file)
-        self.assertRaises(OSError, save_to_well_known_file, credentials)
+        with self.assertRaises(OSError):
+            save_to_well_known_file(credentials)
         config_dir = os.path.join(os.path.expanduser('~'), '.config', 'gcloud')
         isdir_mock.assert_called_once_with(config_dir)
 
@@ -614,9 +615,8 @@ class GoogleCredentialsTests(unittest2.TestCase):
         credentials_file = datafile(
             os.path.join('gcloud',
                          'application_default_credentials_malformed_3.json'))
-        self.assertRaises(ValueError,
-                          _get_application_default_credential_from_file,
-                          credentials_file)
+        with self.assertRaises(ValueError):
+            _get_application_default_credential_from_file(credentials_file)
 
     def test_raise_exception_for_missing_fields(self):
         missing_fields = ['first', 'second', 'third']
@@ -813,10 +813,9 @@ class GoogleCredentialsTests(unittest2.TestCase):
         credentials_file = datafile(
             os.path.join('gcloud',
                          'application_default_credentials_malformed_3.json'))
-        self.assertRaises(
-            ApplicationDefaultCredentialsError,
-            self.get_a_google_credentials_object().from_stream,
-            credentials_file)
+        with self.assertRaises(ApplicationDefaultCredentialsError):
+            self.get_a_google_credentials_object().from_stream(
+                credentials_file)
 
     def test_to_from_json_authorized_user(self):
         filename = 'application_default_credentials_authorized_user.json'
@@ -1051,11 +1050,9 @@ class BasicCredentialsTests(unittest2.TestCase):
 
         # Next, test that we do fail on unicode.
         unicode_str = six.unichr(40960) + 'abcd'
-        self.assertRaises(
-            NonAsciiHeaderError,
-            http.request,
-            u'http://example.com', method=u'GET',
-            headers={u'foo': unicode_str})
+        with self.assertRaises(NonAsciiHeaderError):
+            http.request(u'http://example.com', method=u'GET',
+                         headers={u'foo': unicode_str})
 
     def test_no_unicode_in_request_params(self):
         access_token = u'foo'
@@ -1507,15 +1504,11 @@ class BasicCredentialsTests(unittest2.TestCase):
         self.credentials.retrieve_scopes(http)
         self.assertEqual(set(['foo', 'bar']), self.credentials.scopes)
 
-        self.assertRaises(
-            Error,
-            self.credentials.retrieve_scopes,
-            http)
+        with self.assertRaises(Error):
+            self.credentials.retrieve_scopes(http)
 
-        self.assertRaises(
-            Error,
-            self.credentials.retrieve_scopes,
-            http)
+        with self.assertRaises(Error):
+            self.credentials.retrieve_scopes(http)
 
     def test_refresh_updates_id_token(self):
         for status_code in REFRESH_STATUS_CODES:
@@ -1664,7 +1657,8 @@ class ExtractIdTokenTest(unittest2.TestCase):
         body_json = json.dumps(body).encode('ascii')
         payload = base64.urlsafe_b64encode(body_json).strip(b'=')
         jwt = b'stuff.' + payload
-        self.assertRaises(VerifyJwtTokenError, _extract_id_token, jwt)
+        with self.assertRaises(VerifyJwtTokenError):
+            _extract_id_token(jwt)
 
 
 class OAuth2WebServerFlowTest(unittest2.TestCase):
@@ -1860,7 +1854,8 @@ class OAuth2WebServerFlowTest(unittest2.TestCase):
             flow.step2_exchange(code='code', device_flow_info='dfi')
 
     def test_scope_is_required(self):
-        self.assertRaises(TypeError, OAuth2WebServerFlow, 'client_id+1')
+        with self.assertRaises(TypeError):
+            OAuth2WebServerFlow('client_id+1')
 
     def test_exchange_failure(self):
         http = HttpMockSequence([
@@ -2057,8 +2052,8 @@ class OAuth2WebServerFlowTest(unittest2.TestCase):
                    b'}')
         http = HttpMockSequence([({'status': '200'}, payload)])
 
-        self.assertRaises(VerifyJwtTokenError, self.flow.step2_exchange,
-                          code='some random code', http=http)
+        with self.assertRaises(VerifyJwtTokenError):
+            self.flow.step2_exchange(code='some random code', http=http)
 
     def test_exchange_id_token(self):
         body = {'foo': 'bar'}
@@ -2382,7 +2377,3 @@ class TestDeviceFlowInfo(unittest2.TestCase):
         expected_result = DeviceFlowInfo(self.DEVICE_CODE, self.USER_CODE,
                                          None, self.VER_URL, expire)
         self.assertEqual(result, expected_result)
-
-
-if __name__ == '__main__':  # pragma: NO COVER
-    unittest2.main()

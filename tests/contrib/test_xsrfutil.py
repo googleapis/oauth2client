@@ -15,7 +15,7 @@
 """Tests for oauth2client.contrib.xsrfutil."""
 
 import base64
-import unittest
+import unittest2
 
 import mock
 
@@ -37,13 +37,15 @@ TEST_EXTRA_INFO_2 = b'more_extra_info'
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 
-class Test_generate_token(unittest.TestCase):
+class Test_generate_token(unittest2.TestCase):
 
     def test_bad_positional(self):
         # Need 2 positional arguments.
-        self.assertRaises(TypeError, xsrfutil.generate_token, None)
+        with self.assertRaises(TypeError):
+            xsrfutil.generate_token(None)
         # At most 2 positional arguments.
-        self.assertRaises(TypeError, xsrfutil.generate_token, None, None, None)
+        with self.assertRaises(TypeError):
+            xsrfutil.generate_token(None, None, None)
 
     def test_it(self):
         digest = b'foobar'
@@ -109,14 +111,15 @@ class Test_generate_token(unittest.TestCase):
                 self.assertEqual(token, expected_token)
 
 
-class Test_validate_token(unittest.TestCase):
+class Test_validate_token(unittest2.TestCase):
 
     def test_bad_positional(self):
         # Need 3 positional arguments.
-        self.assertRaises(TypeError, xsrfutil.validate_token, None, None)
+        with self.assertRaises(TypeError):
+            xsrfutil.validate_token(None, None)
         # At most 3 positional arguments.
-        self.assertRaises(TypeError, xsrfutil.validate_token,
-                          None, None, None, None)
+        with self.assertRaises(TypeError):
+            xsrfutil.validate_token(None, None, None, None)
 
     def test_no_token(self):
         key = token = user_id = None
@@ -215,7 +218,7 @@ class Test_validate_token(unittest.TestCase):
                                             when=token_time)
 
 
-class XsrfUtilTests(unittest.TestCase):
+class XsrfUtilTests(unittest2.TestCase):
     """Test xsrfutil functions."""
 
     def testGenerateAndValidateToken(self):
@@ -288,7 +291,3 @@ class XsrfUtilTests(unittest.TestCase):
                                                  None,
                                                  TEST_USER_ID_1,
                                                  action_id=TEST_ACTION_ID_1))
-
-
-if __name__ == '__main__':  # pragma: NO COVER
-    unittest.main()

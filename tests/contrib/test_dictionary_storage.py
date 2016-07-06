@@ -104,7 +104,3 @@ class DictionaryStorageTests(unittest2.TestCase):
 
         self.assertNotIn(key, dictionary)
         self.assertIsNone(storage.get())
-
-
-if __name__ == '__main__':  # pragma: NO COVER
-    unittest2.main()

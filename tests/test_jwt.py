@@ -152,9 +152,10 @@ class CryptTests(unittest2.TestCase):
             ({'status': '404'}, datafile('certs.json')),
         ])
 
-        self.assertRaises(VerifyJwtTokenError, verify_id_token, jwt,
-                          'some_audience_address@testing.gserviceaccount.com',
-                          http=http)
+        with self.assertRaises(VerifyJwtTokenError):
+            verify_id_token(jwt,
+                            'some_audience_address@testing.gserviceaccount.com',
+                            http=http)
 
     def test_verify_id_token_bad_tokens(self):
         private_key = datafile('privatekey.' + self.format_)
@@ -330,7 +331,3 @@ class TestHasOpenSSLFlag(unittest2.TestCase):
     def test_true(self):
         self.assertEqual(True, HAS_OPENSSL)
         self.assertEqual(True, HAS_CRYPTO)
-
-
-if __name__ == '__main__':  # pragma: NO COVER
-    unittest2.main()

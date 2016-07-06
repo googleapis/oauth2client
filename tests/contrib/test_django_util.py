@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import json
-import unittest
+import unittest2
 
 from django.conf.urls import include, url
 from django.core import exceptions
@@ -37,7 +37,7 @@ urlpatterns = [
 urlpatterns += [url(r'^oauth2/', include(site.urls))]
 
 
-class OAuth2SetupTest(unittest.TestCase):
+class OAuth2SetupTest(unittest2.TestCase):
 
     @mock.patch("oauth2client.contrib.django_util.clientsecrets")
     def test_settings_initialize(self, clientsecrets):
@@ -66,11 +66,10 @@ class OAuth2SetupTest(unittest.TestCase):
             }
         )
 
-        self.assertRaises(
-            ValueError,
-            django_util.OAuth2Settings.__init__,
-            object.__new__(django_util.OAuth2Settings),
-            django.conf.settings)
+        with self.assertRaises(ValueError):
+            django_util.OAuth2Settings.__init__(
+                object.__new__(django_util.OAuth2Settings),
+                django.conf.settings)
 
     @mock.patch("oauth2client.contrib.django_util.clientsecrets")
     def test_no_settings(self, clientsecrets):
@@ -78,22 +77,20 @@ class OAuth2SetupTest(unittest.TestCase):
         django.conf.settings.GOOGLE_OAUTH2_CLIENT_SECRET = None
         django.conf.settings.GOOGLE_OAUTH2_CLIENT_ID = None
 
-        self.assertRaises(
-            exceptions.ImproperlyConfigured,
-            django_util.OAuth2Settings.__init__,
-            object.__new__(django_util.OAuth2Settings),
-            django.conf.settings)
+        with self.assertRaises(exceptions.ImproperlyConfigured):
+            django_util.OAuth2Settings.__init__(
+                object.__new__(django_util.OAuth2Settings),
+                django.conf.settings)
 
     @mock.patch("oauth2client.contrib.django_util.clientsecrets")
     def test_no_session_middleware(self, clientsecrets):
         old_classes = django.conf.settings.MIDDLEWARE_CLASSES
         django.conf.settings.MIDDLEWARE_CLASSES = ()
 
-        self.assertRaises(
-            exceptions.ImproperlyConfigured,
-            django_util.OAuth2Settings.__init__,
-            object.__new__(django_util.OAuth2Settings),
-            django.conf.settings)
+        with self.assertRaises(exceptions.ImproperlyConfigured):
+            django_util.OAuth2Settings.__init__(
+                object.__new__(django_util.OAuth2Settings),
+                django.conf.settings)
         django.conf.settings.MIDDLEWARE_CLASSES = old_classes
 
 

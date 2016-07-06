@@ -19,7 +19,7 @@ import json
 import os
 import socket
 import threading
-import unittest
+import unittest2
 
 import mock
 
@@ -46,17 +46,17 @@ DEFAULT_CREDENTIAL_JSON = json.dumps([
 ])
 
 
-class TestCredentialInfoResponse(unittest.TestCase):
+class TestCredentialInfoResponse(unittest2.TestCase):
 
     def test_constructor_with_non_list(self):
         json_non_list = '{}'
-        self.assertRaises(ValueError, CredentialInfoResponse,
-                          json_non_list)
+        with self.assertRaises(ValueError):
+            CredentialInfoResponse(json_non_list)
 
     def test_constructor_with_bad_json(self):
         json_non_list = '{BADJSON'
-        self.assertRaises(ValueError, CredentialInfoResponse,
-                          json_non_list)
+        with self.assertRaises(ValueError):
+            CredentialInfoResponse(json_non_list)
 
     def test_constructor_empty_list(self):
         info_response = CredentialInfoResponse('[]')
@@ -79,12 +79,13 @@ class TestCredentialInfoResponse(unittest.TestCase):
         self.assertEqual(info_response.expires_in, expires_in)
 
 
-class Test_SendRecv(unittest.TestCase):
+class Test_SendRecv(unittest2.TestCase):
 
     def test_port_zero(self):
         with mock.patch('oauth2client.contrib.devshell.os') as os_mod:
             os_mod.getenv = mock.MagicMock(name='getenv', return_value=0)
-            self.assertRaises(NoDevshellServer, _SendRecv)
+            with self.assertRaises(NoDevshellServer):
+                _SendRecv()
             os_mod.getenv.assert_called_once_with(DEVSHELL_ENV, 0)
 
     def test_no_newline_in_received_header(self):
@@ -101,7 +102,8 @@ class Test_SendRecv(unittest.TestCase):
             with mock.patch('oauth2client.contrib.devshell.socket') as socket:
                 socket.socket = mock.MagicMock(name='socket',
                                                return_value=sock)
-                self.assertRaises(CommunicationError, _SendRecv)
+                with self.assertRaises(CommunicationError):
+                    _SendRecv()
                 os_mod.getenv.assert_called_once_with(DEVSHELL_ENV, 0)
                 socket.socket.assert_called_once_with()
                 sock.recv(6).decode.assert_called_once_with()
@@ -172,10 +174,11 @@ class _AuthReferenceServer(threading.Thread):
             s.close()
 
 
-class DevshellCredentialsTests(unittest.TestCase):
+class DevshellCredentialsTests(unittest2.TestCase):
 
     def test_signals_no_server(self):
-        self.assertRaises(NoDevshellServer, DevshellCredentials)
+        with self.assertRaises(NoDevshellServer):
+            DevshellCredentials()
 
     def test_bad_message_to_mock_server(self):
         request_content = CREDENTIAL_INFO_REQUEST_JSON + 'extrastuff'
@@ -253,21 +256,17 @@ class DevshellCredentialsTests(unittest.TestCase):
             os.path.isdir = lambda path: True
             with _AuthReferenceServer():
                 creds = DevshellCredentials()
-                self.assertRaises(NotImplementedError,
-                                  save_to_well_known_file, creds)
+                with self.assertRaises(NotImplementedError):
+                    save_to_well_known_file(creds)
         finally:
             os.path.isdir = ORIGINAL_ISDIR
 
     def test_from_json(self):
-        self.assertRaises(NotImplementedError,
-                          DevshellCredentials.from_json, None)
+        with self.assertRaises(NotImplementedError):
+            DevshellCredentials.from_json(None)
 
     def test_serialization_data(self):
         with _AuthReferenceServer('[]'):
             credentials = DevshellCredentials()
-            self.assertRaises(NotImplementedError, getattr,
-                              credentials, 'serialization_data')
-
-
-if __name__ == '__main__':  # pragma: NO COVER
-    unittest.main()
+            with self.assertRaises(NotImplementedError):
+                getattr(credentials, 'serialization_data')

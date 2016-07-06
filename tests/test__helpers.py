@@ -13,7 +13,7 @@
 # limitations under the License.
 """Unit tests for oauth2client._helpers."""
 
-import unittest
+import unittest2
 
 from oauth2client._helpers import _from_bytes
 from oauth2client._helpers import _json_encode
@@ -23,7 +23,7 @@ from oauth2client._helpers import _urlsafe_b64decode
 from oauth2client._helpers import _urlsafe_b64encode
 
 
-class Test__parse_pem_key(unittest.TestCase):
+class Test__parse_pem_key(unittest2.TestCase):
 
     def test_valid_input(self):
         test_string = b'1234-----BEGIN FOO BAR BAZ'
@@ -36,7 +36,7 @@ class Test__parse_pem_key(unittest.TestCase):
         self.assertEqual(result, None)
 
 
-class Test__json_encode(unittest.TestCase):
+class Test__json_encode(unittest2.TestCase):
 
     def test_dictionary_input(self):
         # Use only a single key since dictionary hash order
@@ -51,7 +51,7 @@ class Test__json_encode(unittest.TestCase):
         self.assertEqual(result, '[42,1337]')
 
 
-class Test__to_bytes(unittest.TestCase):
+class Test__to_bytes(unittest2.TestCase):
 
     def test_with_bytes(self):
         value = b'bytes-val'
@@ -64,10 +64,11 @@ class Test__to_bytes(unittest.TestCase):
 
     def test_with_nonstring_type(self):
         value = object()
-        self.assertRaises(ValueError, _to_bytes, value)
+        with self.assertRaises(ValueError):
+            _to_bytes(value)
 
 
-class Test__from_bytes(unittest.TestCase):
+class Test__from_bytes(unittest2.TestCase):
 
     def test_with_unicode(self):
         value = u'bytes-val'
@@ -80,10 +81,11 @@ class Test__from_bytes(unittest.TestCase):
 
     def test_with_nonstring_type(self):
         value = object()
-        self.assertRaises(ValueError, _from_bytes, value)
+        with self.assertRaises(ValueError):
+            _from_bytes(value)
 
 
-class Test__urlsafe_b64encode(unittest.TestCase):
+class Test__urlsafe_b64encode(unittest2.TestCase):
 
     DEADBEEF_ENCODED = b'ZGVhZGJlZWY'
 
@@ -98,7 +100,7 @@ class Test__urlsafe_b64encode(unittest.TestCase):
         self.assertEqual(result, self.DEADBEEF_ENCODED)
 
 
-class Test__urlsafe_b64decode(unittest.TestCase):
+class Test__urlsafe_b64decode(unittest2.TestCase):
 
     def test_valid_input_bytes(self):
         test_string = b'ZGVhZGJlZWY'
@@ -113,9 +115,5 @@ class Test__urlsafe_b64decode(unittest.TestCase):
     def test_bad_input(self):
         import binascii
         bad_string = b'+'
-        self.assertRaises((TypeError, binascii.Error),
-                          _urlsafe_b64decode, bad_string)
-
-
-if __name__ == '__main__':  # pragma: NO COVER
-    unittest.main()
+        with self.assertRaises((TypeError, binascii.Error)):
+            _urlsafe_b64decode(bad_string)

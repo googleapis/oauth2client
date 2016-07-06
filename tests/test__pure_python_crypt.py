@@ -178,7 +178,3 @@ class TestRsaSigner(unittest2.TestCase):
         key_bytes = 'bogus-key'
         with self.assertRaises(ValueError):
             RsaSigner.from_string(key_bytes)
-
-
-if __name__ == '__main__':  # pragma: NO COVER
-    unittest2.main()

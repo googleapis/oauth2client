@@ -87,11 +87,10 @@ class ServiceAccountCredentialsTests(unittest2.TestCase):
 
         self.assertTrue(rsa.pkcs1.verify(b'Google', signature, pub_key))
 
-        self.assertRaises(rsa.pkcs1.VerificationError,
-                          rsa.pkcs1.verify, b'Orest', signature, pub_key)
-        self.assertRaises(rsa.pkcs1.VerificationError,
-                          rsa.pkcs1.verify,
-                          b'Google', b'bad signature', pub_key)
+        with self.assertRaises(rsa.pkcs1.VerificationError):
+            rsa.pkcs1.verify(b'Orest', signature, pub_key)
+        with self.assertRaises(rsa.pkcs1.VerificationError):
+            rsa.pkcs1.verify(b'Google', b'bad signature', pub_key)
 
     def test_service_account_email(self):
         self.assertEqual(self.service_account_email,
@@ -582,6 +581,3 @@ class JWTAccessCredentialsTests(unittest2.TestCase):
         token_2 = self.jwt.access_token
         self.assertEquals(self.jwt.token_expiry, T2_EXPIRY_DATE)
         self.assertNotEqual(token_1, token_2)
-
-if __name__ == '__main__':  # pragma: NO COVER
-    unittest2.main()

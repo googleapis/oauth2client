@@ -128,7 +128,8 @@ class MultistoreFileTests(unittest2.TestCase):
         try:
             multistore = multistore_file._MultiStore(filename)
             multistore._file = _MockLockedFile(filename, IOError, errno.EBUSY)
-            self.assertRaises(IOError, multistore._lock)
+            with self.assertRaises(IOError):
+                multistore._lock()
             self.assertTrue(multistore._file.open_and_lock_called)
         finally:
             os.unlink(filename)
@@ -186,9 +187,9 @@ class MultistoreFileTests(unittest2.TestCase):
             'user-agent/1.0',
             ['some-scope', 'some-other-scope'])
         try:
-            self.assertRaises(
-                locked_file.CredentialsFileSymbolicLinkError,
-                store.get)
+            with self.assertRaises(
+                    locked_file.CredentialsFileSymbolicLinkError):
+                store.get()
         finally:
             os.unlink(SYMFILENAME)
 
@@ -356,9 +357,8 @@ class MultistoreFileTests(unittest2.TestCase):
 
         with json_patch as json_mock:
             json_mock.return_value = {'file_version': 5}
-            self.assertRaises(
-                multistore_file.NewerCredentialStoreError,
-                multistore._refresh_data_cache)
+            with self.assertRaises(multistore_file.NewerCredentialStoreError):
+                multistore._refresh_data_cache()
             self.assertTrue(json_mock.called)
 
     def test__refresh_data_cache_bad_credentials(self):
@@ -381,7 +381,3 @@ class MultistoreFileTests(unittest2.TestCase):
             multistore._data = {}
             multistore._delete_credential('nonexistent_key')
             self.assertTrue(write_mock.called)
-
-
-if __name__ == '__main__':  # pragma: NO COVER
-    unittest2.main()

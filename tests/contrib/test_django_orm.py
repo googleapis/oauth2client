@@ -23,7 +23,7 @@ import imp
 import os
 import pickle
 import sys
-import unittest
+import unittest2
 # Mock a Django environment
 from django.conf import global_settings
 
@@ -60,7 +60,7 @@ from oauth2client import GOOGLE_TOKEN_URI
 __author__ = 'conleyo@google.com (Conley Owens)'
 
 
-class TestCredentialsField(unittest.TestCase):
+class TestCredentialsField(unittest2.TestCase):
 
     def setUp(self):
         self.fake_model = FakeCredentialsModel()
@@ -112,7 +112,7 @@ class TestCredentialsField(unittest.TestCase):
         self.assertTrue(credentials.null)
 
 
-class TestFlowField(unittest.TestCase):
+class TestFlowField(unittest2.TestCase):
 
     class FakeFlowModel(models.Model):
         flow = FlowField()
@@ -163,7 +163,7 @@ class TestFlowField(unittest.TestCase):
         self.assertTrue(flow.null)
 
 
-class TestStorage(unittest.TestCase):
+class TestStorage(unittest2.TestCase):
 
     def setUp(self):
         access_token = 'foo'
@@ -317,7 +317,3 @@ class FakeCredentialsModelMockNoSet(object):
         self.deleted = False
 
     credentials = CredentialsField()
-
-
-if __name__ == '__main__':  # pragma: NO COVER
-    unittest.main()

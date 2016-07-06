@@ -40,31 +40,26 @@ NONEXISTENT_FILE = os.path.join(
 class Test__validate_clientsecrets(unittest2.TestCase):
 
     def test_with_none(self):
-        self.assertRaises(clientsecrets.InvalidClientSecretsError,
-                          clientsecrets._validate_clientsecrets,
-                          None)
+        with self.assertRaises(clientsecrets.InvalidClientSecretsError):
+            clientsecrets._validate_clientsecrets(None)
 
     def test_with_other_than_one_key(self):
-        self.assertRaises(clientsecrets.InvalidClientSecretsError,
-                          clientsecrets._validate_clientsecrets,
-                          {})
-        self.assertRaises(clientsecrets.InvalidClientSecretsError,
-                          clientsecrets._validate_clientsecrets,
-                          {'one': 'val', 'two': 'val'})
+        with self.assertRaises(clientsecrets.InvalidClientSecretsError):
+            clientsecrets._validate_clientsecrets({})
+        with self.assertRaises(clientsecrets.InvalidClientSecretsError):
+            clientsecrets._validate_clientsecrets({'one': 'val', 'two': 'val'})
 
     def test_with_non_dictionary(self):
         non_dict = [None]
-        self.assertRaises(clientsecrets.InvalidClientSecretsError,
-                          clientsecrets._validate_clientsecrets,
-                          non_dict)
+        with self.assertRaises(clientsecrets.InvalidClientSecretsError):
+            clientsecrets._validate_clientsecrets(non_dict)
 
     def test_invalid_client_type(self):
         fake_type = 'fake_type'
         self.assertNotEqual(fake_type, clientsecrets.TYPE_WEB)
         self.assertNotEqual(fake_type, clientsecrets.TYPE_INSTALLED)
-        self.assertRaises(clientsecrets.InvalidClientSecretsError,
-                          clientsecrets._validate_clientsecrets,
-                          {fake_type: None})
+        with self.assertRaises(clientsecrets.InvalidClientSecretsError):
+            clientsecrets._validate_clientsecrets({fake_type: None})
 
     def test_missing_required_type_web(self):
         required = clientsecrets.VALID_CLIENT[
@@ -75,9 +70,8 @@ class Test__validate_clientsecrets(unittest2.TestCase):
         clientsecrets_dict = {
             clientsecrets.TYPE_WEB: {'not_required': None},
         }
-        self.assertRaises(clientsecrets.InvalidClientSecretsError,
-                          clientsecrets._validate_clientsecrets,
-                          clientsecrets_dict)
+        with self.assertRaises(clientsecrets.InvalidClientSecretsError):
+            clientsecrets._validate_clientsecrets(clientsecrets_dict)
 
     def test_string_not_configured_type_web(self):
         string_props = clientsecrets.VALID_CLIENT[
@@ -93,9 +87,8 @@ class Test__validate_clientsecrets(unittest2.TestCase):
                 'token_uri': None,
             },
         }
-        self.assertRaises(clientsecrets.InvalidClientSecretsError,
-                          clientsecrets._validate_clientsecrets,
-                          clientsecrets_dict)
+        with self.assertRaises(clientsecrets.InvalidClientSecretsError):
+            clientsecrets._validate_clientsecrets(clientsecrets_dict)
 
     def test_missing_required_type_installed(self):
         required = clientsecrets.VALID_CLIENT[
@@ -106,9 +99,8 @@ class Test__validate_clientsecrets(unittest2.TestCase):
         clientsecrets_dict = {
             clientsecrets.TYPE_INSTALLED: {'not_required': None},
         }
-        self.assertRaises(clientsecrets.InvalidClientSecretsError,
-                          clientsecrets._validate_clientsecrets,
-                          clientsecrets_dict)
+        with self.assertRaises(clientsecrets.InvalidClientSecretsError):
+            clientsecrets._validate_clientsecrets(clientsecrets_dict)
 
     def test_string_not_configured_type_installed(self):
         string_props = clientsecrets.VALID_CLIENT[
@@ -124,9 +116,8 @@ class Test__validate_clientsecrets(unittest2.TestCase):
                 'token_uri': None,
             },
         }
-        self.assertRaises(clientsecrets.InvalidClientSecretsError,
-                          clientsecrets._validate_clientsecrets,
-                          clientsecrets_dict)
+        with self.assertRaises(clientsecrets.InvalidClientSecretsError):
+            clientsecrets._validate_clientsecrets(clientsecrets_dict)
 
     def test_success_type_web(self):
         client_info = {
@@ -175,15 +166,15 @@ class Test__loadfile(unittest2.TestCase):
     def test_non_existent(self):
         path = os.path.join(DATA_DIR, 'fake.json')
         self.assertFalse(os.path.exists(path))
-        self.assertRaises(clientsecrets.InvalidClientSecretsError,
-                          clientsecrets._loadfile, path)
+        with self.assertRaises(clientsecrets.InvalidClientSecretsError):
+            clientsecrets._loadfile(path)
 
     def test_bad_json(self):
         filename = tempfile.mktemp()
         with open(filename, 'wb') as file_obj:
             file_obj.write(b'[')
-        self.assertRaises(ValueError,
-                          clientsecrets._loadfile, filename)
+        with self.assertRaises(ValueError):
+            clientsecrets._loadfile(filename)
 
 
 class OAuth2CredentialsTests(unittest2.TestCase):
@@ -288,7 +279,3 @@ class CachedClientsecretsTests(unittest2.TestCase):
         client_type, client_info = clientsecrets.loadfile(VALID_FILE)
         self.assertEqual('web', client_type)
         self.assertEqual('foo_client_secret', client_info['client_secret'])
-
-
-if __name__ == '__main__':  # pragma: NO COVER
-    unittest2.main()

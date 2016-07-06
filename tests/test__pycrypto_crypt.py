@@ -69,7 +69,3 @@ class TestPyCryptoSigner(unittest2.TestCase):
         key_bytes = 'definitely-not-pem-format'
         with self.assertRaises(NotImplementedError):
             PyCryptoSigner.from_string(key_bytes)
-
-
-if __name__ == '__main__':  # pragma: NO COVER
-    unittest2.main()

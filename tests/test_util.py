@@ -22,7 +22,8 @@ class PositionalTests(unittest2.TestCase):
 
         self.assertTrue(fn(1))
         self.assertTrue(fn(1, kwonly=2))
-        self.assertRaises(TypeError, fn, 1, 2)
+        with self.assertRaises(TypeError):
+            fn(1, 2)
 
         # No positional, but a required keyword arg.
         @util.positional(0)
@@ -30,7 +31,8 @@ class PositionalTests(unittest2.TestCase):
             return True
 
         self.assertTrue(fn2(required_kw=1))
-        self.assertRaises(TypeError, fn2, 1)
+        with self.assertRaises(TypeError):
+            fn2(1)
 
         # Unspecified positional, should automatically figure out 1 positional
         # 1 keyword-only (same as first case above).
@@ -40,7 +42,8 @@ class PositionalTests(unittest2.TestCase):
 
         self.assertTrue(fn3(1))
         self.assertTrue(fn3(1, kwonly=2))
-        self.assertRaises(TypeError, fn3, 1, 2)
+        with self.assertRaises(TypeError):
+            fn3(1, 2)
 
 
     @mock.patch('oauth2client.util.logger')
@@ -121,6 +124,3 @@ class AddQueryParameterTests(unittest2.TestCase):
         self.assertEqual(
             util._add_query_parameter('/action', 'a', ' ='),
             '/action?a=+%3D')
-
-if __name__ == '__main__':  # pragma: NO COVER
-    unittest2.main()

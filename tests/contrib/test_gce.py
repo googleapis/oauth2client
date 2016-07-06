@@ -99,8 +99,8 @@ class AppAssertionCredentialsTests(unittest2.TestCase):
 
     def test_serialization_data(self):
         credentials = AppAssertionCredentials()
-        self.assertRaises(NotImplementedError, getattr,
-                          credentials, 'serialization_data')
+        with self.assertRaises(NotImplementedError):
+            getattr(credentials, 'serialization_data')
 
     def test_create_scoped_required(self):
         credentials = AppAssertionCredentials()
@@ -143,11 +143,7 @@ class AppAssertionCredentialsTests(unittest2.TestCase):
         try:
             os.path.isdir = lambda path: True
             credentials = AppAssertionCredentials()
-            self.assertRaises(NotImplementedError, save_to_well_known_file,
-                              credentials)
+            with self.assertRaises(NotImplementedError):
+                save_to_well_known_file(credentials)
         finally:
             os.path.isdir = ORIGINAL_ISDIR
-
-
-if __name__ == '__main__':  # pragma: NO COVER
-    unittest2.main()
