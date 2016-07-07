@@ -17,7 +17,6 @@
 Tools for interacting with OAuth 2.0 protected resources.
 """
 
-import base64
 import collections
 import copy
 import datetime
@@ -27,7 +26,6 @@ import os
 import socket
 import sys
 import tempfile
-import time
 import shutil
 import six
 from six.moves import http_client

@@ -24,7 +24,6 @@ Only Django versions 1.8+ are supported.
 import oauth2client
 import base64
 import pickle
-import six
 
 from django.db import models
 from django.utils.encoding import smart_bytes, smart_text

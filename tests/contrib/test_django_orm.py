@@ -19,14 +19,11 @@ Unit tests for objects created from discovery documents.
 
 import base64
 import datetime
-import imp
 import os
 import pickle
-import sys
 import unittest2
-# Mock a Django environment
-from django.conf import global_settings
 
+# Mock a Django environment
 os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.contrib.test_django_settings'
 from django.conf import settings
 
