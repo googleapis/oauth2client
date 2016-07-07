@@ -49,7 +49,6 @@ class Test_generate_token(unittest2.TestCase):
 
     def test_it(self):
         digest = b'foobar'
-        curr_time = 1440449755.74
         digester = mock.MagicMock()
         digester.digest = mock.MagicMock(name='digest', return_value=digest)
         with mock.patch('oauth2client.contrib.xsrfutil.hmac') as hmac:

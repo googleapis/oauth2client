@@ -149,8 +149,7 @@ class TestRunFlow(unittest2.TestCase):
 
         # Exchange returned an error code.
         with self.assertRaises(SystemExit):
-            returned_credentials = tools.run_flow(
-                self.flow, self.storage, flags=self.server_flags)
+            tools.run_flow(self.flow, self.storage, flags=self.server_flags)
 
         self.assertTrue(self.server.handle_request.called)
 
@@ -164,8 +163,7 @@ class TestRunFlow(unittest2.TestCase):
 
         # No code found in response
         with self.assertRaises(SystemExit):
-            returned_credentials = tools.run_flow(
-                self.flow, self.storage, flags=self.server_flags)
+            tools.run_flow(self.flow, self.storage, flags=self.server_flags)
 
         self.assertTrue(self.server.handle_request.called)
 

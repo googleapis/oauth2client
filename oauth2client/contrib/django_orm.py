@@ -178,4 +178,4 @@ class Storage(BaseStorage):
         """Delete Credentials from the datastore."""
 
         query = {self.key_name: self.key_value}
-        entities = self.model_class.objects.filter(**query).delete()
+        self.model_class.objects.filter(**query).delete()

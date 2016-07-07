@@ -124,7 +124,7 @@ class CredentialsTests(unittest2.TestCase):
     def test_to_from_json(self):
         credentials = Credentials()
         json = credentials.to_json()
-        restored = Credentials.new_from_json(json)
+        Credentials.new_from_json(json)
 
     def test_authorize_abstract(self):
         credentials = Credentials()
@@ -1863,8 +1863,7 @@ class OAuth2WebServerFlowTest(unittest2.TestCase):
         ])
 
         with self.assertRaises(FlowExchangeError):
-            credentials = self.flow.step2_exchange(code='some random code',
-                                                   http=http)
+            self.flow.step2_exchange(code='some random code', http=http)
 
     def test_urlencoded_exchange_failure(self):
         http = HttpMockSequence([
@@ -1873,8 +1872,7 @@ class OAuth2WebServerFlowTest(unittest2.TestCase):
 
         with self.assertRaisesRegexp(FlowExchangeError,
                                      'invalid_request'):
-            credentials = self.flow.step2_exchange(code='some random code',
-                                                   http=http)
+            self.flow.step2_exchange(code='some random code', http=http)
 
     def test_exchange_failure_with_json_error(self):
         # Some providers have 'error' attribute as a JSON object
@@ -1890,8 +1888,7 @@ class OAuth2WebServerFlowTest(unittest2.TestCase):
         http = HttpMockSequence([({'status': '400'}, payload)])
 
         with self.assertRaises(FlowExchangeError):
-            credentials = self.flow.step2_exchange(code='some random code',
-                                                   http=http)
+            self.flow.step2_exchange(code='some random code', http=http)
 
     def _exchange_success_test_helper(self, code=None, device_flow_info=None):
         payload = (b'{'
@@ -2040,9 +2037,8 @@ class OAuth2WebServerFlowTest(unittest2.TestCase):
         http = HttpMockSequence([({'status': '200'}, payload)])
 
         code = {'error': 'thou shall not pass'}
-        with self.assertRaisesRegexp(FlowExchangeError,
-                                     'shall not pass'):
-            credentials = self.flow.step2_exchange(code=code, http=http)
+        with self.assertRaisesRegexp(FlowExchangeError, 'shall not pass'):
+            self.flow.step2_exchange(code=code, http=http)
 
     def test_exchange_id_token_fail(self):
         payload = (b'{'
@@ -2190,9 +2186,8 @@ class CredentialsFromCodeTests(unittest2.TestCase):
             ({'status': '200'}, payload.encode('utf-8')),
         ])
         credentials = credentials_from_code(self.client_id, self.client_secret,
-                                            self.scope, self.code,
-                                            redirect_uri=self.redirect_uri,
-                                            http=http)
+                                            self.scope, self.code, http=http,
+                                            redirect_uri=self.redirect_uri)
         self.assertEqual(credentials.access_token, token)
         self.assertNotEqual(None, credentials.token_expiry)
         self.assertEqual(set(['foo']), credentials.scopes)
@@ -2203,11 +2198,9 @@ class CredentialsFromCodeTests(unittest2.TestCase):
         ])
 
         with self.assertRaises(FlowExchangeError):
-            credentials = credentials_from_code(self.client_id,
-                                                self.client_secret,
-                                                self.scope, self.code,
-                                                redirect_uri=self.redirect_uri,
-                                                http=http)
+            credentials_from_code(self.client_id, self.client_secret,
+                                  self.scope, self.code, http=http,
+                                  redirect_uri=self.redirect_uri)
 
     def test_exchange_code_and_file_for_token(self):
         payload = (b'{'
@@ -2241,7 +2234,7 @@ class CredentialsFromCodeTests(unittest2.TestCase):
         ])
 
         with self.assertRaises(FlowExchangeError):
-            credentials = credentials_from_clientsecrets_and_code(
+            credentials_from_clientsecrets_and_code(
                 datafile('client_secrets.json'), self.scope,
                 self.code, http=http)
 

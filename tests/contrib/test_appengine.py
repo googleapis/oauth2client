@@ -847,7 +847,7 @@ class DecoratorTests(unittest2.TestCase):
         # An initial request to an oauth_aware decorated path should
         # not redirect.
         response = self.app.get('/bar_path/2012/01')
-        url = self.decorator.authorize_url()
+        self.decorator.authorize_url()
         response = self.app.get('/oauth2callback', {
             'error': 'Bad<Stuff>Happened\''
         })
@@ -903,9 +903,7 @@ class DecoratorTests(unittest2.TestCase):
 
         with decorator_patch as decorator_mock:
             filename = datafile('client_secrets.json')
-            decorator = oauth2decorator_from_clientsecrets(
-                filename,
-                scope='foo_scope')
+            oauth2decorator_from_clientsecrets(filename, scope='foo_scope')
             decorator_mock.assert_called_once_with(
                 filename,
                 'foo_scope',
@@ -974,7 +972,7 @@ class DecoratorTests(unittest2.TestCase):
     def test_decorator_from_unfilled_client_secrets_required(self):
         MESSAGE = 'File is missing'
         try:
-            decorator = OAuth2DecoratorFromClientSecrets(
+            OAuth2DecoratorFromClientSecrets(
                 datafile('unfilled_client_secrets.json'),
                 scope=['foo_scope', 'bar_scope'], message=MESSAGE)
         except InvalidClientSecretsError:
@@ -983,7 +981,7 @@ class DecoratorTests(unittest2.TestCase):
     def test_decorator_from_unfilled_client_secrets_aware(self):
         MESSAGE = 'File is missing'
         try:
-            decorator = OAuth2DecoratorFromClientSecrets(
+            OAuth2DecoratorFromClientSecrets(
                 datafile('unfilled_client_secrets.json'),
                 scope=['foo_scope', 'bar_scope'], message=MESSAGE)
         except InvalidClientSecretsError:
