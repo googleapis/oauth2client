@@ -23,4 +23,4 @@ class MainPage(webapp2.RequestHandler):
         self.response.write(get_instances())
 
 
-app = webapp2.WSGIApplication([('/', MainPage),], debug=True)
+app = webapp2.WSGIApplication([('/', MainPage), ], debug=True)

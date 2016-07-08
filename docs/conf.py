@@ -10,9 +10,17 @@ import sys
 
 import mock
 
-# See
-# (https://read-the-docs.readthedocs.io/en/latest/faq.html#\
-#  i-get-import-errors-on-libraries-that-depend-on-c-modules)
+# In order to load django before 1.7, we need to create a faux
+# settings module and load it. This assumes django has been installed
+# (but it must be for the docs to build), so if it has not already
+# been installed run `pip install -r docs/requirements.txt`.
+os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.contrib.test_django_settings'
+import django
+if django.VERSION[1] < 7:
+    sys.path.insert(0, '.')
+
+# See https://read-the-docs.readthedocs.io/en/latest/faq.html#i-get-import-errors-on-libraries-that-depend-on-c-modules
+
 
 class Mock(mock.Mock):
 
@@ -60,15 +68,6 @@ version = distro.version
 release = distro.version
 
 exclude_patterns = ['_build']
-
-# In order to load django before 1.7, we need to create a faux
-# settings module and load it. This assumes django has been installed
-# (but it must be for the docs to build), so if it has not already
-# been installed run `pip install -r docs/requirements.txt`.
-os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.contrib.test_django_settings'
-import django
-if django.VERSION[1] < 7:
-    sys.path.insert(0, '.')
 
 # -- Options for HTML output ----------------------------------------------
 

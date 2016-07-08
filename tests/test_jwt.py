@@ -147,15 +147,14 @@ class CryptTests(unittest2.TestCase):
 
     def test_verify_id_token_with_certs_uri_fails(self):
         jwt = self._create_signed_jwt()
+        test_email = 'some_audience_address@testing.gserviceaccount.com'
 
         http = HttpMockSequence([
             ({'status': '404'}, datafile('certs.json')),
         ])
 
         with self.assertRaises(VerifyJwtTokenError):
-            verify_id_token(jwt,
-                            'some_audience_address@testing.gserviceaccount.com',
-                            http=http)
+            verify_id_token(jwt, test_email, http=http)
 
     def test_verify_id_token_bad_tokens(self):
         private_key = datafile('privatekey.' + self.format_)

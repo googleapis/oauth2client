@@ -474,7 +474,8 @@ class FlaskOAuth2Tests(unittest2.TestCase):
             # Starting the authorization flow should include the
             # include_granted_scopes parameter as well as the scopes.
             response = client.get(response.headers['Location'][17:])
-            q = urlparse.parse_qs(response.headers['Location'].split('?', 1)[1])
+            q = urlparse.parse_qs(
+                response.headers['Location'].split('?', 1)[1])
             self.assertIn('include_granted_scopes', q)
             self.assertEqual(
                 set(q['scope'][0].split(' ')),

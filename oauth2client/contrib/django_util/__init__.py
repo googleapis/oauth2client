@@ -124,8 +124,9 @@ To make OAuth2 optional and provide an authorization link in your own views.
            return HttpResponse("User email: %s"
             % request.oauth.credentials.id_token['email'])
        else:
-           return HttpResponse('Here is an OAuth Authorize link:
-           <a href="%s">Authorize</a>' % request.oauth.get_authorize_redirect())
+           return HttpResponse(
+               'Here is an OAuth Authorize link: <a href="%s">Authorize</a>'
+                % request.oauth.get_authorize_redirect())
 
 If a view needs a scope not included in the default scopes specified in
 the settings, you can use [incremental auth](https://developers.google.com/identity/sign-in/web/incremental-auth)
@@ -144,8 +145,9 @@ and specify additional scopes in the decorator arguments.
            events = service.files().list().execute()['items']
            return HttpResponse(str(events))
        else:
-           return HttpResponse('Here is an OAuth Authorize link:
-           <a href="%s">Authorize</a>' % request.oauth.get_authorize_redirect())
+           return HttpResponse(
+               'Here is an OAuth Authorize link: <a href="%s">Authorize</a>'
+                % request.oauth.get_authorize_redirect())
 
 
 To provide a callback on authorization being completed, use the

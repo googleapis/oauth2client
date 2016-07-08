@@ -604,8 +604,8 @@ class _JWTAccessCredentials(ServiceAccountCredentials):
             h = credentials.authorize(h)
         """
         request_orig = http.request
-        request_auth = super(_JWTAccessCredentials,
-                             self).authorize(http).request
+        request_auth = super(
+            _JWTAccessCredentials, self).authorize(http).request
 
         # The closure that will replace 'httplib2.Http.request'.
         def new_request(uri, method='GET', body=None, headers=None,

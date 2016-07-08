@@ -20,6 +20,9 @@ are not already installed.
 from __future__ import print_function
 
 import sys
+from setuptools import find_packages
+from setuptools import setup
+import oauth2client
 
 if sys.version_info < (2, 6):
     print('oauth2client requires python2 version >= 2.6.', file=sys.stderr)
@@ -27,9 +30,6 @@ if sys.version_info < (2, 6):
 if (3, 1) <= sys.version_info < (3, 3):
     print('oauth2client requires python3 version >= 3.3.', file=sys.stderr)
     sys.exit(1)
-
-from setuptools import find_packages
-from setuptools import setup
 
 install_requires = [
     'httplib2>=0.9.1',
@@ -41,7 +41,6 @@ install_requires = [
 
 long_desc = """The oauth2client is a client library for OAuth 2.0."""
 
-import oauth2client
 version = oauth2client.__version__
 
 setup(
