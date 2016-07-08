@@ -457,7 +457,7 @@ class GoogleCredentialsTests(unittest2.TestCase):
                             client._METADATA_FLAVOR_HEADER)
                 else:
                     self.assertEqual(
-                            http_client_module.HTTPConnection.mock_calls, [])
+                        http_client_module.HTTPConnection.mock_calls, [])
                     self.assertEqual(connection.getresponse.mock_calls, [])
                     # Remaining calls are not "getresponse"
                     self.assertEqual(connection.method_calls, [])

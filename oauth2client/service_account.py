@@ -90,7 +90,7 @@ class ServiceAccountCredentials(AssertionCredentials):
     MAX_TOKEN_LIFETIME_SECS = 3600
     """Max lifetime of the token (one hour, in seconds)."""
 
-    NON_SERIALIZED_MEMBERS =  (
+    NON_SERIALIZED_MEMBERS = (
         frozenset(['_signer']) |
         AssertionCredentials.NON_SERIALIZED_MEMBERS)
     """Members that aren't serialized when object is converted to JSON."""
@@ -498,7 +498,7 @@ class ServiceAccountCredentials(AssertionCredentials):
         result._private_key_pkcs12 = self._private_key_pkcs12
         result._private_key_password = self._private_key_password
         return result
- 
+
     def create_with_claims(self, claims):
         """Create credentials that specify additional claims.
 
@@ -548,11 +548,11 @@ class ServiceAccountCredentials(AssertionCredentials):
 
 
 def _datetime_to_secs(utc_time):
-   # TODO(issue 298): use time_delta.total_seconds()
-   # time_delta.total_seconds() not supported in Python 2.6
-   epoch = datetime.datetime(1970, 1, 1)
-   time_delta = utc_time - epoch
-   return time_delta.days * 86400 + time_delta.seconds
+    # TODO(issue 298): use time_delta.total_seconds()
+    # time_delta.total_seconds() not supported in Python 2.6
+    epoch = datetime.datetime(1970, 1, 1)
+    time_delta = utc_time - epoch
+    return time_delta.days * 86400 + time_delta.seconds
 
 
 class _JWTAccessCredentials(ServiceAccountCredentials):

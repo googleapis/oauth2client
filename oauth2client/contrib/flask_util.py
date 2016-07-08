@@ -446,8 +446,8 @@ class UserOAuth2(object):
         if not self.credentials:
             return False
         # Is the access token expired? If so, do we have an refresh token?
-        elif (self.credentials.access_token_expired
-                and not self.credentials.refresh_token):
+        elif (self.credentials.access_token_expired and
+                not self.credentials.refresh_token):
             return False
         else:
             return True

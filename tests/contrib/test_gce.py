@@ -36,6 +36,7 @@ SERVICE_ACCOUNT_INFO = {
     'aliases': ['default']
 }
 
+
 class AppAssertionCredentialsTests(unittest2.TestCase):
 
     def test_constructor(self):

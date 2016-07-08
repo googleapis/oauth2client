@@ -68,11 +68,10 @@ class TestRunFlow(unittest2.TestCase):
         self.server_flags = argparse.Namespace(
             noauth_local_webserver=False,
             logging_level='INFO',
-            auth_host_port=[8080,],
+            auth_host_port=[8080, ],
             auth_host_name='localhost')
 
-    @mock.patch.object(sys, 'argv',
-        ['ignored', '--noauth_local_webserver'])
+    @mock.patch.object(sys, 'argv', ['ignored', '--noauth_local_webserver'])
     @mock.patch('oauth2client.tools.logging')
     @mock.patch('oauth2client.tools.input')
     def test_run_flow_no_webserver(self, input_mock, logging_mock):

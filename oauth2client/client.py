@@ -1193,7 +1193,7 @@ class GoogleCredentials(OAuth2Credentials):
         print(response)
     """
 
-    NON_SERIALIZED_MEMBERS =  (
+    NON_SERIALIZED_MEMBERS = (
         frozenset(['_private_key']) |
         OAuth2Credentials.NON_SERIALIZED_MEMBERS)
     """Members that aren't serialized when object is converted to JSON."""
@@ -1251,12 +1251,11 @@ class GoogleCredentials(OAuth2Credentials):
         # We handle service_account.ServiceAccountCredentials since it is a
         # possible return type of GoogleCredentials.get_application_default()
         if (data['_module'] == 'oauth2client.service_account' and
-            data['_class'] == 'ServiceAccountCredentials'):
+                data['_class'] == 'ServiceAccountCredentials'):
             return ServiceAccountCredentials.from_json(data)
         elif (data['_module'] == 'oauth2client.service_account' and
-              data['_class'] == '_JWTAccessCredentials'):
+                data['_class'] == '_JWTAccessCredentials'):
             return _JWTAccessCredentials.from_json(data)
-        
 
         token_expiry = _parse_expiry(data.get('token_expiry'))
         google_credentials = cls(
@@ -1466,8 +1465,7 @@ def save_to_well_known_file(credentials, well_known_file=None):
 
 def _get_environment_variable_file():
     application_default_credential_filename = (
-      os.environ.get(GOOGLE_APPLICATION_CREDENTIALS,
-                     None))
+        os.environ.get(GOOGLE_APPLICATION_CREDENTIALS, None))
 
     if application_default_credential_filename:
         if os.path.isfile(application_default_credential_filename):
@@ -1550,8 +1548,8 @@ def _raise_exception_for_reading_json(credential_file,
                                       extra_help,
                                       error):
     raise ApplicationDefaultCredentialsError(
-      'An error was encountered while reading json file: ' +
-      credential_file + extra_help + ': ' + str(error))
+        'An error was encountered while reading json file: ' +
+        credential_file + extra_help + ': ' + str(error))
 
 
 def _get_application_default_credential_GAE():

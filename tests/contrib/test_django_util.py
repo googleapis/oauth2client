@@ -242,9 +242,8 @@ class Oauth2AuthorizeTest(TestWithSession):
         self.assertTrue(isinstance(response, http.HttpResponseRedirect))
 
     def test_authorize_works_explicit_return_url(self):
-        request = self.factory.get('oauth2/oauth2authorize', data={
-            'return_url':  '/return_endpoint'
-        })
+        request = self.factory.get('oauth2/oauth2authorize',
+                                   data={'return_url': '/return_endpoint'})
         request.session = self.session
         response = views.oauth2_authorize(request)
         self.assertTrue(isinstance(response, http.HttpResponseRedirect))

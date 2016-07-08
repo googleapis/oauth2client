@@ -33,7 +33,7 @@ class TestRsaVerifier(unittest2.TestCase):
     PUBLIC_KEY_FILENAME = os.path.join(os.path.dirname(__file__),
                                        'data', 'privatekey.pub')
     PUBLIC_CERT_FILENAME = os.path.join(os.path.dirname(__file__),
-                                       'data', 'public_cert.pem')
+                                        'data', 'public_cert.pem')
     PRIVATE_KEY_FILENAME = os.path.join(os.path.dirname(__file__),
                                         'data', 'privatekey.pem')
 

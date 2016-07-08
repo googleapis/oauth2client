@@ -290,8 +290,8 @@ class UserOAuth2(object):
     def has_credentials(self):
         """Returns True if there are valid credentials for the current user
         and required scopes."""
-        return (self.credentials and not self.credentials.invalid
-                and self.credentials.has_scopes(self.scopes))
+        return (self.credentials and not self.credentials.invalid and
+                self.credentials.has_scopes(self.scopes))
 
     @property
     def credentials(self):

@@ -48,7 +48,7 @@ class Test_pkcs12_key_as_pem(unittest2.TestCase):
             'some_account@example.com',
             filename,
             scopes='read+write')
-        credentials._kwargs['sub'] ='joe@example.org'
+        credentials._kwargs['sub'] = 'joe@example.org'
         return credentials
 
     def _succeeds_helper(self, password=None):
@@ -170,6 +170,7 @@ class Test__check_audience(unittest2.TestCase):
         payload_dict = {'aud': audience1}
         with self.assertRaises(crypt.AppIdentityError):
             crypt._check_audience(payload_dict, audience2)
+
 
 class Test__verify_time_range(unittest2.TestCase):
 

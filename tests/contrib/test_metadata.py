@@ -81,7 +81,7 @@ class TestMetadata(unittest2.TestCase):
         self.assertEqual(
             expiry, datetime.datetime.min + datetime.timedelta(seconds=100))
         http_request.assert_called_once_with(
-            EXPECTED_URL+'/token',
+            EXPECTED_URL + '/token',
             **EXPECTED_KWARGS
         )
         now.assert_called_once_with()
@@ -92,6 +92,6 @@ class TestMetadata(unittest2.TestCase):
         info = _metadata.get_service_account_info(http_request)
         self.assertEqual(info, DATA)
         http_request.assert_called_once_with(
-            EXPECTED_URL+'/?recursive=True',
+            EXPECTED_URL + '/?recursive=True',
             **EXPECTED_KWARGS
         )

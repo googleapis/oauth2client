@@ -121,11 +121,11 @@ class Test__validate_clientsecrets(unittest2.TestCase):
 
     def test_success_type_web(self):
         client_info = {
-                'client_id': 'eye-dee',
-                'client_secret': 'seekrit',
-                'redirect_uris': None,
-                'auth_uri': None,
-                'token_uri': None,
+            'client_id': 'eye-dee',
+            'client_secret': 'seekrit',
+            'redirect_uris': None,
+            'auth_uri': None,
+            'token_uri': None,
         }
         clientsecrets_dict = {
             clientsecrets.TYPE_WEB: client_info,
@@ -135,11 +135,11 @@ class Test__validate_clientsecrets(unittest2.TestCase):
 
     def test_success_type_installed(self):
         client_info = {
-                'client_id': 'eye-dee',
-                'client_secret': 'seekrit',
-                'redirect_uris': None,
-                'auth_uri': None,
-                'token_uri': None,
+            'client_id': 'eye-dee',
+            'client_secret': 'seekrit',
+            'redirect_uris': None,
+            'auth_uri': None,
+            'token_uri': None,
         }
         clientsecrets_dict = {
             clientsecrets.TYPE_INSTALLED: client_info,
