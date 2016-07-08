@@ -112,7 +112,8 @@ class AppAssertionCredentials(AssertionCredentials):
         """
         if self.invalid:
             info = _metadata.get_service_account_info(
-                http_request, service_account=self.service_account_email or 'default')
+                http_request,
+                service_account=self.service_account_email or 'default')
             self.invalid = False
             self.service_account_email = info['email']
             self.scopes = info['scopes']

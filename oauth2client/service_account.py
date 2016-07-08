@@ -134,8 +134,8 @@ class ServiceAccountCredentials(AssertionCredentials):
             strip: array, An array of names of members to exclude from the
                    JSON.
             to_serialize: dict, (Optional) The properties for this object
-                          that will be serialized. This allows callers to modify
-                          before serializing.
+                          that will be serialized. This allows callers to
+                          modify before serializing.
 
         Returns:
             string, a JSON representation of this instance, suitable to pass to
@@ -507,7 +507,8 @@ class ServiceAccountCredentials(AssertionCredentials):
 
         Returns:
             ServiceAccountCredentials, a copy of the current service account
-            credentials with updated claims to use when obtaining access tokens.
+            credentials with updated claims to use when obtaining access
+            tokens.
         """
         new_kwargs = dict(self._kwargs)
         new_kwargs.update(claims)
@@ -603,7 +604,8 @@ class _JWTAccessCredentials(ServiceAccountCredentials):
             h = credentials.authorize(h)
         """
         request_orig = http.request
-        request_auth = super(_JWTAccessCredentials, self).authorize(http).request
+        request_auth = super(_JWTAccessCredentials,
+                             self).authorize(http).request
 
         # The closure that will replace 'httplib2.Http.request'.
         def new_request(uri, method='GET', body=None, headers=None,
@@ -691,7 +693,8 @@ class _JWTAccessCredentials(ServiceAccountCredentials):
 
     def _create_token(self, additional_claims=None):
         now = _UTCNOW()
-        expiry = now + datetime.timedelta(seconds=self._MAX_TOKEN_LIFETIME_SECS)
+        lifetime = datetime.timedelta(seconds=self._MAX_TOKEN_LIFETIME_SECS)
+        expiry = now + lifetime
         payload = {
             'iat': _datetime_to_secs(now),
             'exp': _datetime_to_secs(expiry),

@@ -87,7 +87,8 @@ def oauth2_callback(request):
     try:
         server_csrf = request.session[_CSRF_KEY]
     except KeyError:
-        return http.HttpResponseBadRequest("No existing session for this flow.")
+        return http.HttpResponseBadRequest(
+            "No existing session for this flow.")
 
     try:
         state = json.loads(encoded_state)

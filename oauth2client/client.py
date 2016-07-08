@@ -257,8 +257,8 @@ class Credentials(object):
             strip: array, An array of names of members to exclude from the
                    JSON.
             to_serialize: dict, (Optional) The properties for this object
-                          that will be serialized. This allows callers to modify
-                          before serializing.
+                          that will be serialized. This allows callers to
+                          modify before serializing.
 
         Returns:
             string, a JSON representation of this instance, suitable to pass to
@@ -357,7 +357,8 @@ class Storage(object):
 
         Args:
             lock: An optional threading.Lock-like object. Must implement at
-                  least acquire() and release(). Does not need to be re-entrant.
+                  least acquire() and release(). Does not need to be
+                  re-entrant.
         """
         self._lock = lock
 
@@ -2209,7 +2210,8 @@ def flow_from_clientsecrets(filename, scope, redirect_uri=None,
     except clientsecrets.InvalidClientSecretsError as e:
         if message is not None:
             if e.args:
-                message = 'The client secrets were invalid: \n{0}\n{1}'.format(e, message)
+                message = ('The client secrets were invalid: '
+                           '\n{0}\n{1}'.format(e, message))
             sys.exit(message)
         else:
             raise

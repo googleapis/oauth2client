@@ -2149,7 +2149,8 @@ class FlowFromCachedClientsecrets(unittest2.TestCase):
         filename = object()
         cache = object()
         message = 'hi mom'
-        expected = 'The client secrets were invalid: \n{0}\n{1}'.format('foobar', 'hi mom')
+        expected = ('The client secrets were invalid: '
+                    '\n{0}\n{1}'.format('foobar', 'hi mom'))
 
         flow_from_clientsecrets(filename, None, cache=cache, message=message)
         sys_exit.assert_called_once_with(expected)

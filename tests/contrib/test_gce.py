@@ -79,11 +79,13 @@ class AppAssertionCredentialsTests(unittest2.TestCase):
         credentials.get_access_token(http=http_mock)
         self.assertEqual(credentials.access_token, 'A')
         self.assertTrue(credentials.access_token_expired)
-        get_token.assert_called_with(http_request, service_account='a@example.com')
+        get_token.assert_called_with(http_request,
+                                     service_account='a@example.com')
         credentials.get_access_token(http=http_mock)
         self.assertEqual(credentials.access_token, 'B')
         self.assertFalse(credentials.access_token_expired)
-        get_token.assert_called_with(http_request, service_account='a@example.com')
+        get_token.assert_called_with(http_request,
+                                     service_account='a@example.com')
         get_info.assert_not_called()
 
     def test_refresh_token_failed_fetch(self):
@@ -125,7 +127,8 @@ class AppAssertionCredentialsTests(unittest2.TestCase):
         self.assertFalse(credentials.invalid)
         credentials.retrieve_scopes(http_mock)
         # Assert scopes weren't refetched
-        metadata.assert_called_once_with(http_request, service_account='default')
+        metadata.assert_called_once_with(http_request,
+                                         service_account='default')
 
     @mock.patch('oauth2client.contrib._metadata.get_service_account_info',
                 side_effect=httplib2.HttpLib2Error('No Such Email'))
@@ -136,7 +139,8 @@ class AppAssertionCredentialsTests(unittest2.TestCase):
         with self.assertRaises(httplib2.HttpLib2Error):
             credentials.retrieve_scopes(http_mock)
 
-        metadata.assert_called_once_with(http_request, service_account='b@example.com')
+        metadata.assert_called_once_with(http_request,
+                                         service_account='b@example.com')
 
     def test_save_to_well_known_file(self):
         import os

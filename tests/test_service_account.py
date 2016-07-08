@@ -179,12 +179,14 @@ class ServiceAccountCredentialsTests(unittest2.TestCase):
         for creds in (creds_from_filename, creds_from_file_contents):
             self.assertIsInstance(creds, ServiceAccountCredentials)
             self.assertIsNone(creds.client_id)
-            self.assertEqual(creds._service_account_email, service_account_email)
+            self.assertEqual(creds._service_account_email,
+                             service_account_email)
             self.assertIsNone(creds._private_key_id)
             self.assertIsNone(creds._private_key_pkcs8_pem)
             self.assertEqual(creds._private_key_pkcs12, key_contents)
             if private_key_password is not None:
-                self.assertEqual(creds._private_key_password, private_key_password)
+                self.assertEqual(creds._private_key_password,
+                                 private_key_password)
             self.assertEqual(creds._scopes, ' '.join(scopes))
             self.assertEqual(creds.token_uri, token_uri)
             self.assertEqual(creds.revoke_uri, revoke_uri)

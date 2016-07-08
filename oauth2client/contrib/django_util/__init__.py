@@ -15,10 +15,10 @@
 """Utilities for the Django web framework
 
 Provides Django views and helpers the make using the OAuth2 web server
-flow easier. It includes an ``oauth_required`` decorator to automatically ensure
-that user credentials are available, and an ``oauth_enabled`` decorator to check
-if the user has authorized, and helper shortcuts to create the authorization
-URL otherwise.
+flow easier. It includes an ``oauth_required`` decorator to automatically
+ensure that user credentials are available, and an ``oauth_enabled`` decorator
+to check if the user has authorized, and helper shortcuts to create the
+authorization URL otherwise.
 
 Only Django versions 1.8+ are supported.
 
@@ -89,8 +89,8 @@ Add the oauth2 routes to your application's urls.py urlpatterns.
    urlpatterns += [url(r'^oauth2/', include(oauth2_urls))]
 
 To require OAuth2 credentials for a view, use the `oauth2_required` decorator.
-This creates a credentials object with an id_token, and allows you to create an
-`http` object to build service clients with. These are all attached to the
+This creates a credentials object with an id_token, and allows you to create
+an `http` object to build service clients with. These are all attached to the
 request.oauth
 
 .. code-block:: python
@@ -202,9 +202,9 @@ def _get_oauth2_client_id_and_secret(settings_instance):
             return client_id, client_secret
         else:
             raise exceptions.ImproperlyConfigured(
-                "Must specify either GOOGLE_OAUTH2_CLIENT_SECRETS_JSON, or  "
-                " both GOOGLE_OAUTH2_CLIENT_ID and GOOGLE_OAUTH2_CLIENT_SECRET "
-                "in settings.py")
+                "Must specify either GOOGLE_OAUTH2_CLIENT_SECRETS_JSON, or "
+                "both GOOGLE_OAUTH2_CLIENT_ID and "
+                "GOOGLE_OAUTH2_CLIENT_SECRET in settings.py")
 
 
 class OAuth2Settings(object):
