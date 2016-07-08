@@ -18,6 +18,7 @@ env:
   - TOX_ENV=system-tests
   - TOX_ENV=system-tests3
   - TOX_ENV=gae
+  - TOX_ENV=flake8
   global:
   - GAE_PYTHONPATH=${HOME}/.cache/google_appengine
 cache:
