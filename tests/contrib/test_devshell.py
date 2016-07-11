@@ -19,17 +19,17 @@ import json
 import os
 import socket
 import threading
-import unittest2
 
 import mock
+import unittest2
 
-from oauth2client.contrib import devshell
 from oauth2client._helpers import _from_bytes
 from oauth2client._helpers import _to_bytes
 from oauth2client.client import save_to_well_known_file
+from oauth2client.contrib import devshell
 from oauth2client.contrib.devshell import _SendRecv
-from oauth2client.contrib.devshell import CREDENTIAL_INFO_REQUEST_JSON
 from oauth2client.contrib.devshell import CommunicationError
+from oauth2client.contrib.devshell import CREDENTIAL_INFO_REQUEST_JSON
 from oauth2client.contrib.devshell import CredentialInfoResponse
 from oauth2client.contrib.devshell import DEVSHELL_ENV
 from oauth2client.contrib.devshell import DevshellCredentials

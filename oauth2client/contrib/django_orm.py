@@ -21,12 +21,13 @@ the Django datastore.
 Only Django versions 1.8+ are supported.
 """
 
-import oauth2client
 import base64
 import pickle
 
 from django.db import models
 from django.utils.encoding import smart_bytes, smart_text
+
+import oauth2client
 from oauth2client.client import Storage as BaseStorage
 
 

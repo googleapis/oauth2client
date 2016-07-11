@@ -162,14 +162,11 @@ available outside of a request context, you will need to implement your own
 :class:`oauth2client.Storage`.
 """
 
+from functools import wraps
 import hashlib
 import json
 import os
 import pickle
-from functools import wraps
-
-import six.moves.http_client as httplib
-import httplib2
 
 try:
     from flask import Blueprint
@@ -182,10 +179,13 @@ try:
 except ImportError:  # pragma: NO COVER
     raise ImportError('The flask utilities require flask 0.9 or newer.')
 
+import httplib2
+import six.moves.http_client as httplib
+
+from oauth2client import clientsecrets
 from oauth2client.client import FlowExchangeError
 from oauth2client.client import OAuth2WebServerFlow
 from oauth2client.contrib.dictionary_storage import DictionaryStorage
-from oauth2client import clientsecrets
 
 
 __author__ = 'jonwayne@google.com (Jon Wayne Parrott)'

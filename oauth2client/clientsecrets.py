@@ -19,8 +19,8 @@ an OAuth 2.0 protected service.
 """
 
 import json
-import six
 
+import six
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 

@@ -21,7 +21,6 @@ import base64
 import datetime
 import os
 import pickle
-import unittest2
 
 # Mock a Django environment
 os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.contrib.test_django_settings'
@@ -35,8 +34,6 @@ import django
 django.setup()
 from django.apps import AppConfig
 
-import mock
-
 
 class DjangoOrmTestApp(AppConfig):
     """App Config for Django Helper."""
@@ -45,6 +42,10 @@ class DjangoOrmTestApp(AppConfig):
 
 
 from django.db import models
+import mock
+import unittest2
+
+from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client._helpers import _from_bytes
 from oauth2client.client import Credentials
 from oauth2client.client import Flow
@@ -52,7 +53,6 @@ from oauth2client.client import OAuth2Credentials
 from oauth2client.contrib.django_orm import CredentialsField
 from oauth2client.contrib.django_orm import FlowField
 from oauth2client.contrib.django_orm import Storage
-from oauth2client import GOOGLE_TOKEN_URI
 
 __author__ = 'conleyo@google.com (Conley Owens)'
 

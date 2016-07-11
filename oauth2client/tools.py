@@ -27,8 +27,8 @@ import sys
 
 from six.moves import BaseHTTPServer
 from six.moves import http_client
-from six.moves import urllib
 from six.moves import input
+from six.moves import urllib
 
 from oauth2client import client
 from oauth2client import util

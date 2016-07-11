@@ -34,38 +34,12 @@ from six.moves import http_client
 from six.moves import urllib
 import unittest2
 
-from .http_mock import CacheMock
-from .http_mock import HttpMock
-from .http_mock import HttpMockSequence
-from oauth2client import GOOGLE_REVOKE_URI
-from oauth2client import GOOGLE_TOKEN_URI
-from oauth2client import GOOGLE_TOKEN_INFO_URI
 from oauth2client import client
+from oauth2client import GOOGLE_REVOKE_URI
+from oauth2client import GOOGLE_TOKEN_INFO_URI
+from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client import util as oauth2client_util
-from oauth2client.client import AccessTokenCredentials
-from oauth2client.client import AccessTokenCredentialsError
-from oauth2client.client import HttpAccessTokenRefreshError
-from oauth2client.client import ADC_HELP_MSG
-from oauth2client.client import AssertionCredentials
-from oauth2client.client import AUTHORIZED_USER
-from oauth2client.client import Credentials
-from oauth2client.client import DEFAULT_ENV_NAME
-from oauth2client.client import DeviceFlowInfo
-from oauth2client.client import Error
-from oauth2client.client import ApplicationDefaultCredentialsError
-from oauth2client.client import FlowExchangeError
-from oauth2client.client import GoogleCredentials
-from oauth2client.client import GOOGLE_APPLICATION_CREDENTIALS
-from oauth2client.client import MemoryCache
-from oauth2client.client import NonAsciiHeaderError
-from oauth2client.client import OAuth2Credentials
-from oauth2client.client import OAuth2WebServerFlow
-from oauth2client.client import OOB_CALLBACK_URN
-from oauth2client.client import REFRESH_STATUS_CODES
-from oauth2client.client import SERVICE_ACCOUNT
-from oauth2client.client import Storage
-from oauth2client.client import TokenRevokeError
-from oauth2client.client import VerifyJwtTokenError
+from oauth2client._helpers import _to_bytes
 from oauth2client.client import _extract_id_token
 from oauth2client.client import _get_application_default_credential_from_file
 from oauth2client.client import _get_environment_variable_file
@@ -76,15 +50,41 @@ from oauth2client.client import _raise_exception_for_missing_fields
 from oauth2client.client import _raise_exception_for_reading_json
 from oauth2client.client import _update_query_params
 from oauth2client.client import _WELL_KNOWN_CREDENTIALS_FILE
+from oauth2client.client import AccessTokenCredentials
+from oauth2client.client import AccessTokenCredentialsError
+from oauth2client.client import ADC_HELP_MSG
+from oauth2client.client import ApplicationDefaultCredentialsError
+from oauth2client.client import AssertionCredentials
+from oauth2client.client import AUTHORIZED_USER
+from oauth2client.client import Credentials
 from oauth2client.client import credentials_from_clientsecrets_and_code
 from oauth2client.client import credentials_from_code
+from oauth2client.client import DEFAULT_ENV_NAME
+from oauth2client.client import DeviceFlowInfo
+from oauth2client.client import Error
 from oauth2client.client import flow_from_clientsecrets
+from oauth2client.client import FlowExchangeError
+from oauth2client.client import GOOGLE_APPLICATION_CREDENTIALS
+from oauth2client.client import GoogleCredentials
+from oauth2client.client import HttpAccessTokenRefreshError
+from oauth2client.client import MemoryCache
+from oauth2client.client import NonAsciiHeaderError
+from oauth2client.client import OAuth2Credentials
+from oauth2client.client import OAuth2WebServerFlow
+from oauth2client.client import OOB_CALLBACK_URN
+from oauth2client.client import REFRESH_STATUS_CODES
 from oauth2client.client import save_to_well_known_file
+from oauth2client.client import SERVICE_ACCOUNT
+from oauth2client.client import Storage
+from oauth2client.client import TokenRevokeError
+from oauth2client.client import VerifyJwtTokenError
 from oauth2client.clientsecrets import _loadfile
 from oauth2client.clientsecrets import InvalidClientSecretsError
 from oauth2client.clientsecrets import TYPE_WEB
 from oauth2client.service_account import ServiceAccountCredentials
-from oauth2client._helpers import _to_bytes
+from .http_mock import CacheMock
+from .http_mock import HttpMock
+from .http_mock import HttpMockSequence
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 

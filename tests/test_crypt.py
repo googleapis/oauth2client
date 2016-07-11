@@ -14,13 +14,13 @@
 
 import base64
 import os
-import unittest2
 
 import mock
+import unittest2
 
 from oauth2client import _helpers
-from oauth2client.client import HAS_OPENSSL
 from oauth2client import crypt
+from oauth2client.client import HAS_OPENSSL
 from oauth2client.service_account import ServiceAccountCredentials
 
 

@@ -22,8 +22,8 @@ import rsa
 import six
 import unittest2
 
-from oauth2client._helpers import _from_bytes
 from oauth2client import _pure_python_crypt
+from oauth2client._helpers import _from_bytes
 from oauth2client.crypt import RsaSigner
 from oauth2client.crypt import RsaVerifier
 

@@ -19,9 +19,9 @@ import errno
 import os
 import stat
 import tempfile
-import unittest2
 
 import mock
+import unittest2
 
 from oauth2client import util
 from oauth2client.client import OAuth2Credentials

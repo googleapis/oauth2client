@@ -13,12 +13,12 @@
 # limitations under the License.
 
 import datetime
-import httplib2
 import json
-import mock
-import unittest2
 
+import httplib2
+import mock
 from six.moves import http_client
+import unittest2
 
 from oauth2client.contrib import _metadata
 

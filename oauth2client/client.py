@@ -23,25 +23,26 @@ import datetime
 import json
 import logging
 import os
+import shutil
 import socket
 import sys
 import tempfile
-import shutil
+
+import httplib2
 import six
 from six.moves import http_client
 from six.moves import urllib
 
-import httplib2
+from oauth2client import clientsecrets
 from oauth2client import GOOGLE_AUTH_URI
 from oauth2client import GOOGLE_DEVICE_URI
 from oauth2client import GOOGLE_REVOKE_URI
-from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client import GOOGLE_TOKEN_INFO_URI
+from oauth2client import GOOGLE_TOKEN_URI
+from oauth2client import util
 from oauth2client._helpers import _from_bytes
 from oauth2client._helpers import _to_bytes
 from oauth2client._helpers import _urlsafe_b64decode
-from oauth2client import clientsecrets
-from oauth2client import util
 
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'

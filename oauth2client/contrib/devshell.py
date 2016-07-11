@@ -19,8 +19,8 @@ import json
 import os
 import socket
 
-from oauth2client._helpers import _to_bytes
 from oauth2client import client
+from oauth2client._helpers import _to_bytes
 
 # Expose utcnow() at module level to allow for
 # easier testing (by replacing with a stub).

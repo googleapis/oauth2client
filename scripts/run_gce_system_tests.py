@@ -13,11 +13,11 @@
 # limitations under the License.
 
 import json
-import unittest2
 
 import httplib2
 from six.moves import http_client
 from six.moves import urllib
+import unittest2
 
 from oauth2client import GOOGLE_TOKEN_INFO_URI
 from oauth2client.client import GoogleCredentials

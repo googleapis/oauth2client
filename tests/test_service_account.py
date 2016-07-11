@@ -20,20 +20,19 @@ Unit tests for service account credentials implemented using RSA.
 import datetime
 import json
 import os
-import rsa
 import tempfile
 
 import httplib2
 import mock
+import rsa
+from six import BytesIO
 import unittest2
 
-from .http_mock import HttpMockSequence
 from oauth2client import crypt
 from oauth2client.service_account import _JWTAccessCredentials
-from oauth2client.service_account import ServiceAccountCredentials
 from oauth2client.service_account import SERVICE_ACCOUNT
-
-from six import BytesIO
+from oauth2client.service_account import ServiceAccountCredentials
+from .http_mock import HttpMockSequence
 
 
 def data_filename(filename):

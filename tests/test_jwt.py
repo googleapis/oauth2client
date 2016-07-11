@@ -21,16 +21,16 @@ import time
 import mock
 import unittest2
 
-from .http_mock import HttpMockSequence
-from oauth2client.client import Credentials
-from oauth2client.client import VerifyJwtTokenError
-from oauth2client.client import verify_id_token
-from oauth2client.client import HAS_OPENSSL
-from oauth2client.client import HAS_CRYPTO
 from oauth2client import crypt
+from oauth2client.client import Credentials
+from oauth2client.client import HAS_CRYPTO
+from oauth2client.client import HAS_OPENSSL
+from oauth2client.client import verify_id_token
+from oauth2client.client import VerifyJwtTokenError
 from oauth2client.file import Storage
 from oauth2client.service_account import _PASSWORD_DEFAULT
 from oauth2client.service_account import ServiceAccountCredentials
+from .http_mock import HttpMockSequence
 
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'

@@ -24,19 +24,18 @@ import os
 import pickle
 import threading
 
-import httplib2
-import webapp2 as webapp
-
 from google.appengine.api import app_identity
 from google.appengine.api import memcache
 from google.appengine.api import users
 from google.appengine.ext import db
 from google.appengine.ext.webapp.util import login_required
+import httplib2
+import webapp2 as webapp
 
+from oauth2client import clientsecrets
 from oauth2client import GOOGLE_AUTH_URI
 from oauth2client import GOOGLE_REVOKE_URI
 from oauth2client import GOOGLE_TOKEN_URI
-from oauth2client import clientsecrets
 from oauth2client import util
 from oauth2client.client import AccessTokenRefreshError
 from oauth2client.client import AssertionCredentials

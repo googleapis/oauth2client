@@ -13,8 +13,9 @@
 # limitations under the License.
 
 from django import shortcuts
-from oauth2client.contrib import django_util
 from six import wraps
+
+from oauth2client.contrib import django_util
 
 
 def oauth_required(decorated_function=None, scopes=None, **decorator_kwargs):

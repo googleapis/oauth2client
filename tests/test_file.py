@@ -24,15 +24,16 @@ import os
 import pickle
 import stat
 import tempfile
-import unittest2
 
-from .http_mock import HttpMockSequence
 import six
+from six.moves import http_client
+import unittest2
 
 from oauth2client import file
 from oauth2client.client import AccessTokenCredentials
 from oauth2client.client import OAuth2Credentials
-from six.moves import http_client
+from .http_mock import HttpMockSequence
+
 try:
     # Python2
     from future_builtins import oct

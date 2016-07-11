@@ -90,8 +90,9 @@ We will reuse tables defined above.
 
 from __future__ import absolute_import
 
-import oauth2client.client
 import sqlalchemy.types
+
+import oauth2client.client
 
 
 class CredentialsType(sqlalchemy.types.PickleType):

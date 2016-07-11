@@ -20,9 +20,9 @@ import mock
 from six.moves.urllib import request
 import unittest2
 
+from oauth2client import tools
 from oauth2client.client import FlowExchangeError
 from oauth2client.client import OOB_CALLBACK_URN
-from oauth2client import tools
 
 try:
     import argparse

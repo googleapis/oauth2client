@@ -20,8 +20,10 @@ are not already installed.
 from __future__ import print_function
 
 import sys
+
 from setuptools import find_packages
 from setuptools import setup
+
 import oauth2client
 
 if sys.version_info < (2, 6):

@@ -15,9 +15,9 @@
 """Tests for oauth2client.contrib.xsrfutil."""
 
 import base64
-import unittest2
 
 import mock
+import unittest2
 
 from oauth2client._helpers import _to_bytes
 from oauth2client.contrib import xsrfutil

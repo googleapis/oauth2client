@@ -15,18 +15,18 @@
 """Unit tests for oauth2client.contrib.gce."""
 
 import datetime
-import httplib2
 import json
 
+import httplib2
 import mock
 from six.moves import http_client
+from tests.contrib.test_metadata import request_mock
 import unittest2
 
-from oauth2client.client import save_to_well_known_file
 from oauth2client.client import HttpAccessTokenRefreshError
+from oauth2client.client import save_to_well_known_file
 from oauth2client.contrib.gce import _SCOPES_WARNING
 from oauth2client.contrib.gce import AppAssertionCredentials
-from tests.contrib.test_metadata import request_mock
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 

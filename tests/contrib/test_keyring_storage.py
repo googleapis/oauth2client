@@ -15,11 +15,11 @@
 """Tests for oauth2client.contrib.keyring_storage."""
 
 import datetime
-import keyring
 import threading
-import unittest2
 
+import keyring
 import mock
+import unittest2
 
 from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client.client import OAuth2Credentials

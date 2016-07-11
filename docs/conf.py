@@ -5,10 +5,8 @@
 #
 
 import os
-from pkg_resources import get_distribution
 import sys
 
-import mock
 
 # In order to load django before 1.7, we need to create a faux
 # settings module and load it. This assumes django has been installed
@@ -16,6 +14,8 @@ import mock
 # been installed run `pip install -r docs/requirements.txt`.
 os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.contrib.test_django_settings'
 import django
+import mock
+from pkg_resources import get_distribution
 if django.VERSION[1] < 7:
     sys.path.insert(0, '.')
 
