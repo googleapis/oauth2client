@@ -21,13 +21,13 @@ the Django datastore.
 Only Django versions 1.8+ are supported.
 """
 
-import oauth2client
 import base64
 import pickle
-import six
 
 from django.db import models
 from django.utils.encoding import smart_bytes, smart_text
+
+import oauth2client
 from oauth2client.client import Storage as BaseStorage
 
 
@@ -179,4 +179,4 @@ class Storage(BaseStorage):
         """Delete Credentials from the datastore."""
 
         query = {self.key_name: self.key_value}
-        entities = self.model_class.objects.filter(**query).delete()
+        self.model_class.objects.filter(**query).delete()

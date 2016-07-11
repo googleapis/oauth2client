@@ -13,22 +13,23 @@
 # limitations under the License.
 
 import json
-import unittest2
 
-from django.conf.urls import include, url
-from django.core import exceptions
 from django import http
 from django import test
-import mock
-from oauth2client.client import FlowExchangeError, OAuth2WebServerFlow
 import django.conf
+from django.conf.urls import include, url
+from django.core import exceptions
+import mock
+from six.moves import http_client
+from six.moves.urllib import parse
+import unittest2
+
+from oauth2client.client import FlowExchangeError, OAuth2WebServerFlow
 from oauth2client.contrib import django_util
 from oauth2client.contrib.django_util import decorators
 from oauth2client.contrib.django_util import site
 from oauth2client.contrib.django_util import storage
 from oauth2client.contrib.django_util import views
-from six.moves import http_client
-from six.moves.urllib import parse
 
 urlpatterns = [
     url(r'^oauth2/', include(site.urls))
@@ -242,9 +243,8 @@ class Oauth2AuthorizeTest(TestWithSession):
         self.assertTrue(isinstance(response, http.HttpResponseRedirect))
 
     def test_authorize_works_explicit_return_url(self):
-        request = self.factory.get('oauth2/oauth2authorize', data={
-            'return_url':  '/return_endpoint'
-        })
+        request = self.factory.get('oauth2/oauth2authorize',
+                                   data={'return_url': '/return_endpoint'})
         request.session = self.session
         response = views.oauth2_authorize(request)
         self.assertTrue(isinstance(response, http.HttpResponseRedirect))

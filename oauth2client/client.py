@@ -17,33 +17,32 @@
 Tools for interacting with OAuth 2.0 protected resources.
 """
 
-import base64
 import collections
 import copy
 import datetime
 import json
 import logging
 import os
+import shutil
 import socket
 import sys
 import tempfile
-import time
-import shutil
+
+import httplib2
 import six
 from six.moves import http_client
 from six.moves import urllib
 
-import httplib2
+from oauth2client import clientsecrets
 from oauth2client import GOOGLE_AUTH_URI
 from oauth2client import GOOGLE_DEVICE_URI
 from oauth2client import GOOGLE_REVOKE_URI
-from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client import GOOGLE_TOKEN_INFO_URI
+from oauth2client import GOOGLE_TOKEN_URI
+from oauth2client import util
 from oauth2client._helpers import _from_bytes
 from oauth2client._helpers import _to_bytes
 from oauth2client._helpers import _urlsafe_b64decode
-from oauth2client import clientsecrets
-from oauth2client import util
 
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
@@ -259,8 +258,8 @@ class Credentials(object):
             strip: array, An array of names of members to exclude from the
                    JSON.
             to_serialize: dict, (Optional) The properties for this object
-                          that will be serialized. This allows callers to modify
-                          before serializing.
+                          that will be serialized. This allows callers to
+                          modify before serializing.
 
         Returns:
             string, a JSON representation of this instance, suitable to pass to
@@ -359,7 +358,8 @@ class Storage(object):
 
         Args:
             lock: An optional threading.Lock-like object. Must implement at
-                  least acquire() and release(). Does not need to be re-entrant.
+                  least acquire() and release(). Does not need to be
+                  re-entrant.
         """
         self._lock = lock
 
@@ -1195,7 +1195,7 @@ class GoogleCredentials(OAuth2Credentials):
         print(response)
     """
 
-    NON_SERIALIZED_MEMBERS =  (
+    NON_SERIALIZED_MEMBERS = (
         frozenset(['_private_key']) |
         OAuth2Credentials.NON_SERIALIZED_MEMBERS)
     """Members that aren't serialized when object is converted to JSON."""
@@ -1253,12 +1253,11 @@ class GoogleCredentials(OAuth2Credentials):
         # We handle service_account.ServiceAccountCredentials since it is a
         # possible return type of GoogleCredentials.get_application_default()
         if (data['_module'] == 'oauth2client.service_account' and
-            data['_class'] == 'ServiceAccountCredentials'):
+                data['_class'] == 'ServiceAccountCredentials'):
             return ServiceAccountCredentials.from_json(data)
         elif (data['_module'] == 'oauth2client.service_account' and
-              data['_class'] == '_JWTAccessCredentials'):
+                data['_class'] == '_JWTAccessCredentials'):
             return _JWTAccessCredentials.from_json(data)
-        
 
         token_expiry = _parse_expiry(data.get('token_expiry'))
         google_credentials = cls(
@@ -1468,8 +1467,7 @@ def save_to_well_known_file(credentials, well_known_file=None):
 
 def _get_environment_variable_file():
     application_default_credential_filename = (
-      os.environ.get(GOOGLE_APPLICATION_CREDENTIALS,
-                     None))
+        os.environ.get(GOOGLE_APPLICATION_CREDENTIALS, None))
 
     if application_default_credential_filename:
         if os.path.isfile(application_default_credential_filename):
@@ -1552,8 +1550,8 @@ def _raise_exception_for_reading_json(credential_file,
                                       extra_help,
                                       error):
     raise ApplicationDefaultCredentialsError(
-      'An error was encountered while reading json file: ' +
-      credential_file + extra_help + ': ' + str(error))
+        'An error was encountered while reading json file: ' +
+        credential_file + extra_help + ': ' + str(error))
 
 
 def _get_application_default_credential_GAE():
@@ -2213,7 +2211,8 @@ def flow_from_clientsecrets(filename, scope, redirect_uri=None,
     except clientsecrets.InvalidClientSecretsError as e:
         if message is not None:
             if e.args:
-                message = 'The client secrets were invalid: \n{0}\n{1}'.format(e, message)
+                message = ('The client secrets were invalid: '
+                           '\n{0}\n{1}'.format(e, message))
             sys.exit(message)
         else:
             raise

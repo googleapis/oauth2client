@@ -15,10 +15,10 @@
 """Utilities for the Django web framework
 
 Provides Django views and helpers the make using the OAuth2 web server
-flow easier. It includes an ``oauth_required`` decorator to automatically ensure
-that user credentials are available, and an ``oauth_enabled`` decorator to check
-if the user has authorized, and helper shortcuts to create the authorization
-URL otherwise.
+flow easier. It includes an ``oauth_required`` decorator to automatically
+ensure that user credentials are available, and an ``oauth_enabled`` decorator
+to check if the user has authorized, and helper shortcuts to create the
+authorization URL otherwise.
 
 Only Django versions 1.8+ are supported.
 
@@ -89,8 +89,8 @@ Add the oauth2 routes to your application's urls.py urlpatterns.
    urlpatterns += [url(r'^oauth2/', include(oauth2_urls))]
 
 To require OAuth2 credentials for a view, use the `oauth2_required` decorator.
-This creates a credentials object with an id_token, and allows you to create an
-`http` object to build service clients with. These are all attached to the
+This creates a credentials object with an id_token, and allows you to create
+an `http` object to build service clients with. These are all attached to the
 request.oauth
 
 .. code-block:: python
@@ -124,8 +124,9 @@ To make OAuth2 optional and provide an authorization link in your own views.
            return HttpResponse("User email: %s"
             % request.oauth.credentials.id_token['email'])
        else:
-           return HttpResponse('Here is an OAuth Authorize link:
-           <a href="%s">Authorize</a>' % request.oauth.get_authorize_redirect())
+           return HttpResponse(
+               'Here is an OAuth Authorize link: <a href="%s">Authorize</a>'
+                % request.oauth.get_authorize_redirect())
 
 If a view needs a scope not included in the default scopes specified in
 the settings, you can use [incremental auth](https://developers.google.com/identity/sign-in/web/incremental-auth)
@@ -144,8 +145,9 @@ and specify additional scopes in the decorator arguments.
            events = service.files().list().execute()['items']
            return HttpResponse(str(events))
        else:
-           return HttpResponse('Here is an OAuth Authorize link:
-           <a href="%s">Authorize</a>' % request.oauth.get_authorize_redirect())
+           return HttpResponse(
+               'Here is an OAuth Authorize link: <a href="%s">Authorize</a>'
+                % request.oauth.get_authorize_redirect())
 
 
 To provide a callback on authorization being completed, use the
@@ -168,9 +170,10 @@ import django.conf
 from django.core import exceptions
 from django.core import urlresolvers
 import httplib2
+from six.moves.urllib import parse
+
 from oauth2client import clientsecrets
 from oauth2client.contrib.django_util import storage
-from six.moves.urllib import parse
 
 GOOGLE_OAUTH2_DEFAULT_SCOPES = ('email',)
 GOOGLE_OAUTH2_REQUEST_ATTRIBUTE = 'oauth'
@@ -202,9 +205,9 @@ def _get_oauth2_client_id_and_secret(settings_instance):
             return client_id, client_secret
         else:
             raise exceptions.ImproperlyConfigured(
-                "Must specify either GOOGLE_OAUTH2_CLIENT_SECRETS_JSON, or  "
-                " both GOOGLE_OAUTH2_CLIENT_ID and GOOGLE_OAUTH2_CLIENT_SECRET "
-                "in settings.py")
+                "Must specify either GOOGLE_OAUTH2_CLIENT_SECRETS_JSON, or "
+                "both GOOGLE_OAUTH2_CLIENT_ID and "
+                "GOOGLE_OAUTH2_CLIENT_SECRET in settings.py")
 
 
 class OAuth2Settings(object):
@@ -290,8 +293,8 @@ class UserOAuth2(object):
     def has_credentials(self):
         """Returns True if there are valid credentials for the current user
         and required scopes."""
-        return (self.credentials and not self.credentials.invalid
-                and self.credentials.has_scopes(self.scopes))
+        return (self.credentials and not self.credentials.invalid and
+                self.credentials.has_scopes(self.scopes))
 
     @property
     def credentials(self):

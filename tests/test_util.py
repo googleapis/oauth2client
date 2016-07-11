@@ -9,7 +9,6 @@ from oauth2client import util
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 
-
 class PositionalTests(unittest2.TestCase):
 
     def test_usage(self):
@@ -45,7 +44,6 @@ class PositionalTests(unittest2.TestCase):
         with self.assertRaises(TypeError):
             fn3(1, 2)
 
-
     @mock.patch('oauth2client.util.logger')
     def test_enforcement_warning(self, mock_logger):
         util.positional_parameters_enforcement = util.POSITIONAL_WARNING
@@ -56,7 +54,6 @@ class PositionalTests(unittest2.TestCase):
 
         self.assertTrue(fn(1, 2))
         self.assertTrue(mock_logger.warning.called)
-
 
     @mock.patch('oauth2client.util.logger')
     def test_enforcement_ignore(self, mock_logger):
@@ -102,7 +99,6 @@ class StringToScopeTests(unittest2.TestCase):
 
         for case, expected in cases:
             self.assertEqual(expected, util.string_to_scopes(case))
-
 
 
 class AddQueryParameterTests(unittest2.TestCase):

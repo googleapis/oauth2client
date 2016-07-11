@@ -14,13 +14,14 @@
 
 import datetime
 
-import oauth2client
-import oauth2client.client
-import oauth2client.contrib.sqlalchemy
 import sqlalchemy
 import sqlalchemy.ext.declarative
 import sqlalchemy.orm
 import unittest2
+
+import oauth2client
+import oauth2client.client
+import oauth2client.contrib.sqlalchemy
 
 Base = sqlalchemy.ext.declarative.declarative_base()
 

@@ -34,38 +34,12 @@ from six.moves import http_client
 from six.moves import urllib
 import unittest2
 
-from .http_mock import CacheMock
-from .http_mock import HttpMock
-from .http_mock import HttpMockSequence
-from oauth2client import GOOGLE_REVOKE_URI
-from oauth2client import GOOGLE_TOKEN_URI
-from oauth2client import GOOGLE_TOKEN_INFO_URI
 from oauth2client import client
+from oauth2client import GOOGLE_REVOKE_URI
+from oauth2client import GOOGLE_TOKEN_INFO_URI
+from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client import util as oauth2client_util
-from oauth2client.client import AccessTokenCredentials
-from oauth2client.client import AccessTokenCredentialsError
-from oauth2client.client import HttpAccessTokenRefreshError
-from oauth2client.client import ADC_HELP_MSG
-from oauth2client.client import AssertionCredentials
-from oauth2client.client import AUTHORIZED_USER
-from oauth2client.client import Credentials
-from oauth2client.client import DEFAULT_ENV_NAME
-from oauth2client.client import DeviceFlowInfo
-from oauth2client.client import Error
-from oauth2client.client import ApplicationDefaultCredentialsError
-from oauth2client.client import FlowExchangeError
-from oauth2client.client import GoogleCredentials
-from oauth2client.client import GOOGLE_APPLICATION_CREDENTIALS
-from oauth2client.client import MemoryCache
-from oauth2client.client import NonAsciiHeaderError
-from oauth2client.client import OAuth2Credentials
-from oauth2client.client import OAuth2WebServerFlow
-from oauth2client.client import OOB_CALLBACK_URN
-from oauth2client.client import REFRESH_STATUS_CODES
-from oauth2client.client import SERVICE_ACCOUNT
-from oauth2client.client import Storage
-from oauth2client.client import TokenRevokeError
-from oauth2client.client import VerifyJwtTokenError
+from oauth2client._helpers import _to_bytes
 from oauth2client.client import _extract_id_token
 from oauth2client.client import _get_application_default_credential_from_file
 from oauth2client.client import _get_environment_variable_file
@@ -76,15 +50,41 @@ from oauth2client.client import _raise_exception_for_missing_fields
 from oauth2client.client import _raise_exception_for_reading_json
 from oauth2client.client import _update_query_params
 from oauth2client.client import _WELL_KNOWN_CREDENTIALS_FILE
+from oauth2client.client import AccessTokenCredentials
+from oauth2client.client import AccessTokenCredentialsError
+from oauth2client.client import ADC_HELP_MSG
+from oauth2client.client import ApplicationDefaultCredentialsError
+from oauth2client.client import AssertionCredentials
+from oauth2client.client import AUTHORIZED_USER
+from oauth2client.client import Credentials
 from oauth2client.client import credentials_from_clientsecrets_and_code
 from oauth2client.client import credentials_from_code
+from oauth2client.client import DEFAULT_ENV_NAME
+from oauth2client.client import DeviceFlowInfo
+from oauth2client.client import Error
 from oauth2client.client import flow_from_clientsecrets
+from oauth2client.client import FlowExchangeError
+from oauth2client.client import GOOGLE_APPLICATION_CREDENTIALS
+from oauth2client.client import GoogleCredentials
+from oauth2client.client import HttpAccessTokenRefreshError
+from oauth2client.client import MemoryCache
+from oauth2client.client import NonAsciiHeaderError
+from oauth2client.client import OAuth2Credentials
+from oauth2client.client import OAuth2WebServerFlow
+from oauth2client.client import OOB_CALLBACK_URN
+from oauth2client.client import REFRESH_STATUS_CODES
 from oauth2client.client import save_to_well_known_file
+from oauth2client.client import SERVICE_ACCOUNT
+from oauth2client.client import Storage
+from oauth2client.client import TokenRevokeError
+from oauth2client.client import VerifyJwtTokenError
 from oauth2client.clientsecrets import _loadfile
 from oauth2client.clientsecrets import InvalidClientSecretsError
 from oauth2client.clientsecrets import TYPE_WEB
 from oauth2client.service_account import ServiceAccountCredentials
-from oauth2client._helpers import _to_bytes
+from .http_mock import CacheMock
+from .http_mock import HttpMock
+from .http_mock import HttpMockSequence
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
@@ -124,7 +124,7 @@ class CredentialsTests(unittest2.TestCase):
     def test_to_from_json(self):
         credentials = Credentials()
         json = credentials.to_json()
-        restored = Credentials.new_from_json(json)
+        Credentials.new_from_json(json)
 
     def test_authorize_abstract(self):
         credentials = Credentials()
@@ -457,7 +457,7 @@ class GoogleCredentialsTests(unittest2.TestCase):
                             client._METADATA_FLAVOR_HEADER)
                 else:
                     self.assertEqual(
-                            http_client_module.HTTPConnection.mock_calls, [])
+                        http_client_module.HTTPConnection.mock_calls, [])
                     self.assertEqual(connection.getresponse.mock_calls, [])
                     # Remaining calls are not "getresponse"
                     self.assertEqual(connection.method_calls, [])
@@ -1863,8 +1863,7 @@ class OAuth2WebServerFlowTest(unittest2.TestCase):
         ])
 
         with self.assertRaises(FlowExchangeError):
-            credentials = self.flow.step2_exchange(code='some random code',
-                                                   http=http)
+            self.flow.step2_exchange(code='some random code', http=http)
 
     def test_urlencoded_exchange_failure(self):
         http = HttpMockSequence([
@@ -1873,8 +1872,7 @@ class OAuth2WebServerFlowTest(unittest2.TestCase):
 
         with self.assertRaisesRegexp(FlowExchangeError,
                                      'invalid_request'):
-            credentials = self.flow.step2_exchange(code='some random code',
-                                                   http=http)
+            self.flow.step2_exchange(code='some random code', http=http)
 
     def test_exchange_failure_with_json_error(self):
         # Some providers have 'error' attribute as a JSON object
@@ -1890,8 +1888,7 @@ class OAuth2WebServerFlowTest(unittest2.TestCase):
         http = HttpMockSequence([({'status': '400'}, payload)])
 
         with self.assertRaises(FlowExchangeError):
-            credentials = self.flow.step2_exchange(code='some random code',
-                                                   http=http)
+            self.flow.step2_exchange(code='some random code', http=http)
 
     def _exchange_success_test_helper(self, code=None, device_flow_info=None):
         payload = (b'{'
@@ -2040,9 +2037,8 @@ class OAuth2WebServerFlowTest(unittest2.TestCase):
         http = HttpMockSequence([({'status': '200'}, payload)])
 
         code = {'error': 'thou shall not pass'}
-        with self.assertRaisesRegexp(FlowExchangeError,
-                                     'shall not pass'):
-            credentials = self.flow.step2_exchange(code=code, http=http)
+        with self.assertRaisesRegexp(FlowExchangeError, 'shall not pass'):
+            self.flow.step2_exchange(code=code, http=http)
 
     def test_exchange_id_token_fail(self):
         payload = (b'{'
@@ -2153,7 +2149,8 @@ class FlowFromCachedClientsecrets(unittest2.TestCase):
         filename = object()
         cache = object()
         message = 'hi mom'
-        expected = 'The client secrets were invalid: \n{0}\n{1}'.format('foobar', 'hi mom')
+        expected = ('The client secrets were invalid: '
+                    '\n{0}\n{1}'.format('foobar', 'hi mom'))
 
         flow_from_clientsecrets(filename, None, cache=cache, message=message)
         sys_exit.assert_called_once_with(expected)
@@ -2190,9 +2187,8 @@ class CredentialsFromCodeTests(unittest2.TestCase):
             ({'status': '200'}, payload.encode('utf-8')),
         ])
         credentials = credentials_from_code(self.client_id, self.client_secret,
-                                            self.scope, self.code,
-                                            redirect_uri=self.redirect_uri,
-                                            http=http)
+                                            self.scope, self.code, http=http,
+                                            redirect_uri=self.redirect_uri)
         self.assertEqual(credentials.access_token, token)
         self.assertNotEqual(None, credentials.token_expiry)
         self.assertEqual(set(['foo']), credentials.scopes)
@@ -2203,11 +2199,9 @@ class CredentialsFromCodeTests(unittest2.TestCase):
         ])
 
         with self.assertRaises(FlowExchangeError):
-            credentials = credentials_from_code(self.client_id,
-                                                self.client_secret,
-                                                self.scope, self.code,
-                                                redirect_uri=self.redirect_uri,
-                                                http=http)
+            credentials_from_code(self.client_id, self.client_secret,
+                                  self.scope, self.code, http=http,
+                                  redirect_uri=self.redirect_uri)
 
     def test_exchange_code_and_file_for_token(self):
         payload = (b'{'
@@ -2241,7 +2235,7 @@ class CredentialsFromCodeTests(unittest2.TestCase):
         ])
 
         with self.assertRaises(FlowExchangeError):
-            credentials = credentials_from_clientsecrets_and_code(
+            credentials_from_clientsecrets_and_code(
                 datafile('client_secrets.json'), self.scope,
                 self.code, http=http)
 

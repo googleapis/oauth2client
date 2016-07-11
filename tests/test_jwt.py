@@ -21,16 +21,16 @@ import time
 import mock
 import unittest2
 
-from .http_mock import HttpMockSequence
-from oauth2client.client import Credentials
-from oauth2client.client import VerifyJwtTokenError
-from oauth2client.client import verify_id_token
-from oauth2client.client import HAS_OPENSSL
-from oauth2client.client import HAS_CRYPTO
 from oauth2client import crypt
+from oauth2client.client import Credentials
+from oauth2client.client import HAS_CRYPTO
+from oauth2client.client import HAS_OPENSSL
+from oauth2client.client import verify_id_token
+from oauth2client.client import VerifyJwtTokenError
 from oauth2client.file import Storage
 from oauth2client.service_account import _PASSWORD_DEFAULT
 from oauth2client.service_account import ServiceAccountCredentials
+from .http_mock import HttpMockSequence
 
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
@@ -147,15 +147,14 @@ class CryptTests(unittest2.TestCase):
 
     def test_verify_id_token_with_certs_uri_fails(self):
         jwt = self._create_signed_jwt()
+        test_email = 'some_audience_address@testing.gserviceaccount.com'
 
         http = HttpMockSequence([
             ({'status': '404'}, datafile('certs.json')),
         ])
 
         with self.assertRaises(VerifyJwtTokenError):
-            verify_id_token(jwt,
-                            'some_audience_address@testing.gserviceaccount.com',
-                            http=http)
+            verify_id_token(jwt, test_email, http=http)
 
     def test_verify_id_token_bad_tokens(self):
         private_key = datafile('privatekey.' + self.format_)

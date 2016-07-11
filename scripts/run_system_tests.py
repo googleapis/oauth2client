@@ -17,6 +17,7 @@ import os
 
 import httplib2
 from six.moves import http_client
+
 from oauth2client import client
 from oauth2client.service_account import ServiceAccountCredentials
 
@@ -36,8 +37,8 @@ USER_INFO = 'https://www.googleapis.com/oauth2/v2/userinfo'
 
 def _require_environ():
     if (JSON_KEY_PATH is None or P12_KEY_PATH is None or
-        P12_KEY_EMAIL is None or USER_KEY_PATH is None or
-        USER_KEY_EMAIL is None):
+            P12_KEY_EMAIL is None or USER_KEY_PATH is None or
+            USER_KEY_EMAIL is None):
         raise EnvironmentError('Expected environment variables to be set:',
                                'OAUTH2CLIENT_TEST_JSON_KEY_PATH',
                                'OAUTH2CLIENT_TEST_P12_KEY_PATH',

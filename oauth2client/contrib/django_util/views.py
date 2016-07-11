@@ -16,9 +16,11 @@ import hashlib
 import json
 import os
 import pickle
+
 from django import http
-from django.core import urlresolvers
 from django import shortcuts
+from django.core import urlresolvers
+
 from oauth2client import client
 from oauth2client.contrib import django_util
 from oauth2client.contrib.django_util import signals
@@ -87,7 +89,8 @@ def oauth2_callback(request):
     try:
         server_csrf = request.session[_CSRF_KEY]
     except KeyError:
-        return http.HttpResponseBadRequest("No existing session for this flow.")
+        return http.HttpResponseBadRequest(
+            "No existing session for this flow.")
 
     try:
         state = json.loads(encoded_state)

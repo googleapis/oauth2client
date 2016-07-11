@@ -18,15 +18,15 @@ See https://cloud.google.com/compute/docs/metadata
 """
 
 import datetime
-import httplib2
 import json
 
+import httplib2
 from six.moves import http_client
 from six.moves.urllib import parse as urlparse
 
+from oauth2client import util
 from oauth2client._helpers import _from_bytes
 from oauth2client.client import _UTCNOW
-from oauth2client import util
 
 
 METADATA_ROOT = 'http://metadata.google.internal/computeMetadata/v1/'

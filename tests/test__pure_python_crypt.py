@@ -22,8 +22,8 @@ import rsa
 import six
 import unittest2
 
-from oauth2client._helpers import _from_bytes
 from oauth2client import _pure_python_crypt
+from oauth2client._helpers import _from_bytes
 from oauth2client.crypt import RsaSigner
 from oauth2client.crypt import RsaVerifier
 
@@ -33,7 +33,7 @@ class TestRsaVerifier(unittest2.TestCase):
     PUBLIC_KEY_FILENAME = os.path.join(os.path.dirname(__file__),
                                        'data', 'privatekey.pub')
     PUBLIC_CERT_FILENAME = os.path.join(os.path.dirname(__file__),
-                                       'data', 'public_cert.pem')
+                                        'data', 'public_cert.pem')
     PRIVATE_KEY_FILENAME = os.path.join(os.path.dirname(__file__),
                                         'data', 'privatekey.pem')
 

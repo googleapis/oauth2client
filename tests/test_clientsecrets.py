@@ -18,13 +18,14 @@ import errno
 from io import StringIO
 import os
 import tempfile
+
 import unittest2
 
-from oauth2client._helpers import _from_bytes
+from oauth2client import clientsecrets
 from oauth2client import GOOGLE_AUTH_URI
 from oauth2client import GOOGLE_REVOKE_URI
 from oauth2client import GOOGLE_TOKEN_URI
-from oauth2client import clientsecrets
+from oauth2client._helpers import _from_bytes
 
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
@@ -121,11 +122,11 @@ class Test__validate_clientsecrets(unittest2.TestCase):
 
     def test_success_type_web(self):
         client_info = {
-                'client_id': 'eye-dee',
-                'client_secret': 'seekrit',
-                'redirect_uris': None,
-                'auth_uri': None,
-                'token_uri': None,
+            'client_id': 'eye-dee',
+            'client_secret': 'seekrit',
+            'redirect_uris': None,
+            'auth_uri': None,
+            'token_uri': None,
         }
         clientsecrets_dict = {
             clientsecrets.TYPE_WEB: client_info,
@@ -135,11 +136,11 @@ class Test__validate_clientsecrets(unittest2.TestCase):
 
     def test_success_type_installed(self):
         client_info = {
-                'client_id': 'eye-dee',
-                'client_secret': 'seekrit',
-                'redirect_uris': None,
-                'auth_uri': None,
-                'token_uri': None,
+            'client_id': 'eye-dee',
+            'client_secret': 'seekrit',
+            'redirect_uris': None,
+            'auth_uri': None,
+            'token_uri': None,
         }
         clientsecrets_dict = {
             clientsecrets.TYPE_INSTALLED: client_info,

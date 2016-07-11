@@ -27,8 +27,8 @@ import sys
 
 from six.moves import BaseHTTPServer
 from six.moves import http_client
-from six.moves import urllib
 from six.moves import input
+from six.moves import urllib
 
 from oauth2client import client
 from oauth2client import util
@@ -46,6 +46,32 @@ found at:
 
 with information from the APIs Console <https://code.google.com/apis/console>.
 
+"""
+
+_FAILED_START_MESSAGE = """
+Failed to start a local webserver listening on either port 8080
+or port 8090. Please check your firewall settings and locally
+running programs that may be blocking or using those ports.
+
+Falling back to --noauth_local_webserver and continuing with
+authorization.
+"""
+
+_BROWSER_OPENED_MESSAGE = """
+Your browser has been opened to visit:
+
+    %s
+
+If your browser is on a different machine then exit and re-run this
+application with the command-line parameter
+
+  --noauth_local_webserver
+"""
+
+_GO_TO_LINK_MESSAGE = """
+Go to the following link in your browser:
+
+    %s
 """
 
 
@@ -182,14 +208,7 @@ def run_flow(flow, storage, flags=None, http=None):
                 break
         flags.noauth_local_webserver = not success
         if not success:
-            print('Failed to start a local webserver listening '
-                  'on either port 8080')
-            print('or port 8090. Please check your firewall settings and locally')
-            print('running programs that may be blocking or using those ports.')
-            print()
-            print('Falling back to --noauth_local_webserver and continuing with')
-            print('authorization.')
-            print()
+            print(_FAILED_START_MESSAGE)
 
     if not flags.noauth_local_webserver:
         oauth_callback = 'http://%s:%s/' % (flags.auth_host_name, port_number)
@@ -201,21 +220,9 @@ def run_flow(flow, storage, flags=None, http=None):
     if not flags.noauth_local_webserver:
         import webbrowser
         webbrowser.open(authorize_url, new=1, autoraise=True)
-        print('Your browser has been opened to visit:')
-        print()
-        print('    ' + authorize_url)
-        print()
-        print('If your browser is on a different machine then '
-              'exit and re-run this')
-        print('application with the command-line parameter ')
-        print()
-        print('  --noauth_local_webserver')
-        print()
+        print(_BROWSER_OPENED_MESSAGE % authorize_url)
     else:
-        print('Go to the following link in your browser:')
-        print()
-        print('    ' + authorize_url)
-        print()
+        print(_GO_TO_LINK_MESSAGE % authorize_url)
 
     code = None
     if not flags.noauth_local_webserver:

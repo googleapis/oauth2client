@@ -15,21 +15,21 @@
 """Unit tests for the Flask utilities"""
 
 import datetime
-import httplib2
 import json
-import unittest2
 
 import flask
-import six.moves.http_client as httplib
+import httplib2
 import mock
+import six.moves.http_client as httplib
 import six.moves.urllib.parse as urlparse
+import unittest2
 
+from oauth2client import clientsecrets
 from oauth2client import GOOGLE_AUTH_URI
 from oauth2client import GOOGLE_TOKEN_URI
-from oauth2client import clientsecrets
+from oauth2client.client import OAuth2Credentials
 from oauth2client.contrib.flask_util import _get_flow_for_token
 from oauth2client.contrib.flask_util import UserOAuth2 as FlaskOAuth2
-from oauth2client.client import OAuth2Credentials
 
 
 __author__ = 'jonwayne@google.com (Jon Wayne Parrott)'
@@ -474,7 +474,8 @@ class FlaskOAuth2Tests(unittest2.TestCase):
             # Starting the authorization flow should include the
             # include_granted_scopes parameter as well as the scopes.
             response = client.get(response.headers['Location'][17:])
-            q = urlparse.parse_qs(response.headers['Location'].split('?', 1)[1])
+            q = urlparse.parse_qs(
+                response.headers['Location'].split('?', 1)[1])
             self.assertIn('include_granted_scopes', q)
             self.assertEqual(
                 set(q['scope'][0].split(' ')),

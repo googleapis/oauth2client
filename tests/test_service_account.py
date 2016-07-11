@@ -20,20 +20,19 @@ Unit tests for service account credentials implemented using RSA.
 import datetime
 import json
 import os
-import rsa
 import tempfile
 
 import httplib2
 import mock
+import rsa
+from six import BytesIO
 import unittest2
 
-from .http_mock import HttpMockSequence
 from oauth2client import crypt
 from oauth2client.service_account import _JWTAccessCredentials
-from oauth2client.service_account import ServiceAccountCredentials
 from oauth2client.service_account import SERVICE_ACCOUNT
-
-from six import BytesIO
+from oauth2client.service_account import ServiceAccountCredentials
+from .http_mock import HttpMockSequence
 
 
 def data_filename(filename):
@@ -114,7 +113,7 @@ class ServiceAccountCredentialsTests(unittest2.TestCase):
                 return_value=object())
     def test_from_json_keyfile_name_factory(self, signer_factory):
         client_id = 'id123'
-        client_email= 'foo@bar.com'
+        client_email = 'foo@bar.com'
         private_key_id = 'pkid456'
         private_key = 's3kr3tz'
         payload = {
@@ -179,12 +178,14 @@ class ServiceAccountCredentialsTests(unittest2.TestCase):
         for creds in (creds_from_filename, creds_from_file_contents):
             self.assertIsInstance(creds, ServiceAccountCredentials)
             self.assertIsNone(creds.client_id)
-            self.assertEqual(creds._service_account_email, service_account_email)
+            self.assertEqual(creds._service_account_email,
+                             service_account_email)
             self.assertIsNone(creds._private_key_id)
             self.assertIsNone(creds._private_key_pkcs8_pem)
             self.assertEqual(creds._private_key_pkcs12, key_contents)
             if private_key_password is not None:
-                self.assertEqual(creds._private_key_password, private_key_password)
+                self.assertEqual(creds._private_key_password,
+                                 private_key_password)
             self.assertEqual(creds._scopes, ' '.join(scopes))
             self.assertEqual(creds.token_uri, token_uri)
             self.assertEqual(creds.revoke_uri, revoke_uri)
@@ -435,13 +436,13 @@ class JWTAccessCredentialsTests(unittest2.TestCase):
         utcnow.return_value = T1_DATE
         time.return_value = T1
 
-        token_info = self.jwt.get_access_token(additional_claims=
-                                               {'aud': 'https://test2.url.com',
-                                                'sub': 'dummy2@google.com'
-                                               })
+        token_info = self.jwt.get_access_token(
+            additional_claims={'aud': 'https://test2.url.com',
+                               'sub': 'dummy2@google.com'
+                               })
         payload = crypt.verify_signed_jwt_with_certs(
             token_info.access_token,
-            {'key' : datafile('public_cert.pem')}, 
+            {'key': datafile('public_cert.pem')},
             audience='https://test2.url.com')
         expires_in = token_info.expires_in
         self.assertEqual(payload['iss'], self.service_account_email)
@@ -449,13 +450,13 @@ class JWTAccessCredentialsTests(unittest2.TestCase):
         self.assertEqual(payload['iat'], T1)
         self.assertEqual(payload['exp'], T1_EXPIRY)
         self.assertEqual(expires_in, T1_EXPIRY - T1)
- 
+
     def test_revoke(self):
         self.jwt.revoke(None)
-     
+
     def test_create_scoped_required(self):
         self.assertTrue(self.jwt.create_scoped_required())
-    
+
     def test_create_scoped(self):
         self.jwt._private_key_pkcs12 = ''
         self.jwt._private_key_password = ''
@@ -464,7 +465,7 @@ class JWTAccessCredentialsTests(unittest2.TestCase):
         self.assertNotEqual(self.jwt, new_credentials)
         self.assertIsInstance(new_credentials, ServiceAccountCredentials)
         self.assertEqual('dummy_scope', new_credentials._scopes)
-    
+
     @mock.patch('oauth2client.service_account._UTCNOW')
     @mock.patch('oauth2client.client._UTCNOW')
     @mock.patch('time.time')
@@ -479,7 +480,7 @@ class JWTAccessCredentialsTests(unittest2.TestCase):
             bearer, token = headers[b'Authorization'].split()
             payload = crypt.verify_signed_jwt_with_certs(
                 token,
-                {'key': datafile('public_cert.pem')}, 
+                {'key': datafile('public_cert.pem')},
                 audience=self.url)
             self.assertEqual(payload['iss'], self.service_account_email)
             self.assertEqual(payload['sub'], self.service_account_email)

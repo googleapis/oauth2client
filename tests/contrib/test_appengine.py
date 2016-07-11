@@ -13,21 +13,15 @@
 # limitations under the License.
 
 import datetime
-import httplib2
 import json
 import os
 import tempfile
 import time
-import unittest2
-
-from six.moves import urllib
 
 import dev_appserver
-dev_appserver.fix_sys_path()
-import mock
-import webapp2
 
-from ..http_mock import CacheMock
+dev_appserver.fix_sys_path()
+
 from google.appengine.api import apiproxy_stub
 from google.appengine.api import apiproxy_stub_map
 from google.appengine.api import app_identity
@@ -37,12 +31,25 @@ from google.appengine.api.memcache import memcache_stub
 from google.appengine.ext import db
 from google.appengine.ext import ndb
 from google.appengine.ext import testbed
-from oauth2client.contrib import appengine
-from oauth2client import GOOGLE_TOKEN_URI
+import httplib2
+import mock
+from six.moves import urllib
+import unittest2
+import webapp2
+from webtest import TestApp
+
 from oauth2client import GOOGLE_REVOKE_URI
+from oauth2client import GOOGLE_TOKEN_URI
+from oauth2client.client import _CLOUDSDK_CONFIG_ENV_VAR
+from oauth2client.client import AccessTokenRefreshError
+from oauth2client.client import Credentials
+from oauth2client.client import flow_from_clientsecrets
+from oauth2client.client import OAuth2Credentials
+from oauth2client.client import save_to_well_known_file
 from oauth2client.clientsecrets import _loadfile
-from oauth2client.clientsecrets import TYPE_WEB
 from oauth2client.clientsecrets import InvalidClientSecretsError
+from oauth2client.clientsecrets import TYPE_WEB
+from oauth2client.contrib import appengine
 from oauth2client.contrib.appengine import AppAssertionCredentials
 from oauth2client.contrib.appengine import CredentialsModel
 from oauth2client.contrib.appengine import CredentialsNDBModel
@@ -51,17 +58,10 @@ from oauth2client.contrib.appengine import FlowProperty
 from oauth2client.contrib.appengine import (
     InvalidClientSecretsError as AppEngineInvalidClientSecretsError)
 from oauth2client.contrib.appengine import OAuth2Decorator
-from oauth2client.contrib.appengine import OAuth2DecoratorFromClientSecrets
 from oauth2client.contrib.appengine import oauth2decorator_from_clientsecrets
+from oauth2client.contrib.appengine import OAuth2DecoratorFromClientSecrets
 from oauth2client.contrib.appengine import StorageByKeyName
-from oauth2client.client import _CLOUDSDK_CONFIG_ENV_VAR
-from oauth2client.client import AccessTokenRefreshError
-from oauth2client.client import Credentials
-from oauth2client.client import OAuth2Credentials
-from oauth2client.client import flow_from_clientsecrets
-from oauth2client.client import save_to_well_known_file
-from webtest import TestApp
-
+from ..http_mock import CacheMock
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
@@ -847,7 +847,7 @@ class DecoratorTests(unittest2.TestCase):
         # An initial request to an oauth_aware decorated path should
         # not redirect.
         response = self.app.get('/bar_path/2012/01')
-        url = self.decorator.authorize_url()
+        self.decorator.authorize_url()
         response = self.app.get('/oauth2callback', {
             'error': 'Bad<Stuff>Happened\''
         })
@@ -903,9 +903,7 @@ class DecoratorTests(unittest2.TestCase):
 
         with decorator_patch as decorator_mock:
             filename = datafile('client_secrets.json')
-            decorator = oauth2decorator_from_clientsecrets(
-                filename,
-                scope='foo_scope')
+            oauth2decorator_from_clientsecrets(filename, scope='foo_scope')
             decorator_mock.assert_called_once_with(
                 filename,
                 'foo_scope',
@@ -974,7 +972,7 @@ class DecoratorTests(unittest2.TestCase):
     def test_decorator_from_unfilled_client_secrets_required(self):
         MESSAGE = 'File is missing'
         try:
-            decorator = OAuth2DecoratorFromClientSecrets(
+            OAuth2DecoratorFromClientSecrets(
                 datafile('unfilled_client_secrets.json'),
                 scope=['foo_scope', 'bar_scope'], message=MESSAGE)
         except InvalidClientSecretsError:
@@ -983,7 +981,7 @@ class DecoratorTests(unittest2.TestCase):
     def test_decorator_from_unfilled_client_secrets_aware(self):
         MESSAGE = 'File is missing'
         try:
-            decorator = OAuth2DecoratorFromClientSecrets(
+            OAuth2DecoratorFromClientSecrets(
                 datafile('unfilled_client_secrets.json'),
                 scope=['foo_scope', 'bar_scope'], message=MESSAGE)
         except InvalidClientSecretsError:

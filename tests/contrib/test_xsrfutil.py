@@ -15,9 +15,9 @@
 """Tests for oauth2client.contrib.xsrfutil."""
 
 import base64
-import unittest2
 
 import mock
+import unittest2
 
 from oauth2client._helpers import _to_bytes
 from oauth2client.contrib import xsrfutil
@@ -49,7 +49,6 @@ class Test_generate_token(unittest2.TestCase):
 
     def test_it(self):
         digest = b'foobar'
-        curr_time = 1440449755.74
         digester = mock.MagicMock()
         digester.digest = mock.MagicMock(name='digest', return_value=digest)
         with mock.patch('oauth2client.contrib.xsrfutil.hmac') as hmac:

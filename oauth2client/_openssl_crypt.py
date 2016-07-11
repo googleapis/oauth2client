@@ -13,8 +13,6 @@
 # limitations under the License.
 """OpenSSL Crypto-related routines for oauth2client."""
 
-import base64
-
 from OpenSSL import crypto
 
 from oauth2client._helpers import _parse_pem_key

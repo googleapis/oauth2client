@@ -17,27 +17,24 @@
 import base64
 import copy
 import datetime
-import httplib2
 import json
 import time
 
+import httplib2
+
+from oauth2client import crypt
 from oauth2client import GOOGLE_REVOKE_URI
 from oauth2client import GOOGLE_TOKEN_URI
-from oauth2client._helpers import _json_encode
-from oauth2client._helpers import _from_bytes
-from oauth2client._helpers import _urlsafe_b64encode
 from oauth2client import util
+from oauth2client._helpers import _from_bytes
 from oauth2client.client import _apply_user_agent
 from oauth2client.client import _initialize_headers
+from oauth2client.client import _UTCNOW
 from oauth2client.client import AccessTokenInfo
 from oauth2client.client import AssertionCredentials
 from oauth2client.client import clean_headers
 from oauth2client.client import EXPIRY_FORMAT
-from oauth2client.client import GoogleCredentials
 from oauth2client.client import SERVICE_ACCOUNT
-from oauth2client.client import TokenRevokeError
-from oauth2client.client import _UTCNOW
-from oauth2client import crypt
 
 
 _PASSWORD_DEFAULT = 'notasecret'
@@ -94,7 +91,7 @@ class ServiceAccountCredentials(AssertionCredentials):
     MAX_TOKEN_LIFETIME_SECS = 3600
     """Max lifetime of the token (one hour, in seconds)."""
 
-    NON_SERIALIZED_MEMBERS =  (
+    NON_SERIALIZED_MEMBERS = (
         frozenset(['_signer']) |
         AssertionCredentials.NON_SERIALIZED_MEMBERS)
     """Members that aren't serialized when object is converted to JSON."""
@@ -138,8 +135,8 @@ class ServiceAccountCredentials(AssertionCredentials):
             strip: array, An array of names of members to exclude from the
                    JSON.
             to_serialize: dict, (Optional) The properties for this object
-                          that will be serialized. This allows callers to modify
-                          before serializing.
+                          that will be serialized. This allows callers to
+                          modify before serializing.
 
         Returns:
             string, a JSON representation of this instance, suitable to pass to
@@ -502,7 +499,7 @@ class ServiceAccountCredentials(AssertionCredentials):
         result._private_key_pkcs12 = self._private_key_pkcs12
         result._private_key_password = self._private_key_password
         return result
- 
+
     def create_with_claims(self, claims):
         """Create credentials that specify additional claims.
 
@@ -511,7 +508,8 @@ class ServiceAccountCredentials(AssertionCredentials):
 
         Returns:
             ServiceAccountCredentials, a copy of the current service account
-            credentials with updated claims to use when obtaining access tokens.
+            credentials with updated claims to use when obtaining access
+            tokens.
         """
         new_kwargs = dict(self._kwargs)
         new_kwargs.update(claims)
@@ -552,11 +550,11 @@ class ServiceAccountCredentials(AssertionCredentials):
 
 
 def _datetime_to_secs(utc_time):
-   # TODO(issue 298): use time_delta.total_seconds()
-   # time_delta.total_seconds() not supported in Python 2.6
-   epoch = datetime.datetime(1970, 1, 1)
-   time_delta = utc_time - epoch
-   return time_delta.days * 86400 + time_delta.seconds
+    # TODO(issue 298): use time_delta.total_seconds()
+    # time_delta.total_seconds() not supported in Python 2.6
+    epoch = datetime.datetime(1970, 1, 1)
+    time_delta = utc_time - epoch
+    return time_delta.days * 86400 + time_delta.seconds
 
 
 class _JWTAccessCredentials(ServiceAccountCredentials):
@@ -607,7 +605,8 @@ class _JWTAccessCredentials(ServiceAccountCredentials):
             h = credentials.authorize(h)
         """
         request_orig = http.request
-        request_auth = super(_JWTAccessCredentials, self).authorize(http).request
+        request_auth = super(
+            _JWTAccessCredentials, self).authorize(http).request
 
         # The closure that will replace 'httplib2.Http.request'.
         def new_request(uri, method='GET', body=None, headers=None,
@@ -695,7 +694,8 @@ class _JWTAccessCredentials(ServiceAccountCredentials):
 
     def _create_token(self, additional_claims=None):
         now = _UTCNOW()
-        expiry = now + datetime.timedelta(seconds=self._MAX_TOKEN_LIFETIME_SECS)
+        lifetime = datetime.timedelta(seconds=self._MAX_TOKEN_LIFETIME_SECS)
+        expiry = now + lifetime
         payload = {
             'iat': _datetime_to_secs(now),
             'exp': _datetime_to_secs(expiry),

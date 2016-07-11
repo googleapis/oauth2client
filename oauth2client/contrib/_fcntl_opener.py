@@ -13,9 +13,8 @@
 # limitations under the License.
 
 import errno
-import time
-
 import fcntl
+import time
 
 from oauth2client.contrib.locked_file import _Opener
 from oauth2client.contrib.locked_file import AlreadyLockedException

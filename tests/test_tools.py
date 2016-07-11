@@ -20,9 +20,9 @@ import mock
 from six.moves.urllib import request
 import unittest2
 
+from oauth2client import tools
 from oauth2client.client import FlowExchangeError
 from oauth2client.client import OOB_CALLBACK_URN
-from oauth2client import tools
 
 try:
     import argparse
@@ -68,11 +68,10 @@ class TestRunFlow(unittest2.TestCase):
         self.server_flags = argparse.Namespace(
             noauth_local_webserver=False,
             logging_level='INFO',
-            auth_host_port=[8080,],
+            auth_host_port=[8080, ],
             auth_host_name='localhost')
 
-    @mock.patch.object(sys, 'argv',
-        ['ignored', '--noauth_local_webserver'])
+    @mock.patch.object(sys, 'argv', ['ignored', '--noauth_local_webserver'])
     @mock.patch('oauth2client.tools.logging')
     @mock.patch('oauth2client.tools.input')
     def test_run_flow_no_webserver(self, input_mock, logging_mock):
@@ -149,8 +148,7 @@ class TestRunFlow(unittest2.TestCase):
 
         # Exchange returned an error code.
         with self.assertRaises(SystemExit):
-            returned_credentials = tools.run_flow(
-                self.flow, self.storage, flags=self.server_flags)
+            tools.run_flow(self.flow, self.storage, flags=self.server_flags)
 
         self.assertTrue(self.server.handle_request.called)
 
@@ -164,8 +162,7 @@ class TestRunFlow(unittest2.TestCase):
 
         # No code found in response
         with self.assertRaises(SystemExit):
-            returned_credentials = tools.run_flow(
-                self.flow, self.storage, flags=self.server_flags)
+            tools.run_flow(self.flow, self.storage, flags=self.server_flags)
 
         self.assertTrue(self.server.handle_request.called)
 
