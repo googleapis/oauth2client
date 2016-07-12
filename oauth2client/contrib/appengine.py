@@ -88,14 +88,6 @@ def _safe_html(s):
     return cgi.escape(s, quote=1).replace("'", '&#39;')
 
 
-class InvalidClientSecretsError(Exception):
-    """The client_secrets.json file is malformed or missing required fields."""
-
-
-class InvalidXsrfTokenError(Exception):
-    """The XSRF token is invalid or expired."""
-
-
 class SiteXsrfSecretKey(db.Model):
     """Storage for the sites XSRF secret key.
 
@@ -475,18 +467,15 @@ def _parse_state_value(state, user):
         state: string, The value of the state parameter.
         user: google.appengine.api.users.User, The current user.
 
-    Raises:
-        InvalidXsrfTokenError: if the XSRF token is invalid.
-
     Returns:
-        The redirect URI.
+        The redirect URI, or None if XSRF token is not valid.
     """
     uri, token = state.rsplit(':', 1)
-    if not xsrfutil.validate_token(xsrf_secret_key(), token, user.user_id(),
-                                   action_id=uri):
-        raise InvalidXsrfTokenError()
-
-    return uri
+    if xsrfutil.validate_token(xsrf_secret_key(), token, user.user_id(),
+                               action_id=uri):
+        return uri
+    else:
+        return None
 
 
 class OAuth2Decorator(object):
@@ -814,6 +803,10 @@ class OAuth2Decorator(object):
                         user=user).put(credentials)
                     redirect_uri = _parse_state_value(
                         str(self.request.get('state')), user)
+                    if redirect_uri is None:
+                        self.response.out.write(
+                            'The authorization request failed')
+                        return
 
                     if (decorator._token_response_param and
                             credentials.token_response):
@@ -884,7 +877,7 @@ class OAuth2DecoratorFromClientSecrets(OAuth2Decorator):
                                                           cache=cache)
         if client_type not in (clientsecrets.TYPE_WEB,
                                clientsecrets.TYPE_INSTALLED):
-            raise InvalidClientSecretsError(
+            raise clientsecrets.InvalidClientSecretsError(
                 "OAuth2Decorator doesn't support this OAuth 2.0 flow.")
 
         constructor_kwargs = dict(kwargs)

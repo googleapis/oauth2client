@@ -55,8 +55,6 @@ from oauth2client.contrib.appengine import CredentialsModel
 from oauth2client.contrib.appengine import CredentialsNDBModel
 from oauth2client.contrib.appengine import CredentialsProperty
 from oauth2client.contrib.appengine import FlowProperty
-from oauth2client.contrib.appengine import (
-    InvalidClientSecretsError as AppEngineInvalidClientSecretsError)
 from oauth2client.contrib.appengine import OAuth2Decorator
 from oauth2client.contrib.appengine import oauth2decorator_from_clientsecrets
 from oauth2client.contrib.appengine import OAuth2DecoratorFromClientSecrets
@@ -921,7 +919,7 @@ class DecoratorTests(unittest2.TestCase):
             'oauth2client.contrib.appengine.clientsecrets.loadfile')
         with loadfile_patch as loadfile_mock:
             loadfile_mock.return_value = ('badtype', None)
-            with self.assertRaises(AppEngineInvalidClientSecretsError):
+            with self.assertRaises(InvalidClientSecretsError):
                 OAuth2DecoratorFromClientSecrets(
                     'doesntmatter.json',
                     scope=['foo_scope', 'bar_scope'])
@@ -1077,5 +1075,5 @@ class DecoratorXsrfProtectionTests(unittest2.TestCase):
         self.assertEqual(
             'https://example.org',
             appengine._parse_state_value(state, UserMock()))
-        with self.assertRaises(appengine.InvalidXsrfTokenError):
-            appengine._parse_state_value(state[1:], UserMock())
+        redirect_uri = appengine._parse_state_value(state[1:], UserMock())
+        self.assertIsNone(redirect_uri)
