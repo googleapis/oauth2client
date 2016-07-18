@@ -38,6 +38,7 @@ MOCK_MODULES = (
     'google.appengine.ext',
     'google.appengine.ext.webapp',
     'google.appengine.ext.webapp.util',
+    'werkzeug.local',
 )
 
 
