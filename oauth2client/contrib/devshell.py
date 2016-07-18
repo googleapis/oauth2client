@@ -83,7 +83,7 @@ def _SendRecv():
     sock.connect(('localhost', port))
 
     data = CREDENTIAL_INFO_REQUEST_JSON
-    msg = '%s\n%s' % (len(data), data)
+    msg = '{0}\n{1}'.format(len(data), data)
     sock.sendall(_to_bytes(msg, encoding='utf-8'))
 
     header = sock.recv(6).decode()

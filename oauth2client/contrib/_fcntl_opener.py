@@ -39,8 +39,8 @@ class _FcntlOpener(_Opener):
                                               link.
         """
         if self._locked:
-            raise AlreadyLockedException('File %s is already locked' %
-                                         self._filename)
+            raise AlreadyLockedException(
+                'File {0} is already locked'.format(self._filename))
         start_time = time.time()
 
         validate_file(self._filename)

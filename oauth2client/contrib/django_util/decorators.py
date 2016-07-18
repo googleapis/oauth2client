@@ -37,7 +37,8 @@ def oauth_required(decorated_function=None, scopes=None, **decorator_kwargs):
                        developerKey=API_KEY)
           events = service.events().list(
                                     calendarId='primary').execute()['items']
-          return HttpResponse("email: %s, calendar: %s" % (email, str(events)))
+          return HttpResponse(
+              "email: {0}, calendar: {1}".format(email, str(events)))
 
     :param decorated_function: View function to decorate, must have the Django
            request object as the first argument
@@ -85,12 +86,12 @@ def oauth_enabled(decorated_function=None, scopes=None, **decorator_kwargs):
            if request.oauth.has_credentials():
                # this could be passed into a view
                # request.oauth.http is also initialized
-               return HttpResponse("User email: %s" %
-                                   request.oauth.credentials.id_token['email'])
+               return HttpResponse("User email: {0}".format(
+                                   request.oauth.credentials.id_token['email']))
            else:
                return HttpResponse('Here is an OAuth Authorize link:
-               <a href="%s">Authorize</a>' %
-               request.oauth.get_authorize_redirect())
+               <a href="{0}">Authorize</a>'.format(
+                   request.oauth.get_authorize_redirect()))
 
 
     :param decorated_function: View function to decorate

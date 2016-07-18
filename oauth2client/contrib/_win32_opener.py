@@ -50,8 +50,8 @@ class _Win32Opener(_Opener):
                                               link.
         """
         if self._locked:
-            raise AlreadyLockedException('File %s is already locked' %
-                                         self._filename)
+            raise AlreadyLockedException(
+                'File {0} is already locked'.format(self._filename))
         start_time = time.time()
 
         validate_file(self._filename)
@@ -86,8 +86,8 @@ class _Win32Opener(_Opener):
 
                 # We could not acquire the lock. Try again.
                 if (time.time() - start_time) >= timeout:
-                    logger.warn('Could not lock %s in %s seconds' % (
-                        self._filename, timeout))
+                    logger.warn('Could not lock %s in %s seconds',
+                                self._filename, timeout)
                     if self._fh:
                         self._fh.close()
                     self._fh = open(self._filename, self._fallback_mode)

@@ -1279,7 +1279,7 @@ class BasicCredentialsTests(unittest2.TestCase):
             'status': int(http_client.BAD_REQUEST),
         })
         content = u'Bad request'
-        error_msg = 'Invalid response %s.' % (int(response.status),)
+        error_msg = 'Invalid response {0}.'.format(int(response.status))
         self._do_refresh_request_test_helper(response, content, error_msg)
 
     def test__do_refresh_request_basic_failure(self):
@@ -1287,7 +1287,7 @@ class BasicCredentialsTests(unittest2.TestCase):
             'status': int(http_client.INTERNAL_SERVER_ERROR),
         })
         content = u'{}'
-        error_msg = 'Invalid response %s.' % (int(response.status),)
+        error_msg = 'Invalid response {0}.'.format(int(response.status))
         self._do_refresh_request_test_helper(response, content, error_msg)
 
     def test__do_refresh_request_failure_w_json_error(self):
@@ -1318,7 +1318,7 @@ class BasicCredentialsTests(unittest2.TestCase):
             'error': base_error,
             'error_description': error_desc,
         })
-        error_msg = '%s: %s' % (base_error, error_desc)
+        error_msg = '{0}: {1}'.format(base_error, error_desc)
         self._do_refresh_request_test_helper(response, content, error_msg)
 
     @mock.patch('oauth2client.client.logger')
@@ -1371,7 +1371,7 @@ class BasicCredentialsTests(unittest2.TestCase):
             'status': http_client.BAD_REQUEST,
         })
         content = u'Bad request'
-        error_msg = 'Invalid response %s.' % (response.status,)
+        error_msg = 'Invalid response {0}.'.format(response.status)
         self._do_revoke_test_helper(response, content, error_msg)
 
     def test__do_revoke_basic_failure(self):
@@ -1379,7 +1379,7 @@ class BasicCredentialsTests(unittest2.TestCase):
             'status': http_client.INTERNAL_SERVER_ERROR,
         })
         content = u'{}'
-        error_msg = 'Invalid response %s.' % (response.status,)
+        error_msg = 'Invalid response {0}.'.format(response.status)
         self._do_revoke_test_helper(response, content, error_msg)
 
     def test__do_revoke_failure_w_json_error(self):
@@ -1455,7 +1455,7 @@ class BasicCredentialsTests(unittest2.TestCase):
             'status': http_client.BAD_REQUEST,
         })
         content = u'Bad request'
-        error_msg = 'Invalid response %s.' % (response.status,)
+        error_msg = 'Invalid response {0}.'.format(response.status)
         self._do_retrieve_scopes_test_helper(response, content, error_msg)
 
     def test__do_retrieve_scopes_basic_failure(self):
@@ -1463,7 +1463,7 @@ class BasicCredentialsTests(unittest2.TestCase):
             'status': http_client.INTERNAL_SERVER_ERROR,
         })
         content = u'{}'
-        error_msg = 'Invalid response %s.' % (response.status,)
+        error_msg = 'Invalid response {0}.'.format(response.status)
         self._do_retrieve_scopes_test_helper(response, content, error_msg)
 
     def test__do_retrieve_scopes_failure_w_json_error(self):
@@ -1824,14 +1824,14 @@ class OAuth2WebServerFlowTest(unittest2.TestCase):
     def test_step1_get_device_and_user_codes_non_json_failure(self):
         status = int(http_client.BAD_REQUEST)
         content = 'Nope not JSON.'
-        error_msg = 'Invalid response %s.' % (status,)
+        error_msg = 'Invalid response {0}.'.format(status)
         self._step1_get_device_and_user_codes_fail_helper(status, content,
                                                           error_msg)
 
     def test_step1_get_device_and_user_codes_basic_failure(self):
         status = int(http_client.INTERNAL_SERVER_ERROR)
         content = b'{}'
-        error_msg = 'Invalid response %s.' % (status,)
+        error_msg = 'Invalid response {0}.'.format(status)
         self._step1_get_device_and_user_codes_fail_helper(status, content,
                                                           error_msg)
 
@@ -1839,7 +1839,8 @@ class OAuth2WebServerFlowTest(unittest2.TestCase):
         status = int(http_client.BAD_GATEWAY)
         base_error = 'ZOMG user codes failure.'
         content = json.dumps({'error': base_error})
-        error_msg = 'Invalid response %s. Error: %s' % (status, base_error)
+        error_msg = 'Invalid response {0}. Error: {1}'.format(status,
+                                                              base_error)
         self._step1_get_device_and_user_codes_fail_helper(status, content,
                                                           error_msg)
 
@@ -2163,7 +2164,8 @@ class FlowFromCachedClientsecrets(unittest2.TestCase):
         filename = object()
         cache = object()
 
-        err_msg = 'This OAuth 2.0 flow is unsupported: %r' % (client_type,)
+        err_msg = ('This OAuth 2.0 flow is unsupported: '
+                   '{0!r}'.format(client_type))
         with self.assertRaisesRegexp(client.UnknownClientSecretsFlowError,
                                      err_msg):
             flow_from_clientsecrets(filename, None, cache=cache)
