@@ -109,7 +109,8 @@ class Test_SendRecv(unittest2.TestCase):
                 sock.recv(6).decode.assert_called_once_with()
 
                 data = CREDENTIAL_INFO_REQUEST_JSON
-                msg = _to_bytes('%s\n%s' % (len(data), data), encoding='utf-8')
+                msg = _to_bytes('{0}\n{1}'.format(len(data), data),
+                                encoding='utf-8')
                 expected_sock_calls = [
                     mock.call.recv(6),  # From the set-up above
                     mock.call.connect(('localhost', non_zero_port)),
@@ -167,7 +168,7 @@ class _AuthReferenceServer(threading.Thread):
             if resp_buffer != CREDENTIAL_INFO_REQUEST_JSON:
                 self.bad_request = True
             l = len(self.response)
-            s.sendall(('%d\n%s' % (l, self.response)).encode())
+            s.sendall('{0}\n{1}'.format(l, self.response).encode())
         finally:
             # Will fail if s is None, but these tests never encounter
             # that scenario.
@@ -183,7 +184,7 @@ class DevshellCredentialsTests(unittest2.TestCase):
     def test_bad_message_to_mock_server(self):
         request_content = CREDENTIAL_INFO_REQUEST_JSON + 'extrastuff'
         request_message = _to_bytes(
-            '%d\n%s' % (len(request_content), request_content))
+            '{0}\n{1}'.format(len(request_content), request_content))
         response_message = 'foobar'
         with _AuthReferenceServer(response_message) as auth_server:
             self.assertFalse(auth_server.bad_request)

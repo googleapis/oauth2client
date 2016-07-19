@@ -390,8 +390,8 @@ class _MultiStore(object):
                         'corrupt or an old version. Overwriting.')
         if version > 1:
             raise NewerCredentialStoreError(
-                'Credential file has file_version of %d. '
-                'Only file_version of 1 is supported.' % version)
+                'Credential file has file_version of {0}. '
+                'Only file_version of 1 is supported.'.format(version))
 
         credentials = []
         try:

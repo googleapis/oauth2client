@@ -927,7 +927,7 @@ class OAuth2Credentials(Credentials):
             # An {'error':...} response body means the token is expired or
             # revoked, so we flag the credentials as such.
             logger.info('Failed to retrieve access token: %s', content)
-            error_msg = 'Invalid response %s.' % (resp['status'],)
+            error_msg = 'Invalid response {0}.'.format(resp['status'])
             try:
                 d = json.loads(content)
                 if 'error' in d:
@@ -972,7 +972,7 @@ class OAuth2Credentials(Credentials):
         if resp.status == http_client.OK:
             self.invalid = True
         else:
-            error_msg = 'Invalid response %s.' % resp.status
+            error_msg = 'Invalid response {0}.'.format(resp.status)
             try:
                 d = json.loads(_from_bytes(content))
                 if 'error' in d:
@@ -1018,7 +1018,7 @@ class OAuth2Credentials(Credentials):
             d = json.loads(content)
             self.scopes = set(util.string_to_scopes(d.get('scope', '')))
         else:
-            error_msg = 'Invalid response %s.' % (resp.status,)
+            error_msg = 'Invalid response {0}.'.format(resp.status)
             try:
                 d = json.loads(content)
                 if 'error_description' in d:
@@ -1459,7 +1459,8 @@ def save_to_well_known_file(credentials, well_known_file=None):
 
     config_dir = os.path.dirname(well_known_file)
     if not os.path.isdir(config_dir):
-        raise OSError('Config directory does not exist: %s' % config_dir)
+        raise OSError(
+            'Config directory does not exist: {0}'.format(config_dir))
 
     credentials_data = credentials.serialization_data
     _save_private_file(well_known_file, credentials_data)
@@ -1690,7 +1691,7 @@ def verify_id_token(id_token, audience, http=None,
         certs = json.loads(_from_bytes(content))
         return crypt.verify_signed_jwt_with_certs(id_token, certs, audience)
     else:
-        raise VerifyJwtTokenError('Status code: %d' % resp.status)
+        raise VerifyJwtTokenError('Status code: {0}'.format(resp.status))
 
 
 def _extract_id_token(id_token):
@@ -1711,7 +1712,7 @@ def _extract_id_token(id_token):
 
     if len(segments) != 3:
         raise VerifyJwtTokenError(
-            'Wrong number of segments in token: %s' % id_token)
+            'Wrong number of segments in token: {0}'.format(id_token))
 
     return json.loads(_from_bytes(_urlsafe_b64decode(segments[1])))
 
@@ -2036,15 +2037,15 @@ class OAuth2WebServerFlow(Flow):
                 flow_info = json.loads(content)
             except ValueError as exc:
                 raise OAuth2DeviceCodeError(
-                    'Could not parse server response as JSON: "%s", '
-                    'error: "%s"' % (content, exc))
+                    'Could not parse server response as JSON: "{0}", '
+                    'error: "{1}"'.format(content, exc))
             return DeviceFlowInfo.FromResponse(flow_info)
         else:
-            error_msg = 'Invalid response %s.' % (resp.status,)
+            error_msg = 'Invalid response {0}.'.format(resp.status)
             try:
                 error_dict = json.loads(content)
                 if 'error' in error_dict:
-                    error_msg += ' Error: %s' % (error_dict['error'],)
+                    error_msg += ' Error: {0}'.format(error_dict['error'])
             except ValueError:
                 # Couldn't decode a JSON response, stick with the
                 # default message.
@@ -2144,7 +2145,7 @@ class OAuth2WebServerFlow(Flow):
                 error_msg = (str(d['error']) +
                              str(d.get('error_description', '')))
             else:
-                error_msg = 'Invalid response: %s.' % str(resp.status)
+                error_msg = 'Invalid response: {0}.'.format(str(resp.status))
             raise FlowExchangeError(error_msg)
 
 
@@ -2218,4 +2219,4 @@ def flow_from_clientsecrets(filename, scope, redirect_uri=None,
             raise
     else:
         raise UnknownClientSecretsFlowError(
-            'This OAuth 2.0 flow is unsupported: %r' % (client_type,))
+            'This OAuth 2.0 flow is unsupported: {0!r}'.format(client_type))

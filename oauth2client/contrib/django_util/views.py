@@ -77,7 +77,7 @@ def oauth2_callback(request):
         reason = request.GET.get(
             'error_description', request.GET.get('error', ''))
         return http.HttpResponseBadRequest(
-            'Authorization failed %s' % reason)
+            'Authorization failed {0}'.format(reason))
 
     try:
         encoded_state = request.GET['state']

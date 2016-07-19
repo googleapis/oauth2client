@@ -144,11 +144,11 @@ def _check_audience(payload_dict, audience):
 
     audience_in_payload = payload_dict.get('aud')
     if audience_in_payload is None:
-        raise AppIdentityError('No aud field in token: %s' %
-                               (payload_dict,))
+        raise AppIdentityError(
+            'No aud field in token: {0}'.format(payload_dict))
     if audience_in_payload != audience:
-        raise AppIdentityError('Wrong recipient, %s != %s: %s' %
-                               (audience_in_payload, audience, payload_dict))
+        raise AppIdentityError('Wrong recipient, {0} != {1}: {2}'.format(
+            audience_in_payload, audience, payload_dict))
 
 
 def _verify_time_range(payload_dict):
@@ -180,26 +180,28 @@ def _verify_time_range(payload_dict):
     # Make sure issued at and expiration are in the payload.
     issued_at = payload_dict.get('iat')
     if issued_at is None:
-        raise AppIdentityError('No iat field in token: %s' % (payload_dict,))
+        raise AppIdentityError(
+            'No iat field in token: {0}'.format(payload_dict))
     expiration = payload_dict.get('exp')
     if expiration is None:
-        raise AppIdentityError('No exp field in token: %s' % (payload_dict,))
+        raise AppIdentityError(
+            'No exp field in token: {0}'.format(payload_dict))
 
     # Make sure the expiration gives an acceptable token lifetime.
     if expiration >= now + MAX_TOKEN_LIFETIME_SECS:
-        raise AppIdentityError('exp field too far in future: %s' %
-                               (payload_dict,))
+        raise AppIdentityError(
+            'exp field too far in future: {0}'.format(payload_dict))
 
     # Make sure (up to clock skew) that the token wasn't issued in the future.
     earliest = issued_at - CLOCK_SKEW_SECS
     if now < earliest:
-        raise AppIdentityError('Token used too early, %d < %d: %s' %
-                               (now, earliest, payload_dict))
+        raise AppIdentityError('Token used too early, {0} < {1}: {2}'.format(
+            now, earliest, payload_dict))
     # Make sure (up to clock skew) that the token isn't already expired.
     latest = expiration + CLOCK_SKEW_SECS
     if now > latest:
-        raise AppIdentityError('Token used too late, %d > %d: %s' %
-                               (now, latest, payload_dict))
+        raise AppIdentityError('Token used too late, {0} > {1}: {2}'.format(
+            now, latest, payload_dict))
 
 
 def verify_signed_jwt_with_certs(jwt, certs, audience=None):
@@ -223,7 +225,7 @@ def verify_signed_jwt_with_certs(jwt, certs, audience=None):
 
     if jwt.count(b'.') != 2:
         raise AppIdentityError(
-            'Wrong number of segments in token: %s' % (jwt,))
+            'Wrong number of segments in token: {0}'.format(jwt))
 
     header, payload, signature = jwt.split(b'.')
     message_to_sign = header + b'.' + payload
@@ -234,7 +236,7 @@ def verify_signed_jwt_with_certs(jwt, certs, audience=None):
     try:
         payload_dict = json.loads(_from_bytes(payload_bytes))
     except:
-        raise AppIdentityError('Can\'t parse token: %s' % (payload_bytes,))
+        raise AppIdentityError('Can\'t parse token: {0}'.format(payload_bytes))
 
     # Verify that the signature matches the message.
     _verify_signature(message_to_sign, signature, certs.values())

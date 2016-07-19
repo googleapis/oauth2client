@@ -106,7 +106,8 @@ request.oauth
                     http=request.oauth.http,
                    developerKey=API_KEY)
       events = service.events().list(calendarId='primary').execute()['items']
-      return HttpResponse("email: %s , calendar: %s" % (email, str(events)))
+      return HttpResponse(
+          "email: {0} , calendar: {1}".format(email, str(events)))
 
 To make OAuth2 optional and provide an authorization link in your own views.
 
@@ -121,12 +122,12 @@ To make OAuth2 optional and provide an authorization link in your own views.
        if request.oauth.has_credentials():
            # this could be passed into a view
            # request.oauth.http is also initialized
-           return HttpResponse("User email: %s"
-            % request.oauth.credentials.id_token['email'])
+           return HttpResponse("User email: {0}".format(
+               request.oauth.credentials.id_token['email']))
        else:
            return HttpResponse(
-               'Here is an OAuth Authorize link: <a href="%s">Authorize</a>'
-                % request.oauth.get_authorize_redirect())
+               'Here is an OAuth Authorize link: <a href="{0}">Authorize'
+               '</a>'.format(request.oauth.get_authorize_redirect()))
 
 If a view needs a scope not included in the default scopes specified in
 the settings, you can use [incremental auth](https://developers.google.com/identity/sign-in/web/incremental-auth)
@@ -146,8 +147,8 @@ and specify additional scopes in the decorator arguments.
            return HttpResponse(str(events))
        else:
            return HttpResponse(
-               'Here is an OAuth Authorize link: <a href="%s">Authorize</a>'
-                % request.oauth.get_authorize_redirect())
+               'Here is an OAuth Authorize link: <a href="{0}">Authorize'
+               '</a>'.format(request.oauth.get_authorize_redirect()))
 
 
 To provide a callback on authorization being completed, use the
@@ -160,7 +161,8 @@ oauth2_authorized signal:
    from oauth2client.contrib.django_util.signals import oauth2_authorized
 
    def test_callback(sender, request, credentials, **kwargs):
-       print "Authorization Signal Received %s" % credentials.id_token['email']
+       print("Authorization Signal Received {0}".format(
+               credentials.id_token['email']))
 
    oauth2_authorized.connect(test_callback)
 

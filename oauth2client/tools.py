@@ -42,7 +42,7 @@ _CLIENT_SECRETS_MESSAGE = """WARNING: Please configure OAuth 2.0
 To make this sample run you will need to populate the client_secrets.json file
 found at:
 
-   %s
+   {file_path}
 
 with information from the APIs Console <https://code.google.com/apis/console>.
 
@@ -60,7 +60,7 @@ authorization.
 _BROWSER_OPENED_MESSAGE = """
 Your browser has been opened to visit:
 
-    %s
+    {address}
 
 If your browser is on a different machine then exit and re-run this
 application with the command-line parameter
@@ -71,7 +71,7 @@ application with the command-line parameter
 _GO_TO_LINK_MESSAGE = """
 Go to the following link in your browser:
 
-    %s
+    {address}
 """
 
 
@@ -211,7 +211,8 @@ def run_flow(flow, storage, flags=None, http=None):
             print(_FAILED_START_MESSAGE)
 
     if not flags.noauth_local_webserver:
-        oauth_callback = 'http://%s:%s/' % (flags.auth_host_name, port_number)
+        oauth_callback = 'http://{host}:{port}/'.format(
+            host=flags.auth_host_name, port=port_number)
     else:
         oauth_callback = client.OOB_CALLBACK_URN
     flow.redirect_uri = oauth_callback
@@ -220,9 +221,9 @@ def run_flow(flow, storage, flags=None, http=None):
     if not flags.noauth_local_webserver:
         import webbrowser
         webbrowser.open(authorize_url, new=1, autoraise=True)
-        print(_BROWSER_OPENED_MESSAGE % authorize_url)
+        print(_BROWSER_OPENED_MESSAGE.format(address=authorize_url))
     else:
-        print(_GO_TO_LINK_MESSAGE % authorize_url)
+        print(_GO_TO_LINK_MESSAGE.format(address=authorize_url))
 
     code = None
     if not flags.noauth_local_webserver:
@@ -241,7 +242,7 @@ def run_flow(flow, storage, flags=None, http=None):
     try:
         credential = flow.step2_exchange(code, http=http)
     except client.FlowExchangeError as e:
-        sys.exit('Authentication has failed: %s' % e)
+        sys.exit('Authentication has failed: {0}'.format(e))
 
     storage.put(credential)
     credential.set_store(storage)
@@ -252,4 +253,4 @@ def run_flow(flow, storage, flags=None, http=None):
 
 def message_if_missing(filename):
     """Helpful message to display if the CLIENT_SECRETS file is missing."""
-    return _CLIENT_SECRETS_MESSAGE % filename
+    return _CLIENT_SECRETS_MESSAGE.format(file_path=filename)

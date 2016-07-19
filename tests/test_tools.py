@@ -40,7 +40,8 @@ class TestClientRedirectServer(unittest2.TestCase):
         httpd = tools.ClientRedirectServer(('localhost', 0),
                                            tools.ClientRedirectHandler)
         code = 'foo'
-        url = 'http://localhost:%i?code=%s' % (httpd.server_address[1], code)
+        url = 'http://localhost:{0}?code={1}'.format(
+            httpd.server_address[1], code)
         t = threading.Thread(target=httpd.handle_request)
         t.setDaemon(True)
         t.start()

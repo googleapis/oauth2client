@@ -251,9 +251,9 @@ class FlowProperty(db.Property):
 
     def validate(self, value):
         if value is not None and not isinstance(value, Flow):
-            raise db.BadValueError('Property %s must be convertible '
-                                   'to a FlowThreeLegged instance (%s)' %
-                                   (self.name, value))
+            raise db.BadValueError(
+                'Property {0} must be convertible '
+                'to a FlowThreeLegged instance ({1})'.format(self.name, value))
         return super(FlowProperty, self).validate(value)
 
     def empty(self, value):
@@ -298,9 +298,9 @@ class CredentialsProperty(db.Property):
         value = super(CredentialsProperty, self).validate(value)
         logger.info("validate: Got type " + str(type(value)))
         if value is not None and not isinstance(value, Credentials):
-            raise db.BadValueError('Property %s must be convertible '
-                                   'to a Credentials instance (%s)' %
-                                   (self.name, value))
+            raise db.BadValueError(
+                'Property {0} must be convertible '
+                'to a Credentials instance ({1})'.format(self.name, value))
         return value
 
 
@@ -356,8 +356,8 @@ class StorageByKeyName(Storage):
             elif issubclass(self._model, db.Model):
                 return False
 
-        raise TypeError('Model class not an NDB or DB model: %s.' %
-                        (self._model,))
+        raise TypeError(
+            'Model class not an NDB or DB model: {0}.'.format(self._model))
 
     def _get_entity(self):
         """Retrieve entity from datastore.
@@ -790,8 +790,8 @@ class OAuth2Decorator(object):
                 if error:
                     errormsg = self.request.get('error_description', error)
                     self.response.out.write(
-                        'The authorization request failed: %s' %
-                        _safe_html(errormsg))
+                        'The authorization request failed: {0}'.format(
+                            _safe_html(errormsg)))
                 else:
                     user = users.get_current_user()
                     decorator._create_flow(self)
