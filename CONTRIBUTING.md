@@ -37,7 +37,9 @@ Once you have made all your changes, tests, and updated the documentation,
 make a pull request to move everything back into the main `oauth2client`
 repository. Be sure to reference the original issue in the pull request.
 Expect some back-and-forth with regards to style and compliance of these
-rules.
+rules. In particular:
+* `oauth2client` follows the [Google Python Style Guide][GooglePythonStyle].
+* Follow [these guidelines][GitCommitRules] when authoring your commit message.
 
 Using a Development Checkout
 ----------------------------
@@ -202,3 +204,5 @@ we'll be able to accept your pull requests.
 [13]: https://oauth2client.readthedocs.io/en/latest/#using-pypy
 [14]: https://docs.djangoproject.com/en/1.7/faq/install/#what-python-version-can-i-use-with-django
 [15]: https://docs.djangoproject.com/en/1.9/faq/install/#what-python-version-can-i-use-with-django
+[GooglePythonStyle]: https://google.github.io/styleguide/pyguide.html
+[GitCommitRules]: http://chris.beams.io/posts/git-commit/#seven-rules
