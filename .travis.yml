@@ -29,7 +29,7 @@ install:
 script:
 - ./scripts/run.sh
 after_success:
-- if [[ "${TOX_ENV}" == "py27" ]]; then tox -e coveralls; fi
+- if [[ "${TOX_ENV}" == "gae" ]]; then tox -e coveralls; fi
 notifications:
   email: false
 
