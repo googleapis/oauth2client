@@ -20,11 +20,10 @@ import datetime
 import json
 import time
 
-import httplib2
-
 from oauth2client import crypt
 from oauth2client import GOOGLE_REVOKE_URI
 from oauth2client import GOOGLE_TOKEN_URI
+from oauth2client import transport
 from oauth2client import util
 from oauth2client._helpers import _from_bytes
 from oauth2client.client import _UTCNOW
@@ -32,9 +31,6 @@ from oauth2client.client import AccessTokenInfo
 from oauth2client.client import AssertionCredentials
 from oauth2client.client import EXPIRY_FORMAT
 from oauth2client.client import SERVICE_ACCOUNT
-from oauth2client.transport import _apply_user_agent
-from oauth2client.transport import _initialize_headers
-from oauth2client.transport import clean_headers
 
 
 _PASSWORD_DEFAULT = 'notasecret'
@@ -604,37 +600,7 @@ class _JWTAccessCredentials(ServiceAccountCredentials):
             h = httplib2.Http()
             h = credentials.authorize(h)
         """
-        request_orig = http.request
-        request_auth = super(
-            _JWTAccessCredentials, self).authorize(http).request
-
-        # The closure that will replace 'httplib2.Http.request'.
-        def new_request(uri, method='GET', body=None, headers=None,
-                        redirections=httplib2.DEFAULT_MAX_REDIRECTS,
-                        connection_type=None):
-            if 'aud' in self._kwargs:
-                # Preemptively refresh token, this is not done for OAuth2
-                if self.access_token is None or self.access_token_expired:
-                    self.refresh(None)
-                return request_auth(uri, method, body,
-                                    headers, redirections,
-                                    connection_type)
-            else:
-                # If we don't have an 'aud' (audience) claim,
-                # create a 1-time token with the uri root as the audience
-                headers = _initialize_headers(headers)
-                _apply_user_agent(headers, self.user_agent)
-                uri_root = uri.split('?', 1)[0]
-                token, unused_expiry = self._create_token({'aud': uri_root})
-
-                headers['Authorization'] = 'Bearer ' + token
-                return request_orig(uri, method, body,
-                                    clean_headers(headers),
-                                    redirections, connection_type)
-
-        # Replace the request method with our own closure.
-        http.request = new_request
-
+        transport.wrap_http_for_jwt_access(self, http)
         return http
 
     def get_access_token(self, http=None, additional_claims=None):
