@@ -527,7 +527,7 @@ class JWTAccessCredentialsTests(unittest2.TestCase):
             self.assertEqual(payload['exp'], T1_EXPIRY)
             self.assertEqual(uri, self.url)
             self.assertEqual(bearer, b'Bearer')
-            return (httplib2.Response({'status': '200'}), b'')
+            return httplib2.Response({'status': '200'}), b''
 
         h = httplib2.Http()
         h.request = mock_request
