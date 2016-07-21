@@ -20,9 +20,8 @@ import mock
 from six.moves.urllib import request
 import unittest2
 
+from oauth2client import client
 from oauth2client import tools
-from oauth2client.client import FlowExchangeError
-from oauth2client.client import OOB_CALLBACK_URN
 
 try:
     import argparse
@@ -82,7 +81,7 @@ class TestRunFlow(unittest2.TestCase):
         returned_credentials = tools.run_flow(self.flow, self.storage)
 
         self.assertEqual(self.credentials, returned_credentials)
-        self.assertEqual(self.flow.redirect_uri, OOB_CALLBACK_URN)
+        self.assertEqual(self.flow.redirect_uri, client.OOB_CALLBACK_URN)
         self.flow.step2_exchange.assert_called_once_with(
             'auth_code', http=None)
         self.storage.put.assert_called_once_with(self.credentials)
@@ -99,7 +98,7 @@ class TestRunFlow(unittest2.TestCase):
             self.flow, self.storage, flags=self.flags)
 
         self.assertEqual(self.credentials, returned_credentials)
-        self.assertEqual(self.flow.redirect_uri, OOB_CALLBACK_URN)
+        self.assertEqual(self.flow.redirect_uri, client.OOB_CALLBACK_URN)
         self.flow.step2_exchange.assert_called_once_with(
             'auth_code', http=None)
 
@@ -108,7 +107,7 @@ class TestRunFlow(unittest2.TestCase):
     def test_run_flow_no_webserver_exchange_error(
             self, input_mock, logging_mock):
         input_mock.return_value = 'auth_code'
-        self.flow.step2_exchange.side_effect = FlowExchangeError()
+        self.flow.step2_exchange.side_effect = client.FlowExchangeError()
 
         # Error while exchanging.
         with self.assertRaises(SystemExit):
@@ -181,7 +180,7 @@ class TestRunFlow(unittest2.TestCase):
             self.flow, self.storage, flags=self.server_flags)
 
         self.assertEqual(self.credentials, returned_credentials)
-        self.assertEqual(self.flow.redirect_uri, OOB_CALLBACK_URN)
+        self.assertEqual(self.flow.redirect_uri, client.OOB_CALLBACK_URN)
         self.flow.step2_exchange.assert_called_once_with(
             'auth_code', http=None)
         self.assertTrue(server_ctor_mock.called)

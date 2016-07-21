@@ -21,9 +21,9 @@ import keyring
 import mock
 import unittest2
 
-from oauth2client import GOOGLE_TOKEN_URI
-from oauth2client.client import OAuth2Credentials
-from oauth2client.contrib.keyring_storage import Storage
+import oauth2client
+from oauth2client import client
+from oauth2client.contrib import keyring_storage
 
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
@@ -34,21 +34,21 @@ class KeyringStorageTests(unittest2.TestCase):
     def test_constructor(self):
         service_name = 'my_unit_test'
         user_name = 'me'
-        store = Storage(service_name, user_name)
+        store = keyring_storage.Storage(service_name, user_name)
         self.assertEqual(store._service_name, service_name)
         self.assertEqual(store._user_name, user_name)
         lock_type = type(threading.Lock())
         self.assertIsInstance(store._lock, lock_type)
 
     def test_acquire_lock(self):
-        store = Storage('my_unit_test', 'me')
+        store = keyring_storage.Storage('my_unit_test', 'me')
         store._lock = lock = _FakeLock()
         self.assertEqual(lock._acquire_count, 0)
         store.acquire_lock()
         self.assertEqual(lock._acquire_count, 1)
 
     def test_release_lock(self):
-        store = Storage('my_unit_test', 'me')
+        store = keyring_storage.Storage('my_unit_test', 'me')
         store._lock = lock = _FakeLock()
         self.assertEqual(lock._release_count, 0)
         store.release_lock()
@@ -64,11 +64,11 @@ class KeyringStorageTests(unittest2.TestCase):
         with mock.patch.object(keyring, 'get_password',
                                return_value=mock_content,
                                autospec=True) as get_password:
-            class_name = 'oauth2client.contrib.keyring_storage.Credentials'
+            class_name = 'oauth2client.client.Credentials'
             with mock.patch(class_name) as MockCreds:
                 MockCreds.new_from_json = new_from_json = mock.MagicMock(
                     name='new_from_json', return_value=mock_return_creds)
-                store = Storage(service_name, user_name)
+                store = keyring_storage.Storage(service_name, user_name)
                 credentials = store.locked_get()
                 new_from_json.assert_called_once_with(mock_content)
                 get_password.assert_called_once_with(service_name, user_name)
@@ -78,7 +78,7 @@ class KeyringStorageTests(unittest2.TestCase):
     def test_locked_put(self):
         service_name = 'my_unit_test'
         user_name = 'me'
-        store = Storage(service_name, user_name)
+        store = keyring_storage.Storage(service_name, user_name)
         with mock.patch.object(keyring, 'set_password',
                                return_value=None,
                                autospec=True) as set_password:
@@ -94,7 +94,7 @@ class KeyringStorageTests(unittest2.TestCase):
     def test_locked_delete(self):
         service_name = 'my_unit_test'
         user_name = 'me'
-        store = Storage(service_name, user_name)
+        store = keyring_storage.Storage(service_name, user_name)
         with mock.patch.object(keyring, 'set_password',
                                return_value=None,
                                autospec=True) as set_password:
@@ -105,7 +105,7 @@ class KeyringStorageTests(unittest2.TestCase):
         with mock.patch.object(keyring, 'get_password',
                                return_value=None,
                                autospec=True) as get_password:
-            store = Storage('my_unit_test', 'me')
+            store = keyring_storage.Storage('my_unit_test', 'me')
             credentials = store.get()
             self.assertEquals(None, credentials)
             get_password.assert_called_once_with('my_unit_test', 'me')
@@ -114,7 +114,7 @@ class KeyringStorageTests(unittest2.TestCase):
         with mock.patch.object(keyring, 'get_password',
                                return_value='{',
                                autospec=True) as get_password:
-            store = Storage('my_unit_test', 'me')
+            store = keyring_storage.Storage('my_unit_test', 'me')
             credentials = store.get()
             self.assertEquals(None, credentials)
             get_password.assert_called_once_with('my_unit_test', 'me')
@@ -127,9 +127,9 @@ class KeyringStorageTests(unittest2.TestCase):
         token_expiry = datetime.datetime.utcnow()
         user_agent = 'refresh_checker/1.0'
 
-        credentials = OAuth2Credentials(
+        credentials = client.OAuth2Credentials(
             access_token, client_id, client_secret,
-            refresh_token, token_expiry, GOOGLE_TOKEN_URI,
+            refresh_token, token_expiry, oauth2client.GOOGLE_TOKEN_URI,
             user_agent)
 
         # Setting autospec on a mock with an iterable side_effect is
@@ -141,7 +141,7 @@ class KeyringStorageTests(unittest2.TestCase):
             with mock.patch.object(keyring, 'set_password',
                                    return_value=None,
                                    autospec=True) as set_password:
-                store = Storage('my_unit_test', 'me')
+                store = keyring_storage.Storage('my_unit_test', 'me')
                 self.assertEquals(None, store.get())
 
                 store.put(credentials)

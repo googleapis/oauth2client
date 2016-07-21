@@ -68,7 +68,7 @@ class TestMetadata(unittest2.TestCase):
         http_request.assert_called_once_with(EXPECTED_URL, **EXPECTED_KWARGS)
 
     @mock.patch(
-        'oauth2client.contrib._metadata._UTCNOW',
+        'oauth2client.client._UTCNOW',
         return_value=datetime.datetime.min)
     def test_get_token_success(self, now):
         http_request = request_mock(

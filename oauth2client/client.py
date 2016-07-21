@@ -32,16 +32,11 @@ import six
 from six.moves import http_client
 from six.moves import urllib
 
+import oauth2client
+from oauth2client import _helpers
 from oauth2client import clientsecrets
-from oauth2client import GOOGLE_AUTH_URI
-from oauth2client import GOOGLE_DEVICE_URI
-from oauth2client import GOOGLE_REVOKE_URI
-from oauth2client import GOOGLE_TOKEN_INFO_URI
-from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client import transport
 from oauth2client import util
-from oauth2client._helpers import _from_bytes
-from oauth2client._helpers import _urlsafe_b64decode
 
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
@@ -294,7 +289,7 @@ class Credentials(object):
             An instance of the subclass of Credentials that was serialized with
             to_json().
         """
-        json_data_as_unicode = _from_bytes(json_data)
+        json_data_as_unicode = _helpers._from_bytes(json_data)
         data = json.loads(json_data_as_unicode)
         # Find and call the right classmethod from_json() to restore
         # the object.
@@ -619,7 +614,7 @@ class OAuth2Credentials(Credentials):
         Returns:
             An instance of a Credentials subclass.
         """
-        data = json.loads(_from_bytes(json_data))
+        data = json.loads(_helpers._from_bytes(json_data))
         if (data.get('token_expiry') and
                 not isinstance(data['token_expiry'], datetime.datetime)):
             try:
@@ -792,7 +787,7 @@ class OAuth2Credentials(Credentials):
         logger.info('Refreshing access_token')
         resp, content = http_request(
             self.token_uri, method='POST', body=body, headers=headers)
-        content = _from_bytes(content)
+        content = _helpers._from_bytes(content)
         if resp.status == http_client.OK:
             d = json.loads(content)
             self.token_response = d
@@ -863,7 +858,7 @@ class OAuth2Credentials(Credentials):
         else:
             error_msg = 'Invalid response {0}.'.format(resp.status)
             try:
-                d = json.loads(_from_bytes(content))
+                d = json.loads(_helpers._from_bytes(content))
                 if 'error' in d:
                     error_msg = d['error']
             except (TypeError, ValueError):
@@ -902,7 +897,7 @@ class OAuth2Credentials(Credentials):
         token_info_uri = _update_query_params(self.token_info_uri,
                                               query_params)
         resp, content = http_request(token_info_uri)
-        content = _from_bytes(content)
+        content = _helpers._from_bytes(content)
         if resp.status == http_client.OK:
             d = json.loads(content)
             self.scopes = set(util.string_to_scopes(d.get('scope', '')))
@@ -968,7 +963,7 @@ class AccessTokenCredentials(OAuth2Credentials):
 
     @classmethod
     def from_json(cls, json_data):
-        data = json.loads(_from_bytes(json_data))
+        data = json.loads(_helpers._from_bytes(json_data))
         retval = AccessTokenCredentials(
             data['access_token'],
             data['user_agent'])
@@ -1091,7 +1086,7 @@ class GoogleCredentials(OAuth2Credentials):
 
     def __init__(self, access_token, client_id, client_secret, refresh_token,
                  token_expiry, token_uri, user_agent,
-                 revoke_uri=GOOGLE_REVOKE_URI):
+                 revoke_uri=oauth2client.GOOGLE_REVOKE_URI):
         """Create an instance of GoogleCredentials.
 
         This constructor is not usually called by the user, instead
@@ -1109,8 +1104,8 @@ class GoogleCredentials(OAuth2Credentials):
             user_agent: string, The HTTP User-Agent to provide for this
                         application.
             revoke_uri: string, URI for revoke endpoint. Defaults to
-                        GOOGLE_REVOKE_URI; a token can't be revoked if this
-                        is None.
+                        oauth2client.GOOGLE_REVOKE_URI; a token can't be
+                        revoked if this is None.
         """
         super(GoogleCredentials, self).__init__(
             access_token, client_id, client_secret, refresh_token,
@@ -1135,18 +1130,17 @@ class GoogleCredentials(OAuth2Credentials):
     def from_json(cls, json_data):
         # TODO(issue 388): eliminate the circularity that is the reason for
         #                  this non-top-level import.
-        from oauth2client.service_account import ServiceAccountCredentials
-        from oauth2client.service_account import _JWTAccessCredentials
-        data = json.loads(_from_bytes(json_data))
+        from oauth2client import service_account
+        data = json.loads(_helpers._from_bytes(json_data))
 
         # We handle service_account.ServiceAccountCredentials since it is a
         # possible return type of GoogleCredentials.get_application_default()
         if (data['_module'] == 'oauth2client.service_account' and
                 data['_class'] == 'ServiceAccountCredentials'):
-            return ServiceAccountCredentials.from_json(data)
+            return service_account.ServiceAccountCredentials.from_json(data)
         elif (data['_module'] == 'oauth2client.service_account' and
                 data['_class'] == '_JWTAccessCredentials'):
-            return _JWTAccessCredentials.from_json(data)
+            return service_account._JWTAccessCredentials.from_json(data)
 
         token_expiry = _parse_expiry(data.get('token_expiry'))
         google_credentials = cls(
@@ -1423,11 +1417,11 @@ def _get_application_default_credential_from_file(filename):
             client_secret=client_credentials['client_secret'],
             refresh_token=client_credentials['refresh_token'],
             token_expiry=None,
-            token_uri=GOOGLE_TOKEN_URI,
+            token_uri=oauth2client.GOOGLE_TOKEN_URI,
             user_agent='Python client library')
     else:  # client_credentials['type'] == SERVICE_ACCOUNT
-        from oauth2client.service_account import _JWTAccessCredentials
-        return _JWTAccessCredentials.from_json_keyfile_dict(
+        from oauth2client import service_account
+        return service_account._JWTAccessCredentials.from_json_keyfile_dict(
             client_credentials)
 
 
@@ -1469,8 +1463,8 @@ class AssertionCredentials(GoogleCredentials):
 
     @util.positional(2)
     def __init__(self, assertion_type, user_agent=None,
-                 token_uri=GOOGLE_TOKEN_URI,
-                 revoke_uri=GOOGLE_REVOKE_URI,
+                 token_uri=oauth2client.GOOGLE_TOKEN_URI,
+                 revoke_uri=oauth2client.GOOGLE_REVOKE_URI,
                  **unused_kwargs):
         """Constructor for AssertionFlowCredentials.
 
@@ -1572,7 +1566,7 @@ def verify_id_token(id_token, audience, http=None,
 
     resp, content = http.request(cert_uri)
     if resp.status == http_client.OK:
-        certs = json.loads(_from_bytes(content))
+        certs = json.loads(_helpers._from_bytes(content))
         return crypt.verify_signed_jwt_with_certs(id_token, certs, audience)
     else:
         raise VerifyJwtTokenError('Status code: {0}'.format(resp.status))
@@ -1598,7 +1592,8 @@ def _extract_id_token(id_token):
         raise VerifyJwtTokenError(
             'Wrong number of segments in token: {0}'.format(id_token))
 
-    return json.loads(_from_bytes(_urlsafe_b64decode(segments[1])))
+    return json.loads(
+        _helpers._from_bytes(_helpers._urlsafe_b64decode(segments[1])))
 
 
 def _parse_exchange_token_response(content):
@@ -1615,7 +1610,7 @@ def _parse_exchange_token_response(content):
         i.e. {}. That basically indicates a failure.
     """
     resp = {}
-    content = _from_bytes(content)
+    content = _helpers._from_bytes(content)
     try:
         resp = json.loads(content)
     except Exception:
@@ -1633,11 +1628,12 @@ def _parse_exchange_token_response(content):
 @util.positional(4)
 def credentials_from_code(client_id, client_secret, scope, code,
                           redirect_uri='postmessage', http=None,
-                          user_agent=None, token_uri=GOOGLE_TOKEN_URI,
-                          auth_uri=GOOGLE_AUTH_URI,
-                          revoke_uri=GOOGLE_REVOKE_URI,
-                          device_uri=GOOGLE_DEVICE_URI,
-                          token_info_uri=GOOGLE_TOKEN_INFO_URI):
+                          user_agent=None,
+                          token_uri=oauth2client.GOOGLE_TOKEN_URI,
+                          auth_uri=oauth2client.GOOGLE_AUTH_URI,
+                          revoke_uri=oauth2client.GOOGLE_REVOKE_URI,
+                          device_uri=oauth2client.GOOGLE_DEVICE_URI,
+                          token_info_uri=oauth2client.GOOGLE_TOKEN_INFO_URI):
     """Exchanges an authorization code for an OAuth2Credentials object.
 
     Args:
@@ -1778,12 +1774,12 @@ class OAuth2WebServerFlow(Flow):
                  scope=None,
                  redirect_uri=None,
                  user_agent=None,
-                 auth_uri=GOOGLE_AUTH_URI,
-                 token_uri=GOOGLE_TOKEN_URI,
-                 revoke_uri=GOOGLE_REVOKE_URI,
+                 auth_uri=oauth2client.GOOGLE_AUTH_URI,
+                 token_uri=oauth2client.GOOGLE_TOKEN_URI,
+                 revoke_uri=oauth2client.GOOGLE_REVOKE_URI,
                  login_hint=None,
-                 device_uri=GOOGLE_DEVICE_URI,
-                 token_info_uri=GOOGLE_TOKEN_INFO_URI,
+                 device_uri=oauth2client.GOOGLE_DEVICE_URI,
+                 token_info_uri=oauth2client.GOOGLE_TOKEN_INFO_URI,
                  authorization_header=None,
                  **kwargs):
         """Constructor for OAuth2WebServerFlow.
@@ -1915,7 +1911,7 @@ class OAuth2WebServerFlow(Flow):
 
         resp, content = http.request(self.device_uri, method='POST', body=body,
                                      headers=headers)
-        content = _from_bytes(content)
+        content = _helpers._from_bytes(content)
         if resp.status == http_client.OK:
             try:
                 flow_info = json.loads(content)

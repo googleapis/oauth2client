@@ -19,14 +19,12 @@ import json
 import logging
 import time
 
-from oauth2client._helpers import _from_bytes
-from oauth2client._helpers import _json_encode
-from oauth2client._helpers import _to_bytes
-from oauth2client._helpers import _urlsafe_b64decode
-from oauth2client._helpers import _urlsafe_b64encode
-from oauth2client._pure_python_crypt import RsaSigner
-from oauth2client._pure_python_crypt import RsaVerifier
+from oauth2client import _helpers
+from oauth2client import _pure_python_crypt
 
+
+RsaSigner = _pure_python_crypt.RsaSigner
+RsaVerifier = _pure_python_crypt.RsaVerifier
 
 CLOCK_SKEW_SECS = 300  # 5 minutes in seconds
 AUTH_TOKEN_LIFETIME_SECS = 300  # 5 minutes in seconds
@@ -44,17 +42,19 @@ def _bad_pkcs12_key_as_pem(*args, **kwargs):
 
 
 try:
-    from oauth2client._openssl_crypt import OpenSSLVerifier
-    from oauth2client._openssl_crypt import OpenSSLSigner
-    from oauth2client._openssl_crypt import pkcs12_key_as_pem
+    from oauth2client import _openssl_crypt
+    OpenSSLSigner = _openssl_crypt.OpenSSLSigner
+    OpenSSLVerifier = _openssl_crypt.OpenSSLVerifier
+    pkcs12_key_as_pem = _openssl_crypt.pkcs12_key_as_pem
 except ImportError:  # pragma: NO COVER
     OpenSSLVerifier = None
     OpenSSLSigner = None
     pkcs12_key_as_pem = _bad_pkcs12_key_as_pem
 
 try:
-    from oauth2client._pycrypto_crypt import PyCryptoVerifier
-    from oauth2client._pycrypto_crypt import PyCryptoSigner
+    from oauth2client import _pycrypto_crypt
+    PyCryptoSigner = _pycrypto_crypt.PyCryptoSigner
+    PyCryptoVerifier = _pycrypto_crypt.PyCryptoVerifier
 except ImportError:  # pragma: NO COVER
     PyCryptoVerifier = None
     PyCryptoSigner = None
@@ -89,13 +89,13 @@ def make_signed_jwt(signer, payload, key_id=None):
         header['kid'] = key_id
 
     segments = [
-        _urlsafe_b64encode(_json_encode(header)),
-        _urlsafe_b64encode(_json_encode(payload)),
+        _helpers._urlsafe_b64encode(_helpers._json_encode(header)),
+        _helpers._urlsafe_b64encode(_helpers._json_encode(payload)),
     ]
     signing_input = b'.'.join(segments)
 
     signature = signer.sign(signing_input)
-    segments.append(_urlsafe_b64encode(signature))
+    segments.append(_helpers._urlsafe_b64encode(signature))
 
     logger.debug(str(segments))
 
@@ -221,7 +221,7 @@ def verify_signed_jwt_with_certs(jwt, certs, audience=None):
     Raises:
         AppIdentityError: if any checks are failed.
     """
-    jwt = _to_bytes(jwt)
+    jwt = _helpers._to_bytes(jwt)
 
     if jwt.count(b'.') != 2:
         raise AppIdentityError(
@@ -229,12 +229,12 @@ def verify_signed_jwt_with_certs(jwt, certs, audience=None):
 
     header, payload, signature = jwt.split(b'.')
     message_to_sign = header + b'.' + payload
-    signature = _urlsafe_b64decode(signature)
+    signature = _helpers._urlsafe_b64decode(signature)
 
     # Parse token.
-    payload_bytes = _urlsafe_b64decode(payload)
+    payload_bytes = _helpers._urlsafe_b64decode(payload)
     try:
-        payload_dict = json.loads(_from_bytes(payload_bytes))
+        payload_dict = json.loads(_helpers._from_bytes(payload_bytes))
     except:
         raise AppIdentityError('Can\'t parse token: {0}'.format(payload_bytes))
 

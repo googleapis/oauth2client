@@ -85,8 +85,7 @@ import fasteners
 from six import iteritems
 
 from oauth2client import _helpers
-from oauth2client.client import Credentials
-from oauth2client.client import Storage as BaseStorage
+from oauth2client import client
 
 
 #: The maximum amount of time, in seconds, to wait when acquire the
@@ -155,7 +154,7 @@ def _load_credentials_file(credentials_file):
     for key, encoded_credential in iteritems(data.get('credentials', {})):
         try:
             credential_json = base64.b64decode(encoded_credential)
-            credential = Credentials.new_from_json(credential_json)
+            credential = client.Credentials.new_from_json(credential_json)
             credentials[key] = credential
         except:
             logger.warning(
@@ -310,7 +309,7 @@ def _get_backend(filename):
         return _backends[filename]
 
 
-class MultiprocessFileStorage(BaseStorage):
+class MultiprocessFileStorage(client.Storage):
     """Multiprocess file credential storage.
 
     Args:

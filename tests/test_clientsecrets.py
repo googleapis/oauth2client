@@ -21,11 +21,9 @@ import tempfile
 
 import unittest2
 
+import oauth2client
+from oauth2client import _helpers
 from oauth2client import clientsecrets
-from oauth2client import GOOGLE_AUTH_URI
-from oauth2client import GOOGLE_REVOKE_URI
-from oauth2client import GOOGLE_TOKEN_URI
-from oauth2client._helpers import _from_bytes
 
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
@@ -157,9 +155,9 @@ class Test__loadfile(unittest2.TestCase):
             'client_id': 'foo_client_id',
             'client_secret': 'foo_client_secret',
             'redirect_uris': [],
-            'auth_uri': GOOGLE_AUTH_URI,
-            'token_uri': GOOGLE_TOKEN_URI,
-            'revoke_uri': GOOGLE_REVOKE_URI,
+            'auth_uri': oauth2client.GOOGLE_AUTH_URI,
+            'token_uri': oauth2client.GOOGLE_TOKEN_URI,
+            'revoke_uri': oauth2client.GOOGLE_REVOKE_URI,
         }
         self.assertEqual(client_type, clientsecrets.TYPE_WEB)
         self.assertEqual(client_info, expected_client_info)
@@ -200,7 +198,7 @@ class OAuth2CredentialsTests(unittest2.TestCase):
         ]
         for src, match in ERRORS:
             # Ensure that it is unicode
-            src = _from_bytes(src)
+            src = _helpers._from_bytes(src)
             # Test load(s)
             with self.assertRaises(
                     clientsecrets.InvalidClientSecretsError) as exc_manager:

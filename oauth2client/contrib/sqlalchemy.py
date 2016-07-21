@@ -20,7 +20,7 @@ Configuration
 =============
 
 In order to use this storage, you'll need to create table
-with :class:`oauth2client.contrib.sql_alchemy.CredentialsType` column.
+with :class:`oauth2client.contrib.sqlalchemy.CredentialsType` column.
 It's recommended to either put this column on some sort of user info
 table or put the column in a table with a belongs-to relationship to
 a user info table.
@@ -30,10 +30,11 @@ column that's related to a user table by the `user_id` key.
 
 .. code-block:: python
 
-    from oauth2client.contrib.sql_alchemy import CredentialsType
     from sqlalchemy import Column, ForeignKey, Integer
     from sqlalchemy.ext.declarative import declarative_base
     from sqlalchemy.orm import relationship
+
+    from oauth2client.contrib.sqlalchemy import CredentialsType
 
 
     Base = declarative_base()
@@ -60,9 +61,10 @@ We will reuse tables defined above.
 
 .. code-block:: python
 
+    from sqlalchemy.orm import Session
+
     from oauth2client.client import OAuth2Credentials
     from oauth2client.contrib.sql_alchemy import Storage
-    from sqlalchemy.orm import Session
 
     session = Session()
     user = session.query(User).first()
@@ -92,7 +94,7 @@ from __future__ import absolute_import
 
 import sqlalchemy.types
 
-import oauth2client.client
+from oauth2client import client
 
 
 class CredentialsType(sqlalchemy.types.PickleType):
@@ -102,7 +104,7 @@ class CredentialsType(sqlalchemy.types.PickleType):
     """
 
 
-class Storage(oauth2client.client.Storage):
+class Storage(client.Storage):
     """Store and retrieve a single credential to and from SQLAlchemy.
     This helper presumes the Credentials
     have been stored as a Credentials column

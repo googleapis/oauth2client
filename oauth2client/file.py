@@ -21,8 +21,7 @@ credentials.
 import os
 import threading
 
-from oauth2client.client import Credentials
-from oauth2client.client import Storage as BaseStorage
+from oauth2client import client
 
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
@@ -32,7 +31,7 @@ class CredentialsFileSymbolicLinkError(Exception):
     """Credentials files must not be symbolic links."""
 
 
-class Storage(BaseStorage):
+class Storage(client.Storage):
     """Store and retrieve a single credential to and from a file."""
 
     def __init__(self, filename):
@@ -63,7 +62,7 @@ class Storage(BaseStorage):
             return credentials
 
         try:
-            credentials = Credentials.new_from_json(content)
+            credentials = client.Credentials.new_from_json(content)
             credentials.set_store(self)
         except ValueError:
             pass

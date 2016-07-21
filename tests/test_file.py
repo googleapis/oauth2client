@@ -29,9 +29,8 @@ import six
 from six.moves import http_client
 import unittest2
 
+from oauth2client import client
 from oauth2client import file
-from oauth2client.client import AccessTokenCredentials
-from oauth2client.client import OAuth2Credentials
 from .http_mock import HttpMockSequence
 
 try:
@@ -69,7 +68,7 @@ class OAuth2ClientFileTests(unittest2.TestCase):
         token_uri = 'https://www.google.com/accounts/o8/oauth2/token'
         user_agent = 'refresh_checker/1.0'
 
-        credentials = OAuth2Credentials(
+        credentials = client.OAuth2Credentials(
             access_token, client_id, client_secret,
             refresh_token, token_expiry, token_uri,
             user_agent)
@@ -112,7 +111,7 @@ class OAuth2ClientFileTests(unittest2.TestCase):
 
         self.assertEquals(data['access_token'], 'foo')
         self.assertEquals(data['_class'], 'OAuth2Credentials')
-        self.assertEquals(data['_module'], OAuth2Credentials.__module__)
+        self.assertEquals(data['_module'], client.OAuth2Credentials.__module__)
 
     def test_token_refresh_store_expired(self):
         expiration = (datetime.datetime.utcnow() -
@@ -228,7 +227,7 @@ class OAuth2ClientFileTests(unittest2.TestCase):
         access_token = 'foo'
         user_agent = 'refresh_checker/1.0'
 
-        credentials = AccessTokenCredentials(access_token, user_agent)
+        credentials = client.AccessTokenCredentials(access_token, user_agent)
 
         s = file.Storage(FILENAME)
         credentials = s.put(credentials)

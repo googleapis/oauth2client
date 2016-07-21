@@ -50,10 +50,9 @@ import logging
 import os
 import threading
 
+from oauth2client import client
 from oauth2client import util
-from oauth2client.client import Credentials
-from oauth2client.client import Storage as BaseStorage
-from oauth2client.contrib.locked_file import LockedFile
+from oauth2client.contrib import locked_file
 
 __author__ = 'jbeda@google.com (Joe Beda)'
 
@@ -208,7 +207,7 @@ class _MultiStore(object):
 
         This will create the file if necessary.
         """
-        self._file = LockedFile(filename, 'r+', 'r')
+        self._file = locked_file.LockedFile(filename, 'r+', 'r')
         self._thread_lock = threading.Lock()
         self._read_only = False
         self._warn_on_readonly = warn_on_readonly
@@ -224,7 +223,7 @@ class _MultiStore(object):
         # If this is None, then the store hasn't been read yet.
         self._data = None
 
-    class _Storage(BaseStorage):
+    class _Storage(client.Storage):
         """A Storage object that can read/write a single credential."""
 
         def __init__(self, multistore, key):
@@ -421,7 +420,7 @@ class _MultiStore(object):
         raw_key = cred_entry['key']
         key = _dict_to_tuple_key(raw_key)
         credential = None
-        credential = Credentials.new_from_json(
+        credential = client.Credentials.new_from_json(
             json.dumps(cred_entry['credential']))
         return (key, credential)
 

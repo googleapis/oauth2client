@@ -19,7 +19,7 @@ import base64
 import mock
 import unittest2
 
-from oauth2client._helpers import _to_bytes
+from oauth2client import _helpers
 from oauth2client.contrib import xsrfutil
 
 # Jan 17 2008, 5:40PM
@@ -61,16 +61,16 @@ class Test_generate_token(unittest2.TestCase):
             digester.digest.assert_called_once_with()
 
             expected_digest_calls = [
-                mock.call.update(_to_bytes(str(TEST_USER_ID_1))),
+                mock.call.update(_helpers._to_bytes(str(TEST_USER_ID_1))),
                 mock.call.update(xsrfutil.DELIMITER),
                 mock.call.update(TEST_ACTION_ID_1),
                 mock.call.update(xsrfutil.DELIMITER),
-                mock.call.update(_to_bytes(str(TEST_TIME))),
+                mock.call.update(_helpers._to_bytes(str(TEST_TIME))),
             ]
             self.assertEqual(digester.method_calls, expected_digest_calls)
 
             expected_token_as_bytes = (digest + xsrfutil.DELIMITER +
-                                       _to_bytes(str(TEST_TIME)))
+                                       _helpers._to_bytes(str(TEST_TIME)))
             expected_token = base64.urlsafe_b64encode(
                 expected_token_as_bytes)
             self.assertEqual(token, expected_token)
@@ -95,16 +95,17 @@ class Test_generate_token(unittest2.TestCase):
                 digester.digest.assert_called_once_with()
 
                 expected_digest_calls = [
-                    mock.call.update(_to_bytes(str(TEST_USER_ID_1))),
+                    mock.call.update(_helpers._to_bytes(str(TEST_USER_ID_1))),
                     mock.call.update(xsrfutil.DELIMITER),
                     mock.call.update(TEST_ACTION_ID_1),
                     mock.call.update(xsrfutil.DELIMITER),
-                    mock.call.update(_to_bytes(str(int(curr_time)))),
+                    mock.call.update(_helpers._to_bytes(str(int(curr_time)))),
                 ]
                 self.assertEqual(digester.method_calls, expected_digest_calls)
 
-                expected_token_as_bytes = (digest + xsrfutil.DELIMITER +
-                                           _to_bytes(str(int(curr_time))))
+                expected_token_as_bytes = (
+                    digest + xsrfutil.DELIMITER +
+                    _helpers._to_bytes(str(int(curr_time))))
                 expected_token = base64.urlsafe_b64encode(
                     expected_token_as_bytes)
                 self.assertEqual(token, expected_token)
@@ -139,7 +140,7 @@ class Test_validate_token(unittest2.TestCase):
         curr_time = token_time + xsrfutil.DEFAULT_TIMEOUT_SECS + 1
 
         key = user_id = None
-        token = base64.b64encode(_to_bytes(str(token_time)))
+        token = base64.b64encode(_helpers._to_bytes(str(token_time)))
         with mock.patch('oauth2client.contrib.xsrfutil.time') as time:
             time.time = mock.MagicMock(name='time', return_value=curr_time)
             self.assertFalse(xsrfutil.validate_token(key, token, user_id))
@@ -150,7 +151,7 @@ class Test_validate_token(unittest2.TestCase):
         curr_time = token_time + xsrfutil.DEFAULT_TIMEOUT_SECS + 1
 
         key = user_id = None
-        token = base64.b64encode(_to_bytes(str(token_time)))
+        token = base64.b64encode(_helpers._to_bytes(str(token_time)))
         self.assertFalse(xsrfutil.validate_token(key, token, user_id,
                                                  current_time=curr_time))
 
@@ -162,7 +163,7 @@ class Test_validate_token(unittest2.TestCase):
         key = object()
         user_id = object()
         action_id = object()
-        token = base64.b64encode(_to_bytes(str(token_time)))
+        token = base64.b64encode(_helpers._to_bytes(str(token_time)))
         generated_token = b'a'
         # Make sure the token length comparison will fail.
         self.assertNotEqual(len(token), len(generated_token))
@@ -183,7 +184,7 @@ class Test_validate_token(unittest2.TestCase):
         key = object()
         user_id = object()
         action_id = object()
-        token = base64.b64encode(_to_bytes(str(token_time)))
+        token = base64.b64encode(_helpers._to_bytes(str(token_time)))
         # It is encoded as b'MTIzNDU2Nzg5', which has length 12.
         generated_token = b'M' * 12
         # Make sure the token length comparison will succeed, but the token
@@ -207,7 +208,7 @@ class Test_validate_token(unittest2.TestCase):
         key = object()
         user_id = object()
         action_id = object()
-        token = base64.b64encode(_to_bytes(str(token_time)))
+        token = base64.b64encode(_helpers._to_bytes(str(token_time)))
         with mock.patch('oauth2client.contrib.xsrfutil.generate_token',
                         return_value=token) as gen_tok:
             self.assertTrue(xsrfutil.validate_token(key, token, user_id,

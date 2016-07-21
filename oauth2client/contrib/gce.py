@@ -22,8 +22,7 @@ import warnings
 
 import httplib2
 
-from oauth2client.client import AssertionCredentials
-from oauth2client.client import HttpAccessTokenRefreshError
+from oauth2client import client
 from oauth2client.contrib import _metadata
 
 
@@ -39,7 +38,7 @@ can't be overridden in the request.
 """
 
 
-class AppAssertionCredentials(AssertionCredentials):
+class AppAssertionCredentials(client.AssertionCredentials):
     """Credentials object for Compute Engine Assertion Grants
 
     This object will allow a Compute Engine instance to identify itself to
@@ -136,7 +135,7 @@ class AppAssertionCredentials(AssertionCredentials):
             self.access_token, self.token_expiry = _metadata.get_token(
                 http_request, service_account=self.service_account_email)
         except httplib2.HttpLib2Error as e:
-            raise HttpAccessTokenRefreshError(str(e))
+            raise client.HttpAccessTokenRefreshError(str(e))
 
     @property
     def serialization_data(self):
