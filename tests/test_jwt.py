@@ -138,7 +138,7 @@ class CryptTests(unittest2.TestCase):
             ({'status': '200'}, datafile('certs.json')),
         ])
 
-        with mock.patch('oauth2client.client._cached_http', new=http):
+        with mock.patch('oauth2client.transport._CACHED_HTTP', new=http):
             contents = verify_id_token(
                 jwt, 'some_audience_address@testing.gserviceaccount.com')
 

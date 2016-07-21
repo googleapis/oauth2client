@@ -28,7 +28,6 @@ import socket
 import sys
 import tempfile
 
-import httplib2
 import six
 from six.moves import http_client
 from six.moves import urllib
@@ -39,9 +38,9 @@ from oauth2client import GOOGLE_DEVICE_URI
 from oauth2client import GOOGLE_REVOKE_URI
 from oauth2client import GOOGLE_TOKEN_INFO_URI
 from oauth2client import GOOGLE_TOKEN_URI
+from oauth2client import transport
 from oauth2client import util
 from oauth2client._helpers import _from_bytes
-from oauth2client._helpers import _to_bytes
 from oauth2client._helpers import _urlsafe_b64decode
 
 
@@ -70,9 +69,6 @@ ID_TOKEN_VERIFICATON_CERTS = ID_TOKEN_VERIFICATION_CERTS
 
 # Constant to use for the out of band OAuth 2.0 flow.
 OOB_CALLBACK_URN = 'urn:ietf:wg:oauth:2.0:oob'
-
-# Google Data client libraries may need to set this to [401, 403].
-REFRESH_STATUS_CODES = (http_client.UNAUTHORIZED,)
 
 # The value representing user credentials.
 AUTHORIZED_USER = 'authorized_user'
@@ -119,6 +115,12 @@ _DESIRED_METADATA_FLAVOR = 'Google'
 # Expose utcnow() at module level to allow for
 # easier testing (by replacing with a stub).
 _UTCNOW = datetime.datetime.utcnow
+
+# NOTE: These names were previously defined in this module but have been
+#       moved into `oauth2client.transport`,
+clean_headers = transport.clean_headers
+MemoryCache = transport.MemoryCache
+REFRESH_STATUS_CODES = transport.REFRESH_STATUS_CODES
 
 
 class SETTINGS(object):
@@ -175,22 +177,6 @@ class OAuth2DeviceCodeError(Error):
 
 class CryptoUnavailableError(Error, NotImplementedError):
     """Raised when a crypto library is required, but none is available."""
-
-
-class MemoryCache(object):
-    """httplib2 Cache implementation which only caches locally."""
-
-    def __init__(self):
-        self.cache = {}
-
-    def get(self, key):
-        return self.cache.get(key)
-
-    def set(self, key, value):
-        self.cache[key] = value
-
-    def delete(self, key):
-        self.cache.pop(key, None)
 
 
 def _parse_expiry(expiry):
@@ -451,32 +437,6 @@ class Storage(object):
             self.release_lock()
 
 
-def clean_headers(headers):
-    """Forces header keys and values to be strings, i.e not unicode.
-
-    The httplib module just concats the header keys and values in a way that
-    may make the message header a unicode string, which, if it then tries to
-    contatenate to a binary request body may result in a unicode decode error.
-
-    Args:
-        headers: dict, A dictionary of headers.
-
-    Returns:
-        The same dictionary but with all the keys converted to strings.
-    """
-    clean = {}
-    try:
-        for k, v in six.iteritems(headers):
-            if not isinstance(k, six.binary_type):
-                k = str(k)
-            if not isinstance(v, six.binary_type):
-                v = str(v)
-            clean[_to_bytes(k)] = _to_bytes(v)
-    except UnicodeEncodeError:
-        raise NonAsciiHeaderError(k, ': ', v)
-    return clean
-
-
 def _update_query_params(uri, params):
     """Updates a URI with new query parameters.
 
@@ -492,26 +452,6 @@ def _update_query_params(uri, params):
     query_params.update(params)
     new_parts = parts._replace(query=urllib.parse.urlencode(query_params))
     return urllib.parse.urlunparse(new_parts)
-
-
-def _initialize_headers(headers):
-    """Creates a copy of the headers."""
-    if headers is None:
-        headers = {}
-    else:
-        headers = dict(headers)
-    return headers
-
-
-def _apply_user_agent(headers, user_agent):
-    """Adds a user-agent to the headers."""
-    if user_agent is not None:
-        if 'user-agent' in headers:
-            headers['user-agent'] = (user_agent + ' ' + headers['user-agent'])
-        else:
-            headers['user-agent'] = user_agent
-
-    return headers
 
 
 class OAuth2Credentials(Credentials):
@@ -604,58 +544,7 @@ class OAuth2Credentials(Credentials):
         that adds in the Authorization header and then calls the original
         version of 'request()'.
         """
-        request_orig = http.request
-
-        # The closure that will replace 'httplib2.Http.request'.
-        def new_request(uri, method='GET', body=None, headers=None,
-                        redirections=httplib2.DEFAULT_MAX_REDIRECTS,
-                        connection_type=None):
-            if not self.access_token:
-                logger.info('Attempting refresh to obtain '
-                            'initial access_token')
-                self._refresh(request_orig)
-
-            # Clone and modify the request headers to add the appropriate
-            # Authorization header.
-            headers = _initialize_headers(headers)
-            self.apply(headers)
-            _apply_user_agent(headers, self.user_agent)
-
-            body_stream_position = None
-            if all(getattr(body, stream_prop, None) for stream_prop in
-                   ('read', 'seek', 'tell')):
-                body_stream_position = body.tell()
-
-            resp, content = request_orig(uri, method, body,
-                                         clean_headers(headers),
-                                         redirections, connection_type)
-
-            # A stored token may expire between the time it is retrieved and
-            # the time the request is made, so we may need to try twice.
-            max_refresh_attempts = 2
-            for refresh_attempt in range(max_refresh_attempts):
-                if resp.status not in REFRESH_STATUS_CODES:
-                    break
-                logger.info('Refreshing due to a %s (attempt %s/%s)',
-                            resp.status, refresh_attempt + 1,
-                            max_refresh_attempts)
-                self._refresh(request_orig)
-                self.apply(headers)
-                if body_stream_position is not None:
-                    body.seek(body_stream_position)
-
-                resp, content = request_orig(uri, method, body,
-                                             clean_headers(headers),
-                                             redirections, connection_type)
-
-            return (resp, content)
-
-        # Replace the request method with our own closure.
-        http.request = new_request
-
-        # Set credentials as a property of the request method.
-        setattr(http.request, 'credentials', self)
-
+        transport.wrap_http_for_auth(self, http)
         return http
 
     def refresh(self, http):
@@ -781,7 +670,7 @@ class OAuth2Credentials(Credentials):
         """
         if not self.access_token or self.access_token_expired:
             if not http:
-                http = httplib2.Http()
+                http = transport.get_http_object()
             self.refresh(http)
         return AccessTokenInfo(access_token=self.access_token,
                                expires_in=self._expires_in())
@@ -1654,11 +1543,6 @@ def _require_crypto_or_die():
         raise CryptoUnavailableError('No crypto library available')
 
 
-# Only used in verify_id_token(), which is always calling to the same URI
-# for the certs.
-_cached_http = httplib2.Http(MemoryCache())
-
-
 @util.positional(2)
 def verify_id_token(id_token, audience, http=None,
                     cert_uri=ID_TOKEN_VERIFICATION_CERTS):
@@ -1684,7 +1568,7 @@ def verify_id_token(id_token, audience, http=None,
     """
     _require_crypto_or_die()
     if http is None:
-        http = _cached_http
+        http = transport.get_cached_http()
 
     resp, content = http.request(cert_uri)
     if resp.status == http_client.OK:
@@ -2027,7 +1911,7 @@ class OAuth2WebServerFlow(Flow):
             headers['user-agent'] = self.user_agent
 
         if http is None:
-            http = httplib2.Http()
+            http = transport.get_http_object()
 
         resp, content = http.request(self.device_uri, method='POST', body=body,
                                      headers=headers)
@@ -2110,7 +1994,7 @@ class OAuth2WebServerFlow(Flow):
             headers['user-agent'] = self.user_agent
 
         if http is None:
-            http = httplib2.Http()
+            http = transport.get_http_object()
 
         resp, content = http.request(self.token_uri, method='POST', body=body,
                                      headers=headers)
