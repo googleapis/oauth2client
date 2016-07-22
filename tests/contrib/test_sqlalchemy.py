@@ -68,21 +68,21 @@ class TestSQLAlchemyStorage(unittest2.TestCase):
 
     def test_get(self):
         session = self.session()
+        credentials_storage = oauth2client.contrib.sqlalchemy.Storage(
+            session=session,
+            model_class=DummyModel,
+            key_name='key',
+            key_value=1,
+            property_name='credentials',
+        )
+        self.assertIsNone(credentials_storage.get())
         session.add(DummyModel(
             key=1,
             credentials=self.credentials,
         ))
         session.commit()
 
-        credentials = oauth2client.contrib.sqlalchemy.Storage(
-            session=session,
-            model_class=DummyModel,
-            key_name='key',
-            key_value=1,
-            property_name='credentials',
-        ).get()
-
-        self.compare_credentials(credentials)
+        self.compare_credentials(credentials_storage.get())
 
     def test_put(self):
         session = self.session()

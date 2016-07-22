@@ -1008,6 +1008,17 @@ class DecoratorTests(unittest2.TestCase):
         # This is never set, but it's consistent with other tests.
         self.assertFalse(decorator._in_error)
 
+    def test_invalid_state(self):
+        with mock.patch.object(appengine, '_parse_state_value',
+                               return_value=None, autospec=True):
+            # Now simulate the callback to /oauth2callback.
+            response = self.app.get('/oauth2callback', {
+                'code': 'foo_access_code',
+                'state': 'foo_path:xsrfkey123',
+            })
+            self.assertEqual('200 OK', response.status)
+            self.assertEqual('The authorization request failed', response.body)
+
 
 class DecoratorXsrfSecretTests(unittest2.TestCase):
     """Test xsrf_secret_key."""
