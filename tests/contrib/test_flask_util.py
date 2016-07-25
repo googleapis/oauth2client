@@ -16,6 +16,7 @@
 
 import datetime
 import json
+import logging
 
 import flask
 import httplib2
@@ -71,6 +72,7 @@ class FlaskOAuth2Tests(unittest2.TestCase):
         self.app = flask.Flask(__name__)
         self.app.testing = True
         self.app.config['SECRET_KEY'] = 'notasecert'
+        self.app.logger.setLevel(logging.CRITICAL)
         self.oauth2 = FlaskOAuth2(
             self.app,
             client_id='client_idz',
