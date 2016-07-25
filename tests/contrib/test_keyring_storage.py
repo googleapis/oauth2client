@@ -38,7 +38,7 @@ class KeyringStorageTests(unittest2.TestCase):
         self.assertEqual(store._service_name, service_name)
         self.assertEqual(store._user_name, user_name)
         lock_type = type(threading.Lock())
-        self.assertTrue(isinstance(store._lock, lock_type))
+        self.assertIsInstance(store._lock, lock_type)
 
     def test_acquire_lock(self):
         store = Storage('my_unit_test', 'me')

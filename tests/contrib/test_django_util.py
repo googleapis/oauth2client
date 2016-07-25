@@ -172,7 +172,7 @@ class OAuth2RequiredDecoratorTest(TestWithSession):
             return http.HttpResponse("test")  # pragma: NO COVER
 
         response = test_view(request)
-        self.assertTrue(isinstance(response, http.HttpResponseRedirect))
+        self.assertIsInstance(response, http.HttpResponseRedirect)
         self.assertEquals(parse.urlparse(response['Location']).path,
                           "/oauth2/oauth2authorize/")
         self.assertTrue(
@@ -240,14 +240,14 @@ class Oauth2AuthorizeTest(TestWithSession):
         request = self.factory.get('oauth2/oauth2authorize')
         request.session = self.session
         response = views.oauth2_authorize(request)
-        self.assertTrue(isinstance(response, http.HttpResponseRedirect))
+        self.assertIsInstance(response, http.HttpResponseRedirect)
 
     def test_authorize_works_explicit_return_url(self):
         request = self.factory.get('oauth2/oauth2authorize',
                                    data={'return_url': '/return_endpoint'})
         request.session = self.session
         response = views.oauth2_authorize(request)
-        self.assertTrue(isinstance(response, http.HttpResponseRedirect))
+        self.assertIsInstance(response, http.HttpResponseRedirect)
 
 
 class Oauth2CallbackTest(TestWithSession):
@@ -288,7 +288,7 @@ class Oauth2CallbackTest(TestWithSession):
 
         request.session = self.session
         response = views.oauth2_callback(request)
-        self.assertTrue(isinstance(response, http.HttpResponseRedirect))
+        self.assertIsInstance(response, http.HttpResponseRedirect)
         self.assertEquals(response.status_code, 302)
         self.assertEquals(response['Location'], self.RETURN_URL)
 
@@ -319,14 +319,14 @@ class Oauth2CallbackTest(TestWithSession):
 
         request.session = self.session
         response = views.oauth2_callback(request)
-        self.assertTrue(isinstance(response, http.HttpResponseBadRequest))
+        self.assertIsInstance(response, http.HttpResponseBadRequest)
 
     def test_error_returns_bad_request(self):
         request = self.factory.get('oauth2/oauth2callback', data={
             "error": "There was an error in your authorization.",
         })
         response = views.oauth2_callback(request)
-        self.assertTrue(isinstance(response, http.HttpResponseBadRequest))
+        self.assertIsInstance(response, http.HttpResponseBadRequest)
         self.assertTrue(b"Authorization failed" in response.content)
 
     def test_no_session(self):
@@ -337,7 +337,7 @@ class Oauth2CallbackTest(TestWithSession):
 
         request.session = self.session
         response = views.oauth2_callback(request)
-        self.assertTrue(isinstance(response, http.HttpResponseBadRequest))
+        self.assertIsInstance(response, http.HttpResponseBadRequest)
         self.assertEquals(
             response.content, b'No existing session for this flow.')
 
@@ -348,7 +348,7 @@ class Oauth2CallbackTest(TestWithSession):
         self.session['google_oauth2_csrf_token'] = "token"
         request.session = self.session
         response = views.oauth2_callback(request)
-        self.assertTrue(isinstance(response, http.HttpResponseBadRequest))
+        self.assertIsInstance(response, http.HttpResponseBadRequest)
 
     def test_bad_state(self):
         request = self.factory.get('oauth2/oauth2callback', data={
@@ -358,7 +358,7 @@ class Oauth2CallbackTest(TestWithSession):
         self.session['google_oauth2_csrf_token'] = "token"
         request.session = self.session
         response = views.oauth2_callback(request)
-        self.assertTrue(isinstance(response, http.HttpResponseBadRequest))
+        self.assertIsInstance(response, http.HttpResponseBadRequest)
         self.assertEquals(response.content, b'Invalid state parameter.')
 
     def test_bad_csrf(self):
@@ -369,7 +369,7 @@ class Oauth2CallbackTest(TestWithSession):
         self.session['google_oauth2_csrf_token'] = "WRONG TOKEN"
         request.session = self.session
         response = views.oauth2_callback(request)
-        self.assertTrue(isinstance(response, http.HttpResponseBadRequest))
+        self.assertIsInstance(response, http.HttpResponseBadRequest)
         self.assertEquals(response.content, b'Invalid CSRF token.')
 
     def test_no_saved_flow(self):
@@ -381,7 +381,7 @@ class Oauth2CallbackTest(TestWithSession):
         self.session['google_oauth2_flow_{0}'.format(self.CSRF_TOKEN)] = None
         request.session = self.session
         response = views.oauth2_callback(request)
-        self.assertTrue(isinstance(response, http.HttpResponseBadRequest))
+        self.assertIsInstance(response, http.HttpResponseBadRequest)
         self.assertEquals(response.content, b'Missing Oauth2 flow.')
 
 

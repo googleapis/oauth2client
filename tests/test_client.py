@@ -313,7 +313,7 @@ class GoogleCredentialsTests(unittest2.TestCase):
         os.environ.pop(env, None)
 
     def validate_service_account_credentials(self, credentials):
-        self.assertTrue(isinstance(credentials, ServiceAccountCredentials))
+        self.assertIsInstance(credentials, ServiceAccountCredentials)
         self.assertEqual('123', credentials.client_id)
         self.assertEqual('dummy@google.com',
                          credentials._service_account_email)
@@ -321,7 +321,7 @@ class GoogleCredentialsTests(unittest2.TestCase):
         self.assertEqual('', credentials._scopes)
 
     def validate_google_credentials(self, credentials):
-        self.assertTrue(isinstance(credentials, GoogleCredentials))
+        self.assertIsInstance(credentials, GoogleCredentials)
         self.assertEqual(None, credentials.access_token)
         self.assertEqual('123', credentials.client_id)
         self.assertEqual('secret', credentials.client_secret)
@@ -1015,13 +1015,13 @@ class BasicCredentialsTests(unittest2.TestCase):
         data = json.loads(self.credentials.to_json())
         data['token_expiry'] = None
         instance = OAuth2Credentials.from_json(json.dumps(data))
-        self.assertTrue(isinstance(instance, OAuth2Credentials))
+        self.assertIsInstance(instance, OAuth2Credentials)
 
     def test_from_json_bad_token_expiry(self):
         data = json.loads(self.credentials.to_json())
         data['token_expiry'] = 'foobar'
         instance = OAuth2Credentials.from_json(json.dumps(data))
-        self.assertTrue(isinstance(instance, OAuth2Credentials))
+        self.assertIsInstance(instance, OAuth2Credentials)
 
     def test_unicode_header_checks(self):
         access_token = u'foo'
@@ -1071,8 +1071,8 @@ class BasicCredentialsTests(unittest2.TestCase):
         http.request(u'http://example.com', method=u'GET',
                      headers={u'foo': u'bar'})
         for k, v in six.iteritems(http.headers):
-            self.assertTrue(isinstance(k, six.binary_type))
-            self.assertTrue(isinstance(v, six.binary_type))
+            self.assertIsInstance(k, six.binary_type)
+            self.assertIsInstance(v, six.binary_type)
 
         # Test again with unicode strings that can't simply be converted
         # to ASCII.

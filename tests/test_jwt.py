@@ -217,7 +217,7 @@ class CryptTests(unittest2.TestCase):
         # of from_string().
         public_key = datafile('privatekey.pem')
         verifier = self.verifier.from_string(public_key, is_x509_cert=False)
-        self.assertTrue(isinstance(verifier, self.verifier))
+        self.assertIsInstance(verifier, self.verifier)
 
 
 class PEMCryptTestsPyCrypto(CryptTests):

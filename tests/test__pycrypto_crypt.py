@@ -61,7 +61,7 @@ class TestPyCryptoVerifier(unittest2.TestCase):
         public_key = self._load_public_cert_bytes()
         public_key = public_key.decode('utf-8')
         verifier = PyCryptoVerifier.from_string(public_key, is_x509_cert=True)
-        self.assertTrue(isinstance(verifier, PyCryptoVerifier))
+        self.assertIsInstance(verifier, PyCryptoVerifier)
 
 
 class TestPyCryptoSigner(unittest2.TestCase):
