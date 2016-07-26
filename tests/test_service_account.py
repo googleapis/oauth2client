@@ -45,6 +45,8 @@ def datafile(filename):
 class ServiceAccountCredentialsTests(unittest2.TestCase):
 
     def setUp(self):
+        self.orig_signer = crypt.Signer
+        self.orig_verifier = crypt.Verifier
         self.client_id = '123'
         self.service_account_email = 'dummy@google.com'
         self.private_key_id = 'ABCDEF'
@@ -57,6 +59,10 @@ class ServiceAccountCredentialsTests(unittest2.TestCase):
             private_key_id=self.private_key_id,
             client_id=self.client_id,
         )
+
+    def tearDown(self):
+        crypt.Signer = self.orig_signer
+        crypt.Verifier = self.orig_verifier
 
     def test__to_json_override(self):
         signer = object()

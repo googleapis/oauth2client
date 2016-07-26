@@ -18,10 +18,6 @@ import os
 import tempfile
 import time
 
-import dev_appserver
-
-dev_appserver.fix_sys_path()
-
 from google.appengine.api import apiproxy_stub
 from google.appengine.api import apiproxy_stub_map
 from google.appengine.api import app_identity

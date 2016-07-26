@@ -235,8 +235,12 @@ class PEMCryptTestsOpenSSL(CryptTests):
 class SignedJwtAssertionCredentialsTests(unittest2.TestCase):
 
     def setUp(self):
+        self.orig_signer = crypt.Signer
         self.format_ = 'p12'
         crypt.Signer = crypt.OpenSSLSigner
+
+    def tearDown(self):
+        crypt.Signer = self.orig_signer
 
     def _make_credentials(self):
         private_key = datafile('privatekey.' + self.format_)
@@ -310,16 +314,24 @@ class PEMSignedJwtAssertionCredentialsOpenSSLTests(
         SignedJwtAssertionCredentialsTests):
 
     def setUp(self):
+        self.orig_signer = crypt.Signer
         self.format_ = 'pem'
         crypt.Signer = crypt.OpenSSLSigner
+
+    def tearDown(self):
+        crypt.Signer = self.orig_signer
 
 
 class PEMSignedJwtAssertionCredentialsPyCryptoTests(
         SignedJwtAssertionCredentialsTests):
 
     def setUp(self):
+        self.orig_signer = crypt.Signer
         self.format_ = 'pem'
         crypt.Signer = crypt.PyCryptoSigner
+
+    def tearDown(self):
+        crypt.Signer = self.orig_signer
 
 
 class TestHasOpenSSLFlag(unittest2.TestCase):
