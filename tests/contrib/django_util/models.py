@@ -1,4 +1,4 @@
-# Copyright 2015 Google Inc.  All rights reserved.
+# Copyright 2016 Google Inc. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,15 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Contains Django URL patterns used for OAuth2 flow."""
+"""Models used in our tests"""
 
-from django.conf import urls
+from django.contrib.auth.models import User
+from django.db import models
 
-from oauth2client.contrib.django_util import views
+from oauth2client.contrib.django_util.models import CredentialsField
 
-urlpatterns = [
-    urls.url(r'oauth2callback/', views.oauth2_callback, name="callback"),
-    urls.url(r'oauth2authorize/', views.oauth2_authorize, name="authorize")
-]
 
-urls = (urlpatterns, "google_oauth", "google_oauth")
+class CredentialsModel(models.Model):
+    user_id = models.OneToOneField(User)
+    credentials = CredentialsField()

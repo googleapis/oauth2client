@@ -16,7 +16,6 @@ Submodules
    oauth2client.contrib.appengine
    oauth2client.contrib.devshell
    oauth2client.contrib.dictionary_storage
-   oauth2client.contrib.django_orm
    oauth2client.contrib.flask_util
    oauth2client.contrib.gce
    oauth2client.contrib.keyring_storage

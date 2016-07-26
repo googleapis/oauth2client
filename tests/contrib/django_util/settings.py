@@ -12,7 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Provides a base Django settings module used by the rest of the tests."""
+
 import os
+
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'oauth2client.contrib.django_util',
+    'tests.contrib.django_util.apps.DjangoOrmTestApp',
+]
 
 SECRET_KEY = 'this string is not a real django secret key'
 DATABASES = {
@@ -31,4 +44,4 @@ GOOGLE_OAUTH2_CLIENT_ID = 'client_id2'
 GOOGLE_OAUTH2_CLIENT_SECRET = 'hunter2'
 GOOGLE_OAUTH2_SCOPES = ('https://www.googleapis.com/auth/cloud-platform',)
 
-ROOT_URLCONF = 'tests.contrib.test_django_util'
+ROOT_URLCONF = 'tests.contrib.django_util.test_django_util'

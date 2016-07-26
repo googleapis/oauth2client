@@ -1,4 +1,4 @@
-# Copyright 2015 Google Inc.  All rights reserved.
+# Copyright 2016 Google Inc. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,15 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Contains Django URL patterns used for OAuth2 flow."""
+"""Defines a configuration for our test application.
 
-from django.conf import urls
+Having a test application enables us to use the Django test database and
+other useful features."""
 
-from oauth2client.contrib.django_util import views
+from django.apps import AppConfig
 
-urlpatterns = [
-    urls.url(r'oauth2callback/', views.oauth2_callback, name="callback"),
-    urls.url(r'oauth2authorize/', views.oauth2_authorize, name="authorize")
-]
 
-urls = (urlpatterns, "google_oauth", "google_oauth")
+class DjangoOrmTestApp(AppConfig):
+    """App Config for Django Helper."""
+    name = 'tests.contrib.django_util'
+    verbose_name = "Django Test App"
+    label = "DjangoORMTestApp"

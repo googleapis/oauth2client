@@ -12,7 +12,7 @@ import sys
 # settings module and load it. This assumes django has been installed
 # (but it must be for the docs to build), so if it has not already
 # been installed run `pip install -r docs/requirements.txt`.
-os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.contrib.test_django_settings'
+os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.contrib.django_util.settings'
 import django
 import mock
 from pkg_resources import get_distribution

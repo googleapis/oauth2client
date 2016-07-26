@@ -12,14 +12,29 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Decorators for Django OAuth2 Flow.
+
+Contains two decorators, ``oauth_required`` and ``oauth_enabled``.
+
+``oauth_required`` will ensure that a user has an oauth object containing
+credentials associated with the request, and if not, redirect to the
+authorization flow.
+
+``oauth_enabled`` will attach the oauth2 object containing credentials if it
+exists. If it doesn't, the view will still render, but helper methods will be
+attached to start the oauth2 flow.
+"""
+
 from django import shortcuts
+import django.conf
 from six import wraps
+from six.moves.urllib import parse
 
 from oauth2client.contrib import django_util
 
 
 def oauth_required(decorated_function=None, scopes=None, **decorator_kwargs):
-    """ Decorator to require OAuth2 credentials for a view
+    """ Decorator to require OAuth2 credentials for a view.
 
 
     .. code-block:: python
@@ -40,19 +55,28 @@ def oauth_required(decorated_function=None, scopes=None, **decorator_kwargs):
           return HttpResponse(
               "email: {0}, calendar: {1}".format(email, str(events)))
 
-    :param decorated_function: View function to decorate, must have the Django
-           request object as the first argument
-    :param scopes: Scopes to require, will default
-    :param decorator_kwargs: Can include ``return_url`` to specify the URL to
-           return to after OAuth2 authorization is complete
-    :return: An OAuth2 Authorize view if credentials are not found or if the
-             credentials are missing the required scopes. Otherwise,
-             the decorated view.
-    """
+    Args:
+        decorated_function: View function to decorate, must have the Django
+           request object as the first argument.
+        scopes: Scopes to require, will default.
+        decorator_kwargs: Can include ``return_url`` to specify the URL to
+           return to after OAuth2 authorization is complete.
 
+    Returns:
+        An OAuth2 Authorize view if credentials are not found or if the
+        credentials are missing the required scopes. Otherwise,
+        the decorated view.
+    """
     def curry_wrapper(wrapped_function):
         @wraps(wrapped_function)
         def required_wrapper(request, *args, **kwargs):
+            if not (django_util.oauth2_settings.storage_model is None or
+                    request.user.is_authenticated()):
+                redirect_str = '{0}?next={1}'.format(
+                    django.conf.settings.LOGIN_URL,
+                    parse.quote(request.path))
+                return shortcuts.redirect(redirect_str)
+
             return_url = decorator_kwargs.pop('return_url',
                                               request.get_full_path())
             user_oauth = django_util.UserOAuth2(request, scopes, return_url)
@@ -87,20 +111,22 @@ def oauth_enabled(decorated_function=None, scopes=None, **decorator_kwargs):
                # this could be passed into a view
                # request.oauth.http is also initialized
                return HttpResponse("User email: {0}".format(
-                                   request.oauth.credentials.id_token['email']))
+                                   request.oauth.credentials.id_token['email'])
            else:
                return HttpResponse('Here is an OAuth Authorize link:
                <a href="{0}">Authorize</a>'.format(
                    request.oauth.get_authorize_redirect()))
 
 
-    :param decorated_function: View function to decorate
-    :param scopes: Scopes to require, will default
-    :param decorator_kwargs: Can include ``return_url`` to specify the URL to
-           return to after OAuth2 authorization is complete
-    :return: The decorated view function
-    """
+    Args:
+        decorated_function: View function to decorate.
+        scopes: Scopes to require, will default.
+        decorator_kwargs: Can include ``return_url`` to specify the URL to
+           return to after OAuth2 authorization is complete.
 
+    Returns:
+         The decorated view function.
+    """
     def curry_wrapper(wrapped_function):
         @wraps(wrapped_function)
         def enabled_wrapper(request, *args, **kwargs):
