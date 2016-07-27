@@ -60,7 +60,7 @@ class OAuth2EnabledDecoratorTest(TestWithDjangoEnvironment):
         self.assertFalse(request.oauth.has_credentials())
         self.assertIsNone(request.oauth.http)
 
-    @mock.patch('oauth2client.contrib.dictionary_storage.OAuth2Credentials')
+    @mock.patch('oauth2client.client.OAuth2Credentials')
     def test_has_credentials_in_storage(self, OAuth2Credentials):
         request = self.factory.get('/test')
         request.session = mock.MagicMock()
@@ -156,7 +156,7 @@ class OAuth2RequiredDecoratorTest(TestWithDjangoEnvironment):
         self.assertEqual(response.status_code, http_client.OK)
         self.assertEqual(response.content, b"test")
 
-    @mock.patch('oauth2client.contrib.dictionary_storage.OAuth2Credentials')
+    @mock.patch('oauth2client.client.OAuth2Credentials')
     def test_has_credentials_in_storage_no_scopes(
             self, OAuth2Credentials):
         request = self.factory.get('/test')
@@ -176,7 +176,7 @@ class OAuth2RequiredDecoratorTest(TestWithDjangoEnvironment):
         self.assertEqual(
             response.status_code, django.http.HttpResponseRedirect.status_code)
 
-    @mock.patch('oauth2client.contrib.dictionary_storage.OAuth2Credentials')
+    @mock.patch('oauth2client.client.OAuth2Credentials')
     def test_specified_scopes(self, OAuth2Credentials):
         request = self.factory.get('/test')
         request.session = mock.MagicMock()

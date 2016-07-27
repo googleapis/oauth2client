@@ -19,9 +19,9 @@ import mock
 import unittest2
 
 from oauth2client import _helpers
+from oauth2client import client
 from oauth2client import crypt
-from oauth2client.client import HAS_OPENSSL
-from oauth2client.service_account import ServiceAccountCredentials
+from oauth2client import service_account
 
 
 def data_filename(filename):
@@ -44,15 +44,15 @@ class Test_pkcs12_key_as_pem(unittest2.TestCase):
 
     def _make_svc_account_creds(self, private_key_file='privatekey.p12'):
         filename = data_filename(private_key_file)
-        credentials = ServiceAccountCredentials.from_p12_keyfile(
-            'some_account@example.com',
-            filename,
-            scopes='read+write')
+        credentials = (
+            service_account.ServiceAccountCredentials.from_p12_keyfile(
+                'some_account@example.com', filename,
+                scopes='read+write'))
         credentials._kwargs['sub'] = 'joe@example.org'
         return credentials
 
     def _succeeds_helper(self, password=None):
-        self.assertEqual(True, HAS_OPENSSL)
+        self.assertEqual(True, client.HAS_OPENSSL)
 
         credentials = self._make_svc_account_creds()
         if password is None:

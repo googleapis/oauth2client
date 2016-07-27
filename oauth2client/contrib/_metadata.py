@@ -24,9 +24,9 @@ import httplib2
 from six.moves import http_client
 from six.moves.urllib import parse as urlparse
 
+from oauth2client import _helpers
+from oauth2client import client
 from oauth2client import util
-from oauth2client._helpers import _from_bytes
-from oauth2client.client import _UTCNOW
 
 
 METADATA_ROOT = 'http://metadata.google.internal/computeMetadata/v1/'
@@ -62,7 +62,7 @@ def get(http_request, path, root=METADATA_ROOT, recursive=None):
     )
 
     if response.status == http_client.OK:
-        decoded = _from_bytes(content)
+        decoded = _helpers._from_bytes(content)
         if response['content-type'] == 'application/json':
             return json.loads(decoded)
         else:
@@ -118,6 +118,6 @@ def get_token(http_request, service_account='default'):
     token_json = get(
         http_request,
         'instance/service-accounts/{0}/token'.format(service_account))
-    token_expiry = _UTCNOW() + datetime.timedelta(
+    token_expiry = client._UTCNOW() + datetime.timedelta(
         seconds=token_json['expires_in'])
     return token_json['access_token'], token_expiry

@@ -21,15 +21,11 @@ import time
 import mock
 import unittest2
 
+from oauth2client import _helpers
+from oauth2client import client
 from oauth2client import crypt
-from oauth2client.client import Credentials
-from oauth2client.client import HAS_CRYPTO
-from oauth2client.client import HAS_OPENSSL
-from oauth2client.client import verify_id_token
-from oauth2client.client import VerifyJwtTokenError
-from oauth2client.file import Storage
-from oauth2client.service_account import _PASSWORD_DEFAULT
-from oauth2client.service_account import ServiceAccountCredentials
+from oauth2client import file
+from oauth2client import service_account
 from .http_mock import HttpMockSequence
 
 
@@ -125,7 +121,7 @@ class CryptTests(unittest2.TestCase):
             ({'status': '200'}, datafile('certs.json')),
         ])
 
-        contents = verify_id_token(
+        contents = client.verify_id_token(
             jwt, 'some_audience_address@testing.gserviceaccount.com',
             http=http)
         self.assertEqual('billy bob', contents['user'])
@@ -139,7 +135,7 @@ class CryptTests(unittest2.TestCase):
         ])
 
         with mock.patch('oauth2client.transport._CACHED_HTTP', new=http):
-            contents = verify_id_token(
+            contents = client.verify_id_token(
                 jwt, 'some_audience_address@testing.gserviceaccount.com')
 
         self.assertEqual('billy bob', contents['user'])
@@ -153,8 +149,8 @@ class CryptTests(unittest2.TestCase):
             ({'status': '404'}, datafile('certs.json')),
         ])
 
-        with self.assertRaises(VerifyJwtTokenError):
-            verify_id_token(jwt, test_email, http=http)
+        with self.assertRaises(client.VerifyJwtTokenError):
+            client.verify_id_token(jwt, test_email, http=http)
 
     def test_verify_id_token_bad_tokens(self):
         private_key = datafile('privatekey.' + self.format_)
@@ -167,7 +163,7 @@ class CryptTests(unittest2.TestCase):
 
         # Bad signature
         jwt = b'.'.join([b'foo',
-                         crypt._urlsafe_b64encode('{"a":"b"}'),
+                         _helpers._urlsafe_b64encode('{"a":"b"}'),
                          b'baz'])
         self._check_jwt_failure(jwt, 'Invalid token signature')
 
@@ -245,7 +241,7 @@ class SignedJwtAssertionCredentialsTests(unittest2.TestCase):
     def _make_credentials(self):
         private_key = datafile('privatekey.' + self.format_)
         signer = crypt.Signer.from_string(private_key)
-        credentials = ServiceAccountCredentials(
+        credentials = service_account.ServiceAccountCredentials(
             'some_account@example.com', signer,
             scopes='read+write',
             sub='joe@example.org')
@@ -253,7 +249,8 @@ class SignedJwtAssertionCredentialsTests(unittest2.TestCase):
             credentials._private_key_pkcs8_pem = private_key
         elif self.format_ == 'p12':
             credentials._private_key_pkcs12 = private_key
-            credentials._private_key_password = _PASSWORD_DEFAULT
+            credentials._private_key_password = (
+                service_account._PASSWORD_DEFAULT)
         else:  # pragma: NO COVER
             raise ValueError('Unexpected format.')
         return credentials
@@ -271,7 +268,7 @@ class SignedJwtAssertionCredentialsTests(unittest2.TestCase):
     def test_credentials_to_from_json(self):
         credentials = self._make_credentials()
         json = credentials.to_json()
-        restored = Credentials.new_from_json(json)
+        restored = client.Credentials.new_from_json(json)
         self.assertEqual(credentials._private_key_pkcs12,
                          restored._private_key_pkcs12)
         self.assertEqual(credentials._private_key_password,
@@ -299,7 +296,7 @@ class SignedJwtAssertionCredentialsTests(unittest2.TestCase):
 
         filehandle, filename = tempfile.mkstemp()
         os.close(filehandle)
-        store = Storage(filename)
+        store = file.Storage(filename)
         store.put(credentials)
         credentials.set_store(store)
 
@@ -328,5 +325,5 @@ class PEMSignedJwtAssertionCredentialsPyCryptoTests(
 class TestHasOpenSSLFlag(unittest2.TestCase):
 
     def test_true(self):
-        self.assertEqual(True, HAS_OPENSSL)
-        self.assertEqual(True, HAS_CRYPTO)
+        self.assertEqual(True, client.HAS_OPENSSL)
+        self.assertEqual(True, client.HAS_CRYPTO)

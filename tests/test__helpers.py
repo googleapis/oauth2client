@@ -15,24 +15,19 @@
 
 import unittest2
 
-from oauth2client._helpers import _from_bytes
-from oauth2client._helpers import _json_encode
-from oauth2client._helpers import _parse_pem_key
-from oauth2client._helpers import _to_bytes
-from oauth2client._helpers import _urlsafe_b64decode
-from oauth2client._helpers import _urlsafe_b64encode
+from oauth2client import _helpers
 
 
 class Test__parse_pem_key(unittest2.TestCase):
 
     def test_valid_input(self):
         test_string = b'1234-----BEGIN FOO BAR BAZ'
-        result = _parse_pem_key(test_string)
+        result = _helpers._parse_pem_key(test_string)
         self.assertEqual(result, test_string[4:])
 
     def test_bad_input(self):
         test_string = b'DOES NOT HAVE DASHES'
-        result = _parse_pem_key(test_string)
+        result = _helpers._parse_pem_key(test_string)
         self.assertEqual(result, None)
 
 
@@ -42,12 +37,12 @@ class Test__json_encode(unittest2.TestCase):
         # Use only a single key since dictionary hash order
         # is non-deterministic.
         data = {u'foo': 10}
-        result = _json_encode(data)
+        result = _helpers._json_encode(data)
         self.assertEqual(result, '{"foo":10}')
 
     def test_list_input(self):
         data = [42, 1337]
-        result = _json_encode(data)
+        result = _helpers._json_encode(data)
         self.assertEqual(result, '[42,1337]')
 
 
@@ -55,34 +50,34 @@ class Test__to_bytes(unittest2.TestCase):
 
     def test_with_bytes(self):
         value = b'bytes-val'
-        self.assertEqual(_to_bytes(value), value)
+        self.assertEqual(_helpers._to_bytes(value), value)
 
     def test_with_unicode(self):
         value = u'string-val'
         encoded_value = b'string-val'
-        self.assertEqual(_to_bytes(value), encoded_value)
+        self.assertEqual(_helpers._to_bytes(value), encoded_value)
 
     def test_with_nonstring_type(self):
         value = object()
         with self.assertRaises(ValueError):
-            _to_bytes(value)
+            _helpers._to_bytes(value)
 
 
 class Test__from_bytes(unittest2.TestCase):
 
     def test_with_unicode(self):
         value = u'bytes-val'
-        self.assertEqual(_from_bytes(value), value)
+        self.assertEqual(_helpers._from_bytes(value), value)
 
     def test_with_bytes(self):
         value = b'string-val'
         decoded_value = u'string-val'
-        self.assertEqual(_from_bytes(value), decoded_value)
+        self.assertEqual(_helpers._from_bytes(value), decoded_value)
 
     def test_with_nonstring_type(self):
         value = object()
         with self.assertRaises(ValueError):
-            _from_bytes(value)
+            _helpers._from_bytes(value)
 
 
 class Test__urlsafe_b64encode(unittest2.TestCase):
@@ -91,12 +86,12 @@ class Test__urlsafe_b64encode(unittest2.TestCase):
 
     def test_valid_input_bytes(self):
         test_string = b'deadbeef'
-        result = _urlsafe_b64encode(test_string)
+        result = _helpers._urlsafe_b64encode(test_string)
         self.assertEqual(result, self.DEADBEEF_ENCODED)
 
     def test_valid_input_unicode(self):
         test_string = u'deadbeef'
-        result = _urlsafe_b64encode(test_string)
+        result = _helpers._urlsafe_b64encode(test_string)
         self.assertEqual(result, self.DEADBEEF_ENCODED)
 
 
@@ -104,16 +99,16 @@ class Test__urlsafe_b64decode(unittest2.TestCase):
 
     def test_valid_input_bytes(self):
         test_string = b'ZGVhZGJlZWY'
-        result = _urlsafe_b64decode(test_string)
+        result = _helpers._urlsafe_b64decode(test_string)
         self.assertEqual(result, b'deadbeef')
 
     def test_valid_input_unicode(self):
         test_string = b'ZGVhZGJlZWY'
-        result = _urlsafe_b64decode(test_string)
+        result = _helpers._urlsafe_b64decode(test_string)
         self.assertEqual(result, b'deadbeef')
 
     def test_bad_input(self):
         import binascii
         bad_string = b'+'
         with self.assertRaises((TypeError, binascii.Error)):
-            _urlsafe_b64decode(bad_string)
+            _helpers._urlsafe_b64decode(bad_string)

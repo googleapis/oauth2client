@@ -14,10 +14,10 @@
 
 """Contains a storage module that stores credentials using the Django ORM."""
 
-from oauth2client.client import Storage
+from oauth2client import client
 
 
-class DjangoORMStorage(Storage):
+class DjangoORMStorage(client.Storage):
     """Store and retrieve a single credential to and from the Django datastore.
 
     This Storage helper presumes the Credentials

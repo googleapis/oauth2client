@@ -182,10 +182,9 @@ except ImportError:  # pragma: NO COVER
 import httplib2
 import six.moves.http_client as httplib
 
+from oauth2client import client
 from oauth2client import clientsecrets
-from oauth2client.client import FlowExchangeError
-from oauth2client.client import OAuth2WebServerFlow
-from oauth2client.contrib.dictionary_storage import DictionaryStorage
+from oauth2client.contrib import dictionary_storage
 
 
 __author__ = 'jonwayne@google.com (Jon Wayne Parrott)'
@@ -263,7 +262,8 @@ class UserOAuth2(object):
         self.flow_kwargs = kwargs
 
         if storage is None:
-            storage = DictionaryStorage(session, key=_CREDENTIALS_KEY)
+            storage = dictionary_storage.DictionaryStorage(
+                session, key=_CREDENTIALS_KEY)
         self.storage = storage
 
         if scopes is None:
@@ -341,7 +341,7 @@ class UserOAuth2(object):
         extra_scopes = kw.pop('scopes', [])
         scopes = set(self.scopes).union(set(extra_scopes))
 
-        flow = OAuth2WebServerFlow(
+        flow = client.OAuth2WebServerFlow(
             client_id=self.client_id,
             client_secret=self.client_secret,
             scope=scopes,
@@ -418,7 +418,7 @@ class UserOAuth2(object):
         # Exchange the auth code for credentials.
         try:
             credentials = flow.step2_exchange(code)
-        except FlowExchangeError as exchange_error:
+        except client.FlowExchangeError as exchange_error:
             current_app.logger.exception(exchange_error)
             content = 'An error occurred: {0}'.format(exchange_error)
             return content, httplib.BAD_REQUEST

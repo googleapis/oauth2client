@@ -23,8 +23,8 @@ import tempfile
 import mock
 import unittest2
 
+from oauth2client import client
 from oauth2client import util
-from oauth2client.client import OAuth2Credentials
 from oauth2client.contrib import locked_file
 from oauth2client.contrib import multistore_file
 
@@ -98,7 +98,7 @@ class MultistoreFileTests(unittest2.TestCase):
         token_uri = 'https://www.google.com/accounts/o8/oauth2/token'
         user_agent = 'refresh_checker/1.0'
 
-        credentials = OAuth2Credentials(
+        credentials = client.OAuth2Credentials(
             access_token, client_id, client_secret,
             refresh_token, token_expiry, token_uri,
             user_agent)

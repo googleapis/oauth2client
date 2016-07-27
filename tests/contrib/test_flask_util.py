@@ -25,12 +25,10 @@ import six.moves.http_client as httplib
 import six.moves.urllib.parse as urlparse
 import unittest2
 
+import oauth2client
+from oauth2client import client
 from oauth2client import clientsecrets
-from oauth2client import GOOGLE_AUTH_URI
-from oauth2client import GOOGLE_TOKEN_URI
-from oauth2client.client import OAuth2Credentials
-from oauth2client.contrib.flask_util import _get_flow_for_token
-from oauth2client.contrib.flask_util import UserOAuth2 as FlaskOAuth2
+from oauth2client.contrib import flask_util
 
 
 __author__ = 'jonwayne@google.com (Jon Wayne Parrott)'
@@ -73,19 +71,19 @@ class FlaskOAuth2Tests(unittest2.TestCase):
         self.app.testing = True
         self.app.config['SECRET_KEY'] = 'notasecert'
         self.app.logger.setLevel(logging.CRITICAL)
-        self.oauth2 = FlaskOAuth2(
+        self.oauth2 = flask_util.UserOAuth2(
             self.app,
             client_id='client_idz',
             client_secret='client_secretz')
 
     def _generate_credentials(self, scopes=None):
-        return OAuth2Credentials(
+        return client.OAuth2Credentials(
             'access_tokenz',
             'client_idz',
             'client_secretz',
             'refresh_tokenz',
             datetime.datetime.utcnow() + datetime.timedelta(seconds=3600),
-            GOOGLE_TOKEN_URI,
+            oauth2client.GOOGLE_TOKEN_URI,
             'Test',
             id_token={
                 'sub': '123',
@@ -94,7 +92,7 @@ class FlaskOAuth2Tests(unittest2.TestCase):
             scopes=scopes)
 
     def test_explicit_configuration(self):
-        oauth2 = FlaskOAuth2(
+        oauth2 = flask_util.UserOAuth2(
             flask.Flask(__name__), client_id='id', client_secret='secret')
 
         self.assertEqual(oauth2.client_id, 'id')
@@ -107,7 +105,7 @@ class FlaskOAuth2Tests(unittest2.TestCase):
         with mock.patch('oauth2client.clientsecrets.loadfile',
                         return_value=return_val):
 
-            oauth2 = FlaskOAuth2(
+            oauth2 = flask_util.UserOAuth2(
                 flask.Flask(__name__), client_secrets_file='file.json')
 
             self.assertEqual(oauth2.client_id, 'id')
@@ -115,19 +113,19 @@ class FlaskOAuth2Tests(unittest2.TestCase):
 
     def test_delayed_configuration(self):
         app = flask.Flask(__name__)
-        oauth2 = FlaskOAuth2()
+        oauth2 = flask_util.UserOAuth2()
         oauth2.init_app(app, client_id='id', client_secret='secret')
         self.assertEqual(oauth2.app, app)
 
     def test_explicit_storage(self):
         storage_mock = mock.Mock()
-        oauth2 = FlaskOAuth2(
+        oauth2 = flask_util.UserOAuth2(
             flask.Flask(__name__), storage=storage_mock, client_id='id',
             client_secret='secret')
         self.assertEqual(oauth2.storage, storage_mock)
 
     def test_explicit_scopes(self):
-        oauth2 = FlaskOAuth2(
+        oauth2 = flask_util.UserOAuth2(
             flask.Flask(__name__), scopes=['1', '2'], client_id='id',
             client_secret='secret')
         self.assertEqual(oauth2.scopes, ['1', '2'])
@@ -140,15 +138,15 @@ class FlaskOAuth2Tests(unittest2.TestCase):
         with mock.patch('oauth2client.clientsecrets.loadfile',
                         return_value=return_val):
             with self.assertRaises(ValueError):
-                FlaskOAuth2(flask.Flask(__name__),
-                            client_secrets_file='file.json')
+                flask_util.UserOAuth2(flask.Flask(__name__),
+                                      client_secrets_file='file.json')
 
     def test_app_configuration(self):
         app = flask.Flask(__name__)
         app.config['GOOGLE_OAUTH2_CLIENT_ID'] = 'id'
         app.config['GOOGLE_OAUTH2_CLIENT_SECRET'] = 'secret'
 
-        oauth2 = FlaskOAuth2(app)
+        oauth2 = flask_util.UserOAuth2(app)
 
         self.assertEqual(oauth2.client_id, 'id')
         self.assertEqual(oauth2.client_secret, 'secret')
@@ -162,14 +160,14 @@ class FlaskOAuth2Tests(unittest2.TestCase):
 
             app = flask.Flask(__name__)
             app.config['GOOGLE_OAUTH2_CLIENT_SECRETS_FILE'] = 'file.json'
-            oauth2 = FlaskOAuth2(app)
+            oauth2 = flask_util.UserOAuth2(app)
 
             self.assertEqual(oauth2.client_id, 'id2')
             self.assertEqual(oauth2.client_secret, 'secret2')
 
     def test_no_configuration(self):
         with self.assertRaises(ValueError):
-            FlaskOAuth2(flask.Flask(__name__))
+            flask_util.UserOAuth2(flask.Flask(__name__))
 
     def test_create_flow(self):
         with self.app.test_request_context():
@@ -193,7 +191,7 @@ class FlaskOAuth2Tests(unittest2.TestCase):
         # Test extra args specified in the constructor.
         app = flask.Flask(__name__)
         app.config['SECRET_KEY'] = 'notasecert'
-        oauth2 = FlaskOAuth2(
+        oauth2 = flask_util.UserOAuth2(
             app, client_id='client_id', client_secret='secret',
             extra_arg='test')
 
@@ -208,7 +206,7 @@ class FlaskOAuth2Tests(unittest2.TestCase):
             q = urlparse.parse_qs(location.split('?', 1)[1])
             state = json.loads(q['state'][0])
 
-            self.assertIn(GOOGLE_AUTH_URI, location)
+            self.assertIn(oauth2client.GOOGLE_AUTH_URI, location)
             self.assertNotIn(self.oauth2.client_secret, location)
             self.assertIn(self.oauth2.client_id, q['client_id'])
             self.assertEqual(
@@ -240,7 +238,7 @@ class FlaskOAuth2Tests(unittest2.TestCase):
             with client.session_transaction() as session:
                 session.update(flask.session)
                 csrf_token = session['google_oauth2_csrf_token']
-                flow = _get_flow_for_token(csrf_token)
+                flow = flask_util._get_flow_for_token(csrf_token)
                 state = flow.params['state']
 
         return state
@@ -434,7 +432,7 @@ class FlaskOAuth2Tests(unittest2.TestCase):
         self.app = flask.Flask(__name__)
         self.app.testing = True
         self.app.config['SECRET_KEY'] = 'notasecert'
-        self.oauth2 = FlaskOAuth2(
+        self.oauth2 = flask_util.UserOAuth2(
             self.app,
             client_id='client_idz',
             client_secret='client_secretz',

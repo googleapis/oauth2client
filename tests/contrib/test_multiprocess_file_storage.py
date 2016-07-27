@@ -26,7 +26,7 @@ import mock
 from six import StringIO
 import unittest2
 
-from oauth2client.client import OAuth2Credentials
+from oauth2client import client
 from oauth2client.contrib import multiprocess_file_storage
 
 from ..http_mock import HttpMockSequence
@@ -56,7 +56,7 @@ def _create_test_credentials(expiration=None):
     token_uri = 'https://www.google.com/accounts/o8/oauth2/token'
     user_agent = 'refresh_checker/1.0'
 
-    credentials = OAuth2Credentials(
+    credentials = client.OAuth2Credentials(
         access_token, 'test-client-id', client_secret,
         refresh_token, token_expiry, token_uri,
         user_agent)
