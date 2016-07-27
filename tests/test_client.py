@@ -399,7 +399,8 @@ class GoogleCredentialsTests(unittest2.TestCase):
 
                 if server_software == '':
                     http_client_module.HTTPConnection.assert_called_once_with(
-                        client._GCE_METADATA_HOST, timeout=1)
+                        client._GCE_METADATA_HOST,
+                        timeout=client.GCE_METADATA_TIMEOUT)
                     connection.getresponse.assert_called_once_with()
                     # Remaining calls are not "getresponse"
                     headers = {
