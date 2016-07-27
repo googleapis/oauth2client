@@ -18,6 +18,7 @@ import os
 import httplib2
 from six.moves import http_client
 
+import oauth2client
 from oauth2client import client
 from oauth2client.service_account import ServiceAccountCredentials
 
@@ -89,7 +90,7 @@ def run_user_json():
         client_secret=client_credentials['client_secret'],
         refresh_token=client_credentials['refresh_token'],
         token_expiry=None,
-        token_uri=client.GOOGLE_TOKEN_URI,
+        token_uri=oauth2client.GOOGLE_TOKEN_URI,
         user_agent='Python client library',
     )
 
