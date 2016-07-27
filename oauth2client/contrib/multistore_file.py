@@ -58,6 +58,11 @@ __author__ = 'jbeda@google.com (Joe Beda)'
 
 logger = logging.getLogger(__name__)
 
+logger.warning(
+    'The oauth2client.contrib.multistore_file module has been deprecated and '
+    'will be removed in the next release of oauth2client. Please migrate to '
+    'multiprocess_file_storage.')
+
 # A dict from 'filename'->_MultiStore instances
 _multistores = {}
 _multistores_lock = threading.Lock()
