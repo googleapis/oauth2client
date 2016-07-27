@@ -840,7 +840,7 @@ class DecoratorTests(unittest2.TestCase):
         decorator = appengine.OAuth2Decorator(
             client_id='foo_client_id', client_secret='foo_client_secret',
             user_agent='foo_user_agent', scope=['foo_scope', 'bar_scope'],
-            access_type='offline', approval_prompt='force',
+            access_type='offline', prompt='consent',
             revoke_uri='dummy_revoke_uri')
         request_handler = MockRequestHandler()
         decorator._create_flow(request_handler)
@@ -848,7 +848,7 @@ class DecoratorTests(unittest2.TestCase):
         self.assertEqual('https://example.org/oauth2callback',
                          decorator.flow.redirect_uri)
         self.assertEqual('offline', decorator.flow.params['access_type'])
-        self.assertEqual('force', decorator.flow.params['approval_prompt'])
+        self.assertEqual('consent', decorator.flow.params['prompt'])
         self.assertEqual('foo_user_agent', decorator.flow.user_agent)
         self.assertEqual('dummy_revoke_uri', decorator.flow.revoke_uri)
         self.assertEqual(None, decorator.flow.params.get('user_agent', None))
@@ -911,8 +911,8 @@ class DecoratorTests(unittest2.TestCase):
         decorator = appengine.OAuth2DecoratorFromClientSecrets(
             datafile('client_secrets.json'),
             scope=['foo_scope', 'bar_scope'],
-            approval_prompt='force')
-        self.assertTrue('approval_prompt' in decorator._kwargs)
+            prompt='consent')
+        self.assertIn('prompt', decorator._kwargs)
 
     def test_decorator_from_cached_client_secrets(self):
         cache_mock = CacheMock()
