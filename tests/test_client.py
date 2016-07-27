@@ -306,7 +306,8 @@ class GoogleCredentialsTests(unittest2.TestCase):
                          credentials.create_scoped(['dummy_scope']))
 
     @mock.patch.object(client.GoogleCredentials,
-                       '_implicit_credentials_from_files')
+                       '_implicit_credentials_from_files',
+                       return_value=None)
     @mock.patch.object(client.GoogleCredentials,
                        '_implicit_credentials_from_gce')
     @mock.patch.object(client, '_in_gae_environment',
@@ -317,8 +318,8 @@ class GoogleCredentialsTests(unittest2.TestCase):
                                             from_gce, from_files):
         credentials = client.GoogleCredentials.get_application_default()
         self.assertEqual(credentials, gae_adc.return_value)
+        from_files.assert_called_once_with()
         in_gae.assert_called_once_with()
-        from_files.assert_not_called()
         from_gce.assert_not_called()
 
     @mock.patch.object(client.GoogleCredentials,
@@ -618,10 +619,10 @@ class GoogleCredentialsTests(unittest2.TestCase):
         credentials = client.GoogleCredentials.get_application_default()
         self.validate_service_account_credentials(credentials)
 
-        get_well_known.assert_not_called()
-        in_gce.assert_not_called()
         get_env_file.assert_called_once_with()
-        in_gae.assert_called_once_with()
+        get_well_known.assert_not_called()
+        in_gae.assert_not_called()
+        in_gce.assert_not_called()
 
     def test_env_name(self):
         self.assertEqual(None, client.SETTINGS.env_name)
@@ -642,10 +643,10 @@ class GoogleCredentialsTests(unittest2.TestCase):
         credentials = client.GoogleCredentials.get_application_default()
         self.validate_google_credentials(credentials)
 
-        get_well_known.assert_not_called()
-        in_gce.assert_not_called()
         get_env_file.assert_called_once_with()
-        in_gae.assert_called_once_with()
+        get_well_known.assert_not_called()
+        in_gae.assert_not_called()
+        in_gce.assert_not_called()
 
     @mock.patch('oauth2client.client._in_gce_environment')
     @mock.patch('oauth2client.client._in_gae_environment', return_value=False)
@@ -667,10 +668,10 @@ class GoogleCredentialsTests(unittest2.TestCase):
             get_env_file.return_value + ' (pointed to by ' +
             client.GOOGLE_APPLICATION_CREDENTIALS + ' environment variable):'))
 
-        get_well_known.assert_not_called()
-        in_gce.assert_not_called()
         get_env_file.assert_called_once_with()
-        in_gae.assert_called_once_with()
+        get_well_known.assert_not_called()
+        in_gae.assert_not_called()
+        in_gce.assert_not_called()
 
     @mock.patch('oauth2client.client._in_gce_environment', return_value=False)
     @mock.patch('oauth2client.client._in_gae_environment', return_value=False)
@@ -689,8 +690,8 @@ class GoogleCredentialsTests(unittest2.TestCase):
             client.GoogleCredentials.get_application_default()
 
         self.assertEqual(client.ADC_HELP_MSG, str(exc_manager.exception))
-        get_well_known.assert_called_once_with()
         get_env_file.assert_called_once_with()
+        get_well_known.assert_called_once_with()
         in_gae.assert_called_once_with()
         in_gce.assert_called_once_with()
 
@@ -716,9 +717,9 @@ class GoogleCredentialsTests(unittest2.TestCase):
             self.assertEqual(result, result_creds)
             get_from_file.assert_called_once_with(__file__)
 
-        get_well_known.assert_called_once_with()
         get_env_file.assert_called_once_with()
-        in_gae.assert_called_once_with()
+        get_well_known.assert_called_once_with()
+        in_gae.assert_not_called()
         in_gce.assert_not_called()
 
     def test_from_stream_service_account(self):

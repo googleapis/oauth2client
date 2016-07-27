@@ -1244,10 +1244,10 @@ class GoogleCredentials(OAuth2Credentials):
         """Gets credentials implicitly from the environment.
 
         Checks environment in order of precedence:
-        - Google App Engine (production and testing)
         - Environment variable GOOGLE_APPLICATION_CREDENTIALS pointing to
           a file with stored credentials information.
         - Stored "well known" file associated with `gcloud` command line tool.
+        - Google App Engine (production and testing)
         - Google Compute Engine production environment.
 
         Raises:
@@ -1256,8 +1256,8 @@ class GoogleCredentials(OAuth2Credentials):
         """
         # Environ checks (in order).
         environ_checkers = [
-            cls._implicit_credentials_from_gae,
             cls._implicit_credentials_from_files,
+            cls._implicit_credentials_from_gae,
             cls._implicit_credentials_from_gce,
         ]
 
