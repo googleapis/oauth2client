@@ -1679,6 +1679,20 @@ class OAuth2WebServerFlowTest(unittest2.TestCase):
         self.assertEqual(client.OOB_CALLBACK_URN, q['redirect_uri'][0])
         self.assertEqual('online', q['access_type'][0])
 
+    def test__oauth2_web_server_flow_params(self):
+        params = client._oauth2_web_server_flow_params({})
+        self.assertEqual(params['access_type'], 'offline')
+        self.assertEqual(params['response_type'], 'code')
+
+        params = client._oauth2_web_server_flow_params({
+            'approval_prompt': 'force'})
+        self.assertEqual(params['prompt'], 'consent')
+        self.assertNotIn('approval_prompt', params)
+
+        params = client._oauth2_web_server_flow_params({
+            'approval_prompt': 'other'})
+        self.assertEqual(params['approval_prompt'], 'other')
+
     @mock.patch('oauth2client.client.logger')
     def test_step1_get_authorize_url_redirect_override(self, logger):
         flow = client.OAuth2WebServerFlow('client_id+1', scope='foo',

@@ -1762,6 +1762,33 @@ class DeviceFlowInfo(collections.namedtuple('DeviceFlowInfo', (
         return cls(**kwargs)
 
 
+def _oauth2_web_server_flow_params(kwargs):
+    """Configures redirect URI parameters for OAuth2WebServerFlow."""
+    params = {
+        'access_type': 'offline',
+        'response_type': 'code',
+    }
+
+    params.update(kwargs)
+
+    # Check for the presence of the deprecated approval_prompt param and
+    # warn appropriately.
+    approval_prompt = params.get('approval_prompt')
+    if approval_prompt is not None:
+        logger.warning(
+            'The approval_prompt parameter for OAuth2WebServerFlow is '
+            'deprecated. Please use the prompt parameter instead.')
+
+        if approval_prompt == 'force':
+            logger.warning(
+                'approval_prompt="force" has been adjusted to '
+                'prompt="consent"')
+            params['prompt'] = 'consent'
+            del params['approval_prompt']
+
+    return params
+
+
 class OAuth2WebServerFlow(Flow):
     """Does the Web Server Flow for OAuth 2.0.
 
@@ -1785,7 +1812,7 @@ class OAuth2WebServerFlow(Flow):
         """Constructor for OAuth2WebServerFlow.
 
         The kwargs argument is used to set extra query parameters on the
-        auth_uri. For example, the access_type and approval_prompt
+        auth_uri. For example, the access_type and prompt
         query parameters can be set via kwargs.
 
         Args:
@@ -1837,11 +1864,7 @@ class OAuth2WebServerFlow(Flow):
         self.device_uri = device_uri
         self.token_info_uri = token_info_uri
         self.authorization_header = authorization_header
-        self.params = {
-            'access_type': 'offline',
-            'response_type': 'code',
-        }
-        self.params.update(kwargs)
+        self.params = _oauth2_web_server_flow_params(kwargs)
 
     @util.positional(1)
     def step1_get_authorize_url(self, redirect_uri=None, state=None):
@@ -2001,7 +2024,7 @@ class OAuth2WebServerFlow(Flow):
             if not refresh_token:
                 logger.info(
                     'Received token response with no refresh_token. Consider '
-                    "reauthenticating with approval_prompt='force'.")
+                    "reauthenticating with prompt='consent'.")
             token_expiry = None
             if 'expires_in' in d:
                 delta = datetime.timedelta(seconds=int(d['expires_in']))
