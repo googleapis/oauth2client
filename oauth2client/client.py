@@ -102,6 +102,14 @@ DEFAULT_ENV_NAME = 'UNKNOWN'
 # If set to True _get_environment avoid GCE check (_detect_gce_environment)
 NO_GCE_CHECK = os.environ.setdefault('NO_GCE_CHECK', 'False')
 
+# Timeout in seconds to wait for the GCE metadata server when detecting the
+# GCE environment.
+try:
+    GCE_METADATA_TIMEOUT = int(
+        os.environ.setdefault('GCE_METADATA_TIMEOUT', '3'))
+except ValueError:  # pragma: NO COVER
+    GCE_METADATA_TIMEOUT = 3
+
 _SERVER_SOFTWARE = 'SERVER_SOFTWARE'
 _GCE_METADATA_HOST = '169.254.169.254'
 _METADATA_FLAVOR_HEADER = 'Metadata-Flavor'
@@ -998,7 +1006,7 @@ def _detect_gce_environment():
     #       the metadata resolution was particularly slow. The latter case is
     #       "unlikely".
     connection = six.moves.http_client.HTTPConnection(
-        _GCE_METADATA_HOST, timeout=1)
+        _GCE_METADATA_HOST, timeout=GCE_METADATA_TIMEOUT)
 
     try:
         headers = {_METADATA_FLAVOR_HEADER: _DESIRED_METADATA_FLAVOR}
