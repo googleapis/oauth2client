@@ -1,5 +1,24 @@
 # CHANGELOG
 
+## v3.0.0
+
+* Populate `token_expiry` for GCE credentials. (#473)
+* Move GCE metadata interface to a separate module. (#520)
+* Populate `scopes` for GCE credentials. (#524)
+* Fix Python 3.5 compatibility. (#531)
+* Add `oauth2client.contrib.sqlalchemy`, a SQLAlchemy-based credential store. (#527)
+* Improve error when an invalid client secret is provided. (#530)
+* Add `oauth2client.contrib.multiprocess_storage`. This supersedes the functionality in `oauth2client.contrib.multistore_file`. (#504)
+* Pull httplib2 usage into a separate transport module. (#559, #561)
+* Refactor all django-related code into `oauth2client.contrib.django_util`. Add `DjangoORMStorage`, remove `FlowField`. (#546)
+* Fix application default credentials resolution order. (#570)
+* Add configurable timeout for GCE metadata server check. (#571)
+* Add warnings when using deprecated `approval_prompt='force'`. (#572)
+* Add deprecation warning to `oauth2client.contrib.multistore_file`. (#574)
+* (Hygiene) PEP8 compliance and various style fixes (#537, #540, #552, #562)
+* (Hygiene) Remove duplicated exception classes in `oauth2client.contrib.appengine`. (#533)
+
+NOTE: The next major release of oauth2client (v4.0.0) will remove the `oauth2client.contrib.multistore_file` module.
 
 ## v2.2.0
 
