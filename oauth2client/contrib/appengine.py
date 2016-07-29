@@ -29,12 +29,12 @@ from google.appengine.api import memcache
 from google.appengine.api import users
 from google.appengine.ext import db
 from google.appengine.ext.webapp.util import login_required
-import httplib2
 import webapp2 as webapp
 
 import oauth2client
 from oauth2client import client
 from oauth2client import clientsecrets
+from oauth2client import transport
 from oauth2client import util
 from oauth2client.contrib import xsrfutil
 
@@ -742,7 +742,8 @@ class OAuth2Decorator(object):
             *args: Positional arguments passed to httplib2.Http constructor.
             **kwargs: Positional arguments passed to httplib2.Http constructor.
         """
-        return self.credentials.authorize(httplib2.Http(*args, **kwargs))
+        return self.credentials.authorize(
+            transport.get_http_object(*args, **kwargs))
 
     @property
     def callback_path(self):

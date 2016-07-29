@@ -20,7 +20,7 @@ Utilities for making it easier to use OAuth 2.0 on Google Compute Engine.
 import logging
 import warnings
 
-import httplib2
+from six.moves import http_client
 
 from oauth2client import client
 from oauth2client.contrib import _metadata
@@ -134,8 +134,8 @@ class AppAssertionCredentials(client.AssertionCredentials):
             self._retrieve_info(http_request)
             self.access_token, self.token_expiry = _metadata.get_token(
                 http_request, service_account=self.service_account_email)
-        except httplib2.HttpLib2Error as e:
-            raise client.HttpAccessTokenRefreshError(str(e))
+        except http_client.HTTPException as err:
+            raise client.HttpAccessTokenRefreshError(str(err))
 
     @property
     def serialization_data(self):

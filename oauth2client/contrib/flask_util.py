@@ -179,11 +179,11 @@ try:
 except ImportError:  # pragma: NO COVER
     raise ImportError('The flask utilities require flask 0.9 or newer.')
 
-import httplib2
 import six.moves.http_client as httplib
 
 from oauth2client import client
 from oauth2client import clientsecrets
+from oauth2client import transport
 from oauth2client.contrib import dictionary_storage
 
 
@@ -553,4 +553,5 @@ class UserOAuth2(object):
         """
         if not self.credentials:
             raise ValueError('No credentials available.')
-        return self.credentials.authorize(httplib2.Http(*args, **kwargs))
+        return self.credentials.authorize(
+            transport.get_http_object(*args, **kwargs))

@@ -62,7 +62,7 @@ class TestMetadata(unittest2.TestCase):
     def test_get_failure(self):
         http_request = request_mock(
             http_client.NOT_FOUND, 'text/html', '<p>Error</p>')
-        with self.assertRaises(httplib2.HttpLib2Error):
+        with self.assertRaises(http_client.HTTPException):
             _metadata.get(http_request, PATH)
 
         http_request.assert_called_once_with(EXPECTED_URL, **EXPECTED_KWARGS)
