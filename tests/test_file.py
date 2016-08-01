@@ -24,13 +24,16 @@ import os
 import pickle
 import stat
 import tempfile
+import warnings
 
+import mock
 import six
 from six.moves import http_client
 import unittest2
 
 from oauth2client import client
 from oauth2client import file
+from oauth2client import util
 from .http_mock import HttpMockSequence
 
 try:
@@ -54,6 +57,7 @@ class OAuth2ClientFileTests(unittest2.TestCase):
             pass
 
     def setUp(self):
+        warnings.simplefilter("ignore")
         try:
             os.unlink(FILENAME)
         except OSError:
@@ -74,19 +78,31 @@ class OAuth2ClientFileTests(unittest2.TestCase):
             user_agent)
         return credentials
 
-    def test_non_existent_file_storage(self):
-        s = file.Storage(FILENAME)
-        credentials = s.get()
-        self.assertEquals(None, credentials)
+    @mock.patch('warnings.warn')
+    def test_non_existent_file_storage(self, warn_mock):
+        storage = file.Storage(FILENAME)
+        credentials = storage.get()
+        warn_mock.assert_called_with(
+            util._MISSING_FILE_MESSAGE.format(FILENAME))
+        self.assertIsNone(credentials)
+
+    def test_directory_file_storage(self):
+        storage = file.Storage(FILENAME)
+        os.mkdir(FILENAME)
+        try:
+            with self.assertRaises(IOError):
+                storage.get()
+        finally:
+            os.rmdir(FILENAME)
 
     @unittest2.skipIf(not hasattr(os, 'symlink'), 'No symlink available')
     def test_no_sym_link_credentials(self):
         SYMFILENAME = FILENAME + '.sym'
         os.symlink(FILENAME, SYMFILENAME)
-        s = file.Storage(SYMFILENAME)
+        storage = file.Storage(SYMFILENAME)
         try:
-            with self.assertRaises(file.CredentialsFileSymbolicLinkError):
-                s.get()
+            with self.assertRaises(IOError):
+                storage.get()
         finally:
             os.unlink(SYMFILENAME)
 
@@ -94,20 +110,20 @@ class OAuth2ClientFileTests(unittest2.TestCase):
         # Write a file with a pickled OAuth2Credentials.
         credentials = self._create_test_credentials()
 
-        f = open(FILENAME, 'wb')
-        pickle.dump(credentials, f)
-        f.close()
+        credentials_file = open(FILENAME, 'wb')
+        pickle.dump(credentials, credentials_file)
+        credentials_file.close()
 
         # Storage should be not be able to read that object, as the capability
         # to read and write credentials as pickled objects has been removed.
-        s = file.Storage(FILENAME)
-        read_credentials = s.get()
-        self.assertEquals(None, read_credentials)
+        storage = file.Storage(FILENAME)
+        read_credentials = storage.get()
+        self.assertIsNone(read_credentials)
 
         # Now write it back out and confirm it has been rewritten as JSON
-        s.put(credentials)
-        with open(FILENAME) as f:
-            data = json.load(f)
+        storage.put(credentials)
+        with open(FILENAME) as credentials_file:
+            data = json.load(credentials_file)
 
         self.assertEquals(data['access_token'], 'foo')
         self.assertEquals(data['_class'], 'OAuth2Credentials')
@@ -118,12 +134,12 @@ class OAuth2ClientFileTests(unittest2.TestCase):
                       datetime.timedelta(minutes=15))
         credentials = self._create_test_credentials(expiration=expiration)
 
-        s = file.Storage(FILENAME)
-        s.put(credentials)
-        credentials = s.get()
+        storage = file.Storage(FILENAME)
+        storage.put(credentials)
+        credentials = storage.get()
         new_cred = copy.copy(credentials)
         new_cred.access_token = 'bar'
-        s.put(new_cred)
+        storage.put(new_cred)
 
         access_token = '1/3w'
         token_response = {'access_token': access_token, 'expires_in': 3600}
@@ -141,12 +157,12 @@ class OAuth2ClientFileTests(unittest2.TestCase):
                       datetime.timedelta(minutes=15))
         credentials = self._create_test_credentials(expiration=expiration)
 
-        s = file.Storage(FILENAME)
-        s.put(credentials)
-        credentials = s.get()
+        storage = file.Storage(FILENAME)
+        storage.put(credentials)
+        credentials = storage.get()
         new_cred = copy.copy(credentials)
         new_cred.access_token = 'bar'
-        s.put(new_cred)
+        storage.put(new_cred)
 
         access_token = '1/3w'
         token_response = {'access_token': access_token, 'expires_in': 3600}
@@ -170,12 +186,12 @@ class OAuth2ClientFileTests(unittest2.TestCase):
                       datetime.timedelta(minutes=15))
         credentials = self._create_test_credentials(expiration=expiration)
 
-        s = file.Storage(FILENAME)
-        s.put(credentials)
-        credentials = s.get()
+        storage = file.Storage(FILENAME)
+        storage.put(credentials)
+        credentials = storage.get()
         new_cred = copy.copy(credentials)
         new_cred.access_token = 'bar'
-        s.put(new_cred)
+        storage.put(new_cred)
 
         credentials._refresh(None)
         self.assertEquals(credentials.access_token, 'bar')
@@ -185,12 +201,12 @@ class OAuth2ClientFileTests(unittest2.TestCase):
                       datetime.timedelta(minutes=15))
         credentials = self._create_test_credentials(expiration=expiration)
 
-        s = file.Storage(FILENAME)
-        s.put(credentials)
-        credentials = s.get()
+        storage = file.Storage(FILENAME)
+        storage.put(credentials)
+        credentials = storage.get()
         new_cred = copy.copy(credentials)
         new_cred.access_token = 'bar'
-        s.put(new_cred)
+        storage.put(new_cred)
 
         valid_access_token = '1/3w'
         token_response = {'access_token': valid_access_token,
@@ -215,13 +231,13 @@ class OAuth2ClientFileTests(unittest2.TestCase):
     def test_credentials_delete(self):
         credentials = self._create_test_credentials()
 
-        s = file.Storage(FILENAME)
-        s.put(credentials)
-        credentials = s.get()
-        self.assertNotEquals(None, credentials)
-        s.delete()
-        credentials = s.get()
-        self.assertEquals(None, credentials)
+        storage = file.Storage(FILENAME)
+        storage.put(credentials)
+        credentials = storage.get()
+        self.assertIsNotNone(credentials)
+        storage.delete()
+        credentials = storage.get()
+        self.assertIsNone(credentials)
 
     def test_access_token_credentials(self):
         access_token = 'foo'
@@ -229,11 +245,11 @@ class OAuth2ClientFileTests(unittest2.TestCase):
 
         credentials = client.AccessTokenCredentials(access_token, user_agent)
 
-        s = file.Storage(FILENAME)
-        credentials = s.put(credentials)
-        credentials = s.get()
+        storage = file.Storage(FILENAME)
+        credentials = storage.put(credentials)
+        credentials = storage.get()
 
-        self.assertNotEquals(None, credentials)
+        self.assertIsNotNone(credentials)
         self.assertEquals('foo', credentials.access_token)
 
         self.assertTrue(os.path.exists(FILENAME))

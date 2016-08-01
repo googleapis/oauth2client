@@ -17,6 +17,8 @@
 import functools
 import inspect
 import logging
+import os
+import warnings
 
 import six
 from six.moves import urllib
@@ -43,6 +45,10 @@ POSITIONAL_SET = frozenset([POSITIONAL_WARNING, POSITIONAL_EXCEPTION,
                             POSITIONAL_IGNORE])
 
 positional_parameters_enforcement = POSITIONAL_WARNING
+
+_SYM_LINK_MESSAGE = 'File: {0}: Is a symbolic link.'
+_IS_DIR_MESSAGE = '{0}: Is a directory'
+_MISSING_FILE_MESSAGE = 'Cannot access {0}: No such file or directory'
 
 
 def positional(max_positional_args):
@@ -204,3 +210,12 @@ def _add_query_parameter(url, name, value):
         q[name] = value
         parsed[4] = urllib.parse.urlencode(q)
         return urllib.parse.urlunparse(parsed)
+
+
+def validate_file(filename):
+    if os.path.islink(filename):
+        raise IOError(_SYM_LINK_MESSAGE.format(filename))
+    elif os.path.isdir(filename):
+        raise IOError(_IS_DIR_MESSAGE.format(filename))
+    elif not os.path.isfile(filename):
+        warnings.warn(_MISSING_FILE_MESSAGE.format(filename))

@@ -16,6 +16,7 @@ import errno
 import fcntl
 import time
 
+from oauth2client import util
 from oauth2client.contrib import locked_file
 
 
@@ -32,15 +33,14 @@ class _FcntlOpener(locked_file._Opener):
         Raises:
             AlreadyLockedException: if the lock is already acquired.
             IOError: if the open fails.
-            CredentialsFileSymbolicLinkError: if the file is a symbolic
-                                              link.
+            IOError: if the file is a symbolic link.
         """
         if self._locked:
             raise locked_file.AlreadyLockedException(
                 'File {0} is already locked'.format(self._filename))
         start_time = time.time()
 
-        locked_file.validate_file(self._filename)
+        util.validate_file(self._filename)
         try:
             self._fh = open(self._filename, self._mode)
         except IOError as e:

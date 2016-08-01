@@ -45,19 +45,9 @@ __author__ = 'cache@google.com (David T McWherter)'
 logger = logging.getLogger(__name__)
 
 
-class CredentialsFileSymbolicLinkError(Exception):
-    """Credentials files must not be symbolic links."""
-
-
 class AlreadyLockedException(Exception):
     """Trying to lock a file that has already been locked by the LockedFile."""
     pass
-
-
-def validate_file(filename):
-    if os.path.islink(filename):
-        raise CredentialsFileSymbolicLinkError(
-            'File: {0} is a symbolic link.'.format(filename))
 
 
 class _Opener(object):
@@ -119,14 +109,14 @@ class _PosixOpener(_Opener):
         Raises:
             AlreadyLockedException: if the lock is already acquired.
             IOError: if the open fails.
-            CredentialsFileSymbolicLinkError if the file is a symbolic link.
+            IOError: if the file is a symbolic link.
         """
         if self._locked:
             raise AlreadyLockedException(
                 'File {0} is already locked'.format(self._filename))
         self._locked = False
 
-        validate_file(self._filename)
+        util.validate_file(self._filename)
         try:
             self._fh = open(self._filename, self._mode)
         except IOError as e:

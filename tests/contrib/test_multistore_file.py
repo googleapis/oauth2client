@@ -25,7 +25,6 @@ import unittest2
 
 from oauth2client import client
 from oauth2client import util
-from oauth2client.contrib import locked_file
 from oauth2client.contrib import multistore_file
 
 _filehandle, FILENAME = tempfile.mkstemp('oauth2client_test.data')
@@ -187,8 +186,7 @@ class MultistoreFileTests(unittest2.TestCase):
             'user-agent/1.0',
             ['some-scope', 'some-other-scope'])
         try:
-            with self.assertRaises(
-                    locked_file.CredentialsFileSymbolicLinkError):
+            with self.assertRaises(IOError):
                 store.get()
         finally:
             os.unlink(SYMFILENAME)
@@ -201,7 +199,7 @@ class MultistoreFileTests(unittest2.TestCase):
             ['some-scope', 'some-other-scope'])
 
         credentials = store.get()
-        self.assertEquals(None, credentials)
+        self.assertIsNone(credentials)
 
     def test_multistore_file(self):
         credentials = self._create_test_credentials()
@@ -216,14 +214,14 @@ class MultistoreFileTests(unittest2.TestCase):
         store.put(credentials)
         credentials = store.get()
 
-        self.assertNotEquals(None, credentials)
+        self.assertIsNotNone(credentials)
         self.assertEquals('foo', credentials.access_token)
 
         # Delete credentials
         store.delete()
         credentials = store.get()
 
-        self.assertEquals(None, credentials)
+        self.assertIsNone(credentials)
 
         if os.name == 'posix':  # pragma: NO COVER
             self.assertEquals(
@@ -239,14 +237,14 @@ class MultistoreFileTests(unittest2.TestCase):
         store.put(credentials)
         stored_credentials = store.get()
 
-        self.assertNotEquals(None, stored_credentials)
+        self.assertIsNotNone(stored_credentials)
         self.assertEqual(credentials.access_token,
                          stored_credentials.access_token)
 
         store.delete()
         stored_credentials = store.get()
 
-        self.assertEquals(None, stored_credentials)
+        self.assertIsNone(stored_credentials)
 
     def test_multistore_file_custom_string_key(self):
         credentials = self._create_test_credentials()
@@ -258,7 +256,7 @@ class MultistoreFileTests(unittest2.TestCase):
         store.put(credentials)
         stored_credentials = store.get()
 
-        self.assertNotEquals(None, stored_credentials)
+        self.assertIsNotNone(stored_credentials)
         self.assertEqual(credentials.access_token,
                          stored_credentials.access_token)
 
@@ -266,14 +264,14 @@ class MultistoreFileTests(unittest2.TestCase):
         multistore_file.get_credential_storage_custom_string_key(
             FILENAME, {'key': 'mykey'})
         stored_credentials = store.get()
-        self.assertNotEquals(None, stored_credentials)
+        self.assertIsNotNone(stored_credentials)
         self.assertEqual(credentials.access_token,
                          stored_credentials.access_token)
 
         store.delete()
         stored_credentials = store.get()
 
-        self.assertEquals(None, stored_credentials)
+        self.assertIsNone(stored_credentials)
 
     def test_multistore_file_backwards_compatibility(self):
         credentials = self._create_test_credentials()
