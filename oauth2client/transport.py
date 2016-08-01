@@ -18,7 +18,7 @@ import httplib2
 import six
 from six.moves import http_client
 
-from oauth2client._helpers import _to_bytes
+from oauth2client import _helpers
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -127,7 +127,7 @@ def clean_headers(headers):
                 k = str(k)
             if not isinstance(v, six.binary_type):
                 v = str(v)
-            clean[_to_bytes(k)] = _to_bytes(v)
+            clean[_helpers._to_bytes(k)] = _helpers._to_bytes(v)
     except UnicodeEncodeError:
         from oauth2client.client import NonAsciiHeaderError
         raise NonAsciiHeaderError(k, ': ', v)

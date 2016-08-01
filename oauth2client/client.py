@@ -36,7 +36,6 @@ import oauth2client
 from oauth2client import _helpers
 from oauth2client import clientsecrets
 from oauth2client import transport
-from oauth2client import util
 
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
@@ -466,7 +465,7 @@ class OAuth2Credentials(Credentials):
     OAuth2Credentials objects may be safely pickled and unpickled.
     """
 
-    @util.positional(8)
+    @_helpers.positional(8)
     def __init__(self, access_token, client_id, client_secret, refresh_token,
                  token_expiry, token_uri, user_agent, revoke_uri=None,
                  id_token=None, token_response=None, scopes=None,
@@ -513,7 +512,7 @@ class OAuth2Credentials(Credentials):
         self.revoke_uri = revoke_uri
         self.id_token = id_token
         self.token_response = token_response
-        self.scopes = set(util.string_to_scopes(scopes or []))
+        self.scopes = set(_helpers.string_to_scopes(scopes or []))
         self.token_info_uri = token_info_uri
 
         # True if the credentials have been revoked or expired and can't be
@@ -592,7 +591,7 @@ class OAuth2Credentials(Credentials):
             not have scopes. In both cases, you can use refresh_scopes() to
             obtain the canonical set of scopes.
         """
-        scopes = util.string_to_scopes(scopes)
+        scopes = _helpers.string_to_scopes(scopes)
         return set(scopes).issubset(self.scopes)
 
     def retrieve_scopes(self, http):
@@ -908,7 +907,7 @@ class OAuth2Credentials(Credentials):
         content = _helpers._from_bytes(content)
         if resp.status == http_client.OK:
             d = json.loads(content)
-            self.scopes = set(util.string_to_scopes(d.get('scope', '')))
+            self.scopes = set(_helpers.string_to_scopes(d.get('scope', '')))
         else:
             error_msg = 'Invalid response {0}.'.format(resp.status)
             try:
@@ -1469,7 +1468,7 @@ class AssertionCredentials(GoogleCredentials):
     AssertionCredentials objects may be safely pickled and unpickled.
     """
 
-    @util.positional(2)
+    @_helpers.positional(2)
     def __init__(self, assertion_type, user_agent=None,
                  token_uri=oauth2client.GOOGLE_TOKEN_URI,
                  revoke_uri=oauth2client.GOOGLE_REVOKE_URI,
@@ -1545,7 +1544,7 @@ def _require_crypto_or_die():
         raise CryptoUnavailableError('No crypto library available')
 
 
-@util.positional(2)
+@_helpers.positional(2)
 def verify_id_token(id_token, audience, http=None,
                     cert_uri=ID_TOKEN_VERIFICATION_CERTS):
     """Verifies a signed JWT id_token.
@@ -1633,7 +1632,7 @@ def _parse_exchange_token_response(content):
     return resp
 
 
-@util.positional(4)
+@_helpers.positional(4)
 def credentials_from_code(client_id, client_secret, scope, code,
                           redirect_uri='postmessage', http=None,
                           user_agent=None,
@@ -1684,7 +1683,7 @@ def credentials_from_code(client_id, client_secret, scope, code,
     return credentials
 
 
-@util.positional(3)
+@_helpers.positional(3)
 def credentials_from_clientsecrets_and_code(filename, scope, code,
                                             message=None,
                                             redirect_uri='postmessage',
@@ -1803,7 +1802,7 @@ class OAuth2WebServerFlow(Flow):
     OAuth2WebServerFlow objects may be safely pickled and unpickled.
     """
 
-    @util.positional(4)
+    @_helpers.positional(4)
     def __init__(self, client_id,
                  client_secret=None,
                  scope=None,
@@ -1862,7 +1861,7 @@ class OAuth2WebServerFlow(Flow):
             raise TypeError("The value of scope must not be None")
         self.client_id = client_id
         self.client_secret = client_secret
-        self.scope = util.scopes_to_string(scope)
+        self.scope = _helpers.scopes_to_string(scope)
         self.redirect_uri = redirect_uri
         self.login_hint = login_hint
         self.user_agent = user_agent
@@ -1874,7 +1873,7 @@ class OAuth2WebServerFlow(Flow):
         self.authorization_header = authorization_header
         self.params = _oauth2_web_server_flow_params(kwargs)
 
-    @util.positional(1)
+    @_helpers.positional(1)
     def step1_get_authorize_url(self, redirect_uri=None, state=None):
         """Returns a URI to redirect to the provider.
 
@@ -1915,7 +1914,7 @@ class OAuth2WebServerFlow(Flow):
         query_params.update(self.params)
         return _update_query_params(self.auth_uri, query_params)
 
-    @util.positional(1)
+    @_helpers.positional(1)
     def step1_get_device_and_user_codes(self, http=None):
         """Returns a user code and the verification URL where to enter it
 
@@ -1963,7 +1962,7 @@ class OAuth2WebServerFlow(Flow):
                 pass
             raise OAuth2DeviceCodeError(error_msg)
 
-    @util.positional(2)
+    @_helpers.positional(2)
     def step2_exchange(self, code=None, http=None, device_flow_info=None):
         """Exchanges a code for OAuth2Credentials.
 
@@ -2060,7 +2059,7 @@ class OAuth2WebServerFlow(Flow):
             raise FlowExchangeError(error_msg)
 
 
-@util.positional(2)
+@_helpers.positional(2)
 def flow_from_clientsecrets(filename, scope, redirect_uri=None,
                             message=None, cache=None, login_hint=None,
                             device_uri=None):

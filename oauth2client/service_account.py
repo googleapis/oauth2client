@@ -25,7 +25,6 @@ from oauth2client import _helpers
 from oauth2client import client
 from oauth2client import crypt
 from oauth2client import transport
-from oauth2client import util
 
 
 _PASSWORD_DEFAULT = 'notasecret'
@@ -110,7 +109,7 @@ class ServiceAccountCredentials(client.AssertionCredentials):
 
         self._service_account_email = service_account_email
         self._signer = signer
-        self._scopes = util.scopes_to_string(scopes)
+        self._scopes = _helpers.scopes_to_string(scopes)
         self._private_key_id = private_key_id
         self.client_id = client_id
         self._user_agent = user_agent

@@ -31,9 +31,9 @@ import six
 from six.moves import http_client
 import unittest2
 
+from oauth2client import _helpers
 from oauth2client import client
 from oauth2client import file
-from oauth2client import util
 from .http_mock import HttpMockSequence
 
 try:
@@ -83,7 +83,7 @@ class OAuth2ClientFileTests(unittest2.TestCase):
         storage = file.Storage(FILENAME)
         credentials = storage.get()
         warn_mock.assert_called_with(
-            util._MISSING_FILE_MESSAGE.format(FILENAME))
+            _helpers._MISSING_FILE_MESSAGE.format(FILENAME))
         self.assertIsNone(credentials)
 
     def test_directory_file_storage(self):

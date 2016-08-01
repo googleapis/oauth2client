@@ -38,7 +38,6 @@ from oauth2client import _helpers
 from oauth2client import client
 from oauth2client import clientsecrets
 from oauth2client import service_account
-from oauth2client import util
 from . import http_mock
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
@@ -882,14 +881,14 @@ class BasicCredentialsTests(unittest2.TestCase):
             user_agent, revoke_uri=oauth2client.GOOGLE_REVOKE_URI,
             scopes='foo', token_info_uri=oauth2client.GOOGLE_TOKEN_INFO_URI)
 
-        # Provoke a failure if @util.positional is not respected.
+        # Provoke a failure if @_helpers.positional is not respected.
         self.old_positional_enforcement = (
-            util.positional_parameters_enforcement)
-        util.positional_parameters_enforcement = (
-            util.POSITIONAL_EXCEPTION)
+            _helpers.positional_parameters_enforcement)
+        _helpers.positional_parameters_enforcement = (
+            _helpers.POSITIONAL_EXCEPTION)
 
     def tearDown(self):
-        util.positional_parameters_enforcement = (
+        _helpers.positional_parameters_enforcement = (
             self.old_positional_enforcement)
 
     def test_token_refresh_success(self):
@@ -911,7 +910,7 @@ class BasicCredentialsTests(unittest2.TestCase):
         # Tests that OAuth2Credentials doesn't introduce new method
         # constraints. Formerly, OAuth2Credentials.authorize monkeypatched the
         # request method of the passed in HTTP object with a wrapper annotated
-        # with @util.positional(1). Since the original method has no such
+        # with @_helpers.positional(1). Since the original method has no such
         # annotation, that meant that the wrapper was violating the contract of
         # the original method by adding a new requirement to it. And in fact
         # the wrapper itself doesn't even respect that requirement. So before
