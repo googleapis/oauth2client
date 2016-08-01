@@ -20,7 +20,6 @@ See https://cloud.google.com/compute/docs/metadata
 import datetime
 import json
 
-import httplib2
 from six.moves import http_client
 from six.moves.urllib import parse as urlparse
 
@@ -51,7 +50,8 @@ def get(http_request, path, root=METADATA_ROOT, recursive=None):
         A dictionary if the metadata server returns JSON, otherwise a string.
 
     Raises:
-        httplib2.Httplib2Error if an error corrured while retrieving metadata.
+        http_client.HTTPException if an error corrured while
+        retrieving metadata.
     """
     url = urlparse.urljoin(root, path)
     url = util._add_query_parameter(url, 'recursive', recursive)
@@ -68,7 +68,7 @@ def get(http_request, path, root=METADATA_ROOT, recursive=None):
         else:
             return decoded
     else:
-        raise httplib2.HttpLib2Error(
+        raise http_client.HTTPException(
             'Failed to retrieve {0} from the Google Compute Engine'
             'metadata service. Response:\n{1}'.format(url, response))
 

@@ -228,10 +228,10 @@ import importlib
 import django.conf
 from django.core import exceptions
 from django.core import urlresolvers
-import httplib2
 from six.moves.urllib import parse
 
 from oauth2client import clientsecrets
+from oauth2client import transport
 from oauth2client.contrib import dictionary_storage
 from oauth2client.contrib.django_util import storage
 
@@ -470,8 +470,7 @@ class UserOAuth2(object):
 
     @property
     def http(self):
-        """Helper method to create an HTTP client authorized with OAuth2
-        credentials."""
+        """Helper: create HTTP client authorized with OAuth2 credentials."""
         if self.has_credentials():
-            return self.credentials.authorize(httplib2.Http())
+            return self.credentials.authorize(transport.get_http_object())
         return None

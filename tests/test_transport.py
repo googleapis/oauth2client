@@ -52,6 +52,13 @@ class Test_get_http_object(unittest2.TestCase):
     def test_it(self, http_klass):
         result = transport.get_http_object()
         self.assertEqual(result, http_klass.return_value)
+        http_klass.assert_called_once_with()
+
+    @mock.patch.object(httplib2, 'Http', return_value=object())
+    def test_with_args(self, http_klass):
+        result = transport.get_http_object(1, 2, foo='bar')
+        self.assertEqual(result, http_klass.return_value)
+        http_klass.assert_called_once_with(1, 2, foo='bar')
 
 
 class Test__initialize_headers(unittest2.TestCase):

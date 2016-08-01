@@ -58,13 +58,19 @@ def get_cached_http():
     return _CACHED_HTTP
 
 
-def get_http_object():
+def get_http_object(*args, **kwargs):
     """Return a new HTTP object.
+
+    Args:
+        *args: tuple, The positional arguments to be passed when
+               contructing a new HTTP object.
+        **kwargs: dict, The keyword arguments to be passed when
+                  contructing a new HTTP object.
 
     Returns:
         httplib2.Http, an HTTP object.
     """
-    return httplib2.Http()
+    return httplib2.Http(*args, **kwargs)
 
 
 def _initialize_headers(headers):
