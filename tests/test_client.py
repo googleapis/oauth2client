@@ -908,7 +908,7 @@ class BasicCredentialsTests(unittest2.TestCase):
             self.assertEqual(token_response, self.credentials.token_response)
 
     def test_recursive_authorize(self):
-        # Tests that OAuth2Credentials doesn't intro. new method constraints.
+        # Tests that OAuth2Credentials doesn't introduce new method constraints.
         # Formerly, OAuth2Credentials.authorize monkeypatched the request method
         # of the passed in HTTP object with a wrapper annotated with
         # @util.positional(1). Since the original method has no such annotation,

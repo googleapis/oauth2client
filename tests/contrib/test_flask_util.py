@@ -229,8 +229,8 @@ class FlaskOAuth2Tests(unittest2.TestCase):
             with mock.patch(
                     'oauth2client.transport.get_http_object') as new_http:
                 # Set-up mock.
-                new_http.return_value = http = http_mock.HttpMock(
-                    data=DEFAULT_RESP)
+                http = http_mock.HttpMock(data=DEFAULT_RESP)
+                new_http.return_value = http
                 # Run tests.
                 state = self._setup_callback_state(client)
 

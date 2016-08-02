@@ -15,6 +15,9 @@
 """HTTP helpers mock functionality."""
 
 
+from six.moves import http_client
+
+
 class ResponseMock(dict):
     """Mock HTTP response"""
 
@@ -22,7 +25,7 @@ class ResponseMock(dict):
         if vals is None:
             vals = {}
         self.update(vals)
-        self.status = int(self.get('status', 200))
+        self.status = int(self.get('status', http_client.OK))
 
 
 class HttpMock(object):
@@ -35,7 +38,7 @@ class HttpMock(object):
             headers: dict, header to return with response
         """
         if headers is None:
-            headers = {'status': '200'}
+            headers = {'status': http_client.OK}
         self.data = data
         self.response_headers = headers
         self.headers = None
