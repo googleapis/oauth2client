@@ -19,7 +19,6 @@ import json
 import logging
 
 import flask
-import httplib2
 import mock
 import six.moves.http_client as httplib
 import six.moves.urllib.parse as urlparse
@@ -29,39 +28,20 @@ import oauth2client
 from oauth2client import client
 from oauth2client import clientsecrets
 from oauth2client.contrib import flask_util
+from .. import http_mock
 
 
 __author__ = 'jonwayne@google.com (Jon Wayne Parrott)'
 
 
-class Http2Mock(object):
-    """Mock httplib2.Http for code exchange / refresh"""
-
-    def __init__(self, status=httplib.OK, **kwargs):
-        self.status = status
-        self.content = {
-            'access_token': 'foo_access_token',
-            'refresh_token': 'foo_refresh_token',
-            'expires_in': 3600,
-            'extra': 'value',
-        }
-        self.content.update(kwargs)
-
-    def request(self, token_uri, method, body, headers, *args, **kwargs):
-        self.body = body
-        self.headers = headers
-        return (self, json.dumps(self.content).encode('utf-8'))
-
-    def __enter__(self):
-        self.httplib2_orig = httplib2.Http
-        httplib2.Http = self
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        httplib2.Http = self.httplib2_orig
-
-    def __call__(self, *args, **kwargs):
-        return self
+DEFAULT_RESP = """\
+{
+    "access_token": "foo_access_token",
+    "expires_in": 3600,
+    "extra": "value",
+    "refresh_token": "foo_refresh_token"
+}
+"""
 
 
 class FlaskOAuth2Tests(unittest2.TestCase):
@@ -246,7 +226,12 @@ class FlaskOAuth2Tests(unittest2.TestCase):
     def test_callback_view(self):
         self.oauth2.storage = mock.Mock()
         with self.app.test_client() as client:
-            with Http2Mock() as http:
+            with mock.patch(
+                    'oauth2client.transport.get_http_object') as new_http:
+                # Set-up mock.
+                new_http.return_value = http = http_mock.HttpMock(
+                    data=DEFAULT_RESP)
+                # Run tests.
                 state = self._setup_callback_state(client)
 
                 response = client.get(
@@ -257,6 +242,9 @@ class FlaskOAuth2Tests(unittest2.TestCase):
                 self.assertIn(self.oauth2.client_secret, http.body)
                 self.assertIn('codez', http.body)
                 self.assertTrue(self.oauth2.storage.put.called)
+
+                # Check the mocks were called.
+                new_http.assert_called_once_with()
 
     def test_authorize_callback(self):
         self.oauth2.authorize_callback = mock.Mock()
@@ -296,10 +284,19 @@ class FlaskOAuth2Tests(unittest2.TestCase):
         with self.app.test_client() as client:
             state = self._setup_callback_state(client)
 
-            with Http2Mock(status=httplib.INTERNAL_SERVER_ERROR):
+            with mock.patch(
+                    'oauth2client.transport.get_http_object') as new_http:
+                # Set-up mock.
+                new_http.return_value = http_mock.HttpMock(
+                    headers={'status': httplib.INTERNAL_SERVER_ERROR},
+                    data=DEFAULT_RESP)
+                # Run tests.
                 response = client.get(
                     '/oauth2callback?state={0}&code=codez'.format(state))
                 self.assertEqual(response.status_code, httplib.BAD_REQUEST)
+
+                # Check the mocks were called.
+                new_http.assert_called_once_with()
 
         # Invalid state json
         with self.app.test_client() as client:
@@ -495,7 +492,10 @@ class FlaskOAuth2Tests(unittest2.TestCase):
     def test_incremental_auth_exchange(self):
         self._create_incremental_auth_app()
 
-        with Http2Mock():
+        with mock.patch('oauth2client.transport.get_http_object') as new_http:
+            # Set-up mock.
+            new_http.return_value = http_mock.HttpMock(data=DEFAULT_RESP)
+            # Run tests.
             with self.app.test_client() as client:
                 state = self._setup_callback_state(
                     client,
@@ -511,16 +511,21 @@ class FlaskOAuth2Tests(unittest2.TestCase):
                 self.assertTrue(
                     credentials.has_scopes(['email', 'one', 'two']))
 
+            # Check the mocks were called.
+            new_http.assert_called_once_with()
+
     def test_refresh(self):
+        token_val = 'new_token'
+        json_resp = '{"access_token": "%s"}' % (token_val,)
+        http = http_mock.HttpMock(data=json_resp)
         with self.app.test_request_context():
             with mock.patch('flask.session'):
                 self.oauth2.storage.put(self._generate_credentials())
 
-                self.oauth2.credentials.refresh(
-                    Http2Mock(access_token='new_token'))
+                self.oauth2.credentials.refresh(http)
 
                 self.assertEqual(
-                    self.oauth2.storage.get().access_token, 'new_token')
+                    self.oauth2.storage.get().access_token, token_val)
 
     def test_delete(self):
         with self.app.test_request_context():

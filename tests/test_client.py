@@ -27,7 +27,6 @@ import socket
 import sys
 import tempfile
 
-import httplib2
 import mock
 import six
 from six.moves import http_client
@@ -40,9 +39,7 @@ from oauth2client import client
 from oauth2client import clientsecrets
 from oauth2client import service_account
 from oauth2client import util
-from .http_mock import CacheMock
-from .http_mock import HttpMock
-from .http_mock import HttpMockSequence
+from . import http_mock
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
@@ -855,7 +852,7 @@ def _token_revoke_test_helper(testcase, status, revoke_raise,
         return actual_do_revoke(http_request, token)
     testcase.credentials._do_revoke = do_revoke_stub
 
-    http = HttpMock(headers={'status': status})
+    http = http_mock.HttpMock(headers={'status': status})
     if revoke_raise:
         testcase.assertRaises(client.TokenRevokeError,
                               testcase.credentials.revoke, http)
@@ -898,11 +895,11 @@ class BasicCredentialsTests(unittest2.TestCase):
     def test_token_refresh_success(self):
         for status_code in client.REFRESH_STATUS_CODES:
             token_response = {'access_token': '1/3w', 'expires_in': 3600}
-            http = HttpMockSequence([
+            json_resp = json.dumps(token_response).encode('utf-8')
+            http = http_mock.HttpMockSequence([
                 ({'status': status_code}, b''),
-                ({'status': '200'}, json.dumps(token_response).encode(
-                    'utf-8')),
-                ({'status': '200'}, 'echo_request_headers'),
+                ({'status': http_client.OK}, json_resp),
+                ({'status': http_client.OK}, 'echo_request_headers'),
             ])
             http = self.credentials.authorize(http)
             resp, content = http.request('http://example.com')
@@ -911,28 +908,24 @@ class BasicCredentialsTests(unittest2.TestCase):
             self.assertEqual(token_response, self.credentials.token_response)
 
     def test_recursive_authorize(self):
-        """Tests that OAuth2Credentials doesn't intro. new method constraints.
-
-        Formerly, OAuth2Credentials.authorize monkeypatched the request method
-        of its httplib2.Http argument with a wrapper annotated with
-        @util.positional(1). Since the original method has no such annotation,
-        that meant that the wrapper was violating the contract of the original
-        method by adding a new requirement to it. And in fact the wrapper
-        itself doesn't even respect that requirement. So before the removal of
-        the annotation, this test would fail.
-        """
+        # Tests that OAuth2Credentials doesn't intro. new method constraints.
+        # Formerly, OAuth2Credentials.authorize monkeypatched the request method
+        # of the passed in HTTP object with a wrapper annotated with
+        # @util.positional(1). Since the original method has no such annotation,
+        # that meant that the wrapper was violating the contract of the original
+        # method by adding a new requirement to it. And in fact the wrapper
+        # itself doesn't even respect that requirement. So before the removal of
+        # the annotation, this test would fail.
         token_response = {'access_token': '1/3w', 'expires_in': 3600}
         encoded_response = json.dumps(token_response).encode('utf-8')
-        http = HttpMockSequence([
-            ({'status': '200'}, encoded_response),
-        ])
+        http = http_mock.HttpMock(data=encoded_response)
         http = self.credentials.authorize(http)
         http = self.credentials.authorize(http)
         http.request('http://example.com')
 
     def test_token_refresh_failure(self):
         for status_code in client.REFRESH_STATUS_CODES:
-            http = HttpMockSequence([
+            http = http_mock.HttpMockSequence([
                 ({'status': status_code}, b''),
                 ({'status': http_client.BAD_REQUEST},
                  b'{"error":"access_denied"}'),
@@ -965,9 +958,7 @@ class BasicCredentialsTests(unittest2.TestCase):
         self.credentials = self.credentials.from_json(original_credentials)
 
     def test_non_401_error_response(self):
-        http = HttpMockSequence([
-            ({'status': '400'}, b''),
-        ])
+        http = http_mock.HttpMock(headers={'status': http_client.BAD_REQUEST})
         http = self.credentials.authorize(http)
         resp, content = http.request('http://example.com')
         self.assertEqual(http_client.BAD_REQUEST, resp.status)
@@ -1010,7 +1001,7 @@ class BasicCredentialsTests(unittest2.TestCase):
         # First, test that we correctly encode basic objects, making sure
         # to include a bytes object. Note that oauth2client will normalize
         # everything to bytes, no matter what python version we're in.
-        http = credentials.authorize(HttpMock())
+        http = credentials.authorize(http_mock.HttpMock())
         headers = {u'foo': 3, b'bar': True, 'baz': b'abc'}
         cleaned_headers = {b'foo': b'3', b'bar': b'True', b'baz': b'abc'}
         http.request(u'http://example.com', method=u'GET', headers=headers)
@@ -1037,7 +1028,7 @@ class BasicCredentialsTests(unittest2.TestCase):
             access_token, client_id, client_secret, refresh_token,
             token_expiry, token_uri, user_agent, revoke_uri=revoke_uri)
 
-        http = HttpMock()
+        http = http_mock.HttpMock()
         http = credentials.authorize(http)
         http.request(u'http://example.com', method=u'GET',
                      headers={u'foo': u'bar'})
@@ -1107,7 +1098,7 @@ class BasicCredentialsTests(unittest2.TestCase):
             'access_token': token2,
             'expires_in': lifetime,
         }
-        http = HttpMockSequence([
+        http = http_mock.HttpMockSequence([
             ({'status': '200'}, json.dumps(token_response_first).encode(
                 'utf-8')),
             ({'status': '200'}, json.dumps(token_response_second).encode(
@@ -1181,11 +1172,12 @@ class BasicCredentialsTests(unittest2.TestCase):
         # Specify a token so we can use it in the response.
         credentials.access_token = 'ya29-s3kr3t'
 
-        with mock.patch('httplib2.Http',
-                        return_value=object) as http_kls:
+        with mock.patch('oauth2client.transport.get_http_object',
+                        return_value=object()) as new_http:
             token_info = credentials.get_access_token()
             expires_in.assert_called_once_with()
-            refresh_mock.assert_called_once_with(http_kls.return_value)
+            refresh_mock.assert_called_once_with(new_http.return_value)
+            new_http.assert_called_once_with()
 
         self.assertIsInstance(token_info, client.AccessTokenInfo)
         self.assertEqual(token_info.access_token,
@@ -1249,33 +1241,26 @@ class BasicCredentialsTests(unittest2.TestCase):
             store.locked_put.assert_called_once_with(credentials)
 
     def test__do_refresh_request_non_json_failure(self):
-        response = httplib2.Response({
-            'status': int(http_client.BAD_REQUEST),
-        })
+        response = http_mock.ResponseMock({'status': http_client.BAD_REQUEST})
         content = u'Bad request'
         error_msg = 'Invalid response {0}.'.format(int(response.status))
         self._do_refresh_request_test_helper(response, content, error_msg)
 
     def test__do_refresh_request_basic_failure(self):
-        response = httplib2.Response({
-            'status': int(http_client.INTERNAL_SERVER_ERROR),
-        })
+        response = http_mock.ResponseMock(
+            {'status': http_client.INTERNAL_SERVER_ERROR})
         content = u'{}'
         error_msg = 'Invalid response {0}.'.format(int(response.status))
         self._do_refresh_request_test_helper(response, content, error_msg)
 
     def test__do_refresh_request_failure_w_json_error(self):
-        response = httplib2.Response({
-            'status': http_client.BAD_GATEWAY,
-        })
+        response = http_mock.ResponseMock({'status': http_client.BAD_GATEWAY})
         error_msg = 'Hi I am an error not a bearer'
         content = json.dumps({'error': error_msg})
         self._do_refresh_request_test_helper(response, content, error_msg)
 
     def test__do_refresh_request_failure_w_json_error_and_store(self):
-        response = httplib2.Response({
-            'status': http_client.BAD_GATEWAY,
-        })
+        response = http_mock.ResponseMock({'status': http_client.BAD_GATEWAY})
         error_msg = 'Where are we going wearer?'
         content = json.dumps({'error': error_msg})
         store = mock.MagicMock()
@@ -1283,9 +1268,8 @@ class BasicCredentialsTests(unittest2.TestCase):
                                              store=store)
 
     def test__do_refresh_request_failure_w_json_error_and_desc(self):
-        response = httplib2.Response({
-            'status': http_client.SERVICE_UNAVAILABLE,
-        })
+        response = http_mock.ResponseMock(
+            {'status': http_client.SERVICE_UNAVAILABLE})
         base_error = 'Ruckus'
         error_desc = 'Can you describe the ruckus'
         content = json.dumps({
@@ -1328,46 +1312,35 @@ class BasicCredentialsTests(unittest2.TestCase):
         logger.info.assert_called_once_with('Revoking token')
 
     def test__do_revoke_success(self):
-        response = httplib2.Response({
-            'status': http_client.OK,
-        })
+        response = http_mock.ResponseMock()
         self._do_revoke_test_helper(response, b'', None)
 
     def test__do_revoke_success_with_store(self):
-        response = httplib2.Response({
-            'status': http_client.OK,
-        })
+        response = http_mock.ResponseMock()
         store = mock.MagicMock()
         self._do_revoke_test_helper(response, b'', None, store=store)
 
     def test__do_revoke_non_json_failure(self):
-        response = httplib2.Response({
-            'status': http_client.BAD_REQUEST,
-        })
+        response = http_mock.ResponseMock({'status': http_client.BAD_REQUEST})
         content = u'Bad request'
         error_msg = 'Invalid response {0}.'.format(response.status)
         self._do_revoke_test_helper(response, content, error_msg)
 
     def test__do_revoke_basic_failure(self):
-        response = httplib2.Response({
-            'status': http_client.INTERNAL_SERVER_ERROR,
-        })
+        response = http_mock.ResponseMock(
+            {'status': http_client.INTERNAL_SERVER_ERROR})
         content = u'{}'
         error_msg = 'Invalid response {0}.'.format(response.status)
         self._do_revoke_test_helper(response, content, error_msg)
 
     def test__do_revoke_failure_w_json_error(self):
-        response = httplib2.Response({
-            'status': http_client.BAD_GATEWAY,
-        })
+        response = http_mock.ResponseMock({'status': http_client.BAD_GATEWAY})
         error_msg = 'Hi I am an error not a bearer'
         content = json.dumps({'error': error_msg})
         self._do_revoke_test_helper(response, content, error_msg)
 
     def test__do_revoke_failure_w_json_error_and_store(self):
-        response = httplib2.Response({
-            'status': http_client.BAD_GATEWAY,
-        })
+        response = http_mock.ResponseMock({'status': http_client.BAD_GATEWAY})
         error_msg = 'Where are we going wearer?'
         content = json.dumps({'error': error_msg})
         store = mock.MagicMock()
@@ -1409,41 +1382,32 @@ class BasicCredentialsTests(unittest2.TestCase):
         logger.info.assert_called_once_with('Refreshing scopes')
 
     def test__do_retrieve_scopes_success_bad_json(self):
-        response = httplib2.Response({
-            'status': http_client.OK,
-        })
+        response = http_mock.ResponseMock()
         invalid_json = b'{'
         with self.assertRaises(ValueError):
             self._do_retrieve_scopes_test_helper(response, invalid_json, None)
 
     def test__do_retrieve_scopes_success(self):
-        response = httplib2.Response({
-            'status': http_client.OK,
-        })
+        response = http_mock.ResponseMock()
         content = b'{"scope": "foo bar"}'
         self._do_retrieve_scopes_test_helper(response, content, None,
                                              scopes=set(['foo', 'bar']))
 
     def test__do_retrieve_scopes_non_json_failure(self):
-        response = httplib2.Response({
-            'status': http_client.BAD_REQUEST,
-        })
+        response = http_mock.ResponseMock({'status': http_client.BAD_REQUEST})
         content = u'Bad request'
         error_msg = 'Invalid response {0}.'.format(response.status)
         self._do_retrieve_scopes_test_helper(response, content, error_msg)
 
     def test__do_retrieve_scopes_basic_failure(self):
-        response = httplib2.Response({
-            'status': http_client.INTERNAL_SERVER_ERROR,
-        })
+        response = http_mock.ResponseMock(
+            {'status': http_client.INTERNAL_SERVER_ERROR})
         content = u'{}'
         error_msg = 'Invalid response {0}.'.format(response.status)
         self._do_retrieve_scopes_test_helper(response, content, error_msg)
 
     def test__do_retrieve_scopes_failure_w_json_error(self):
-        response = httplib2.Response({
-            'status': http_client.BAD_GATEWAY,
-        })
+        response = http_mock.ResponseMock({'status': http_client.BAD_GATEWAY})
         error_msg = 'Error desc I sit at a desk'
         content = json.dumps({'error_description': error_msg})
         self._do_retrieve_scopes_test_helper(response, content, error_msg)
@@ -1467,7 +1431,7 @@ class BasicCredentialsTests(unittest2.TestCase):
     def test_retrieve_scopes(self):
         info_response_first = {'scope': 'foo bar'}
         info_response_second = {'error_description': 'abcdef'}
-        http = HttpMockSequence([
+        http = http_mock.HttpMockSequence([
             ({'status': '200'}, json.dumps(info_response_first).encode(
                 'utf-8')),
             ({'status': '400'}, json.dumps(info_response_second).encode(
@@ -1496,7 +1460,7 @@ class BasicCredentialsTests(unittest2.TestCase):
                               b'  "expires_in":3600,'
                               b'  "id_token": "' + jwt + b'"'
                               b'}')
-            http = HttpMockSequence([
+            http = http_mock.HttpMockSequence([
                 ({'status': status_code}, b''),
                 ({'status': '200'}, token_response),
                 ({'status': '200'}, 'echo_request_headers'),
@@ -1517,9 +1481,8 @@ class AccessTokenCredentialsTests(unittest2.TestCase):
 
     def test_token_refresh_success(self):
         for status_code in client.REFRESH_STATUS_CODES:
-            http = HttpMockSequence([
-                ({'status': status_code}, b''),
-            ])
+            http = http_mock.HttpMock(
+                headers={'status': status_code}, data=b'')
             http = self.credentials.authorize(http)
             with self.assertRaises(client.AccessTokenCredentialsError):
                 resp, content = http.request('http://example.com')
@@ -1535,15 +1498,13 @@ class AccessTokenCredentialsTests(unittest2.TestCase):
             valid_bool_value=False, token_attr='access_token')
 
     def test_non_401_error_response(self):
-        http = HttpMockSequence([
-            ({'status': '400'}, b''),
-        ])
+        http = http_mock.HttpMock(headers={'status': http_client.BAD_REQUEST})
         http = self.credentials.authorize(http)
         resp, content = http.request('http://example.com')
         self.assertEqual(http_client.BAD_REQUEST, resp.status)
 
     def test_auth_header_sent(self):
-        http = HttpMockSequence([
+        http = http_mock.HttpMockSequence([
             ({'status': '200'}, 'echo_request_headers'),
         ])
         http = self.credentials.authorize(http)
@@ -1578,7 +1539,7 @@ class TestAssertionCredentials(unittest2.TestCase):
                          body['grant_type'][0])
 
     def test_assertion_refresh(self):
-        http = HttpMockSequence([
+        http = http_mock.HttpMockSequence([
             ({'status': '200'}, b'{"access_token":"1/3w"}'),
             ({'status': '200'}, 'echo_request_headers'),
         ])
@@ -1758,12 +1719,15 @@ class OAuth2WebServerFlowTest(unittest2.TestCase):
                 'user_code': user_code,
                 'verification_url': ver_url,
             })
-        http = HttpMockSequence([
+        http = http_mock.HttpMockSequence([
             ({'status': http_client.OK}, content),
         ])
         if default_http:
-            with mock.patch('httplib2.Http', return_value=http):
+            with mock.patch('oauth2client.transport.get_http_object',
+                            return_value=http) as new_http:
                 result = flow.step1_get_device_and_user_codes()
+                # Check the mock was called.
+                new_http.assert_called_once_with()
         else:
             result = flow.step1_get_device_and_user_codes(http=http)
 
@@ -1803,9 +1767,7 @@ class OAuth2WebServerFlowTest(unittest2.TestCase):
     def _step1_get_device_and_user_codes_fail_helper(self, status,
                                                      content, error_msg):
         flow = client.OAuth2WebServerFlow('CID', scope='foo')
-        http = HttpMockSequence([
-            ({'status': status}, content),
-        ])
+        http = http_mock.HttpMock(headers={'status': status}, data=content)
         with self.assertRaises(client.OAuth2DeviceCodeError) as exc_manager:
             flow.step1_get_device_and_user_codes(http=http)
 
@@ -1849,17 +1811,19 @@ class OAuth2WebServerFlowTest(unittest2.TestCase):
             client.OAuth2WebServerFlow('client_id+1')
 
     def test_exchange_failure(self):
-        http = HttpMockSequence([
-            ({'status': '400'}, b'{"error":"invalid_request"}'),
-        ])
+        http = http_mock.HttpMock(
+            headers={'status': http_client.BAD_REQUEST},
+            data=b'{"error":"invalid_request"}',
+        )
 
         with self.assertRaises(client.FlowExchangeError):
             self.flow.step2_exchange(code='some random code', http=http)
 
     def test_urlencoded_exchange_failure(self):
-        http = HttpMockSequence([
-            ({'status': '400'}, b'error=invalid_request'),
-        ])
+        http = http_mock.HttpMock(
+            headers={'status': http_client.BAD_REQUEST},
+            data=b'error=invalid_request',
+        )
 
         with self.assertRaisesRegexp(client.FlowExchangeError,
                                      'invalid_request'):
@@ -1876,7 +1840,7 @@ class OAuth2WebServerFlowTest(unittest2.TestCase):
                    b'    "type": "OAuthException"'
                    b'  }'
                    b'}')
-        http = HttpMockSequence([({'status': '400'}, payload)])
+        http = http_mock.HttpMock(data=payload)
 
         with self.assertRaises(client.FlowExchangeError):
             self.flow.step2_exchange(code='some random code', http=http)
@@ -1887,7 +1851,7 @@ class OAuth2WebServerFlowTest(unittest2.TestCase):
                    b'  "expires_in":3600,'
                    b'  "refresh_token":"8xLOxBtZp8"'
                    b'}')
-        http = HttpMockSequence([({'status': '200'}, payload)])
+        http = http_mock.HttpMock(data=payload)
         credentials = self.flow.step2_exchange(
             code=code, device_flow_info=device_flow_info, http=http)
         self.assertEqual('SlAV32hkKG', credentials.access_token)
@@ -1916,8 +1880,7 @@ class OAuth2WebServerFlowTest(unittest2.TestCase):
                    '  "expires_in":' + expires_in + ','
                    '  "refresh_token":"' + refresh_token + '"'
                    '}')
-        http = HttpMockSequence(
-            [({'status': '200'}, _helpers._to_bytes(payload))])
+        http = http_mock.HttpMock(data=_helpers._to_bytes(payload))
         credentials = self.flow.step2_exchange(code=binary_code, http=http)
         self.assertEqual(access_token, credentials.access_token)
         self.assertIsNotNone(credentials.token_expiry)
@@ -1943,7 +1906,9 @@ class OAuth2WebServerFlowTest(unittest2.TestCase):
                    b'  "expires_in":3600,'
                    b'  "refresh_token":"8xLOxBtZp8"'
                    b'}')
-        http = HttpMockSequence([({'status': '200'}, payload)])
+        http = http_mock.HttpMockSequence([
+            ({'status': http_client.OK}, payload),
+        ])
 
         credentials = self.flow.step2_exchange(code=not_a_dict, http=http)
         self.assertEqual('SlAV32hkKG', credentials.access_token)
@@ -1951,6 +1916,7 @@ class OAuth2WebServerFlowTest(unittest2.TestCase):
         self.assertEqual('8xLOxBtZp8', credentials.refresh_token)
         self.assertEqual('dummy_revoke_uri', credentials.revoke_uri)
         self.assertEqual(set(['foo']), credentials.scopes)
+        self.assertEqual(len(http.requests), 1)
         request_code = urllib.parse.parse_qs(
             http.requests[0]['body'])['code'][0]
         self.assertEqual(code, request_code)
@@ -1965,13 +1931,14 @@ class OAuth2WebServerFlowTest(unittest2.TestCase):
             user_agent='unittest-sample/1.0',
             revoke_uri='dummy_revoke_uri',
         )
-        http = HttpMockSequence([
-            ({'status': '200'}, b'access_token=SlAV32hkKG'),
+        http = http_mock.HttpMockSequence([
+            ({'status': http_client.OK}, b'access_token=SlAV32hkKG'),
         ])
 
         credentials = flow.step2_exchange(code='some random code', http=http)
         self.assertEqual('SlAV32hkKG', credentials.access_token)
 
+        self.assertEqual(len(http.requests), 1)
         test_request = http.requests[0]
         # Did we pass the Authorization header?
         self.assertEqual(test_request['headers']['Authorization'], auth_header)
@@ -1979,9 +1946,8 @@ class OAuth2WebServerFlowTest(unittest2.TestCase):
         self.assertTrue('client_secret' not in test_request['body'])
 
     def test_urlencoded_exchange_success(self):
-        http = HttpMockSequence([
-            ({'status': '200'}, b'access_token=SlAV32hkKG&expires_in=3600'),
-        ])
+        http = http_mock.HttpMock(
+            data=b'access_token=SlAV32hkKG&expires_in=3600')
 
         credentials = self.flow.step2_exchange(code='some random code',
                                                http=http)
@@ -1989,12 +1955,9 @@ class OAuth2WebServerFlowTest(unittest2.TestCase):
         self.assertNotEqual(None, credentials.token_expiry)
 
     def test_urlencoded_expires_param(self):
-        http = HttpMockSequence([
-            # Note the 'expires=3600' where you'd normally
-            # have if named 'expires_in'
-            ({'status': '200'}, b'access_token=SlAV32hkKG&expires=3600'),
-        ])
-
+        # Note the 'expires=3600' where you'd normally
+        # have if named 'expires_in'
+        http = http_mock.HttpMock(data=b'access_token=SlAV32hkKG&expires=3600')
         credentials = self.flow.step2_exchange(code='some random code',
                                                http=http)
         self.assertNotEqual(None, credentials.token_expiry)
@@ -2004,18 +1967,16 @@ class OAuth2WebServerFlowTest(unittest2.TestCase):
                    b'  "access_token":"SlAV32hkKG",'
                    b'  "refresh_token":"8xLOxBtZp8"'
                    b'}')
-        http = HttpMockSequence([({'status': '200'}, payload)])
+        http = http_mock.HttpMock(data=payload)
 
         credentials = self.flow.step2_exchange(code='some random code',
                                                http=http)
         self.assertEqual(None, credentials.token_expiry)
 
     def test_urlencoded_exchange_no_expires_in(self):
-        http = HttpMockSequence([
-            # This might be redundant but just to make sure
-            # urlencoded access_token gets parsed correctly
-            ({'status': '200'}, b'access_token=SlAV32hkKG'),
-        ])
+        # This might be redundant but just to make sure
+        # urlencoded access_token gets parsed correctly
+        http = http_mock.HttpMock(data=b'access_token=SlAV32hkKG')
 
         credentials = self.flow.step2_exchange(code='some random code',
                                                http=http)
@@ -2026,7 +1987,7 @@ class OAuth2WebServerFlowTest(unittest2.TestCase):
                    b'  "access_token":"SlAV32hkKG",'
                    b'  "refresh_token":"8xLOxBtZp8"'
                    b'}')
-        http = HttpMockSequence([({'status': '200'}, payload)])
+        http = http_mock.HttpMock(data=payload)
 
         code = {'error': 'thou shall not pass'}
         with self.assertRaisesRegexp(
@@ -2039,7 +2000,7 @@ class OAuth2WebServerFlowTest(unittest2.TestCase):
                    b'  "refresh_token":"8xLOxBtZp8",'
                    b'  "id_token": "stuff.payload"'
                    b'}')
-        http = HttpMockSequence([({'status': '200'}, payload)])
+        http = http_mock.HttpMock(data=payload)
 
         with self.assertRaises(client.VerifyJwtTokenError):
             self.flow.step2_exchange(code='some random code', http=http)
@@ -2056,7 +2017,7 @@ class OAuth2WebServerFlowTest(unittest2.TestCase):
                    b'  "refresh_token":"8xLOxBtZp8",'
                    b'  "id_token": "' + jwt + b'"'
                    b'}')
-        http = HttpMockSequence([({'status': '200'}, payload)])
+        http = http_mock.HttpMock(data=payload)
         credentials = self.flow.step2_exchange(code='some random code',
                                                http=http)
         self.assertEqual(credentials.id_token, body)
@@ -2065,7 +2026,7 @@ class OAuth2WebServerFlowTest(unittest2.TestCase):
 class FlowFromCachedClientsecrets(unittest2.TestCase):
 
     def test_flow_from_clientsecrets_cached(self):
-        cache_mock = CacheMock()
+        cache_mock = http_mock.CacheMock()
         load_and_cache('client_secrets.json', 'some_secrets', cache_mock)
 
         flow = client.flow_from_clientsecrets(
@@ -2180,9 +2141,7 @@ class CredentialsFromCodeTests(unittest2.TestCase):
     def test_exchange_code_for_token(self):
         token = 'asdfghjkl'
         payload = json.dumps({'access_token': token, 'expires_in': 3600})
-        http = HttpMockSequence([
-            ({'status': '200'}, payload.encode('utf-8')),
-        ])
+        http = http_mock.HttpMock(data=payload.encode('utf-8'))
         credentials = client.credentials_from_code(
             self.client_id, self.client_secret, self.scope,
             self.code, http=http, redirect_uri=self.redirect_uri)
@@ -2191,9 +2150,10 @@ class CredentialsFromCodeTests(unittest2.TestCase):
         self.assertEqual(set(['foo']), credentials.scopes)
 
     def test_exchange_code_for_token_fail(self):
-        http = HttpMockSequence([
-            ({'status': '400'}, b'{"error":"invalid_request"}'),
-        ])
+        http = http_mock.HttpMock(
+            headers={'status': http_client.BAD_REQUEST},
+            data=b'{"error":"invalid_request"}',
+        )
 
         with self.assertRaises(client.FlowExchangeError):
             client.credentials_from_code(
@@ -2205,7 +2165,7 @@ class CredentialsFromCodeTests(unittest2.TestCase):
                    b'  "access_token":"asdfghjkl",'
                    b'  "expires_in":3600'
                    b'}')
-        http = HttpMockSequence([({'status': '200'}, payload)])
+        http = http_mock.HttpMock(data=payload)
         credentials = client.credentials_from_clientsecrets_and_code(
             datafile('client_secrets.json'), self.scope,
             self.code, http=http)
@@ -2214,10 +2174,8 @@ class CredentialsFromCodeTests(unittest2.TestCase):
         self.assertEqual(set(['foo']), credentials.scopes)
 
     def test_exchange_code_and_cached_file_for_token(self):
-        http = HttpMockSequence([
-            ({'status': '200'}, b'{ "access_token":"asdfghjkl"}'),
-        ])
-        cache_mock = CacheMock()
+        http = http_mock.HttpMock(data=b'{ "access_token":"asdfghjkl"}')
+        cache_mock = http_mock.CacheMock()
         load_and_cache('client_secrets.json', 'some_secrets', cache_mock)
 
         credentials = client.credentials_from_clientsecrets_and_code(
@@ -2227,9 +2185,10 @@ class CredentialsFromCodeTests(unittest2.TestCase):
         self.assertEqual(set(['foo']), credentials.scopes)
 
     def test_exchange_code_and_file_for_token_fail(self):
-        http = HttpMockSequence([
-            ({'status': '400'}, b'{"error":"invalid_request"}'),
-        ])
+        http = http_mock.HttpMock(
+            headers={'status': http_client.BAD_REQUEST},
+            data=b'{"error":"invalid_request"}',
+        )
 
         with self.assertRaises(client.FlowExchangeError):
             client.credentials_from_clientsecrets_and_code(

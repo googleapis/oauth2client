@@ -31,7 +31,6 @@ from google.appengine.api.memcache import memcache_stub
 from google.appengine.ext import db
 from google.appengine.ext import ndb
 from google.appengine.ext import testbed
-import httplib2
 import mock
 from six.moves import urllib
 import unittest2
@@ -42,11 +41,19 @@ import oauth2client
 from oauth2client import client
 from oauth2client import clientsecrets
 from oauth2client.contrib import appengine
-from ..http_mock import CacheMock
+from .. import http_mock
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), '..', 'data')
+DEFAULT_RESP = """\
+{
+    "access_token": "foo_access_token",
+    "expires_in": 3600,
+    "extra": "value",
+    "refresh_token": "foo_refresh_token"
+}
+"""
 
 
 def datafile(filename):
@@ -73,22 +80,6 @@ class UserNotLoggedInMock(object):
 
     def __call__(self):
         return None
-
-
-class Http2Mock(object):
-    """Mock httplib2.Http"""
-    status = 200
-    content = {
-        'access_token': 'foo_access_token',
-        'refresh_token': 'foo_refresh_token',
-        'expires_in': 3600,
-        'extra': 'value',
-    }
-
-    def request(self, token_uri, method, body, headers, *args, **kwargs):
-        self.body = body
-        self.headers = headers
-        return self, json.dumps(self.content)
 
 
 class TestAppAssertionCredentials(unittest2.TestCase):
@@ -139,7 +130,7 @@ class TestAppAssertionCredentials(unittest2.TestCase):
 
         scope = 'http://www.googleapis.com/scope'
         credentials = appengine.AppAssertionCredentials(scope)
-        http = httplib2.Http()
+        http = http_mock.HttpMock(data=DEFAULT_RESP)
         with self.assertRaises(client.AccessTokenRefreshError):
             credentials.refresh(http)
 
@@ -155,7 +146,7 @@ class TestAppAssertionCredentials(unittest2.TestCase):
             "http://www.googleapis.com/scope",
             "http://www.googleapis.com/scope2"]
         credentials = appengine.AppAssertionCredentials(scope)
-        http = httplib2.Http()
+        http = http_mock.HttpMock(data=DEFAULT_RESP)
         credentials.refresh(http)
         self.assertEqual('a_token_123', credentials.access_token)
 
@@ -168,7 +159,7 @@ class TestAppAssertionCredentials(unittest2.TestCase):
         scope = ('http://www.googleapis.com/scope '
                  'http://www.googleapis.com/scope2')
         credentials = appengine.AppAssertionCredentials(scope)
-        http = httplib2.Http()
+        http = http_mock.HttpMock(data=DEFAULT_RESP)
         credentials.refresh(http)
         self.assertEqual('a_token_123', credentials.access_token)
         self.assertEqual(
@@ -184,7 +175,7 @@ class TestAppAssertionCredentials(unittest2.TestCase):
                                autospec=True) as get_access_token:
             credentials = appengine.AppAssertionCredentials(
                 scope, service_account_id=account_id)
-            http = httplib2.Http()
+            http = http_mock.HttpMock(data=DEFAULT_RESP)
             credentials.refresh(http)
 
             self.assertEqual('a_token_456', credentials.access_token)
@@ -370,7 +361,7 @@ class CredentialsPropertyTest(unittest2.TestCase):
 
 
 def _http_request(*args, **kwargs):
-    resp = httplib2.Response({'status': '200'})
+    resp = http_mock.ResponseMock()
     content = json.dumps({'access_token': 'bar'})
 
     return resp, content
@@ -630,12 +621,9 @@ class DecoratorTests(unittest2.TestCase):
         })
         self.current_user = user_mock()
         users.get_current_user = self.current_user
-        self.httplib2_orig = httplib2.Http
-        httplib2.Http = Http2Mock
 
     def tearDown(self):
         self.testbed.deactivate()
-        httplib2.Http = self.httplib2_orig
 
     def test_in_error(self):
         # NOTE: This branch is never reached. _in_error is not set by any code
@@ -655,7 +643,9 @@ class DecoratorTests(unittest2.TestCase):
             app.router.match_routes[0].handler.__name__,
             'OAuth2Handler')
 
-    def test_required(self):
+    @mock.patch('oauth2client.transport.get_http_object')
+    def test_required(self, new_http):
+        new_http.return_value = http_mock.HttpMock(data=DEFAULT_RESP)
         # An initial request to an oauth_required decorated path should be a
         # redirect to start the OAuth dance.
         self.assertEqual(self.decorator.flow, None)
@@ -688,7 +678,7 @@ class DecoratorTests(unittest2.TestCase):
                 response_query = urllib.parse.parse_qs(parts[1])
                 response = response_query[
                     self.decorator._token_response_param][0]
-                self.assertEqual(Http2Mock.content,
+                self.assertEqual(json.loads(DEFAULT_RESP),
                                  json.loads(urllib.parse.unquote(response)))
             self.assertEqual(self.decorator.flow, self.decorator._tls.flow)
             self.assertEqual(self.decorator.credentials,
@@ -736,7 +726,12 @@ class DecoratorTests(unittest2.TestCase):
         self.assertEqual('http://localhost/oauth2callback',
                          query_params['redirect_uri'][0])
 
-    def test_storage_delete(self):
+        # Check the mocks were called.
+        new_http.assert_called_once_with()
+
+    @mock.patch('oauth2client.transport.get_http_object')
+    def test_storage_delete(self, new_http):
+        new_http.return_value = http_mock.HttpMock(data=DEFAULT_RESP)
         # An initial request to an oauth_required decorated path should be a
         # redirect to start the OAuth dance.
         response = self.app.get('/foo_path')
@@ -772,7 +767,12 @@ class DecoratorTests(unittest2.TestCase):
             parse_state_value.assert_called_once_with(
                 'foo_path:xsrfkey123', self.current_user)
 
-    def test_aware(self):
+        # Check the mocks were called.
+        new_http.assert_called_once_with()
+
+    @mock.patch('oauth2client.transport.get_http_object')
+    def test_aware(self, new_http):
+        new_http.return_value = http_mock.HttpMock(data=DEFAULT_RESP)
         # An initial request to an oauth_aware decorated path should
         # not redirect.
         response = self.app.get('http://localhost/bar_path/2012/01')
@@ -825,6 +825,9 @@ class DecoratorTests(unittest2.TestCase):
         self.should_raise = False
         self.assertEqual(None, self.decorator.credentials)
 
+        # Check the mocks were called.
+        new_http.assert_called_once_with()
+
     def test_error_in_step2(self):
         # An initial request to an oauth_aware decorated path should
         # not redirect.
@@ -855,10 +858,14 @@ class DecoratorTests(unittest2.TestCase):
         self.assertEqual(decorator.flow, decorator._tls.flow)
 
     def test_token_response_param(self):
+        # No need to set-up a mock since test_required() does.
         self.decorator._token_response_param = 'foobar'
         self.test_required()
 
-    def test_decorator_from_client_secrets(self):
+    @mock.patch('oauth2client.transport.get_http_object')
+    def test_decorator_from_client_secrets(self, new_http):
+        new_http.return_value = http_mock.HttpMock(data=DEFAULT_RESP)
+        # Execute test after setting up mock.
         decorator = appengine.OAuth2DecoratorFromClientSecrets(
             datafile('client_secrets.json'),
             scope=['foo_scope', 'bar_scope'])
@@ -876,6 +883,9 @@ class DecoratorTests(unittest2.TestCase):
                          'https://accounts.google.com/o/oauth2/revoke')
         self.assertEqual(self.decorator._revoke_uri,
                          self.decorator.credentials.revoke_uri)
+
+        # Check the mocks were called.
+        new_http.assert_called_once_with()
 
     def test_decorator_from_client_secrets_toplevel(self):
         decorator_patch = mock.patch(
@@ -915,7 +925,7 @@ class DecoratorTests(unittest2.TestCase):
         self.assertIn('prompt', decorator._kwargs)
 
     def test_decorator_from_cached_client_secrets(self):
-        cache_mock = CacheMock()
+        cache_mock = http_mock.CacheMock()
         load_and_cache('client_secrets.json', 'secret', cache_mock)
         decorator = appengine.OAuth2DecoratorFromClientSecrets(
             # filename, scope, message=None, cache=None
@@ -991,7 +1001,10 @@ class DecoratorTests(unittest2.TestCase):
         # This is never set, but it's consistent with other tests.
         self.assertFalse(decorator._in_error)
 
-    def test_invalid_state(self):
+    @mock.patch('oauth2client.transport.get_http_object')
+    def test_invalid_state(self, new_http):
+        new_http.return_value = http_mock.HttpMock(data=DEFAULT_RESP)
+        # Execute test after setting up mock.
         with mock.patch.object(appengine, '_parse_state_value',
                                return_value=None, autospec=True):
             # Now simulate the callback to /oauth2callback.
@@ -1001,6 +1014,9 @@ class DecoratorTests(unittest2.TestCase):
             })
             self.assertEqual('200 OK', response.status)
             self.assertEqual('The authorization request failed', response.body)
+
+        # Check the mocks were called.
+        new_http.assert_called_once_with()
 
 
 class DecoratorXsrfSecretTests(unittest2.TestCase):
