@@ -18,5 +18,4 @@ Dependent Modules
 This code has the following dependencies
 above and beyond the Python standard library:
 
-uritemplates - Apache License 2.0
 httplib2 - MIT License
