@@ -15,12 +15,13 @@
 import datetime
 import json
 
-import httplib2
 import mock
 from six.moves import http_client
 import unittest2
 
 from oauth2client.contrib import _metadata
+from .. import http_mock
+
 
 PATH = 'instance/service-accounts/default'
 DATA = {'foo': 'bar'}
@@ -31,12 +32,9 @@ EXPECTED_KWARGS = dict(headers=_metadata.METADATA_HEADERS)
 
 
 def request_mock(status, content_type, content):
-    return mock.MagicMock(return_value=(
-        httplib2.Response(
-            {'status': status, 'content-type': content_type}
-        ),
-        content.encode('utf-8')
-    ))
+    response = http_mock.ResponseMock(
+        {'status': status, 'content-type': content_type})
+    return mock.Mock(return_value=(response, content.encode('utf-8')))
 
 
 class TestMetadata(unittest2.TestCase):

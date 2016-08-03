@@ -22,7 +22,6 @@ import json
 import os
 import tempfile
 
-import httplib2
 import mock
 import rsa
 from six import BytesIO
@@ -488,9 +487,10 @@ class JWTAccessCredentialsTests(unittest2.TestCase):
             self.assertEqual(payload['exp'], T1_EXPIRY)
             self.assertEqual(uri, self.url)
             self.assertEqual(bearer, b'Bearer')
-            return (httplib2.Response({'status': '200'}), b'')
+            response = mock.Mock(status=200)
+            return response, b''
 
-        h = httplib2.Http()
+        h = mock.Mock()
         h.request = mock_request
         self.jwt.authorize(h)
         h.request(self.url)
@@ -523,9 +523,10 @@ class JWTAccessCredentialsTests(unittest2.TestCase):
             self.assertEqual(payload['exp'], T1_EXPIRY)
             self.assertEqual(uri, self.url)
             self.assertEqual(bearer, b'Bearer')
-            return httplib2.Response({'status': '200'}), b''
+            response = mock.Mock(status=200)
+            return response, b''
 
-        h = httplib2.Http()
+        h = mock.Mock()
         h.request = mock_request
         jwt.authorize(h)
         h.request(self.url)

@@ -17,7 +17,6 @@
 import datetime
 import json
 
-import httplib2
 import mock
 from six.moves import http_client
 from tests.contrib.test_metadata import request_mock
@@ -129,12 +128,12 @@ class AppAssertionCredentialsTests(unittest2.TestCase):
                                          service_account='default')
 
     @mock.patch('oauth2client.contrib._metadata.get_service_account_info',
-                side_effect=httplib2.HttpLib2Error('No Such Email'))
+                side_effect=http_client.HTTPException('No Such Email'))
     def test_retrieve_scopes_bad_email(self, metadata):
         http_request = mock.MagicMock()
         http_mock = mock.MagicMock(request=http_request)
         credentials = gce.AppAssertionCredentials(email='b@example.com')
-        with self.assertRaises(httplib2.HttpLib2Error):
+        with self.assertRaises(http_client.HTTPException):
             credentials.retrieve_scopes(http_mock)
 
         metadata.assert_called_once_with(http_request,
