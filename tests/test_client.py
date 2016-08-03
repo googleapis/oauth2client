@@ -908,14 +908,14 @@ class BasicCredentialsTests(unittest2.TestCase):
             self.assertEqual(token_response, self.credentials.token_response)
 
     def test_recursive_authorize(self):
-        # Tests that OAuth2Credentials doesn't introduce new method constraints.
-        # Formerly, OAuth2Credentials.authorize monkeypatched the request method
-        # of the passed in HTTP object with a wrapper annotated with
-        # @util.positional(1). Since the original method has no such annotation,
-        # that meant that the wrapper was violating the contract of the original
-        # method by adding a new requirement to it. And in fact the wrapper
-        # itself doesn't even respect that requirement. So before the removal of
-        # the annotation, this test would fail.
+        # Tests that OAuth2Credentials doesn't introduce new method
+        # constraints. Formerly, OAuth2Credentials.authorize monkeypatched the
+        # request method of the passed in HTTP object with a wrapper annotated
+        # with @util.positional(1). Since the original method has no such
+        # annotation, that meant that the wrapper was violating the contract of
+        # the original method by adding a new requirement to it. And in fact
+        # the wrapper itself doesn't even respect that requirement. So before
+        # the removal of the annotation, this test would fail.
         token_response = {'access_token': '1/3w', 'expires_in': 3600}
         encoded_response = json.dumps(token_response).encode('utf-8')
         http = http_mock.HttpMock(data=encoded_response)
