@@ -30,8 +30,8 @@ from six.moves import http_client
 from six.moves import input
 from six.moves import urllib
 
+from oauth2client import _helpers
 from oauth2client import client
-from oauth2client import util
 
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
@@ -138,7 +138,7 @@ class ClientRedirectHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         """Do not log messages to stdout while running as cmd. line program."""
 
 
-@util.positional(3)
+@_helpers.positional(3)
 def run_flow(flow, storage, flags=None, http=None):
     """Core code for a command-line application.
 

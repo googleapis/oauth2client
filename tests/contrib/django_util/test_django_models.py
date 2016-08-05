@@ -24,7 +24,7 @@ from tests.contrib.django_util.models import CredentialsModel
 
 import unittest2
 
-from oauth2client._helpers import _from_bytes
+from oauth2client import _helpers
 from oauth2client.client import Credentials
 from oauth2client.contrib.django_util.models import CredentialsField
 
@@ -36,7 +36,7 @@ class TestCredentialsField(unittest2.TestCase):
         self.fake_model_field = self.fake_model._meta.get_field('credentials')
         self.field = CredentialsField(null=True)
         self.credentials = Credentials()
-        self.pickle_str = _from_bytes(
+        self.pickle_str = _helpers._from_bytes(
             base64.b64encode(pickle.dumps(self.credentials)))
 
     def test_field_is_text(self):

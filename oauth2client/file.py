@@ -21,8 +21,8 @@ credentials.
 import os
 import threading
 
+from oauth2client import _helpers
 from oauth2client import client
-from oauth2client import util
 
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
@@ -45,7 +45,7 @@ class Storage(client.Storage):
             IOError if the file is a symbolic link.
         """
         credentials = None
-        util.validate_file(self._filename)
+        _helpers.validate_file(self._filename)
         try:
             f = open(self._filename, 'rb')
             content = f.read()
@@ -84,7 +84,7 @@ class Storage(client.Storage):
             IOError if the file is a symbolic link.
         """
         self._create_file_if_needed()
-        util.validate_file(self._filename)
+        _helpers.validate_file(self._filename)
         f = open(self._filename, 'w')
         f.write(credentials.to_json())
         f.close()
