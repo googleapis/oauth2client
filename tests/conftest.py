@@ -12,35 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Common testing tools for OAuth2Client tests."""
+"""Py.test hooks."""
 
-import sys
-
-from six.moves import reload_module
-
-from oauth2client import util
+from oauth2client import _helpers
 
 
-def set_up_gae_environment(gae_sdk_path):
-    """Set up appengine SDK third-party imports."""
-    if 'google' in sys.modules:
-        # Some packages, such as protobuf, clobber the google
-        # namespace package. This prevents that.
-        reload_module(sys.modules['google'])
+def pytest_addoption(parser):
+    """Adds the --gae-sdk option to py.test.
 
-    # This sets up google-provided libraries.
-    sys.path.insert(0, gae_sdk_path)
-    import dev_appserver
-    dev_appserver.fix_sys_path()
-
-    # Fixes timezone and other os-level items.
-    import google.appengine.tools.os_compat  # noqa: unused import
+    This is used to enable the GAE tests. This has to be in this conftest.py
+    due to the way py.test collects conftest files."""
+    parser.addoption('--gae-sdk')
 
 
 def pytest_configure(config):
-    """Pytest hook function for setting up test session."""
-    # Set up Google SDK modules unless specified not to
-    if not config.option.no_gae:
-        set_up_gae_environment(config.option.sdk_path)
+    """Py.test hook called before loading tests."""
     # Default of POSITIONAL_WARNING is too verbose for testing
-    util.positional_parameters_enforcement = util.POSITIONAL_EXCEPTION
+    _helpers.positional_parameters_enforcement = _helpers.POSITIONAL_EXCEPTION
