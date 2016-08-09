@@ -17,15 +17,14 @@
 set -ev
 
 pip install tox
-if [[ "${TOX_ENV}" == "pypy" ]]; then
-    git clone https://github.com/yyuu/pyenv.git ${HOME}/.pyenv
-    PYENV_ROOT="${HOME}/.pyenv"
-    PATH="${PYENV_ROOT}/bin:${PATH}"
-    eval "$(pyenv init -)"
-    pyenv install pypy-2.6.0
-    pyenv global pypy-2.6.0
-fi
 
+# App Engine tests require the App Engine SDK.
 if [[ "${TOX_ENV}" == "gae" && ! -d ${GAE_PYTHONPATH} ]]; then
     python scripts/fetch_gae_sdk.py `dirname ${GAE_PYTHONPATH}`
+fi
+
+# Travis ships with an old version of PyPy, so install at least version 2.6.
+if [[ "${TOX_ENV}" == "pypy" ]]; then
+    git clone https://github.com/yyuu/pyenv.git ${HOME}/.pyenv
+    ${HOME}/.pyenv/bin/pyenv install pypy-2.6.0
 fi

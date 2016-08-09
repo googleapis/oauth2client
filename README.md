@@ -23,7 +23,7 @@ agreement.
 Supported Python Versions
 =========================
 
-We support Python 2.6, 2.7, 3.3+. More information [in the docs][2].
+We support Python 2.7 and 3.3+. More information [in the docs][2].
 
 [1]: https://github.com/google/oauth2client/blob/master/CONTRIBUTING.md
 [2]: https://oauth2client.readthedocs.io/#supported-python-versions

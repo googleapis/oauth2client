@@ -107,7 +107,7 @@ contributor license agreement.
 Supported Python Versions
 -------------------------
 
-We support Python 2.6, 2.7, 3.3+. (Whatever this file says, the truth is
+We support Python 2.7 and 3.3+. (Whatever this file says, the truth is
 always represented by our `tox.ini`_).
 
 .. _tox.ini: https://github.com/google/oauth2client/blob/master/tox.ini
