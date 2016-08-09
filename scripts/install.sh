@@ -25,6 +25,8 @@ fi
 
 # Travis ships with an old version of PyPy, so install at least version 2.6.
 if [[ "${TOX_ENV}" == "pypy" ]]; then
-    git clone https://github.com/yyuu/pyenv.git ${HOME}/.pyenv
-    ${HOME}/.pyenv/bin/pyenv install pypy-2.6.0
+    if [ ! -d "${HOME}/.pyenv" ]; then
+        git clone https://github.com/yyuu/pyenv.git ${HOME}/.pyenv
+    fi
+    ${HOME}/.pyenv/bin/pyenv install --skip-existing pypy-2.6.0
 fi
