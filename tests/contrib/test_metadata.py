@@ -28,13 +28,23 @@ DATA = {'foo': 'bar'}
 EXPECTED_URL = (
     'http://metadata.google.internal/computeMetadata/v1/instance'
     '/service-accounts/default')
-EXPECTED_KWARGS = dict(headers=_metadata.METADATA_HEADERS)
+EXPECTED_KWARGS = {
+    'headers': _metadata.METADATA_HEADERS,
+    'body': None,
+    'connection_type': None,
+    'method': 'GET',
+    'redirections': 5,
+}
 
 
 def request_mock(status, content_type, content):
     response = http_mock.ResponseMock(
         {'status': status, 'content-type': content_type})
-    return mock.Mock(return_value=(response, content.encode('utf-8')))
+    request_method = mock.Mock(
+        return_value=(response, content.encode('utf-8')))
+    # Make sure the mock doesn't have a request attr.
+    del request_method.request
+    return request_method
 
 
 class TestMetadata(unittest2.TestCase):

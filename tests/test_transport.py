@@ -136,3 +136,43 @@ class Test_wrap_http_for_auth(unittest2.TestCase):
         self.assertIsNone(result)
         self.assertNotEqual(http.request, orig_req_method)
         self.assertIs(http.request.credentials, credentials)
+
+
+class Test_request(unittest2.TestCase):
+
+    uri = 'http://localhost'
+    method = 'POST'
+    body = 'abc'
+    redirections = 3
+
+    def test_with_request_attr(self):
+        http = mock.Mock()
+        mock_result = object()
+        mock_request = mock.Mock(return_value=mock_result)
+        http.request = mock_request
+
+        result = transport.request(http, self.uri, method=self.method,
+                                   body=self.body,
+                                   redirections=self.redirections)
+        self.assertIs(result, mock_result)
+        # Verify mock.
+        mock_request.assert_called_once_with(self.uri, method=self.method,
+                                             body=self.body,
+                                             redirections=self.redirections,
+                                             headers=None,
+                                             connection_type=None)
+
+    def test_with_callable_http(self):
+        mock_result = object()
+        http = mock.Mock(return_value=mock_result)
+        del http.request  # Make sure the mock doesn't have a request attr.
+
+        result = transport.request(http, self.uri, method=self.method,
+                                   body=self.body,
+                                   redirections=self.redirections)
+        self.assertIs(result, mock_result)
+        # Verify mock.
+        http.assert_called_once_with(self.uri, method=self.method,
+                                     body=self.body,
+                                     redirections=self.redirections,
+                                     headers=None, connection_type=None)

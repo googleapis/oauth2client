@@ -170,9 +170,9 @@ def wrap_http_for_auth(credentials, http):
                _STREAM_PROPERTIES):
             body_stream_position = body.tell()
 
-        resp, content = orig_request_method(uri, method, body,
-                                            clean_headers(headers),
-                                            redirections, connection_type)
+        resp, content = request(orig_request_method, uri, method, body,
+                                clean_headers(headers),
+                                redirections, connection_type)
 
         # A stored token may expire between the time it is retrieved and
         # the time the request is made, so we may need to try twice.
@@ -188,9 +188,9 @@ def wrap_http_for_auth(credentials, http):
             if body_stream_position is not None:
                 body.seek(body_stream_position)
 
-            resp, content = orig_request_method(uri, method, body,
-                                                clean_headers(headers),
-                                                redirections, connection_type)
+            resp, content = request(orig_request_method, uri, method, body,
+                                    clean_headers(headers),
+                                    redirections, connection_type)
 
         return resp, content
 
@@ -198,7 +198,7 @@ def wrap_http_for_auth(credentials, http):
     http.request = new_request
 
     # Set credentials as a property of the request method.
-    setattr(http.request, 'credentials', credentials)
+    http.request.credentials = credentials
 
 
 def wrap_http_for_jwt_access(credentials, http):
@@ -228,9 +228,9 @@ def wrap_http_for_jwt_access(credentials, http):
             if (credentials.access_token is None or
                     credentials.access_token_expired):
                 credentials.refresh(None)
-            return authenticated_request_method(uri, method, body,
-                                                headers, redirections,
-                                                connection_type)
+            return request(authenticated_request_method, uri,
+                           method, body, headers, redirections,
+                           connection_type)
         else:
             # If we don't have an 'aud' (audience) claim,
             # create a 1-time token with the uri root as the audience
@@ -240,12 +240,45 @@ def wrap_http_for_jwt_access(credentials, http):
             token, unused_expiry = credentials._create_token({'aud': uri_root})
 
             headers['Authorization'] = 'Bearer ' + token
-            return orig_request_method(uri, method, body,
-                                       clean_headers(headers),
-                                       redirections, connection_type)
+            return request(orig_request_method, uri, method, body,
+                           clean_headers(headers),
+                           redirections, connection_type)
 
     # Replace the request method with our own closure.
     http.request = new_request
+
+    # Set credentials as a property of the request method.
+    http.request.credentials = credentials
+
+
+def request(http, uri, method='GET', body=None, headers=None,
+            redirections=httplib2.DEFAULT_MAX_REDIRECTS,
+            connection_type=None):
+    """Make an HTTP request with an HTTP object and arguments.
+
+    Args:
+        http: httplib2.Http, an http object to be used to make requests.
+        uri: string, The URI to be requested.
+        method: string, The HTTP method to use for the request. Defaults
+                to 'GET'.
+        body: string, The payload / body in HTTP request. By default
+              there is no payload.
+        headers: dict, Key-value pairs of request headers. By default
+                 there are no headers.
+        redirections: int, The number of allowed 203 redirects for
+                      the request. Defaults to 5.
+        connection_type: httplib.HTTPConnection, a subclass to be used for
+                         establishing connection. If not set, the type
+                         will be determined from the ``uri``.
+
+    Returns:
+        tuple, a pair of a httplib2.Response with the status code and other
+        headers and the bytes of the content returned.
+    """
+    http_callable = getattr(http, 'request', http)
+    return http_callable(uri, method=method, body=body, headers=headers,
+                         redirections=redirections,
+                         connection_type=connection_type)
 
 
 _CACHED_HTTP = httplib2.Http(MemoryCache())

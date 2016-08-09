@@ -792,8 +792,9 @@ class OAuth2Credentials(Credentials):
         headers = self._generate_refresh_request_headers()
 
         logger.info('Refreshing access_token')
-        resp, content = http_request(
-            self.token_uri, method='POST', body=body, headers=headers)
+        resp, content = transport.request(
+            http_request, self.token_uri, method='POST',
+            body=body, headers=headers)
         content = _helpers._from_bytes(content)
         if resp.status == http_client.OK:
             d = json.loads(content)
@@ -859,7 +860,7 @@ class OAuth2Credentials(Credentials):
         logger.info('Revoking token')
         query_params = {'token': token}
         token_revoke_uri = _update_query_params(self.revoke_uri, query_params)
-        resp, content = http_request(token_revoke_uri)
+        resp, content = transport.request(http_request, token_revoke_uri)
         if resp.status == http_client.OK:
             self.invalid = True
         else:
@@ -903,7 +904,7 @@ class OAuth2Credentials(Credentials):
         query_params = {'access_token': token, 'fields': 'scope'}
         token_info_uri = _update_query_params(self.token_info_uri,
                                               query_params)
-        resp, content = http_request(token_info_uri)
+        resp, content = transport.request(http_request, token_info_uri)
         content = _helpers._from_bytes(content)
         if resp.status == http_client.OK:
             d = json.loads(content)
@@ -1571,7 +1572,7 @@ def verify_id_token(id_token, audience, http=None,
     if http is None:
         http = transport.get_cached_http()
 
-    resp, content = http.request(cert_uri)
+    resp, content = transport.request(http, cert_uri)
     if resp.status == http_client.OK:
         certs = json.loads(_helpers._from_bytes(content))
         return crypt.verify_signed_jwt_with_certs(id_token, certs, audience)
@@ -1939,8 +1940,8 @@ class OAuth2WebServerFlow(Flow):
         if http is None:
             http = transport.get_http_object()
 
-        resp, content = http.request(self.device_uri, method='POST', body=body,
-                                     headers=headers)
+        resp, content = transport.request(
+            http, self.device_uri, method='POST', body=body, headers=headers)
         content = _helpers._from_bytes(content)
         if resp.status == http_client.OK:
             try:
@@ -2022,8 +2023,8 @@ class OAuth2WebServerFlow(Flow):
         if http is None:
             http = transport.get_http_object()
 
-        resp, content = http.request(self.token_uri, method='POST', body=body,
-                                     headers=headers)
+        resp, content = transport.request(
+            http, self.token_uri, method='POST', body=body, headers=headers)
         d = _parse_exchange_token_response(content)
         if resp.status == http_client.OK and 'access_token' in d:
             access_token = d['access_token']

@@ -1220,6 +1220,8 @@ class BasicCredentialsTests(unittest2.TestCase):
                                                None, None, None)
         credentials.store = store
         http_request = mock.Mock()
+        # Make sure the mock doesn't have a request attr.
+        del http_request.request
         http_request.return_value = response, content
 
         with self.assertRaises(
@@ -1228,9 +1230,10 @@ class BasicCredentialsTests(unittest2.TestCase):
 
         self.assertEqual(exc_manager.exception.args, (error_msg,))
         self.assertEqual(exc_manager.exception.status, response.status)
-        http_request.assert_called_once_with(None, body=gen_body.return_value,
-                                             headers=gen_headers.return_value,
-                                             method='POST')
+        http_request.assert_called_once_with(
+            None, method='POST', body=gen_body.return_value,
+            headers=gen_headers.return_value, redirections=5,
+            connection_type=None)
 
         call1 = mock.call('Refreshing access_token')
         failure_template = 'Failed to retrieve access token: %s'
@@ -1286,6 +1289,8 @@ class BasicCredentialsTests(unittest2.TestCase):
             revoke_uri=oauth2client.GOOGLE_REVOKE_URI)
         credentials.store = store
         http_request = mock.Mock()
+        # Make sure the mock doesn't have a request attr.
+        del http_request.request
         http_request.return_value = response, content
         token = u's3kr3tz'
 
@@ -1306,7 +1311,9 @@ class BasicCredentialsTests(unittest2.TestCase):
                 store.delete.assert_not_called()
 
         revoke_uri = oauth2client.GOOGLE_REVOKE_URI + '?token=' + token
-        http_request.assert_called_once_with(revoke_uri)
+        http_request.assert_called_once_with(
+            revoke_uri, method='GET', body=None, headers=None,
+            redirections=5, connection_type=None)
 
         logger.info.assert_called_once_with('Revoking token')
 
@@ -1353,6 +1360,8 @@ class BasicCredentialsTests(unittest2.TestCase):
             None, None, None, None, None, None, None,
             token_info_uri=oauth2client.GOOGLE_TOKEN_INFO_URI)
         http_request = mock.Mock()
+        # Make sure the mock doesn't have a request attr.
+        del http_request.request
         http_request.return_value = response, content
         token = u's3kr3tz'
 
