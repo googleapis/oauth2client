@@ -29,8 +29,8 @@ import oauth2client
 if sys.version_info < (2, 7):
     print('oauth2client requires python2 version >= 2.7.', file=sys.stderr)
     sys.exit(1)
-if (3, 1) <= sys.version_info < (3, 3):
-    print('oauth2client requires python3 version >= 3.3.', file=sys.stderr)
+if (3, 1) <= sys.version_info < (3, 4):
+    print('oauth2client requires python3 version >= 3.4.', file=sys.stderr)
     sys.exit(1)
 
 install_requires = [
@@ -41,27 +41,27 @@ install_requires = [
     'six>=1.6.1',
 ]
 
-long_desc = """The oauth2client is a client library for OAuth 2.0."""
+long_desc = 'oauth2client is a client library for OAuth 2.0.'
 
 version = oauth2client.__version__
 
 setup(
-    name="oauth2client",
+    name='oauth2client',
     version=version,
-    description="OAuth 2.0 client library",
+    description='OAuth 2.0 client library',
     long_description=long_desc,
-    author="Google Inc.",
-    url="http://github.com/google/oauth2client/",
+    author='Google Inc.',
+    url='http://github.com/google/oauth2client/',
     install_requires=install_requires,
     packages=find_packages(),
-    license="Apache 2.0",
-    keywords="google oauth 2.0 http client",
+    license='Apache 2.0',
+    keywords='google oauth 2.0 http client',
     classifiers=[
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',
