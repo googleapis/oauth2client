@@ -58,15 +58,15 @@ class KeyringStorageTests(unittest2.TestCase):
         service_name = 'my_unit_test'
         user_name = 'me'
         mock_content = (object(), 'mock_content')
-        mock_return_creds = mock.MagicMock()
-        mock_return_creds.set_store = set_store = mock.MagicMock(
+        mock_return_creds = mock.Mock()
+        mock_return_creds.set_store = set_store = mock.Mock(
             name='set_store')
         with mock.patch.object(keyring, 'get_password',
                                return_value=mock_content,
                                autospec=True) as get_password:
             class_name = 'oauth2client.client.Credentials'
             with mock.patch(class_name) as MockCreds:
-                MockCreds.new_from_json = new_from_json = mock.MagicMock(
+                MockCreds.new_from_json = new_from_json = mock.Mock(
                     name='new_from_json', return_value=mock_return_creds)
                 store = keyring_storage.Storage(service_name, user_name)
                 credentials = store.locked_get()
@@ -82,9 +82,9 @@ class KeyringStorageTests(unittest2.TestCase):
         with mock.patch.object(keyring, 'set_password',
                                return_value=None,
                                autospec=True) as set_password:
-            credentials = mock.MagicMock()
+            credentials = mock.Mock()
             to_json_ret = object()
-            credentials.to_json = to_json = mock.MagicMock(
+            credentials.to_json = to_json = mock.Mock(
                 name='to_json', return_value=to_json_ret)
             store.locked_put(credentials)
             to_json.assert_called_once_with()

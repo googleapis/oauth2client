@@ -75,25 +75,25 @@ class Test_SendRecv(unittest2.TestCase):
 
     def test_port_zero(self):
         with mock.patch('oauth2client.contrib.devshell.os') as os_mod:
-            os_mod.getenv = mock.MagicMock(name='getenv', return_value=0)
+            os_mod.getenv = mock.Mock(name='getenv', return_value=0)
             with self.assertRaises(devshell.NoDevshellServer):
                 devshell._SendRecv()
             os_mod.getenv.assert_called_once_with(devshell.DEVSHELL_ENV, 0)
 
     def test_no_newline_in_received_header(self):
         non_zero_port = 1
-        sock = mock.MagicMock()
+        sock = mock.Mock()
 
         header_without_newline = ''
-        sock.recv(6).decode = mock.MagicMock(
+        sock.recv(6).decode = mock.Mock(
             name='decode', return_value=header_without_newline)
 
         with mock.patch('oauth2client.contrib.devshell.os') as os_mod:
-            os_mod.getenv = mock.MagicMock(name='getenv',
-                                           return_value=non_zero_port)
+            os_mod.getenv = mock.Mock(name='getenv',
+                                      return_value=non_zero_port)
             with mock.patch('oauth2client.contrib.devshell.socket') as socket:
-                socket.socket = mock.MagicMock(name='socket',
-                                               return_value=sock)
+                socket.socket = mock.Mock(name='socket',
+                                          return_value=sock)
                 with self.assertRaises(devshell.CommunicationError):
                     devshell._SendRecv()
                 os_mod.getenv.assert_called_once_with(devshell.DEVSHELL_ENV, 0)

@@ -275,10 +275,10 @@ class ServiceAccountCredentialsTests(unittest2.TestCase):
         utcnow.return_value = NOW
 
         # Create a custom credentials with a mock signer.
-        signer = mock.MagicMock()
+        signer = mock.Mock()
         signed_value = b'signed-content'
-        signer.sign = mock.MagicMock(name='sign',
-                                     return_value=signed_value)
+        signer.sign = mock.Mock(name='sign',
+                                return_value=signed_value)
         credentials = service_account.ServiceAccountCredentials(
             self.service_account_email,
             signer,

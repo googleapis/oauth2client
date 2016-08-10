@@ -362,18 +362,18 @@ class GoogleCredentialsTests(unittest2.TestCase):
 
     def _environment_check_gce_helper(self, status_ok=True, socket_error=False,
                                       server_software=''):
-        response = mock.MagicMock()
+        response = mock.Mock()
         if status_ok:
             response.status = http_client.OK
-            response.getheader = mock.MagicMock(
+            response.getheader = mock.Mock(
                 name='getheader',
                 return_value=client._DESIRED_METADATA_FLAVOR)
         else:
             response.status = http_client.NOT_FOUND
 
-        connection = mock.MagicMock()
-        connection.getresponse = mock.MagicMock(name='getresponse',
-                                                return_value=response)
+        connection = mock.Mock()
+        connection.getresponse = mock.Mock(name='getresponse',
+                                           return_value=response)
         if socket_error:
             connection.getresponse.side_effect = socket.error()
 
@@ -381,7 +381,7 @@ class GoogleCredentialsTests(unittest2.TestCase):
             os_module.environ = {client._SERVER_SOFTWARE: server_software}
             with mock.patch('oauth2client.client.six') as six_module:
                 http_client_module = six_module.moves.http_client
-                http_client_module.HTTPConnection = mock.MagicMock(
+                http_client_module.HTTPConnection = mock.Mock(
                     name='HTTPConnection', return_value=connection)
 
                 if server_software == '':
@@ -1265,7 +1265,7 @@ class BasicCredentialsTests(unittest2.TestCase):
         response = http_mock.ResponseMock({'status': http_client.BAD_GATEWAY})
         error_msg = 'Where are we going wearer?'
         content = json.dumps({'error': error_msg})
-        store = mock.MagicMock()
+        store = mock.Mock()
         self._do_refresh_request_test_helper(response, content, error_msg,
                                              store=store)
 
@@ -1323,7 +1323,7 @@ class BasicCredentialsTests(unittest2.TestCase):
 
     def test__do_revoke_success_with_store(self):
         response = http_mock.ResponseMock()
-        store = mock.MagicMock()
+        store = mock.Mock()
         self._do_revoke_test_helper(response, b'', None, store=store)
 
     def test__do_revoke_non_json_failure(self):
@@ -1349,7 +1349,7 @@ class BasicCredentialsTests(unittest2.TestCase):
         response = http_mock.ResponseMock({'status': http_client.BAD_GATEWAY})
         error_msg = 'Where are we going wearer?'
         content = json.dumps({'error': error_msg})
-        store = mock.MagicMock()
+        store = mock.Mock()
         self._do_revoke_test_helper(response, content, error_msg,
                                     store=store)
 

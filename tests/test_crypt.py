@@ -80,11 +80,11 @@ class Test__verify_signature(unittest2.TestCase):
         message = object()
         signature = object()
 
-        verifier = mock.MagicMock()
-        verifier.verify = mock.MagicMock(name='verify', return_value=True)
+        verifier = mock.Mock()
+        verifier.verify = mock.Mock(name='verify', return_value=True)
         with mock.patch('oauth2client.crypt.Verifier') as Verifier:
-            Verifier.from_string = mock.MagicMock(name='from_string',
-                                                  return_value=verifier)
+            Verifier.from_string = mock.Mock(name='from_string',
+                                             return_value=verifier)
             result = crypt._verify_signature(message, signature, certs)
             self.assertEqual(result, None)
 
@@ -101,14 +101,14 @@ class Test__verify_signature(unittest2.TestCase):
         message = object()
         signature = object()
 
-        verifier = mock.MagicMock()
+        verifier = mock.Mock()
         # Use side_effect to force all 3 cert values to be used by failing
         # to verify on the first two.
-        verifier.verify = mock.MagicMock(name='verify',
-                                         side_effect=[False, False, True])
+        verifier.verify = mock.Mock(name='verify',
+                                    side_effect=[False, False, True])
         with mock.patch('oauth2client.crypt.Verifier') as Verifier:
-            Verifier.from_string = mock.MagicMock(name='from_string',
-                                                  return_value=verifier)
+            Verifier.from_string = mock.Mock(name='from_string',
+                                             return_value=verifier)
             result = crypt._verify_signature(message, signature, certs)
             self.assertEqual(result, None)
 
@@ -130,11 +130,11 @@ class Test__verify_signature(unittest2.TestCase):
         message = object()
         signature = object()
 
-        verifier = mock.MagicMock()
-        verifier.verify = mock.MagicMock(name='verify', return_value=False)
+        verifier = mock.Mock()
+        verifier.verify = mock.Mock(name='verify', return_value=False)
         with mock.patch('oauth2client.crypt.Verifier') as Verifier:
-            Verifier.from_string = mock.MagicMock(name='from_string',
-                                                  return_value=verifier)
+            Verifier.from_string = mock.Mock(name='from_string',
+                                             return_value=verifier)
             with self.assertRaises(crypt.AppIdentityError):
                 crypt._verify_signature(message, signature, certs)
 
@@ -204,8 +204,8 @@ class Test__verify_time_range(unittest2.TestCase):
             'exp': current_time + crypt.MAX_TOKEN_LIFETIME_SECS + 1,
         }
         with mock.patch('oauth2client.crypt.time') as time:
-            time.time = mock.MagicMock(name='time',
-                                       return_value=current_time)
+            time.time = mock.Mock(name='time',
+                                  return_value=current_time)
 
             exception_caught = self._exception_helper(payload_dict)
             self.assertNotEqual(exception_caught, None)
@@ -219,8 +219,8 @@ class Test__verify_time_range(unittest2.TestCase):
             'exp': current_time + crypt.MAX_TOKEN_LIFETIME_SECS - 1,
         }
         with mock.patch('oauth2client.crypt.time') as time:
-            time.time = mock.MagicMock(name='time',
-                                       return_value=current_time)
+            time.time = mock.Mock(name='time',
+                                  return_value=current_time)
 
             exception_caught = self._exception_helper(payload_dict)
             self.assertNotEqual(exception_caught, None)
@@ -234,8 +234,8 @@ class Test__verify_time_range(unittest2.TestCase):
             'exp': current_time - crypt.CLOCK_SKEW_SECS - 1,
         }
         with mock.patch('oauth2client.crypt.time') as time:
-            time.time = mock.MagicMock(name='time',
-                                       return_value=current_time)
+            time.time = mock.Mock(name='time',
+                                  return_value=current_time)
 
             exception_caught = self._exception_helper(payload_dict)
             self.assertNotEqual(exception_caught, None)
@@ -249,8 +249,8 @@ class Test__verify_time_range(unittest2.TestCase):
             'exp': current_time + crypt.MAX_TOKEN_LIFETIME_SECS - 1,
         }
         with mock.patch('oauth2client.crypt.time') as time:
-            time.time = mock.MagicMock(name='time',
-                                       return_value=current_time)
+            time.time = mock.Mock(name='time',
+                                  return_value=current_time)
 
             exception_caught = self._exception_helper(payload_dict)
             self.assertEqual(exception_caught, None)
@@ -288,10 +288,10 @@ class Test_verify_signed_jwt_with_certs(unittest2.TestCase):
     @mock.patch('oauth2client.crypt._verify_time_range')
     @mock.patch('oauth2client.crypt._verify_signature')
     def test_success(self, verify_sig, verify_time, check_aud):
-        certs = mock.MagicMock()
+        certs = mock.Mock()
         cert_values = object()
-        certs.values = mock.MagicMock(name='values',
-                                      return_value=cert_values)
+        certs.values = mock.Mock(name='values',
+                                 return_value=cert_values)
         audience = object()
 
         header = b'header'

@@ -63,7 +63,7 @@ class OAuth2EnabledDecoratorTest(TestWithDjangoEnvironment):
     @mock.patch('oauth2client.client.OAuth2Credentials')
     def test_has_credentials_in_storage(self, OAuth2Credentials):
         request = self.factory.get('/test')
-        request.session = mock.MagicMock()
+        request.session = mock.Mock()
 
         credentials_mock = mock.Mock(
             scopes=set(django.conf.settings.GOOGLE_OAUTH2_SCOPES))
@@ -88,7 +88,7 @@ class OAuth2EnabledDecoratorTest(TestWithDjangoEnvironment):
     @mock.patch('oauth2client.contrib.dictionary_storage.DictionaryStorage')
     def test_specified_scopes(self, dictionary_storage_mock):
         request = self.factory.get('/test')
-        request.session = mock.MagicMock()
+        request.session = mock.Mock()
 
         credentials_mock = mock.Mock(
             scopes=set(django.conf.settings.GOOGLE_OAUTH2_SCOPES))
@@ -141,13 +141,13 @@ class OAuth2RequiredDecoratorTest(TestWithDjangoEnvironment):
     @mock.patch('oauth2client.contrib.django_util.UserOAuth2', autospec=True)
     def test_has_credentials_in_storage(self, UserOAuth2):
         request = self.factory.get('/test')
-        request.session = mock.MagicMock()
+        request.session = mock.Mock()
 
         @decorators.oauth_required
         def test_view(request):
             return http.HttpResponse("test")
 
-        my_user_oauth = mock.MagicMock()
+        my_user_oauth = mock.Mock()
 
         UserOAuth2.return_value = my_user_oauth
         my_user_oauth.has_credentials.return_value = True
@@ -161,7 +161,7 @@ class OAuth2RequiredDecoratorTest(TestWithDjangoEnvironment):
             self, OAuth2Credentials):
         request = self.factory.get('/test')
 
-        request.session = mock.MagicMock()
+        request.session = mock.Mock()
         credentials_mock = mock.Mock(
             scopes=set(django.conf.settings.GOOGLE_OAUTH2_SCOPES))
         credentials_mock.has_scopes.return_value = False
@@ -179,7 +179,7 @@ class OAuth2RequiredDecoratorTest(TestWithDjangoEnvironment):
     @mock.patch('oauth2client.client.OAuth2Credentials')
     def test_specified_scopes(self, OAuth2Credentials):
         request = self.factory.get('/test')
-        request.session = mock.MagicMock()
+        request.session = mock.Mock()
 
         credentials_mock = mock.Mock(
             scopes=set(django.conf.settings.GOOGLE_OAUTH2_SCOPES))
