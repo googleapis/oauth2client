@@ -24,7 +24,7 @@ from oauth2client import client
 from oauth2client.contrib import appengine
 
 
-DATA_DIR = os.path.join(os.path.dirname(__file__), '..', 'data')
+DATA_DIR = os.path.join(os.path.dirname(__file__), '..', '..', 'data')
 
 
 def datafile(filename):

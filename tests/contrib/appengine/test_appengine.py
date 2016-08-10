@@ -18,10 +18,6 @@ import os
 import tempfile
 import time
 
-import dev_appserver
-
-dev_appserver.fix_sys_path()
-
 from google.appengine.api import apiproxy_stub
 from google.appengine.api import apiproxy_stub_map
 from google.appengine.api import app_identity
@@ -41,11 +37,11 @@ import oauth2client
 from oauth2client import client
 from oauth2client import clientsecrets
 from oauth2client.contrib import appengine
-from .. import http_mock
+from ... import http_mock
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
-DATA_DIR = os.path.join(os.path.dirname(__file__), '..', 'data')
+DATA_DIR = os.path.join(os.path.dirname(__file__), '..', '..', 'data')
 DEFAULT_RESP = """\
 {
     "access_token": "foo_access_token",
