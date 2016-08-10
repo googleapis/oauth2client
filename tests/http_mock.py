@@ -46,6 +46,7 @@ class HttpMock(object):
         self.method = None
         self.body = None
         self.headers = None
+        self.requests = 0
 
     def request(self, uri,
                 method='GET',
@@ -57,6 +58,8 @@ class HttpMock(object):
         self.method = method
         self.body = body
         self.headers = headers
+        self.redirections = redirections
+        self.requests += 1
         return ResponseMock(self.response_headers), self.data
 
 
@@ -89,7 +92,6 @@ class HttpMockSequence(object):
             iterable: iterable, a sequence of pairs of (headers, body)
         """
         self._iterable = iterable
-        self.follow_redirects = True
         self.requests = []
 
     def request(self, uri,
@@ -99,7 +101,12 @@ class HttpMockSequence(object):
                 redirections=1,
                 connection_type=None):
         resp, content = self._iterable.pop(0)
-        self.requests.append({'uri': uri, 'body': body, 'headers': headers})
+        self.requests.append({
+            'method': method,
+            'uri': uri,
+            'body': body,
+            'headers': headers,
+        })
         # Read any underlying stream before sending the request.
         body_stream_content = (body.read()
                                if getattr(body, 'read', None) else None)

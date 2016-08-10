@@ -29,6 +29,7 @@ from google.appengine.ext import ndb
 from google.appengine.ext import testbed
 import mock
 from six.moves import urllib
+from six.moves import urllib_parse
 import unittest2
 import webapp2
 from webtest import TestApp
@@ -50,6 +51,8 @@ DEFAULT_RESP = """\
     "refresh_token": "foo_refresh_token"
 }
 """
+BASIC_TOKEN = 'bar'
+BASIC_RESP = json.dumps({'access_token': BASIC_TOKEN})
 
 
 def datafile(filename):
@@ -356,13 +359,6 @@ class CredentialsPropertyTest(unittest2.TestCase):
             appengine.CredentialsProperty().validate(42)
 
 
-def _http_request(*args, **kwargs):
-    resp = http_mock.ResponseMock()
-    content = json.dumps({'access_token': 'bar'})
-
-    return resp, content
-
-
 class StorageByKeyNameTest(unittest2.TestCase):
 
     def setUp(self):
@@ -407,6 +403,23 @@ class StorageByKeyNameTest(unittest2.TestCase):
         storage._model = appengine.CredentialsNDBModel
         self.assertTrue(storage._is_ndb())
 
+    def _verify_basic_refresh(self, http):
+        self.assertEqual(http.requests, 1)
+        self.assertEqual(http.uri, oauth2client.GOOGLE_TOKEN_URI)
+        self.assertEqual(http.method, 'POST')
+        expected_body = {
+            'grant_type': ['refresh_token'],
+            'client_id': [self.credentials.client_id],
+            'client_secret': [self.credentials.client_secret],
+            'refresh_token': [self.credentials.refresh_token],
+        }
+        self.assertEqual(urllib_parse.parse_qs(http.body), expected_body)
+        expected_headers = {
+            'content-type': 'application/x-www-form-urlencoded',
+            'user-agent': self.credentials.user_agent,
+        }
+        self.assertEqual(http.headers, expected_headers)
+
     def test_get_and_put_simple(self):
         storage = appengine.StorageByKeyName(
             appengine.CredentialsModel, 'foo', 'credentials')
@@ -414,9 +427,12 @@ class StorageByKeyNameTest(unittest2.TestCase):
         self.assertEqual(None, storage.get())
         self.credentials.set_store(storage)
 
-        self.credentials._refresh(_http_request)
+        http = http_mock.HttpMock(data=BASIC_RESP)
+        self.credentials._refresh(http)
         credmodel = appengine.CredentialsModel.get_by_key_name('foo')
-        self.assertEqual('bar', credmodel.credentials.access_token)
+        self.assertEqual(BASIC_TOKEN, credmodel.credentials.access_token)
+        # Verify mock.
+        self._verify_basic_refresh(http)
 
     def test_get_and_put_cached(self):
         storage = appengine.StorageByKeyName(
@@ -425,16 +441,17 @@ class StorageByKeyNameTest(unittest2.TestCase):
         self.assertEqual(None, storage.get())
         self.credentials.set_store(storage)
 
-        self.credentials._refresh(_http_request)
+        http = http_mock.HttpMock(data=BASIC_RESP)
+        self.credentials._refresh(http)
         credmodel = appengine.CredentialsModel.get_by_key_name('foo')
-        self.assertEqual('bar', credmodel.credentials.access_token)
+        self.assertEqual(BASIC_TOKEN, credmodel.credentials.access_token)
 
         # Now remove the item from the cache.
         memcache.delete('foo')
 
         # Check that getting refreshes the cache.
         credentials = storage.get()
-        self.assertEqual('bar', credentials.access_token)
+        self.assertEqual(BASIC_TOKEN, credentials.access_token)
         self.assertNotEqual(None, memcache.get('foo'))
 
         # Deleting should clear the cache.
@@ -442,6 +459,9 @@ class StorageByKeyNameTest(unittest2.TestCase):
         credentials = storage.get()
         self.assertEqual(None, credentials)
         self.assertEqual(None, memcache.get('foo'))
+
+        # Verify mock.
+        self._verify_basic_refresh(http)
 
     def test_get_and_put_set_store_on_cache_retrieval(self):
         storage = appengine.StorageByKeyName(
@@ -455,9 +475,13 @@ class StorageByKeyNameTest(unittest2.TestCase):
         old_creds = storage.get()
         self.assertEqual(old_creds.access_token, 'foo')
         old_creds.invalid = True
-        old_creds._refresh(_http_request)
+        http = http_mock.HttpMock(data=BASIC_RESP)
+        old_creds._refresh(http)
         new_creds = storage.get()
-        self.assertEqual(new_creds.access_token, 'bar')
+        self.assertEqual(new_creds.access_token, BASIC_TOKEN)
+
+        # Verify mock.
+        self._verify_basic_refresh(http)
 
     def test_get_and_put_ndb(self):
         # Start empty
@@ -467,11 +491,15 @@ class StorageByKeyNameTest(unittest2.TestCase):
 
         # Refresh storage and retrieve without using storage
         self.credentials.set_store(storage)
-        self.credentials._refresh(_http_request)
+        http = http_mock.HttpMock(data=BASIC_RESP)
+        self.credentials._refresh(http)
         credmodel = appengine.CredentialsNDBModel.get_by_id('foo')
-        self.assertEqual('bar', credmodel.credentials.access_token)
+        self.assertEqual(BASIC_TOKEN, credmodel.credentials.access_token)
         self.assertEqual(credmodel.credentials.to_json(),
                          self.credentials.to_json())
+
+        # Verify mock.
+        self._verify_basic_refresh(http)
 
     def test_delete_ndb(self):
         # Start empty
@@ -498,13 +526,17 @@ class StorageByKeyNameTest(unittest2.TestCase):
 
         # Set NDB store and refresh to add to storage
         self.credentials.set_store(storage)
-        self.credentials._refresh(_http_request)
+        http = http_mock.HttpMock(data=BASIC_RESP)
+        self.credentials._refresh(http)
 
         # Retrieve same key from DB model to confirm mixing works
         credmodel = appengine.CredentialsModel.get_by_key_name('foo')
-        self.assertEqual('bar', credmodel.credentials.access_token)
+        self.assertEqual(BASIC_TOKEN, credmodel.credentials.access_token)
         self.assertEqual(self.credentials.to_json(),
                          credmodel.credentials.to_json())
+
+        # Verify mock.
+        self._verify_basic_refresh(http)
 
     def test_get_and_put_mixed_db_storage_ndb_get(self):
         # Start empty
@@ -514,13 +546,17 @@ class StorageByKeyNameTest(unittest2.TestCase):
 
         # Set DB store and refresh to add to storage
         self.credentials.set_store(storage)
-        self.credentials._refresh(_http_request)
+        http = http_mock.HttpMock(data=BASIC_RESP)
+        self.credentials._refresh(http)
 
         # Retrieve same key from NDB model to confirm mixing works
         credmodel = appengine.CredentialsNDBModel.get_by_id('foo')
-        self.assertEqual('bar', credmodel.credentials.access_token)
+        self.assertEqual(BASIC_TOKEN, credmodel.credentials.access_token)
         self.assertEqual(self.credentials.to_json(),
                          credmodel.credentials.to_json())
+
+        # Verify mock.
+        self._verify_basic_refresh(http)
 
     def test_delete_db_ndb_mixed(self):
         # Start empty
@@ -981,11 +1017,11 @@ class DecoratorTests(unittest2.TestCase):
             'oauth2client.contrib.appengine.clientsecrets.loadfile')
         with loadfile_patch as loadfile_mock:
             loadfile_mock.return_value = (clientsecrets.TYPE_WEB, {
-                "client_id": "foo_client_id",
-                "client_secret": "foo_client_secret",
-                "redirect_uris": [],
-                "auth_uri": "https://accounts.google.com/o/oauth2/v2/auth",
-                "token_uri": "https://www.googleapis.com/oauth2/v4/token",
+                'client_id': 'foo_client_id',
+                'client_secret': 'foo_client_secret',
+                'redirect_uris': [],
+                'auth_uri': oauth2client.GOOGLE_AUTH_URI,
+                'token_uri': oauth2client.GOOGLE_TOKEN_URI,
                 # No revoke URI
             })
 

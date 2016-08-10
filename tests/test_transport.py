@@ -18,6 +18,7 @@ import unittest2
 
 from oauth2client import client
 from oauth2client import transport
+from . import http_mock
 
 
 class TestMemoryCache(unittest2.TestCase):
@@ -146,33 +147,35 @@ class Test_request(unittest2.TestCase):
     redirections = 3
 
     def test_with_request_attr(self):
-        http = mock.Mock()
         mock_result = object()
-        mock_request = mock.Mock(return_value=mock_result)
-        http.request = mock_request
+        headers = {'foo': 'bar'}
+        http = http_mock.HttpMock(headers=headers, data=mock_result)
 
-        result = transport.request(http, self.uri, method=self.method,
-                                   body=self.body,
-                                   redirections=self.redirections)
-        self.assertIs(result, mock_result)
-        # Verify mock.
-        mock_request.assert_called_once_with(self.uri, method=self.method,
-                                             body=self.body,
-                                             redirections=self.redirections,
-                                             headers=None,
-                                             connection_type=None)
+        response, content = transport.request(
+            http, self.uri, method=self.method, body=self.body,
+            redirections=self.redirections)
+        self.assertEqual(response, headers)
+        self.assertIs(content, mock_result)
+        # Verify mocks.
+        self.assertEqual(http.requests, 1)
+        self.assertEqual(http.uri, self.uri)
+        self.assertEqual(http.method, self.method)
+        self.assertEqual(http.body, self.body)
+        self.assertIsNone(http.headers)
 
     def test_with_callable_http(self):
+        headers = {}
         mock_result = object()
-        http = mock.Mock(return_value=mock_result)
-        del http.request  # Make sure the mock doesn't have a request attr.
+        http = http_mock.HttpMock(headers=headers, data=mock_result)
 
         result = transport.request(http, self.uri, method=self.method,
                                    body=self.body,
                                    redirections=self.redirections)
-        self.assertIs(result, mock_result)
+        self.assertEqual(result, (headers, mock_result))
         # Verify mock.
-        http.assert_called_once_with(self.uri, method=self.method,
-                                     body=self.body,
-                                     redirections=self.redirections,
-                                     headers=None, connection_type=None)
+        self.assertEqual(http.requests, 1)
+        self.assertEqual(http.uri, self.uri)
+        self.assertEqual(http.method, self.method)
+        self.assertEqual(http.body, self.body)
+        self.assertIsNone(http.headers)
+        self.assertEqual(http.redirections, self.redirections)
