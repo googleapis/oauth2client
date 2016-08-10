@@ -12,10 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Oauth2client.file tests
-
-Unit tests for oauth2client.file
-"""
+"""Unit tests for oauth2client.file."""
 
 import copy
 import datetime
@@ -30,11 +27,13 @@ import warnings
 import mock
 import six
 from six.moves import http_client
+from six.moves import urllib_parse
 
 from oauth2client import _helpers
 from oauth2client import client
-from oauth2client import file
-from .http_mock import HttpMockSequence
+from oauth2client import file as file_module
+from oauth2client import transport
+from . import http_mock
 
 try:
     # Python2
@@ -80,14 +79,14 @@ class OAuth2ClientFileTests(unittest.TestCase):
 
     @mock.patch('warnings.warn')
     def test_non_existent_file_storage(self, warn_mock):
-        storage = file.Storage(FILENAME)
+        storage = file_module.Storage(FILENAME)
         credentials = storage.get()
         warn_mock.assert_called_with(
             _helpers._MISSING_FILE_MESSAGE.format(FILENAME))
         self.assertIsNone(credentials)
 
     def test_directory_file_storage(self):
-        storage = file.Storage(FILENAME)
+        storage = file_module.Storage(FILENAME)
         os.mkdir(FILENAME)
         try:
             with self.assertRaises(IOError):
@@ -99,7 +98,7 @@ class OAuth2ClientFileTests(unittest.TestCase):
     def test_no_sym_link_credentials(self):
         SYMFILENAME = FILENAME + '.sym'
         os.symlink(FILENAME, SYMFILENAME)
-        storage = file.Storage(SYMFILENAME)
+        storage = file_module.Storage(SYMFILENAME)
         try:
             with self.assertRaises(IOError):
                 storage.get()
@@ -116,7 +115,7 @@ class OAuth2ClientFileTests(unittest.TestCase):
 
         # Storage should be not be able to read that object, as the capability
         # to read and write credentials as pickled objects has been removed.
-        storage = file.Storage(FILENAME)
+        storage = file_module.Storage(FILENAME)
         read_credentials = storage.get()
         self.assertIsNone(read_credentials)
 
@@ -134,7 +133,7 @@ class OAuth2ClientFileTests(unittest.TestCase):
                       datetime.timedelta(minutes=15))
         credentials = self._create_test_credentials(expiration=expiration)
 
-        storage = file.Storage(FILENAME)
+        storage = file_module.Storage(FILENAME)
         storage.put(credentials)
         credentials = storage.get()
         new_cred = copy.copy(credentials)
@@ -143,12 +142,28 @@ class OAuth2ClientFileTests(unittest.TestCase):
 
         access_token = '1/3w'
         token_response = {'access_token': access_token, 'expires_in': 3600}
-        http = HttpMockSequence([
-            ({'status': '200'}, json.dumps(token_response).encode('utf-8')),
-        ])
+        response_content = json.dumps(token_response).encode('utf-8')
+        http = http_mock.HttpMock(data=response_content)
 
-        credentials._refresh(http.request)
+        credentials._refresh(http)
         self.assertEquals(credentials.access_token, access_token)
+
+        # Verify mocks.
+        self.assertEqual(http.requests, 1)
+        self.assertEqual(http.uri, credentials.token_uri)
+        self.assertEqual(http.method, 'POST')
+        expected_body = {
+            'grant_type': ['refresh_token'],
+            'client_id': [credentials.client_id],
+            'client_secret': [credentials.client_secret],
+            'refresh_token': [credentials.refresh_token],
+        }
+        self.assertEqual(urllib_parse.parse_qs(http.body), expected_body)
+        expected_headers = {
+            'content-type': 'application/x-www-form-urlencoded',
+            'user-agent': credentials.user_agent,
+        }
+        self.assertEqual(http.headers, expected_headers)
 
     def test_token_refresh_store_expires_soon(self):
         # Tests the case where an access token that is valid when it is read
@@ -157,7 +172,7 @@ class OAuth2ClientFileTests(unittest.TestCase):
                       datetime.timedelta(minutes=15))
         credentials = self._create_test_credentials(expiration=expiration)
 
-        storage = file.Storage(FILENAME)
+        storage = file_module.Storage(FILENAME)
         storage.put(credentials)
         credentials = storage.get()
         new_cred = copy.copy(credentials)
@@ -166,19 +181,19 @@ class OAuth2ClientFileTests(unittest.TestCase):
 
         access_token = '1/3w'
         token_response = {'access_token': access_token, 'expires_in': 3600}
-        http = HttpMockSequence([
-            ({'status': str(int(http_client.UNAUTHORIZED))},
+        http = http_mock.HttpMockSequence([
+            ({'status': http_client.UNAUTHORIZED},
              b'Initial token expired'),
-            ({'status': str(int(http_client.UNAUTHORIZED))},
+            ({'status': http_client.UNAUTHORIZED},
              b'Store token expired'),
-            ({'status': str(int(http_client.OK))},
+            ({'status': http_client.OK},
              json.dumps(token_response).encode('utf-8')),
-            ({'status': str(int(http_client.OK))},
+            ({'status': http_client.OK},
              b'Valid response to original request')
         ])
 
         credentials.authorize(http)
-        http.request('https://example.com')
+        transport.request(http, 'https://example.com')
         self.assertEqual(credentials.access_token, access_token)
 
     def test_token_refresh_good_store(self):
@@ -186,7 +201,7 @@ class OAuth2ClientFileTests(unittest.TestCase):
                       datetime.timedelta(minutes=15))
         credentials = self._create_test_credentials(expiration=expiration)
 
-        storage = file.Storage(FILENAME)
+        storage = file_module.Storage(FILENAME)
         storage.put(credentials)
         credentials = storage.get()
         new_cred = copy.copy(credentials)
@@ -201,7 +216,7 @@ class OAuth2ClientFileTests(unittest.TestCase):
                       datetime.timedelta(minutes=15))
         credentials = self._create_test_credentials(expiration=expiration)
 
-        storage = file.Storage(FILENAME)
+        storage = file_module.Storage(FILENAME)
         storage.put(credentials)
         credentials = storage.get()
         new_cred = copy.copy(credentials)
@@ -211,27 +226,27 @@ class OAuth2ClientFileTests(unittest.TestCase):
         valid_access_token = '1/3w'
         token_response = {'access_token': valid_access_token,
                           'expires_in': 3600}
-        http = HttpMockSequence([
-            ({'status': str(int(http_client.UNAUTHORIZED))},
+        http = http_mock.HttpMockSequence([
+            ({'status': http_client.UNAUTHORIZED},
              b'Initial token expired'),
-            ({'status': str(int(http_client.UNAUTHORIZED))},
+            ({'status': http_client.UNAUTHORIZED},
              b'Store token expired'),
-            ({'status': str(int(http_client.OK))},
+            ({'status': http_client.OK},
              json.dumps(token_response).encode('utf-8')),
-            ({'status': str(int(http_client.OK))}, 'echo_request_body')
+            ({'status': http_client.OK}, 'echo_request_body')
         ])
 
         body = six.StringIO('streaming body')
 
         credentials.authorize(http)
-        _, content = http.request('https://example.com', body=body)
+        _, content = transport.request(http, 'https://example.com', body=body)
         self.assertEqual(content, 'streaming body')
         self.assertEqual(credentials.access_token, valid_access_token)
 
     def test_credentials_delete(self):
         credentials = self._create_test_credentials()
 
-        storage = file.Storage(FILENAME)
+        storage = file_module.Storage(FILENAME)
         storage.put(credentials)
         credentials = storage.get()
         self.assertIsNotNone(credentials)
@@ -245,7 +260,7 @@ class OAuth2ClientFileTests(unittest.TestCase):
 
         credentials = client.AccessTokenCredentials(access_token, user_agent)
 
-        storage = file.Storage(FILENAME)
+        storage = file_module.Storage(FILENAME)
         credentials = storage.put(credentials)
         credentials = storage.get()
 
