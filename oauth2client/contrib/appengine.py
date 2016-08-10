@@ -157,17 +157,15 @@ class AppAssertionCredentials(client.AssertionCredentials):
         data = json.loads(json_data)
         return AppAssertionCredentials(data['scope'])
 
-    def _refresh(self, http_request):
-        """Refreshes the access_token.
+    def _refresh(self, http):
+        """Refreshes the access token.
 
         Since the underlying App Engine app_identity implementation does its
         own caching we can skip all the storage hoops and just to a refresh
         using the API.
 
         Args:
-            http_request: callable, a callable that matches the method
-                          signature of httplib2.Http.request, used to make the
-                          refresh request.
+            http: unused HTTP object
 
         Raises:
             AccessTokenRefreshError: When the refresh fails.

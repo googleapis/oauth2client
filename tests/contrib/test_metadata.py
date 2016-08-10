@@ -79,16 +79,16 @@ class TestMetadata(unittest2.TestCase):
         'oauth2client.client._UTCNOW',
         return_value=datetime.datetime.min)
     def test_get_token_success(self, now):
-        http_request = request_mock(
+        http = request_mock(
             http_client.OK,
             'application/json',
             json.dumps({'access_token': 'a', 'expires_in': 100})
         )
-        token, expiry = _metadata.get_token(http_request=http_request)
+        token, expiry = _metadata.get_token(http=http)
         self.assertEqual(token, 'a')
         self.assertEqual(
             expiry, datetime.datetime.min + datetime.timedelta(seconds=100))
-        http_request.assert_called_once_with(
+        http.assert_called_once_with(
             EXPECTED_URL + '/token',
             **EXPECTED_KWARGS
         )

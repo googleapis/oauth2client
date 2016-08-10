@@ -649,9 +649,22 @@ class _JWTAccessCredentials(ServiceAccountCredentials):
         return result
 
     def refresh(self, http):
+        """Refreshes the access_token.
+
+        The HTTP object is unused since no request needs to be made to
+        get a new token, it can just be generated locally.
+
+        Args:
+            http: unused HTTP object
+        """
         self._refresh(None)
 
-    def _refresh(self, http_request):
+    def _refresh(self, http):
+        """Refreshes the access_token.
+
+        Args:
+            http: unused HTTP object
+        """
         self.access_token, self.token_expiry = self._create_token()
 
     def _create_token(self, additional_claims=None):

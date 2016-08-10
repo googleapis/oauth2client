@@ -67,8 +67,7 @@ class AppAssertionCredentialsTests(unittest2.TestCase):
     @mock.patch('oauth2client.contrib._metadata.get_service_account_info',
                 return_value=SERVICE_ACCOUNT_INFO)
     def test_refresh_token(self, get_info, get_token):
-        http_request = mock.MagicMock()
-        http_mock = mock.MagicMock(request=http_request)
+        http_mock = object()
         credentials = gce.AppAssertionCredentials()
         credentials.invalid = False
         credentials.service_account_email = 'a@example.com'
@@ -76,12 +75,12 @@ class AppAssertionCredentialsTests(unittest2.TestCase):
         credentials.get_access_token(http=http_mock)
         self.assertEqual(credentials.access_token, 'A')
         self.assertTrue(credentials.access_token_expired)
-        get_token.assert_called_with(http_request,
+        get_token.assert_called_with(http_mock,
                                      service_account='a@example.com')
         credentials.get_access_token(http=http_mock)
         self.assertEqual(credentials.access_token, 'B')
         self.assertFalse(credentials.access_token_expired)
-        get_token.assert_called_with(http_request,
+        get_token.assert_called_with(http_mock,
                                      service_account='a@example.com')
         get_info.assert_not_called()
 
@@ -114,8 +113,7 @@ class AppAssertionCredentialsTests(unittest2.TestCase):
     @mock.patch('oauth2client.contrib._metadata.get_service_account_info',
                 return_value=SERVICE_ACCOUNT_INFO)
     def test_retrieve_scopes(self, metadata):
-        http_request = mock.MagicMock()
-        http_mock = mock.MagicMock(request=http_request)
+        http_mock = object()
         credentials = gce.AppAssertionCredentials()
         self.assertTrue(credentials.invalid)
         self.assertIsNone(credentials.scopes)
@@ -124,19 +122,18 @@ class AppAssertionCredentialsTests(unittest2.TestCase):
         self.assertFalse(credentials.invalid)
         credentials.retrieve_scopes(http_mock)
         # Assert scopes weren't refetched
-        metadata.assert_called_once_with(http_request,
+        metadata.assert_called_once_with(http_mock,
                                          service_account='default')
 
     @mock.patch('oauth2client.contrib._metadata.get_service_account_info',
                 side_effect=http_client.HTTPException('No Such Email'))
     def test_retrieve_scopes_bad_email(self, metadata):
-        http_request = mock.MagicMock()
-        http_mock = mock.MagicMock(request=http_request)
+        http_mock = object()
         credentials = gce.AppAssertionCredentials(email='b@example.com')
         with self.assertRaises(http_client.HTTPException):
             credentials.retrieve_scopes(http_mock)
 
-        metadata.assert_called_once_with(http_request,
+        metadata.assert_called_once_with(http_mock,
                                          service_account='b@example.com')
 
     def test_save_to_well_known_file(self):

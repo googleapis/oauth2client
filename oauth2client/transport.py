@@ -275,6 +275,7 @@ def request(http, uri, method='GET', body=None, headers=None,
         tuple, a pair of a httplib2.Response with the status code and other
         headers and the bytes of the content returned.
     """
+    # NOTE: Allowing http or http.request is temporary (See Issue 601).
     http_callable = getattr(http, 'request', http)
     return http_callable(uri, method=method, body=body, headers=headers,
                          redirections=redirections,

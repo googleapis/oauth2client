@@ -556,7 +556,7 @@ class OAuth2Credentials(Credentials):
             http: httplib2.Http, an http object to be used to make the refresh
                   request.
         """
-        self._refresh(http.request)
+        self._refresh(http)
 
     def revoke(self, http):
         """Revokes a refresh_token and makes the credentials void.
@@ -565,7 +565,7 @@ class OAuth2Credentials(Credentials):
             http: httplib2.Http, an http object to be used to make the revoke
                   request.
         """
-        self._revoke(http.request)
+        self._revoke(http)
 
     def apply(self, headers):
         """Add the authorization to the headers.
@@ -606,7 +606,7 @@ class OAuth2Credentials(Credentials):
         Returns:
             A set of strings containing the canonical list of scopes.
         """
-        self._retrieve_scopes(http.request)
+        self._retrieve_scopes(http)
         return self.scopes
 
     @classmethod
@@ -745,7 +745,7 @@ class OAuth2Credentials(Credentials):
 
         return headers
 
-    def _refresh(self, http_request):
+    def _refresh(self, http):
         """Refreshes the access_token.
 
         This method first checks by reading the Storage object if available.
@@ -753,15 +753,13 @@ class OAuth2Credentials(Credentials):
         refresh is completed.
 
         Args:
-            http_request: callable, a callable that matches the method
-                          signature of httplib2.Http.request, used to make the
-                          refresh request.
+            http: an object to be used to make HTTP requests.
 
         Raises:
             HttpAccessTokenRefreshError: When the refresh fails.
         """
         if not self.store:
-            self._do_refresh_request(http_request)
+            self._do_refresh_request(http)
         else:
             self.store.acquire_lock()
             try:
@@ -773,17 +771,15 @@ class OAuth2Credentials(Credentials):
                     logger.info('Updated access_token read from Storage')
                     self._updateFromCredential(new_cred)
                 else:
-                    self._do_refresh_request(http_request)
+                    self._do_refresh_request(http)
             finally:
                 self.store.release_lock()
 
-    def _do_refresh_request(self, http_request):
+    def _do_refresh_request(self, http):
         """Refresh the access_token using the refresh_token.
 
         Args:
-            http_request: callable, a callable that matches the method
-                          signature of httplib2.Http.request, used to make the
-                          refresh request.
+            http: an object to be used to make HTTP requests.
 
         Raises:
             HttpAccessTokenRefreshError: When the refresh fails.
@@ -793,7 +789,7 @@ class OAuth2Credentials(Credentials):
 
         logger.info('Refreshing access_token')
         resp, content = transport.request(
-            http_request, self.token_uri, method='POST',
+            http, self.token_uri, method='POST',
             body=body, headers=headers)
         content = _helpers._from_bytes(content)
         if resp.status == http_client.OK:
@@ -833,23 +829,19 @@ class OAuth2Credentials(Credentials):
                 pass
             raise HttpAccessTokenRefreshError(error_msg, status=resp.status)
 
-    def _revoke(self, http_request):
+    def _revoke(self, http):
         """Revokes this credential and deletes the stored copy (if it exists).
 
         Args:
-            http_request: callable, a callable that matches the method
-                          signature of httplib2.Http.request, used to make the
-                          revoke request.
+            http: an object to be used to make HTTP requests.
         """
-        self._do_revoke(http_request, self.refresh_token or self.access_token)
+        self._do_revoke(http, self.refresh_token or self.access_token)
 
-    def _do_revoke(self, http_request, token):
+    def _do_revoke(self, http, token):
         """Revokes this credential and deletes the stored copy (if it exists).
 
         Args:
-            http_request: callable, a callable that matches the method
-                          signature of httplib2.Http.request, used to make the
-                          refresh request.
+            http: an object to be used to make HTTP requests.
             token: A string used as the token to be revoked. Can be either an
                    access_token or refresh_token.
 
@@ -860,7 +852,7 @@ class OAuth2Credentials(Credentials):
         logger.info('Revoking token')
         query_params = {'token': token}
         token_revoke_uri = _update_query_params(self.revoke_uri, query_params)
-        resp, content = transport.request(http_request, token_revoke_uri)
+        resp, content = transport.request(http, token_revoke_uri)
         if resp.status == http_client.OK:
             self.invalid = True
         else:
@@ -876,23 +868,19 @@ class OAuth2Credentials(Credentials):
         if self.store:
             self.store.delete()
 
-    def _retrieve_scopes(self, http_request):
+    def _retrieve_scopes(self, http):
         """Retrieves the list of authorized scopes from the OAuth2 provider.
 
         Args:
-            http_request: callable, a callable that matches the method
-                          signature of httplib2.Http.request, used to make the
-                          revoke request.
+            http: an object to be used to make HTTP requests.
         """
-        self._do_retrieve_scopes(http_request, self.access_token)
+        self._do_retrieve_scopes(http, self.access_token)
 
-    def _do_retrieve_scopes(self, http_request, token):
+    def _do_retrieve_scopes(self, http, token):
         """Retrieves the list of authorized scopes from the OAuth2 provider.
 
         Args:
-            http_request: callable, a callable that matches the method
-                          signature of httplib2.Http.request, used to make the
-                          refresh request.
+            http: an object to be used to make HTTP requests.
             token: A string used as the token to identify the credentials to
                    the provider.
 
@@ -904,7 +892,7 @@ class OAuth2Credentials(Credentials):
         query_params = {'access_token': token, 'fields': 'scope'}
         token_info_uri = _update_query_params(self.token_info_uri,
                                               query_params)
-        resp, content = transport.request(http_request, token_info_uri)
+        resp, content = transport.request(http, token_info_uri)
         content = _helpers._from_bytes(content)
         if resp.status == http_client.OK:
             d = json.loads(content)
@@ -977,19 +965,25 @@ class AccessTokenCredentials(OAuth2Credentials):
             data['user_agent'])
         return retval
 
-    def _refresh(self, http_request):
+    def _refresh(self, http):
+        """Refreshes the access token.
+
+        Args:
+            http: unused HTTP object.
+
+        Raises:
+            AccessTokenCredentialsError: always
+        """
         raise AccessTokenCredentialsError(
             'The access_token is expired or invalid and can\'t be refreshed.')
 
-    def _revoke(self, http_request):
+    def _revoke(self, http):
         """Revokes the access_token and deletes the store if available.
 
         Args:
-            http_request: callable, a callable that matches the method
-                          signature of httplib2.Http.request, used to make the
-                          revoke request.
+            http: an object to be used to make HTTP requests.
         """
-        self._do_revoke(http_request, self.access_token)
+        self._do_revoke(http, self.access_token)
 
 
 def _detect_gce_environment():
@@ -1511,15 +1505,13 @@ class AssertionCredentials(GoogleCredentials):
         """Generate assertion string to be used in the access token request."""
         raise NotImplementedError
 
-    def _revoke(self, http_request):
+    def _revoke(self, http):
         """Revokes the access_token and deletes the store if available.
 
         Args:
-            http_request: callable, a callable that matches the method
-                          signature of httplib2.Http.request, used to make the
-                          revoke request.
+            http: an object to be used to make HTTP requests.
         """
-        self._do_revoke(http_request, self.access_token)
+        self._do_revoke(http, self.access_token)
 
     def sign_blob(self, blob):
         """Cryptographically sign a blob (of bytes).
