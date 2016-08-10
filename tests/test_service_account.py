@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Oauth2client tests.
+"""oauth2client tests.
 
 Unit tests for service account credentials implemented using RSA.
 """
@@ -24,13 +24,15 @@ import tempfile
 
 import mock
 import rsa
-from six import BytesIO
+import six
+from six.moves import http_client
 import unittest2
 
 from oauth2client import client
 from oauth2client import crypt
 from oauth2client import service_account
-from .http_mock import HttpMockSequence
+from oauth2client import transport
+from . import http_mock
 
 
 def data_filename(filename):
@@ -180,7 +182,7 @@ class ServiceAccountCredentialsTests(unittest2.TestCase):
                 scopes=scopes, token_uri=token_uri, revoke_uri=revoke_uri))
         creds_from_file_contents = (
             service_account.ServiceAccountCredentials.from_p12_keyfile_buffer(
-                service_account_email, BytesIO(key_contents),
+                service_account_email, six.BytesIO(key_contents),
                 private_key_password=private_key_password,
                 scopes=scopes, token_uri=token_uri, revoke_uri=revoke_uri))
         for creds in (creds_from_filename, creds_from_file_contents):
@@ -301,10 +303,10 @@ class ServiceAccountCredentialsTests(unittest2.TestCase):
             'access_token': token2,
             'expires_in': lifetime,
         }
-        http = HttpMockSequence([
-            ({'status': '200'},
+        http = http_mock.HttpMockSequence([
+            ({'status': http_client.OK},
              json.dumps(token_response_first).encode('utf-8')),
-            ({'status': '200'},
+            ({'status': http_client.OK},
              json.dumps(token_response_second).encode('utf-8')),
         ])
 
@@ -479,31 +481,34 @@ class JWTAccessCredentialsTests(unittest2.TestCase):
         utcnow.return_value = T1_DATE
         time.return_value = T1
 
-        def mock_request(uri, method='GET', body=None, headers=None,
-                         redirections=0, connection_type=None):
-            self.assertEqual(uri, self.url)
-            bearer, token = headers[b'Authorization'].split()
+        http = http_mock.HttpMockSequence([
+            ({'status': http_client.OK}, b''),
+            ({'status': http_client.OK}, b''),
+        ])
+
+        self.jwt.authorize(http)
+        transport.request(http, self.url)
+
+        # Ensure we use the cached token
+        utcnow.return_value = T2_DATE
+        transport.request(http, self.url)
+
+        # Verify mocks.
+        certs = {'key': datafile('public_cert.pem')}
+        self.assertEqual(len(http.requests), 2)
+        for info in http.requests:
+            self.assertEqual(info['method'], 'GET')
+            self.assertEqual(info['uri'], self.url)
+            self.assertIsNone(info['body'])
+            self.assertEqual(len(info['headers']), 1)
+            bearer, token = info['headers'][b'Authorization'].split()
             payload = crypt.verify_signed_jwt_with_certs(
-                token,
-                {'key': datafile('public_cert.pem')},
-                audience=self.url)
+                token, certs, audience=self.url)
             self.assertEqual(payload['iss'], self.service_account_email)
             self.assertEqual(payload['sub'], self.service_account_email)
             self.assertEqual(payload['iat'], T1)
             self.assertEqual(payload['exp'], T1_EXPIRY)
-            self.assertEqual(uri, self.url)
             self.assertEqual(bearer, b'Bearer')
-            response = mock.Mock(status=200)
-            return response, b''
-
-        h = mock.Mock()
-        h.request = mock_request
-        self.jwt.authorize(h)
-        h.request(self.url)
-
-        # Ensure we use the cached token
-        utcnow.return_value = T2_DATE
-        h.request(self.url)
 
     @mock.patch('oauth2client.client._UTCNOW')
     @mock.patch('time.time')
@@ -515,37 +520,41 @@ class JWTAccessCredentialsTests(unittest2.TestCase):
             self.service_account_email, self.signer,
             private_key_id=self.private_key_id, client_id=self.client_id)
 
-        def mock_request(uri, method='GET', body=None, headers=None,
-                         redirections=0, connection_type=None):
-            self.assertEqual(uri, self.url)
-            bearer, token = headers[b'Authorization'].split()
-            payload = crypt.verify_signed_jwt_with_certs(
-                token,
-                {'key': datafile('public_cert.pem')},
-                audience=self.url)
-            self.assertEqual(payload['iss'], self.service_account_email)
-            self.assertEqual(payload['sub'], self.service_account_email)
-            self.assertEqual(payload['iat'], T1)
-            self.assertEqual(payload['exp'], T1_EXPIRY)
-            self.assertEqual(uri, self.url)
-            self.assertEqual(bearer, b'Bearer')
-            response = mock.Mock(status=200)
-            return response, b''
+        http = http_mock.HttpMockSequence([
+            ({'status': http_client.OK}, b''),
+        ])
 
-        h = mock.Mock()
-        h.request = mock_request
-        jwt.authorize(h)
-        h.request(self.url)
+        jwt.authorize(http)
+        transport.request(http, self.url)
 
         # Ensure we do not cache the token
         self.assertIsNone(jwt.access_token)
+
+        # Verify mocks.
+        self.assertEqual(len(http.requests), 1)
+        info = http.requests[0]
+        self.assertEqual(info['method'], 'GET')
+        self.assertEqual(info['uri'], self.url)
+        self.assertIsNone(info['body'])
+        self.assertEqual(len(info['headers']), 1)
+        bearer, token = info['headers'][b'Authorization'].split()
+        certs = {'key': datafile('public_cert.pem')}
+        payload = crypt.verify_signed_jwt_with_certs(
+            token, certs, audience=self.url)
+        self.assertEqual(payload['iss'], self.service_account_email)
+        self.assertEqual(payload['sub'], self.service_account_email)
+        self.assertEqual(payload['iat'], T1)
+        self.assertEqual(payload['exp'], T1_EXPIRY)
+        self.assertEqual(bearer, b'Bearer')
 
     @mock.patch('oauth2client.client._UTCNOW')
     def test_authorize_stale_token(self, utcnow):
         utcnow.return_value = T1_DATE
         # Create an initial token
-        h = HttpMockSequence([({'status': '200'}, b''),
-                              ({'status': '200'}, b'')])
+        h = http_mock.HttpMockSequence([
+            ({'status': http_client.OK}, b''),
+            ({'status': http_client.OK}, b''),
+        ])
         self.jwt.authorize(h)
         h.request(self.url)
         token_1 = self.jwt.access_token
@@ -561,10 +570,11 @@ class JWTAccessCredentialsTests(unittest2.TestCase):
     def test_authorize_401(self, utcnow):
         utcnow.return_value = T1_DATE
 
-        h = HttpMockSequence([
-            ({'status': '200'}, b''),
-            ({'status': '401'}, b''),
-            ({'status': '200'}, b'')])
+        h = http_mock.HttpMockSequence([
+            ({'status': http_client.OK}, b''),
+            ({'status': http_client.UNAUTHORIZED}, b''),
+            ({'status': http_client.OK}, b''),
+        ])
         self.jwt.authorize(h)
         h.request(self.url)
         token_1 = self.jwt.access_token

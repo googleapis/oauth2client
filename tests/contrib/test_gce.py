@@ -19,19 +19,20 @@ import json
 
 import mock
 from six.moves import http_client
-from tests.contrib.test_metadata import request_mock
 import unittest2
 
 from oauth2client import client
+from oauth2client.contrib import _metadata
 from oauth2client.contrib import gce
+from .. import http_mock
 
-__author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 SERVICE_ACCOUNT_INFO = {
     'scopes': ['a', 'b'],
     'email': 'a@example.com',
     'aliases': ['default']
 }
+METADATA_PATH = 'instance/service-accounts/a@example.com/token'
 
 
 class AppAssertionCredentialsTests(unittest2.TestCase):
@@ -85,16 +86,24 @@ class AppAssertionCredentialsTests(unittest2.TestCase):
         get_info.assert_not_called()
 
     def test_refresh_token_failed_fetch(self):
-        http_request = request_mock(
-            http_client.NOT_FOUND,
-            'application/json',
-            json.dumps({'access_token': 'a', 'expires_in': 100})
-        )
+        headers = {
+            'status': http_client.NOT_FOUND,
+            'content-type': 'application/json',
+        }
+        response = json.dumps({'access_token': 'a', 'expires_in': 100})
+        http = http_mock.HttpMock(headers=headers, data=response)
         credentials = gce.AppAssertionCredentials()
         credentials.invalid = False
         credentials.service_account_email = 'a@example.com'
         with self.assertRaises(client.HttpAccessTokenRefreshError):
-            credentials._refresh(http_request)
+            credentials._refresh(http)
+        # Verify mock.
+        self.assertEqual(http.requests, 1)
+        expected_uri = _metadata.METADATA_ROOT + METADATA_PATH
+        self.assertEqual(http.uri, expected_uri)
+        self.assertEqual(http.method, 'GET')
+        self.assertIsNone(http.body)
+        self.assertEqual(http.headers, _metadata.METADATA_HEADERS)
 
     def test_serialization_data(self):
         credentials = gce.AppAssertionCredentials()

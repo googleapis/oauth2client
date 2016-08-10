@@ -12,10 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Oauth2client tests
-
-Unit tests for oauth2client.
-"""
+"""Unit tests for oauth2client.client."""
 
 import base64
 import contextlib
@@ -705,8 +702,9 @@ class GoogleCredentialsTests(unittest2.TestCase):
         # Make sure the well-known file actually doesn't exist.
         self.assertTrue(os.path.exists(get_well_known.return_value))
 
-        method_name = \
-            'oauth2client.client._get_application_default_credential_from_file'
+        method_name = (
+            'oauth2client.client.'
+            '_get_application_default_credential_from_file')
         result_creds = object()
         with mock.patch(method_name,
                         return_value=result_creds) as get_from_file:
@@ -846,9 +844,9 @@ def _token_revoke_test_helper(testcase, status, revoke_raise,
     actual_do_revoke = testcase.credentials._do_revoke
     testcase.token_from_revoke = None
 
-    def do_revoke_stub(http_request, token):
+    def do_revoke_stub(http, token):
         testcase.token_from_revoke = token
-        return actual_do_revoke(http_request, token)
+        return actual_do_revoke(http, token)
     testcase.credentials._do_revoke = do_revoke_stub
 
     http = http_mock.HttpMock(headers={'status': status})
@@ -1216,24 +1214,25 @@ class BasicCredentialsTests(unittest2.TestCase):
     def _do_refresh_request_test_helper(self, response, content,
                                         error_msg, logger, gen_body,
                                         gen_headers, store=None):
+        token_uri = 'http://token_uri'
         credentials = client.OAuth2Credentials(None, None, None, None,
-                                               None, None, None)
+                                               None, token_uri, None)
         credentials.store = store
-        http_request = mock.Mock()
-        # Make sure the mock doesn't have a request attr.
-        del http_request.request
-        http_request.return_value = response, content
+        http = http_mock.HttpMock(headers=response, data=content)
 
         with self.assertRaises(
                 client.HttpAccessTokenRefreshError) as exc_manager:
-            credentials._do_refresh_request(http_request)
+            credentials._do_refresh_request(http)
 
         self.assertEqual(exc_manager.exception.args, (error_msg,))
         self.assertEqual(exc_manager.exception.status, response.status)
-        http_request.assert_called_once_with(
-            None, method='POST', body=gen_body.return_value,
-            headers=gen_headers.return_value, redirections=5,
-            connection_type=None)
+
+        # Verify mocks.
+        self.assertEqual(http.requests, 1)
+        self.assertEqual(http.uri, token_uri)
+        self.assertEqual(http.method, 'POST')
+        self.assertEqual(http.body, gen_body.return_value)
+        self.assertEqual(http.headers, gen_headers.return_value)
 
         call1 = mock.call('Refreshing access_token')
         failure_template = 'Failed to retrieve access token: %s'
@@ -1288,22 +1287,20 @@ class BasicCredentialsTests(unittest2.TestCase):
             None, None, None, None, None, None, None,
             revoke_uri=oauth2client.GOOGLE_REVOKE_URI)
         credentials.store = store
-        http_request = mock.Mock()
-        # Make sure the mock doesn't have a request attr.
-        del http_request.request
-        http_request.return_value = response, content
+
+        http = http_mock.HttpMock(headers=response, data=content)
         token = u's3kr3tz'
 
         if response.status == http_client.OK:
             self.assertFalse(credentials.invalid)
-            self.assertIsNone(credentials._do_revoke(http_request, token))
+            self.assertIsNone(credentials._do_revoke(http, token))
             self.assertTrue(credentials.invalid)
             if store is not None:
                 store.delete.assert_called_once_with()
         else:
             self.assertFalse(credentials.invalid)
             with self.assertRaises(client.TokenRevokeError) as exc_manager:
-                credentials._do_revoke(http_request, token)
+                credentials._do_revoke(http, token)
             # Make sure invalid was not flipped on.
             self.assertFalse(credentials.invalid)
             self.assertEqual(exc_manager.exception.args, (error_msg,))
@@ -1311,9 +1308,13 @@ class BasicCredentialsTests(unittest2.TestCase):
                 store.delete.assert_not_called()
 
         revoke_uri = oauth2client.GOOGLE_REVOKE_URI + '?token=' + token
-        http_request.assert_called_once_with(
-            revoke_uri, method='GET', body=None, headers=None,
-            redirections=5, connection_type=None)
+
+        # Verify mocks.
+        self.assertEqual(http.requests, 1)
+        self.assertEqual(http.uri, revoke_uri)
+        self.assertEqual(http.method, 'GET')
+        self.assertIsNone(http.body)
+        self.assertIsNone(http.headers)
 
         logger.info.assert_called_once_with('Revoking token')
 
@@ -1359,21 +1360,18 @@ class BasicCredentialsTests(unittest2.TestCase):
         credentials = client.OAuth2Credentials(
             None, None, None, None, None, None, None,
             token_info_uri=oauth2client.GOOGLE_TOKEN_INFO_URI)
-        http_request = mock.Mock()
-        # Make sure the mock doesn't have a request attr.
-        del http_request.request
-        http_request.return_value = response, content
+        http = http_mock.HttpMock(headers=response, data=content)
         token = u's3kr3tz'
 
         if response.status == http_client.OK:
             self.assertEqual(credentials.scopes, set())
             self.assertIsNone(
-                credentials._do_retrieve_scopes(http_request, token))
+                credentials._do_retrieve_scopes(http, token))
             self.assertEqual(credentials.scopes, scopes)
         else:
             self.assertEqual(credentials.scopes, set())
             with self.assertRaises(client.Error) as exc_manager:
-                credentials._do_retrieve_scopes(http_request, token)
+                credentials._do_retrieve_scopes(http, token)
             # Make sure scopes were not changed.
             self.assertEqual(credentials.scopes, set())
             self.assertEqual(exc_manager.exception.args, (error_msg,))
@@ -1381,12 +1379,13 @@ class BasicCredentialsTests(unittest2.TestCase):
         token_uri = client._update_query_params(
             oauth2client.GOOGLE_TOKEN_INFO_URI,
             {'fields': 'scope', 'access_token': token})
-        self.assertEqual(len(http_request.mock_calls), 1)
-        scopes_call = http_request.mock_calls[0]
-        call_args = scopes_call[1]
-        self.assertEqual(len(call_args), 1)
-        called_uri = call_args[0]
-        assertUrisEqual(self, token_uri, called_uri)
+
+        # Verify mocks.
+        self.assertEqual(http.requests, 1)
+        assertUrisEqual(self, token_uri, http.uri)
+        self.assertEqual(http.method, 'GET')
+        self.assertIsNone(http.body)
+        self.assertIsNone(http.headers)
         logger.info.assert_called_once_with('Refreshing scopes')
 
     def test__do_retrieve_scopes_success_bad_json(self):
