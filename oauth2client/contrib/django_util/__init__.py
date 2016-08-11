@@ -335,8 +335,8 @@ class OAuth2Settings(object):
         self.request_prefix = getattr(settings_instance,
                                       'GOOGLE_OAUTH2_REQUEST_ATTRIBUTE',
                                       GOOGLE_OAUTH2_REQUEST_ATTRIBUTE)
-        self.client_id, self.client_secret = \
-            _get_oauth2_client_id_and_secret(settings_instance)
+        info = _get_oauth2_client_id_and_secret(settings_instance)
+        self.client_id, self.client_secret = info
 
         if ('django.contrib.sessions.middleware.SessionMiddleware'
            not in settings_instance.MIDDLEWARE_CLASSES):
