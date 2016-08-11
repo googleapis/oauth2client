@@ -108,9 +108,10 @@ except ValueError:  # pragma: NO COVER
     GCE_METADATA_TIMEOUT = 3
 
 _SERVER_SOFTWARE = 'SERVER_SOFTWARE'
-_GCE_METADATA_HOST = '169.254.169.254'
-_METADATA_FLAVOR_HEADER = 'Metadata-Flavor'
+_GCE_METADATA_URI = 'http://169.254.169.254'
+_METADATA_FLAVOR_HEADER = 'metadata-flavor'  # lowercase header
 _DESIRED_METADATA_FLAVOR = 'Google'
+_GCE_HEADERS = {_METADATA_FLAVOR_HEADER: _DESIRED_METADATA_FLAVOR}
 
 # Expose utcnow() at module level to allow for
 # easier testing (by replacing with a stub).
@@ -997,21 +998,16 @@ def _detect_gce_environment():
     #       could lead to false negatives in the event that we are on GCE, but
     #       the metadata resolution was particularly slow. The latter case is
     #       "unlikely".
-    connection = six.moves.http_client.HTTPConnection(
-        _GCE_METADATA_HOST, timeout=GCE_METADATA_TIMEOUT)
-
+    http = transport.get_http_object(timeout=GCE_METADATA_TIMEOUT)
     try:
-        headers = {_METADATA_FLAVOR_HEADER: _DESIRED_METADATA_FLAVOR}
-        connection.request('GET', '/', headers=headers)
-        response = connection.getresponse()
-        if response.status == http_client.OK:
-            return (response.getheader(_METADATA_FLAVOR_HEADER) ==
-                    _DESIRED_METADATA_FLAVOR)
+        response, _ = transport.request(
+            http, _GCE_METADATA_URI, headers=_GCE_HEADERS)
+        return (
+            response.status == http_client.OK and
+            response.get(_METADATA_FLAVOR_HEADER) == _DESIRED_METADATA_FLAVOR)
     except socket.error:  # socket.timeout or socket.error(64, 'Host is down')
         logger.info('Timeout attempting to reach GCE metadata service.')
         return False
-    finally:
-        connection.close()
 
 
 def _in_gae_environment():

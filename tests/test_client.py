@@ -42,8 +42,6 @@ from tests import http_mock
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 
 
-# TODO(craigcitro): This is duplicated from
-# googleapiclient.test_discovery; consolidate these definitions.
 def assertUrisEqual(testcase, expected, actual):
     """Test that URIs are the same, up to reordering of query parameters."""
     expected = urllib.parse.urlparse(expected)
@@ -357,67 +355,41 @@ class GoogleCredentialsTests(unittest.TestCase):
             # is cached.
             self.assertTrue(client._in_gae_environment())
 
-    def _environment_check_gce_helper(self, status_ok=True, socket_error=False,
+    def _environment_check_gce_helper(self, status_ok=True,
                                       server_software=''):
-        response = mock.Mock()
         if status_ok:
-            response.status = http_client.OK
-            response.getheader = mock.Mock(
-                name='getheader',
-                return_value=client._DESIRED_METADATA_FLAVOR)
+            headers = {'status': http_client.OK}
+            headers.update(client._GCE_HEADERS)
         else:
-            response.status = http_client.NOT_FOUND
+            headers = {'status': http_client.NOT_FOUND}
 
-        connection = mock.Mock()
-        connection.getresponse = mock.Mock(name='getresponse',
-                                           return_value=response)
-        if socket_error:
-            connection.getresponse.side_effect = socket.error()
-
+        http = http_mock.HttpMock(headers=headers)
         with mock.patch('oauth2client.client.os') as os_module:
             os_module.environ = {client._SERVER_SOFTWARE: server_software}
-            with mock.patch('oauth2client.client.six') as six_module:
-                http_client_module = six_module.moves.http_client
-                http_client_module.HTTPConnection = mock.Mock(
-                    name='HTTPConnection', return_value=connection)
-
+            with mock.patch('oauth2client.transport.get_http_object',
+                            return_value=http) as new_http:
                 if server_software == '':
                     self.assertFalse(client._in_gae_environment())
                 else:
                     self.assertTrue(client._in_gae_environment())
 
-                if status_ok and not socket_error and server_software == '':
+                if status_ok and server_software == '':
                     self.assertTrue(client._in_gce_environment())
                 else:
                     self.assertFalse(client._in_gce_environment())
 
+                # Verify mocks.
                 if server_software == '':
-                    http_client_module.HTTPConnection.assert_called_once_with(
-                        client._GCE_METADATA_HOST,
+                    new_http.assert_called_once_with(
                         timeout=client.GCE_METADATA_TIMEOUT)
-                    connection.getresponse.assert_called_once_with()
-                    # Remaining calls are not "getresponse"
-                    headers = {
-                        client._METADATA_FLAVOR_HEADER: (
-                            client._DESIRED_METADATA_FLAVOR),
-                    }
-                    self.assertEqual(connection.method_calls, [
-                        mock.call.request('GET', '/',
-                                          headers=headers),
-                        mock.call.close(),
-                    ])
-                    self.assertEqual(response.method_calls, [])
-                    if status_ok and not socket_error:
-                        response.getheader.assert_called_once_with(
-                            client._METADATA_FLAVOR_HEADER)
+                    self.assertEqual(http.requests, 1)
+                    self.assertEqual(http.uri, client._GCE_METADATA_URI)
+                    self.assertEqual(http.method, 'GET')
+                    self.assertIsNone(http.body)
+                    self.assertEqual(http.headers, client._GCE_HEADERS)
                 else:
-                    self.assertEqual(
-                        http_client_module.HTTPConnection.mock_calls, [])
-                    self.assertEqual(connection.getresponse.mock_calls, [])
-                    # Remaining calls are not "getresponse"
-                    self.assertEqual(connection.method_calls, [])
-                    self.assertEqual(response.method_calls, [])
-                    self.assertEqual(response.getheader.mock_calls, [])
+                    new_http.assert_not_called()
+                    self.assertEqual(http.requests, 0)
 
     def test_environment_check_gce_production(self):
         self._environment_check_gce_helper(status_ok=True)
@@ -426,8 +398,21 @@ class GoogleCredentialsTests(unittest.TestCase):
         with mock_module_import('google.appengine'):
             self._environment_check_gce_helper(status_ok=True)
 
-    def test_environment_check_gce_timeout(self):
-        self._environment_check_gce_helper(socket_error=True)
+    @mock.patch('oauth2client.client.os.environ',
+                new={client._SERVER_SOFTWARE: ''})
+    @mock.patch('oauth2client.transport.get_http_object',
+                return_value=object())
+    @mock.patch('oauth2client.transport.request',
+                side_effect=socket.timeout())
+    def test_environment_check_gce_timeout(self, mock_request, new_http):
+        self.assertFalse(client._in_gae_environment())
+        self.assertFalse(client._in_gce_environment())
+
+        # Verify mocks.
+        new_http.assert_called_once_with(timeout=client.GCE_METADATA_TIMEOUT)
+        mock_request.assert_called_once_with(
+            new_http.return_value, client._GCE_METADATA_URI,
+            headers=client._GCE_HEADERS)
 
     def test_environ_check_gae_module_unknown(self):
         with mock_module_import('google.appengine'):
