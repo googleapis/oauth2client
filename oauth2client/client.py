@@ -814,7 +814,7 @@ class OAuth2Credentials(Credentials):
             # An {'error':...} response body means the token is expired or
             # revoked, so we flag the credentials as such.
             logger.info('Failed to retrieve access token: %s', content)
-            error_msg = 'Invalid response {0}.'.format(resp['status'])
+            error_msg = 'Invalid response {0}.'.format(resp.status)
             try:
                 d = json.loads(content)
                 if 'error' in d:
