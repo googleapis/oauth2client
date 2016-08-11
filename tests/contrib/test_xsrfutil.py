@@ -34,9 +34,6 @@ TEST_EXTRA_INFO_1 = b'extra_info_1'
 TEST_EXTRA_INFO_2 = b'more_extra_info'
 
 
-__author__ = 'jcgregorio@google.com (Joe Gregorio)'
-
-
 class Test_generate_token(unittest.TestCase):
 
     def test_bad_positional(self):

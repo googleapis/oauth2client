@@ -34,7 +34,6 @@ from oauth2client import _helpers
 from oauth2client import client
 
 
-__author__ = 'jcgregorio@google.com (Joe Gregorio)'
 __all__ = ['argparser', 'run_flow', 'message_if_missing']
 
 _CLIENT_SECRETS_MESSAGE = """WARNING: Please configure OAuth 2.0

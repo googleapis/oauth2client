@@ -21,9 +21,6 @@ import mock
 from oauth2client import _helpers
 
 
-__author__ = 'jcgregorio@google.com (Joe Gregorio)'
-
-
 class PositionalTests(unittest.TestCase):
 
     def test_usage(self):

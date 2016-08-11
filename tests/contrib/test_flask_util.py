@@ -31,9 +31,6 @@ from oauth2client.contrib import flask_util
 from tests import http_mock
 
 
-__author__ = 'jonwayne@google.com (Jon Wayne Parrott)'
-
-
 DEFAULT_RESP = """\
 {
     "access_token": "foo_access_token",

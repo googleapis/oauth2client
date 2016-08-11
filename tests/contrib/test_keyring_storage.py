@@ -26,9 +26,6 @@ from oauth2client import client
 from oauth2client.contrib import keyring_storage
 
 
-__author__ = 'jcgregorio@google.com (Joe Gregorio)'
-
-
 class KeyringStorageTests(unittest.TestCase):
 
     def test_constructor(self):

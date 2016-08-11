@@ -21,10 +21,6 @@ import time
 
 from oauth2client import _helpers
 
-__authors__ = [
-    '"Doug Coker" <dcoker@google.com>',
-    '"Joe Gregorio" <jcgregorio@google.com>',
-]
 
 # Delimiter character
 DELIMITER = b':'
