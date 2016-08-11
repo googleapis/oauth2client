@@ -19,7 +19,7 @@ import mock
 
 from oauth2client import client
 from oauth2client import transport
-from . import http_mock
+from tests import http_mock
 
 
 class TestMemoryCache(unittest.TestCase):

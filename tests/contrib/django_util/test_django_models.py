@@ -21,20 +21,19 @@ import base64
 import pickle
 import unittest
 
-from tests.contrib.django_util.models import CredentialsModel
-
 from oauth2client import _helpers
-from oauth2client.client import Credentials
-from oauth2client.contrib.django_util.models import CredentialsField
+from oauth2client import client
+from oauth2client.contrib.django_util import models
+from tests.contrib.django_util import models as tests_models
 
 
 class TestCredentialsField(unittest.TestCase):
 
     def setUp(self):
-        self.fake_model = CredentialsModel()
+        self.fake_model = tests_models.CredentialsModel()
         self.fake_model_field = self.fake_model._meta.get_field('credentials')
-        self.field = CredentialsField(null=True)
-        self.credentials = Credentials()
+        self.field = models.CredentialsField(null=True)
+        self.credentials = client.Credentials()
         self.pickle_str = _helpers._from_bytes(
             base64.b64encode(pickle.dumps(self.credentials)))
 
@@ -43,11 +42,11 @@ class TestCredentialsField(unittest.TestCase):
 
     def test_field_unpickled(self):
         self.assertIsInstance(
-            self.field.to_python(self.pickle_str), Credentials)
+            self.field.to_python(self.pickle_str), client.Credentials)
 
     def test_field_already_unpickled(self):
         self.assertIsInstance(
-            self.field.to_python(self.credentials), Credentials)
+            self.field.to_python(self.credentials), client.Credentials)
 
     def test_none_field_unpickled(self):
         self.assertIsNone(self.field.to_python(None))
@@ -55,7 +54,7 @@ class TestCredentialsField(unittest.TestCase):
     def test_from_db_value(self):
         value = self.field.from_db_value(
             self.pickle_str, None, None, None)
-        self.assertIsInstance(value, Credentials)
+        self.assertIsInstance(value, client.Credentials)
 
     def test_field_unpickled_none(self):
         self.assertEqual(self.field.to_python(None), None)
@@ -76,11 +75,11 @@ class TestCredentialsField(unittest.TestCase):
         self.assertIsNone(value_str)
 
     def test_credentials_without_null(self):
-        credentials = CredentialsField()
+        credentials = models.CredentialsField()
         self.assertTrue(credentials.null)
 
 
-class CredentialWithSetStore(CredentialsField):
+class CredentialWithSetStore(models.CredentialsField):
     def __init__(self):
         self.model = CredentialWithSetStore
 
@@ -95,4 +94,4 @@ class FakeCredentialsModelMock(object):
 
 class FakeCredentialsModelMockNoSet(object):
 
-    credentials = CredentialsField()
+    credentials = models.CredentialsField()

@@ -20,7 +20,7 @@ import mock
 from six.moves import http_client
 
 from oauth2client.contrib import _metadata
-from .. import http_mock
+from tests import http_mock
 
 
 PATH = 'instance/service-accounts/default'

@@ -24,7 +24,7 @@ from six.moves import http_client
 from oauth2client import client
 from oauth2client.contrib import _metadata
 from oauth2client.contrib import gce
-from .. import http_mock
+from tests import http_mock
 
 
 SERVICE_ACCOUNT_INFO = {

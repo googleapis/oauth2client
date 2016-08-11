@@ -29,8 +29,7 @@ from six.moves import urllib_parse
 
 from oauth2client import client
 from oauth2client.contrib import multiprocess_file_storage
-
-from .. import http_mock
+from tests import http_mock
 
 
 @contextlib.contextmanager

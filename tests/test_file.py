@@ -33,7 +33,7 @@ from oauth2client import _helpers
 from oauth2client import client
 from oauth2client import file as file_module
 from oauth2client import transport
-from . import http_mock
+from tests import http_mock
 
 try:
     # Python2

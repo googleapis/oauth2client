@@ -32,7 +32,7 @@ from oauth2client import client
 from oauth2client import crypt
 from oauth2client import service_account
 from oauth2client import transport
-from . import http_mock
+from tests import http_mock
 
 
 def data_filename(filename):

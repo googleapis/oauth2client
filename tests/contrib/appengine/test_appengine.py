@@ -38,7 +38,7 @@ import oauth2client
 from oauth2client import client
 from oauth2client import clientsecrets
 from oauth2client.contrib import appengine
-from ... import http_mock
+from tests import http_mock
 
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
