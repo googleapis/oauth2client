@@ -101,6 +101,20 @@ class OAuth2SetupTest(unittest.TestCase):
                 object.__new__(django_util.OAuth2Settings),
                 django.conf.settings)
 
+    def test_no_middleware(self):
+        django.conf.settings.MIDDLEWARE_CLASSES = None
+        with self.assertRaises(exceptions.ImproperlyConfigured):
+            django_util.OAuth2Settings.__init__(
+                object.__new__(django_util.OAuth2Settings),
+                django.conf.settings)
+
+    def test_middleware_no_classes(self):
+        django.conf.settings.MIDDLEWARE = (
+            django.conf.settings.MIDDLEWARE_CLASSES)
+        django.conf.settings.MIDDLEWARE_CLASSES = None
+        # primarily testing this doesn't raise an exception
+        django_util.OAuth2Settings(django.conf.settings)
+
     def test_storage_model(self):
         STORAGE_MODEL = {
             'model': 'tests.contrib.django_util.models.CredentialsModel',

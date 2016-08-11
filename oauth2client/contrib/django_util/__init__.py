@@ -52,6 +52,9 @@ Add the helper to your INSTALLED_APPS:
 
 This helper also requires the Django Session Middleware, so
 ``django.contrib.sessions.middleware`` should be in INSTALLED_APPS as well.
+MIDDLEWARE or MIDDLEWARE_CLASSES (in Django  versions <1.10) should also
+contain the string 'django.contrib.sessions.middleware.SessionMiddleware'.
+
 
 Add the client secrets created earlier to the settings. You can either
 specify the path to the credentials file in JSON format
@@ -338,13 +341,23 @@ class OAuth2Settings(object):
         info = _get_oauth2_client_id_and_secret(settings_instance)
         self.client_id, self.client_secret = info
 
-        if ('django.contrib.sessions.middleware.SessionMiddleware'
-           not in settings_instance.MIDDLEWARE_CLASSES):
+        # Django 1.10 deprecated MIDDLEWARE_CLASSES in favor of MIDDLEWARE
+        middleware_settings = getattr(settings_instance, 'MIDDLEWARE', None)
+        if middleware_settings is None:
+            middleware_settings = getattr(
+                settings_instance, 'MIDDLEWARE_CLASSES', None)
+        if middleware_settings is None:
             raise exceptions.ImproperlyConfigured(
-                  'The Google OAuth2 Helper requires session middleware to '
-                  'be installed. Edit your MIDDLEWARE_CLASSES setting'
-                  ' to include \'django.contrib.sessions.middleware.'
-                  'SessionMiddleware\'.')
+                'Django settings has neither MIDDLEWARE nor MIDDLEWARE_CLASSES'
+                'configured')
+
+        if ('django.contrib.sessions.middleware.SessionMiddleware' not in
+                middleware_settings):
+            raise exceptions.ImproperlyConfigured(
+                'The Google OAuth2 Helper requires session middleware to '
+                'be installed. Edit your MIDDLEWARE_CLASSES or MIDDLEWARE '
+                'setting to include \'django.contrib.sessions.middleware.'
+                'SessionMiddleware\'.')
         (self.storage_model, self.storage_model_user_property,
          self.storage_model_credentials_property) = _get_storage_model()
 
