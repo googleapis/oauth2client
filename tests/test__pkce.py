@@ -12,13 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import unittest
+
 import mock
-import unittest2
 
 from oauth2client import _pkce
 
 
-class PKCETests(unittest2.TestCase):
+class PKCETests(unittest.TestCase):
 
     @mock.patch('oauth2client._pkce.os.urandom')
     def test_verifier(self, fake_urandom):
