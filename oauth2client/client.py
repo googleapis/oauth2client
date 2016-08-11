@@ -99,13 +99,12 @@ AccessTokenInfo = collections.namedtuple(
 DEFAULT_ENV_NAME = 'UNKNOWN'
 
 # If set to True _get_environment avoid GCE check (_detect_gce_environment)
-NO_GCE_CHECK = os.environ.setdefault('NO_GCE_CHECK', 'False')
+NO_GCE_CHECK = os.getenv('NO_GCE_CHECK', 'False')
 
 # Timeout in seconds to wait for the GCE metadata server when detecting the
 # GCE environment.
 try:
-    GCE_METADATA_TIMEOUT = int(
-        os.environ.setdefault('GCE_METADATA_TIMEOUT', '3'))
+    GCE_METADATA_TIMEOUT = int(os.getenv('GCE_METADATA_TIMEOUT', 3))
 except ValueError:  # pragma: NO COVER
     GCE_METADATA_TIMEOUT = 3
 
