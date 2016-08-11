@@ -75,7 +75,7 @@ class HttpMockSequence(object):
             ({'status': '200'}, b'{"access_token":"1/3w","expires_in":3600}'),
             ({'status': '200'}, 'echo_request_headers'),
         ])
-        resp, content = http.request("http://examples.com")
+        resp, content = http.request('http://examples.com')
 
     There are special values you can pass in for content to trigger
     behavours that are helpful in testing.

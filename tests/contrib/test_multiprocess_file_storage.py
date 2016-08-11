@@ -24,12 +24,13 @@ import unittest
 
 import fasteners
 import mock
-from six import StringIO
+import six
+from six.moves import urllib_parse
 
 from oauth2client import client
 from oauth2client.contrib import multiprocess_file_storage
 
-from ..http_mock import HttpMockSequence
+from .. import http_mock
 
 
 @contextlib.contextmanager
@@ -68,11 +69,7 @@ def _generate_token_response_http(new_token='new_token'):
         'access_token': new_token,
         'expires_in': '3600',
     })
-    http = HttpMockSequence([
-        ({'status': '200'}, token_response),
-    ])
-
-    return http
+    return http_mock.HttpMock(data=token_response)
 
 
 class MultiprocessStorageBehaviorTests(unittest.TestCase):
@@ -115,6 +112,23 @@ class MultiprocessStorageBehaviorTests(unittest.TestCase):
 
         self.assertIsNone(credentials)
 
+    def _verify_refresh_payload(self, http, credentials):
+        self.assertEqual(http.requests, 1)
+        self.assertEqual(http.uri, credentials.token_uri)
+        self.assertEqual(http.method, 'POST')
+        expected_body = {
+            'grant_type': ['refresh_token'],
+            'client_id': [credentials.client_id],
+            'client_secret': [credentials.client_secret],
+            'refresh_token': [credentials.refresh_token],
+        }
+        self.assertEqual(urllib_parse.parse_qs(http.body), expected_body)
+        expected_headers = {
+            'content-type': 'application/x-www-form-urlencoded',
+            'user-agent': credentials.user_agent,
+        }
+        self.assertEqual(http.headers, expected_headers)
+
     def test_single_process_refresh(self):
         store = multiprocess_file_storage.MultiprocessFileStorage(
             self.filename, 'single-process')
@@ -128,6 +142,9 @@ class MultiprocessStorageBehaviorTests(unittest.TestCase):
         retrieved = store.get()
         self.assertEqual(retrieved.access_token, 'new_token')
 
+        # Verify mocks.
+        self._verify_refresh_payload(http, credentials)
+
     def test_multi_process_refresh(self):
         # This will test that two processes attempting to refresh credentials
         # will only refresh once.
@@ -136,6 +153,7 @@ class MultiprocessStorageBehaviorTests(unittest.TestCase):
         credentials = _create_test_credentials()
         credentials.set_store(store)
         store.put(credentials)
+        actual_token = 'b'
 
         def child_process_func(
                 die_event, ready_event, check_event):  # pragma: NO COVER
@@ -156,10 +174,12 @@ class MultiprocessStorageBehaviorTests(unittest.TestCase):
 
             credentials.store.acquire_lock = replacement_acquire_lock
 
-            http = _generate_token_response_http('b')
+            http = _generate_token_response_http(actual_token)
             credentials.refresh(http)
+            self.assertEqual(credentials.access_token, actual_token)
 
-            self.assertEqual(credentials.access_token, 'b')
+            # Verify mock http.
+            self._verify_refresh_payload(http, credentials)
 
         check_event = multiprocessing.Event()
         with scoped_child_process(child_process_func, check_event=check_event):
@@ -168,15 +188,17 @@ class MultiprocessStorageBehaviorTests(unittest.TestCase):
                 store._backend._process_lock.acquire(blocking=False))
             check_event.set()
 
-            # The child process will refresh first, so we should end up
-            # with 'b' as the token.
-            http = mock.Mock()
+            http = _generate_token_response_http('not ' + actual_token)
             credentials.refresh(http=http)
-            self.assertEqual(credentials.access_token, 'b')
-            self.assertFalse(http.request.called)
+            # The child process will refresh first, so we should end up
+            # with `actual_token`' as the token.
+            self.assertEqual(credentials.access_token, actual_token)
+
+            # Make sure the refresh did not make a request.
+            self.assertEqual(http.requests, 0)
 
         retrieved = store.get()
-        self.assertEqual(retrieved.access_token, 'b')
+        self.assertEqual(retrieved.access_token, actual_token)
 
     def test_read_only_file_fail_lock(self):
         credentials = _create_test_credentials()
@@ -233,7 +255,7 @@ class MultiprocessStorageUnitTests(unittest.TestCase):
 
     def test__read_write_credentials_file(self):
         credentials = _create_test_credentials()
-        contents = StringIO()
+        contents = six.StringIO()
 
         multiprocess_file_storage._write_credentials_file(
             contents, {'key': credentials})
@@ -253,23 +275,23 @@ class MultiprocessStorageUnitTests(unittest.TestCase):
         # the invalid one but still load the valid one.
         data['credentials']['invalid'] = '123'
         results = multiprocess_file_storage._load_credentials_file(
-            StringIO(json.dumps(data)))
+            six.StringIO(json.dumps(data)))
         self.assertNotIn('invalid', results)
         self.assertEqual(
             results['key'].access_token, credentials.access_token)
 
     def test__load_credentials_file_invalid_json(self):
-        contents = StringIO('{[')
+        contents = six.StringIO('{[')
         self.assertEqual(
             multiprocess_file_storage._load_credentials_file(contents), {})
 
     def test__load_credentials_file_no_file_version(self):
-        contents = StringIO('{}')
+        contents = six.StringIO('{}')
         self.assertEqual(
             multiprocess_file_storage._load_credentials_file(contents), {})
 
     def test__load_credentials_file_bad_file_version(self):
-        contents = StringIO(json.dumps({'file_version': 1}))
+        contents = six.StringIO(json.dumps({'file_version': 1}))
         self.assertEqual(
             multiprocess_file_storage._load_credentials_file(contents), {})
 
