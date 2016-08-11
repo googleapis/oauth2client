@@ -197,8 +197,8 @@ class Oauth2CallbackTest(TestWithDjangoEnvironment):
             state=json.dumps(self.fake_state),
             redirect_uri=request.build_absolute_uri('oauth2/oauth2callback'))
 
-        self.session['google_oauth2_flow_{0}'.format(self.CSRF_TOKEN)] \
-            = pickle.dumps(flow)
+        session_key = 'google_oauth2_flow_{0}'.format(self.CSRF_TOKEN)
+        self.session[session_key] = pickle.dumps(flow)
 
         def local_throws(code):
             raise FlowExchangeError('test')
