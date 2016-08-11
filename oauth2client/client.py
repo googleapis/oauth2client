@@ -34,6 +34,7 @@ from six.moves import urllib
 
 import oauth2client
 from oauth2client import _helpers
+from oauth2client import _pkce
 from oauth2client import clientsecrets
 from oauth2client import transport
 
@@ -1632,7 +1633,9 @@ def credentials_from_code(client_id, client_secret, scope, code,
                           auth_uri=oauth2client.GOOGLE_AUTH_URI,
                           revoke_uri=oauth2client.GOOGLE_REVOKE_URI,
                           device_uri=oauth2client.GOOGLE_DEVICE_URI,
-                          token_info_uri=oauth2client.GOOGLE_TOKEN_INFO_URI):
+                          token_info_uri=oauth2client.GOOGLE_TOKEN_INFO_URI,
+                          pkce=False,
+                          code_verifier=None):
     """Exchanges an authorization code for an OAuth2Credentials object.
 
     Args:
@@ -1656,6 +1659,15 @@ def credentials_from_code(client_id, client_secret, scope, code,
         device_uri: string, URI for device authorization endpoint. For
                     convenience defaults to Google's endpoints but any OAuth
                     2.0 provider can be used.
+        pkce: boolean, default: False, Generate and include a "Proof Key
+              for Code Exchange" (PKCE) with your authorization and token
+              requests. This adds security for installed applications that
+              cannot protect a client_secret. See RFC 7636 for details.
+        code_verifier: bytestring or None, default: None, parameter passed
+                       as part of the code exchange when pkce=True. If
+                       None, a code_verifier will automatically be
+                       generated as part of step1_get_authorize_url(). See
+                       RFC 7636 for details.
 
     Returns:
         An OAuth2Credentials object.
@@ -1666,10 +1678,14 @@ def credentials_from_code(client_id, client_secret, scope, code,
     """
     flow = OAuth2WebServerFlow(client_id, client_secret, scope,
                                redirect_uri=redirect_uri,
-                               user_agent=user_agent, auth_uri=auth_uri,
-                               token_uri=token_uri, revoke_uri=revoke_uri,
+                               user_agent=user_agent,
+                               auth_uri=auth_uri,
+                               token_uri=token_uri,
+                               revoke_uri=revoke_uri,
                                device_uri=device_uri,
-                               token_info_uri=token_info_uri)
+                               token_info_uri=token_info_uri,
+                               pkce=pkce,
+                               code_verifier=code_verifier)
 
     credentials = flow.step2_exchange(code, http=http)
     return credentials
@@ -1704,6 +1720,15 @@ def credentials_from_clientsecrets_and_code(filename, scope, code,
         cache: An optional cache service client that implements get() and set()
                methods. See clientsecrets.loadfile() for details.
         device_uri: string, OAuth 2.0 device authorization endpoint
+        pkce: boolean, default: False, Generate and include a "Proof Key
+              for Code Exchange" (PKCE) with your authorization and token
+              requests. This adds security for installed applications that
+              cannot protect a client_secret. See RFC 7636 for details.
+        code_verifier: bytestring or None, default: None, parameter passed
+                       as part of the code exchange when pkce=True. If
+                       None, a code_verifier will automatically be
+                       generated as part of step1_get_authorize_url(). See
+                       RFC 7636 for details.
 
     Returns:
         An OAuth2Credentials object.
@@ -1807,6 +1832,8 @@ class OAuth2WebServerFlow(Flow):
                  device_uri=oauth2client.GOOGLE_DEVICE_URI,
                  token_info_uri=oauth2client.GOOGLE_TOKEN_INFO_URI,
                  authorization_header=None,
+                 pkce=False,
+                 code_verifier=None,
                  **kwargs):
         """Constructor for OAuth2WebServerFlow.
 
@@ -1844,6 +1871,15 @@ class OAuth2WebServerFlow(Flow):
                                   require a client to authenticate using a
                                   header value instead of passing client_secret
                                   in the POST body.
+            pkce: boolean, default: False, Generate and include a "Proof Key
+                  for Code Exchange" (PKCE) with your authorization and token
+                  requests. This adds security for installed applications that
+                  cannot protect a client_secret. See RFC 7636 for details.
+            code_verifier: bytestring or None, default: None, parameter passed
+                           as part of the code exchange when pkce=True. If
+                           None, a code_verifier will automatically be
+                           generated as part of step1_get_authorize_url(). See
+                           RFC 7636 for details.
             **kwargs: dict, The keyword arguments are all optional and required
                       parameters for the OAuth calls.
         """
@@ -1863,6 +1899,8 @@ class OAuth2WebServerFlow(Flow):
         self.device_uri = device_uri
         self.token_info_uri = token_info_uri
         self.authorization_header = authorization_header
+        self._pkce = pkce
+        self.code_verifier = code_verifier
         self.params = _oauth2_web_server_flow_params(kwargs)
 
     @_helpers.positional(1)
@@ -1903,6 +1941,13 @@ class OAuth2WebServerFlow(Flow):
             query_params['state'] = state
         if self.login_hint is not None:
             query_params['login_hint'] = self.login_hint
+        if self._pkce:
+            if not self.code_verifier:
+                self.code_verifier = _pkce.code_verifier()
+            challenge = _pkce.code_challenge(self.code_verifier)
+            query_params['code_challenge'] = challenge
+            query_params['code_challenge_method'] = 'S256'
+
         query_params.update(self.params)
         return _update_query_params(self.auth_uri, query_params)
 
@@ -1997,6 +2042,8 @@ class OAuth2WebServerFlow(Flow):
         }
         if self.client_secret is not None:
             post_data['client_secret'] = self.client_secret
+        if self._pkce:
+            post_data['code_verifier'] = self.code_verifier
         if device_flow_info is not None:
             post_data['grant_type'] = 'http://oauth.net/grant_type/device/1.0'
         else:
@@ -2054,7 +2101,7 @@ class OAuth2WebServerFlow(Flow):
 @_helpers.positional(2)
 def flow_from_clientsecrets(filename, scope, redirect_uri=None,
                             message=None, cache=None, login_hint=None,
-                            device_uri=None):
+                            device_uri=None, pkce=None, code_verifier=None):
     """Create a Flow from a clientsecrets file.
 
     Will create the right kind of Flow based on the contents of the
@@ -2103,10 +2150,11 @@ def flow_from_clientsecrets(filename, scope, redirect_uri=None,
                 'login_hint': login_hint,
             }
             revoke_uri = client_info.get('revoke_uri')
-            if revoke_uri is not None:
-                constructor_kwargs['revoke_uri'] = revoke_uri
-            if device_uri is not None:
-                constructor_kwargs['device_uri'] = device_uri
+            optional = ('revoke_uri', 'device_uri', 'pkce', 'code_verifier')
+            for param in optional:
+                if locals()[param] is not None:
+                    constructor_kwargs[param] = locals()[param]
+
             return OAuth2WebServerFlow(
                 client_info['client_id'], client_info['client_secret'],
                 scope, **constructor_kwargs)
