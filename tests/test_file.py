@@ -24,12 +24,12 @@ import os
 import pickle
 import stat
 import tempfile
+import unittest
 import warnings
 
 import mock
 import six
 from six.moves import http_client
-import unittest2
 
 from oauth2client import _helpers
 from oauth2client import client
@@ -48,7 +48,7 @@ _filehandle, FILENAME = tempfile.mkstemp('oauth2client_test.data')
 os.close(_filehandle)
 
 
-class OAuth2ClientFileTests(unittest2.TestCase):
+class OAuth2ClientFileTests(unittest.TestCase):
 
     def tearDown(self):
         try:
@@ -95,7 +95,7 @@ class OAuth2ClientFileTests(unittest2.TestCase):
         finally:
             os.rmdir(FILENAME)
 
-    @unittest2.skipIf(not hasattr(os, 'symlink'), 'No symlink available')
+    @unittest.skipIf(not hasattr(os, 'symlink'), 'No symlink available')
     def test_no_sym_link_credentials(self):
         SYMFILENAME = FILENAME + '.sym'
         os.symlink(FILENAME, SYMFILENAME)

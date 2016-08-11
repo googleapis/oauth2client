@@ -17,6 +17,7 @@ import json
 import os
 import tempfile
 import time
+import unittest
 
 from google.appengine.api import apiproxy_stub
 from google.appengine.api import apiproxy_stub_map
@@ -30,7 +31,6 @@ from google.appengine.ext import testbed
 import mock
 from six.moves import urllib
 from six.moves import urllib_parse
-import unittest2
 import webapp2
 from webtest import TestApp
 
@@ -81,7 +81,7 @@ class UserNotLoggedInMock(object):
         return None
 
 
-class TestAppAssertionCredentials(unittest2.TestCase):
+class TestAppAssertionCredentials(unittest.TestCase):
     account_name = "service_account_name@appspot.com"
     signature = "signature"
 
@@ -266,7 +266,7 @@ class TestFlowModel(db.Model):
     flow = appengine.FlowProperty()
 
 
-class FlowPropertyTest(unittest2.TestCase):
+class FlowPropertyTest(unittest.TestCase):
 
     def setUp(self):
         self.testbed = testbed.Testbed()
@@ -305,7 +305,7 @@ class TestCredentialsModel(db.Model):
     credentials = appengine.CredentialsProperty()
 
 
-class CredentialsPropertyTest(unittest2.TestCase):
+class CredentialsPropertyTest(unittest.TestCase):
 
     def setUp(self):
         self.testbed = testbed.Testbed()
@@ -359,7 +359,7 @@ class CredentialsPropertyTest(unittest2.TestCase):
             appengine.CredentialsProperty().validate(42)
 
 
-class StorageByKeyNameTest(unittest2.TestCase):
+class StorageByKeyNameTest(unittest.TestCase):
 
     def setUp(self):
         self.testbed = testbed.Testbed()
@@ -596,7 +596,7 @@ class MockRequestHandler(object):
     request = MockRequest()
 
 
-class DecoratorTests(unittest2.TestCase):
+class DecoratorTests(unittest.TestCase):
 
     def setUp(self):
         self.testbed = testbed.Testbed()
@@ -1051,7 +1051,7 @@ class DecoratorTests(unittest2.TestCase):
         new_http.assert_called_once_with()
 
 
-class DecoratorXsrfSecretTests(unittest2.TestCase):
+class DecoratorXsrfSecretTests(unittest.TestCase):
     """Test xsrf_secret_key."""
 
     def setUp(self):
@@ -1100,7 +1100,7 @@ class DecoratorXsrfSecretTests(unittest2.TestCase):
         self.assertEqual(site_key.secret, secret)
 
 
-class DecoratorXsrfProtectionTests(unittest2.TestCase):
+class DecoratorXsrfProtectionTests(unittest.TestCase):
     """Test _build_state_value and _parse_state_value."""
 
     def setUp(self):

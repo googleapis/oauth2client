@@ -12,24 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import argparse
 import socket
 import sys
 import threading
+import unittest
 
 import mock
 from six.moves.urllib import request
-import unittest2
 
 from oauth2client import client
 from oauth2client import tools
 
-try:
-    import argparse
-except ImportError:  # pragma: NO COVER
-    raise unittest2.SkipTest('argparase unavailable.')
 
-
-class TestClientRedirectServer(unittest2.TestCase):
+class TestClientRedirectServer(unittest.TestCase):
     """Test the ClientRedirectServer and ClientRedirectHandler classes."""
 
     def test_ClientRedirectServer(self):
@@ -51,7 +47,7 @@ class TestClientRedirectServer(unittest2.TestCase):
         self.assertEqual(httpd.query_params.get('code'), code)
 
 
-class TestRunFlow(unittest2.TestCase):
+class TestRunFlow(unittest.TestCase):
 
     def setUp(self):
         self.server = mock.Mock()
@@ -187,6 +183,6 @@ class TestRunFlow(unittest2.TestCase):
         self.assertFalse(self.server.handle_request.called)
 
 
-class TestMessageIfMissing(unittest2.TestCase):
+class TestMessageIfMissing(unittest.TestCase):
     def test_message_if_missing(self):
         self.assertIn('somefile.txt', tools.message_if_missing('somefile.txt'))

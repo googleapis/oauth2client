@@ -13,11 +13,11 @@
 # limitations under the License.
 
 import datetime
+import unittest
 
 import sqlalchemy
 import sqlalchemy.ext.declarative
 import sqlalchemy.orm
-import unittest2
 
 import oauth2client
 import oauth2client.client
@@ -36,7 +36,7 @@ class DummyModel(Base):
         oauth2client.contrib.sqlalchemy.CredentialsType)
 
 
-class TestSQLAlchemyStorage(unittest2.TestCase):
+class TestSQLAlchemyStorage(unittest.TestCase):
     def setUp(self):
         engine = sqlalchemy.create_engine('sqlite://')
         Base.metadata.create_all(engine)

@@ -17,12 +17,12 @@
 import datetime
 import json
 import logging
+import unittest
 
 import flask
 import mock
 import six.moves.http_client as httplib
 import six.moves.urllib.parse as urlparse
-import unittest2
 
 import oauth2client
 from oauth2client import client
@@ -44,7 +44,7 @@ DEFAULT_RESP = """\
 """
 
 
-class FlaskOAuth2Tests(unittest2.TestCase):
+class FlaskOAuth2Tests(unittest.TestCase):
 
     def setUp(self):
         self.app = flask.Flask(__name__)

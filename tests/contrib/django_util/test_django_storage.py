@@ -16,10 +16,10 @@
 
 # Mock a Django environment
 import datetime
+import unittest
 
 from django.db import models
 import mock
-import unittest2
 
 from oauth2client import GOOGLE_TOKEN_URI
 from oauth2client.client import OAuth2Credentials
@@ -28,7 +28,7 @@ from oauth2client.contrib.django_util.storage import (
     DjangoORMStorage as Storage)
 
 
-class TestStorage(unittest2.TestCase):
+class TestStorage(unittest.TestCase):
     def setUp(self):
         access_token = 'foo'
         client_id = 'some_client_id'

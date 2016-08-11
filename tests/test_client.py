@@ -23,12 +23,12 @@ import os
 import socket
 import sys
 import tempfile
+import unittest
 
 import mock
 import six
 from six.moves import http_client
 from six.moves import urllib
-import unittest2
 
 import oauth2client
 from oauth2client import _helpers
@@ -70,7 +70,7 @@ def load_and_cache(existing_file, fakename, cache_mock):
     cache_mock.cache[fakename] = {client_type: client_info}
 
 
-class CredentialsTests(unittest2.TestCase):
+class CredentialsTests(unittest.TestCase):
 
     def test_to_from_json(self):
         credentials = client.Credentials()
@@ -214,7 +214,7 @@ class CredentialsTests(unittest2.TestCase):
         self.assertEqual(credentials.__dict__, {})
 
 
-class TestStorage(unittest2.TestCase):
+class TestStorage(unittest.TestCase):
 
     def test_locked_get_abstract(self):
         storage = client.Storage()
@@ -249,7 +249,7 @@ def mock_module_import(module):
             del sys.modules[entry]
 
 
-class GoogleCredentialsTests(unittest2.TestCase):
+class GoogleCredentialsTests(unittest.TestCase):
 
     def setUp(self):
         self.os_name = os.name
@@ -864,7 +864,7 @@ def _token_revoke_test_helper(testcase, status, revoke_raise,
     testcase.credentials.set_store(current_store)
 
 
-class BasicCredentialsTests(unittest2.TestCase):
+class BasicCredentialsTests(unittest.TestCase):
 
     def setUp(self):
         access_token = 'foo'
@@ -1477,7 +1477,7 @@ class BasicCredentialsTests(unittest2.TestCase):
             self.assertEqual(self.credentials.id_token, body)
 
 
-class AccessTokenCredentialsTests(unittest2.TestCase):
+class AccessTokenCredentialsTests(unittest.TestCase):
 
     def setUp(self):
         access_token = 'foo'
@@ -1519,7 +1519,7 @@ class AccessTokenCredentialsTests(unittest2.TestCase):
         self.assertEqual(b'Bearer foo', content[b'Authorization'])
 
 
-class TestAssertionCredentials(unittest2.TestCase):
+class TestAssertionCredentials(unittest.TestCase):
     assertion_text = 'This is the assertion'
     assertion_type = 'http://www.google.com/assertionType'
 
@@ -1570,7 +1570,7 @@ class TestAssertionCredentials(unittest2.TestCase):
             credentials.sign_blob(b'blob')
 
 
-class UpdateQueryParamsTest(unittest2.TestCase):
+class UpdateQueryParamsTest(unittest.TestCase):
     def test_update_query_params_no_params(self):
         uri = 'http://www.google.com'
         updated = client._update_query_params(uri, {'a': 'b'})
@@ -1583,7 +1583,7 @@ class UpdateQueryParamsTest(unittest2.TestCase):
         assertUrisEqual(self, updated, hardcoded_update)
 
 
-class ExtractIdTokenTest(unittest2.TestCase):
+class ExtractIdTokenTest(unittest.TestCase):
     """Tests client._extract_id_token()."""
 
     def test_extract_success(self):
@@ -1604,7 +1604,7 @@ class ExtractIdTokenTest(unittest2.TestCase):
             client._extract_id_token(jwt)
 
 
-class OAuth2WebServerFlowTest(unittest2.TestCase):
+class OAuth2WebServerFlowTest(unittest.TestCase):
 
     def setUp(self):
         self.flow = client.OAuth2WebServerFlow(
@@ -2030,7 +2030,7 @@ class OAuth2WebServerFlowTest(unittest2.TestCase):
         self.assertEqual(credentials.id_token, body)
 
 
-class FlowFromCachedClientsecrets(unittest2.TestCase):
+class FlowFromCachedClientsecrets(unittest.TestCase):
 
     def test_flow_from_clientsecrets_cached(self):
         cache_mock = http_mock.CacheMock()
@@ -2136,7 +2136,7 @@ class FlowFromCachedClientsecrets(unittest2.TestCase):
         loadfile_mock.assert_called_once_with(filename, cache=cache)
 
 
-class CredentialsFromCodeTests(unittest2.TestCase):
+class CredentialsFromCodeTests(unittest.TestCase):
 
     def setUp(self):
         self.client_id = 'client_id_abc'
@@ -2203,7 +2203,7 @@ class CredentialsFromCodeTests(unittest2.TestCase):
                 self.code, http=http)
 
 
-class Test__save_private_file(unittest2.TestCase):
+class Test__save_private_file(unittest.TestCase):
 
     def _save_helper(self, filename):
         contents = []
@@ -2231,7 +2231,7 @@ class Test__save_private_file(unittest2.TestCase):
         self._save_helper(filename)
 
 
-class Test__get_application_default_credential_GAE(unittest2.TestCase):
+class Test__get_application_default_credential_GAE(unittest.TestCase):
 
     @mock.patch.dict('sys.modules', {
         'oauth2client.contrib.appengine': mock.Mock()})
@@ -2244,7 +2244,7 @@ class Test__get_application_default_credential_GAE(unittest2.TestCase):
         creds_kls.assert_called_once_with([])
 
 
-class Test__get_application_default_credential_GCE(unittest2.TestCase):
+class Test__get_application_default_credential_GCE(unittest.TestCase):
 
     @mock.patch.dict('sys.modules', {
         'oauth2client.contrib.gce': mock.Mock()})
@@ -2257,7 +2257,7 @@ class Test__get_application_default_credential_GCE(unittest2.TestCase):
         creds_kls.assert_called_once_with()
 
 
-class Test__require_crypto_or_die(unittest2.TestCase):
+class Test__require_crypto_or_die(unittest.TestCase):
 
     @mock.patch.object(client, 'HAS_CRYPTO', new=True)
     def test_with_crypto(self):
@@ -2269,7 +2269,7 @@ class Test__require_crypto_or_die(unittest2.TestCase):
             client._require_crypto_or_die()
 
 
-class TestDeviceFlowInfo(unittest2.TestCase):
+class TestDeviceFlowInfo(unittest.TestCase):
 
     DEVICE_CODE = 'e80ff179-fd65-416c-9dbf-56a23e5d23e4'
     USER_CODE = '4bbd8b82-fc73-11e5-adf3-00c2c63e5792'

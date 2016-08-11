@@ -15,9 +15,9 @@
 """Tests for oauth2client.contrib.xsrfutil."""
 
 import base64
+import unittest
 
 import mock
-import unittest2
 
 from oauth2client import _helpers
 from oauth2client.contrib import xsrfutil
@@ -37,7 +37,7 @@ TEST_EXTRA_INFO_2 = b'more_extra_info'
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 
-class Test_generate_token(unittest2.TestCase):
+class Test_generate_token(unittest.TestCase):
 
     def test_bad_positional(self):
         # Need 2 positional arguments.
@@ -111,7 +111,7 @@ class Test_generate_token(unittest2.TestCase):
                 self.assertEqual(token, expected_token)
 
 
-class Test_validate_token(unittest2.TestCase):
+class Test_validate_token(unittest.TestCase):
 
     def test_bad_positional(self):
         # Need 3 positional arguments.
@@ -218,7 +218,7 @@ class Test_validate_token(unittest2.TestCase):
                                             when=token_time)
 
 
-class XsrfUtilTests(unittest2.TestCase):
+class XsrfUtilTests(unittest.TestCase):
     """Test xsrfutil functions."""
 
     def testGenerateAndValidateToken(self):

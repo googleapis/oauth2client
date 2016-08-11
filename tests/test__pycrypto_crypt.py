@@ -14,13 +14,12 @@
 """Unit tests for oauth2client._pycrypto_crypt."""
 
 import os
-
-import unittest2
+import unittest
 
 from oauth2client import crypt
 
 
-class TestPyCryptoVerifier(unittest2.TestCase):
+class TestPyCryptoVerifier(unittest.TestCase):
 
     PUBLIC_CERT_FILENAME = os.path.join(os.path.dirname(__file__),
                                         'data', 'public_cert.pem')
@@ -65,7 +64,7 @@ class TestPyCryptoVerifier(unittest2.TestCase):
         self.assertIsInstance(verifier, crypt.PyCryptoVerifier)
 
 
-class TestPyCryptoSigner(unittest2.TestCase):
+class TestPyCryptoSigner(unittest.TestCase):
 
     def test_from_string_bad_key(self):
         key_bytes = 'definitely-not-pem-format'

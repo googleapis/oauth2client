@@ -20,11 +20,11 @@ import json
 import multiprocessing
 import os
 import tempfile
+import unittest
 
 import fasteners
 import mock
 from six import StringIO
-import unittest2
 
 from oauth2client import client
 from oauth2client.contrib import multiprocess_file_storage
@@ -75,7 +75,7 @@ def _generate_token_response_http(new_token='new_token'):
     return http
 
 
-class MultiprocessStorageBehaviorTests(unittest2.TestCase):
+class MultiprocessStorageBehaviorTests(unittest.TestCase):
 
     def setUp(self):
         filehandle, self.filename = tempfile.mkstemp(
@@ -200,7 +200,7 @@ class MultiprocessStorageBehaviorTests(unittest2.TestCase):
         self.assertIsNotNone(store.get())
 
 
-class MultiprocessStorageUnitTests(unittest2.TestCase):
+class MultiprocessStorageUnitTests(unittest.TestCase):
 
     def setUp(self):
         filehandle, self.filename = tempfile.mkstemp(
@@ -310,4 +310,4 @@ class MultiprocessStorageUnitTests(unittest2.TestCase):
 
 
 if __name__ == '__main__':  # pragma: NO COVER
-    unittest2.main()
+    unittest.main()

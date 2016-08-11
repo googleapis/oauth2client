@@ -19,17 +19,16 @@ Unit tests for models and fields defined by the django_util helper.
 
 import base64
 import pickle
+import unittest
 
 from tests.contrib.django_util.models import CredentialsModel
-
-import unittest2
 
 from oauth2client import _helpers
 from oauth2client.client import Credentials
 from oauth2client.contrib.django_util.models import CredentialsField
 
 
-class TestCredentialsField(unittest2.TestCase):
+class TestCredentialsField(unittest.TestCase):
 
     def setUp(self):
         self.fake_model = CredentialsModel()

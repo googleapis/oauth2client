@@ -17,9 +17,9 @@
 import os
 import tempfile
 import time
+import unittest
 
 import mock
-import unittest2
 
 from oauth2client import _helpers
 from oauth2client import client
@@ -47,7 +47,7 @@ def datafile(filename):
         return file_obj.read()
 
 
-class CryptTests(unittest2.TestCase):
+class CryptTests(unittest.TestCase):
 
     def setUp(self):
         self.format_ = 'p12'
@@ -232,7 +232,7 @@ class PEMCryptTestsOpenSSL(CryptTests):
         self.verifier = crypt.OpenSSLVerifier
 
 
-class SignedJwtAssertionCredentialsTests(unittest2.TestCase):
+class SignedJwtAssertionCredentialsTests(unittest.TestCase):
 
     def setUp(self):
         self.orig_signer = crypt.Signer
@@ -334,7 +334,7 @@ class PEMSignedJwtAssertionCredentialsPyCryptoTests(
         crypt.Signer = self.orig_signer
 
 
-class TestHasOpenSSLFlag(unittest2.TestCase):
+class TestHasOpenSSLFlag(unittest.TestCase):
 
     def test_true(self):
         self.assertEqual(True, client.HAS_OPENSSL)

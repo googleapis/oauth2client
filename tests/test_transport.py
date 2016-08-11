@@ -12,16 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import unittest
+
 import httplib2
 import mock
-import unittest2
 
 from oauth2client import client
 from oauth2client import transport
 from . import http_mock
 
 
-class TestMemoryCache(unittest2.TestCase):
+class TestMemoryCache(unittest.TestCase):
 
     def test_get_set_delete(self):
         cache = transport.MemoryCache()
@@ -33,7 +34,7 @@ class TestMemoryCache(unittest2.TestCase):
         self.assertIsNone(cache.get('foo'))
 
 
-class Test_get_cached_http(unittest2.TestCase):
+class Test_get_cached_http(unittest.TestCase):
 
     def test_global(self):
         cached_http = transport.get_cached_http()
@@ -47,7 +48,7 @@ class Test_get_cached_http(unittest2.TestCase):
         self.assertIs(result, cache)
 
 
-class Test_get_http_object(unittest2.TestCase):
+class Test_get_http_object(unittest.TestCase):
 
     @mock.patch.object(httplib2, 'Http', return_value=object())
     def test_it(self, http_klass):
@@ -62,7 +63,7 @@ class Test_get_http_object(unittest2.TestCase):
         http_klass.assert_called_once_with(1, 2, foo='bar')
 
 
-class Test__initialize_headers(unittest2.TestCase):
+class Test__initialize_headers(unittest.TestCase):
 
     def test_null(self):
         result = transport._initialize_headers(None)
@@ -75,7 +76,7 @@ class Test__initialize_headers(unittest2.TestCase):
         self.assertIsNot(result, headers)
 
 
-class Test__apply_user_agent(unittest2.TestCase):
+class Test__apply_user_agent(unittest.TestCase):
 
     def test_null(self):
         headers = object()
@@ -99,7 +100,7 @@ class Test__apply_user_agent(unittest2.TestCase):
         self.assertEqual(result, {'user-agent': final_agent})
 
 
-class Test_clean_headers(unittest2.TestCase):
+class Test_clean_headers(unittest.TestCase):
 
     def test_no_modify(self):
         headers = {b'key': b'val'}
@@ -127,7 +128,7 @@ class Test_clean_headers(unittest2.TestCase):
         self.assertEqual(result, header_str)
 
 
-class Test_wrap_http_for_auth(unittest2.TestCase):
+class Test_wrap_http_for_auth(unittest.TestCase):
 
     def test_wrap(self):
         credentials = object()
@@ -139,7 +140,7 @@ class Test_wrap_http_for_auth(unittest2.TestCase):
         self.assertIs(http.request.credentials, credentials)
 
 
-class Test_request(unittest2.TestCase):
+class Test_request(unittest.TestCase):
 
     uri = 'http://localhost'
     method = 'POST'

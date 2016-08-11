@@ -14,10 +14,10 @@
 
 import datetime
 import json
+import unittest
 
 import mock
 from six.moves import http_client
-import unittest2
 
 from oauth2client.contrib import _metadata
 from .. import http_mock
@@ -37,7 +37,7 @@ def request_mock(status, content_type, content):
     return http
 
 
-class TestMetadata(unittest2.TestCase):
+class TestMetadata(unittest.TestCase):
 
     def test_get_success_json(self):
         http = request_mock(
