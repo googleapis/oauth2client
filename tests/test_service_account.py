@@ -21,12 +21,12 @@ import datetime
 import json
 import os
 import tempfile
+import unittest
 
 import mock
 import rsa
 import six
 from six.moves import http_client
-import unittest2
 
 from oauth2client import client
 from oauth2client import crypt
@@ -44,7 +44,7 @@ def datafile(filename):
         return file_obj.read()
 
 
-class ServiceAccountCredentialsTests(unittest2.TestCase):
+class ServiceAccountCredentialsTests(unittest.TestCase):
 
     def setUp(self):
         self.orig_signer = crypt.Signer
@@ -386,7 +386,7 @@ T3_EXPIRY = T3 + TOKEN_LIFE
 T3_EXPIRY_DATE = T3_DATE + datetime.timedelta(seconds=TOKEN_LIFE)
 
 
-class JWTAccessCredentialsTests(unittest2.TestCase):
+class JWTAccessCredentialsTests(unittest.TestCase):
 
     def setUp(self):
         self.client_id = '123'

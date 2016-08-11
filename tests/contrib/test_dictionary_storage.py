@@ -14,7 +14,7 @@
 
 """Unit tests for oauth2client.contrib.dictionary_storage"""
 
-import unittest2
+import unittest
 
 import oauth2client
 from oauth2client import client
@@ -37,7 +37,7 @@ def _generate_credentials(scopes=None):
         scopes=scopes)
 
 
-class DictionaryStorageTests(unittest2.TestCase):
+class DictionaryStorageTests(unittest.TestCase):
 
     def test_constructor_defaults(self):
         dictionary = {}

@@ -18,8 +18,7 @@ import errno
 from io import StringIO
 import os
 import tempfile
-
-import unittest2
+import unittest
 
 import oauth2client
 from oauth2client import _helpers
@@ -36,7 +35,7 @@ NONEXISTENT_FILE = os.path.join(
     os.path.dirname(__file__), 'afilethatisntthere.json')
 
 
-class Test__validate_clientsecrets(unittest2.TestCase):
+class Test__validate_clientsecrets(unittest.TestCase):
 
     def test_with_none(self):
         with self.assertRaises(clientsecrets.InvalidClientSecretsError):
@@ -147,7 +146,7 @@ class Test__validate_clientsecrets(unittest2.TestCase):
         self.assertEqual(result, (clientsecrets.TYPE_INSTALLED, client_info))
 
 
-class Test__loadfile(unittest2.TestCase):
+class Test__loadfile(unittest.TestCase):
 
     def test_success(self):
         client_type, client_info = clientsecrets._loadfile(VALID_FILE)
@@ -176,7 +175,7 @@ class Test__loadfile(unittest2.TestCase):
             clientsecrets._loadfile(filename)
 
 
-class OAuth2CredentialsTests(unittest2.TestCase):
+class OAuth2CredentialsTests(unittest.TestCase):
 
     def test_validate_error(self):
         payload = (
@@ -223,7 +222,7 @@ class OAuth2CredentialsTests(unittest2.TestCase):
         self.assertEquals(exc_manager.exception.args[3], errno.ENOENT)
 
 
-class CachedClientsecretsTests(unittest2.TestCase):
+class CachedClientsecretsTests(unittest.TestCase):
 
     class CacheMock(object):
         def __init__(self):

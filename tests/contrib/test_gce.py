@@ -16,10 +16,10 @@
 
 import datetime
 import json
+import unittest
 
 import mock
 from six.moves import http_client
-import unittest2
 
 from oauth2client import client
 from oauth2client.contrib import _metadata
@@ -35,7 +35,7 @@ SERVICE_ACCOUNT_INFO = {
 METADATA_PATH = 'instance/service-accounts/a@example.com/token'
 
 
-class AppAssertionCredentialsTests(unittest2.TestCase):
+class AppAssertionCredentialsTests(unittest.TestCase):
 
     def test_constructor(self):
         credentials = gce.AppAssertionCredentials()

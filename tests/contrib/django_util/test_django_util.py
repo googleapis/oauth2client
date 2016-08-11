@@ -15,6 +15,7 @@
 """Tests the initialization logic of django_util."""
 
 import copy
+import unittest
 
 import django.conf
 from django.conf.urls import include, url
@@ -23,7 +24,6 @@ from django.core import exceptions
 import mock
 from six.moves import reload_module
 from tests.contrib.django_util import TestWithDjangoEnvironment
-import unittest2
 
 from oauth2client.contrib import django_util
 import oauth2client.contrib.django_util
@@ -36,7 +36,7 @@ urlpatterns = [
 ]
 
 
-class OAuth2SetupTest(unittest2.TestCase):
+class OAuth2SetupTest(unittest.TestCase):
 
     def setUp(self):
         self.save_settings = copy.deepcopy(django.conf.settings)

@@ -16,10 +16,10 @@
 
 import datetime
 import threading
+import unittest
 
 import keyring
 import mock
-import unittest2
 
 import oauth2client
 from oauth2client import client
@@ -29,7 +29,7 @@ from oauth2client.contrib import keyring_storage
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 
-class KeyringStorageTests(unittest2.TestCase):
+class KeyringStorageTests(unittest.TestCase):
 
     def test_constructor(self):
         service_name = 'my_unit_test'

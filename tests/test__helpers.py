@@ -14,8 +14,9 @@
 
 """Unit tests for oauth2client._helpers."""
 
+import unittest
+
 import mock
-import unittest2
 
 from oauth2client import _helpers
 
@@ -23,7 +24,7 @@ from oauth2client import _helpers
 __author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 
-class PositionalTests(unittest2.TestCase):
+class PositionalTests(unittest.TestCase):
 
     def test_usage(self):
         _helpers.positional_parameters_enforcement = (
@@ -83,7 +84,7 @@ class PositionalTests(unittest2.TestCase):
         self.assertFalse(mock_logger.warning.called)
 
 
-class ScopeToStringTests(unittest2.TestCase):
+class ScopeToStringTests(unittest.TestCase):
 
     def test_iterables(self):
         cases = [
@@ -103,7 +104,7 @@ class ScopeToStringTests(unittest2.TestCase):
             self.assertEqual(expected, _helpers.scopes_to_string(case))
 
 
-class StringToScopeTests(unittest2.TestCase):
+class StringToScopeTests(unittest.TestCase):
 
     def test_conversion(self):
         cases = [
@@ -117,7 +118,7 @@ class StringToScopeTests(unittest2.TestCase):
             self.assertEqual(expected, _helpers.string_to_scopes(case))
 
 
-class AddQueryParameterTests(unittest2.TestCase):
+class AddQueryParameterTests(unittest.TestCase):
 
     def test__add_query_parameter(self):
         self.assertEqual(
@@ -138,7 +139,7 @@ class AddQueryParameterTests(unittest2.TestCase):
             '/action?a=+%3D')
 
 
-class Test__parse_pem_key(unittest2.TestCase):
+class Test__parse_pem_key(unittest.TestCase):
 
     def test_valid_input(self):
         test_string = b'1234-----BEGIN FOO BAR BAZ'
@@ -151,7 +152,7 @@ class Test__parse_pem_key(unittest2.TestCase):
         self.assertEqual(result, None)
 
 
-class Test__json_encode(unittest2.TestCase):
+class Test__json_encode(unittest.TestCase):
 
     def test_dictionary_input(self):
         # Use only a single key since dictionary hash order
@@ -166,7 +167,7 @@ class Test__json_encode(unittest2.TestCase):
         self.assertEqual(result, '[42,1337]')
 
 
-class Test__to_bytes(unittest2.TestCase):
+class Test__to_bytes(unittest.TestCase):
 
     def test_with_bytes(self):
         value = b'bytes-val'
@@ -183,7 +184,7 @@ class Test__to_bytes(unittest2.TestCase):
             _helpers._to_bytes(value)
 
 
-class Test__from_bytes(unittest2.TestCase):
+class Test__from_bytes(unittest.TestCase):
 
     def test_with_unicode(self):
         value = u'bytes-val'
@@ -200,7 +201,7 @@ class Test__from_bytes(unittest2.TestCase):
             _helpers._from_bytes(value)
 
 
-class Test__urlsafe_b64encode(unittest2.TestCase):
+class Test__urlsafe_b64encode(unittest.TestCase):
 
     DEADBEEF_ENCODED = b'ZGVhZGJlZWY'
 
@@ -215,7 +216,7 @@ class Test__urlsafe_b64encode(unittest2.TestCase):
         self.assertEqual(result, self.DEADBEEF_ENCODED)
 
 
-class Test__urlsafe_b64decode(unittest2.TestCase):
+class Test__urlsafe_b64decode(unittest.TestCase):
 
     def test_valid_input_bytes(self):
         test_string = b'ZGVhZGJlZWY'
