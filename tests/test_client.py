@@ -1619,6 +1619,9 @@ class OAuth2WebServerFlowTest(unittest.TestCase):
             user_agent='unittest-sample/1.0',
             revoke_uri='dummy_revoke_uri',
         )
+        self.bad_verifier = b'__NOT_THE_VERIFIER_YOURE_LOOKING_FOR__'
+        self.good_verifier = b'__TEST_VERIFIER__'
+        self.good_challenger = b'__TEST_CHALLENGE__'
 
     def test_construct_authorize_url(self):
         authorize_url = self.flow.step1_get_authorize_url(state='state+1')
@@ -1691,19 +1694,42 @@ class OAuth2WebServerFlowTest(unittest.TestCase):
     @mock.patch('oauth2client.client._pkce.code_challenge')
     @mock.patch('oauth2client.client._pkce.code_verifier')
     def test_step1_get_authorize_url_pkce(self, fake_verifier, fake_challenge):
-        fake_verifier.return_value = b'__TEST_VERIFIER__'
-        fake_challenge.return_value = b'__TEST_CHALLENGE__'
+        fake_verifier.return_value = self.good_verifier
+        fake_challenge.return_value = self.good_challenger
         flow = client.OAuth2WebServerFlow(
-                    'client_id+1',
-                    scope='foo',
-                    redirect_uri='http://example.com',
-                    pkce=True)
+            'client_id+1',
+            scope='foo',
+            redirect_uri='http://example.com',
+            pkce=True)
         auth_url = urllib.parse.urlparse(flow.step1_get_authorize_url())
-        self.assertEqual(flow.code_verifier, b'__TEST_VERIFIER__')
+        self.assertEqual(flow.code_verifier, self.good_verifier)
         results = dict(urllib.parse.parse_qsl(auth_url.query))
-        self.assertEqual(results['code_challenge'], '__TEST_CHALLENGE__')
+        self.assertEqual(
+            results['code_challenge'], self.good_challenger.decode())
         self.assertEqual(results['code_challenge_method'], 'S256')
-        fake_challenge.assert_called_with(b'__TEST_VERIFIER__')
+        fake_verifier.assert_called()
+        fake_challenge.assert_called_with(self.good_verifier)
+
+    @mock.patch('oauth2client.client._pkce.code_challenge')
+    @mock.patch('oauth2client.client._pkce.code_verifier')
+    def test_step1_get_authorize_url_pkce_invalid_verifier(
+            self, fake_verifier, fake_challenge):
+        fake_verifier.return_value = self.good_verifier
+        fake_challenge.return_value = self.good_challenger
+        flow = client.OAuth2WebServerFlow(
+            'client_id+1',
+            scope='foo',
+            redirect_uri='http://example.com',
+            pkce=True,
+            code_verifier=self.bad_verifier)
+        auth_url = urllib.parse.urlparse(flow.step1_get_authorize_url())
+        self.assertEqual(flow.code_verifier, self.bad_verifier)
+        results = dict(urllib.parse.parse_qsl(auth_url.query))
+        self.assertEqual(
+            results['code_challenge'], self.good_challenger.decode())
+        self.assertEqual(results['code_challenge_method'], 'S256')
+        fake_verifier.assert_not_called()
+        fake_challenge.assert_called_with(self.bad_verifier)
 
     def test_step1_get_authorize_url_without_redirect(self):
         flow = client.OAuth2WebServerFlow('client_id+1', scope='foo',
@@ -1955,17 +1981,18 @@ class OAuth2WebServerFlowTest(unittest.TestCase):
             ({'status': http_client.OK}, b'access_token=SlAV32hkKG'),
         ])
         flow = client.OAuth2WebServerFlow(
-                    'client_id+1',
-                    scope='foo',
-                    redirect_uri='http://example.com',
-                    pkce=True,
-                    code_verifier=b'__TEST_VERIFIER__'
-                )
+            'client_id+1',
+            scope='foo',
+            redirect_uri='http://example.com',
+            pkce=True,
+            code_verifier=self.good_verifier)
         flow.step2_exchange(code='some random code', http=http)
 
         self.assertEqual(len(http.requests), 1)
         test_request = http.requests[0]
-        self.assertIn('code_verifier=__TEST_VERIFIER__', test_request['body'])
+        self.assertIn(
+            'code_verifier={0}'.format(self.good_verifier.decode()),
+            test_request['body'])
 
     def test_exchange_using_authorization_header(self):
         auth_header = 'Basic Y2xpZW50X2lkKzE6c2Vjexc_managerV0KzE=',

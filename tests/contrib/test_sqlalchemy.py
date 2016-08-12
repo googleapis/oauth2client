@@ -15,6 +15,7 @@
 import datetime
 import unittest
 
+import mock
 import sqlalchemy
 import sqlalchemy.ext.declarative
 import sqlalchemy.orm
@@ -66,7 +67,8 @@ class TestSQLAlchemyStorage(unittest.TestCase):
         self.assertEqual(result.token_uri, self.credentials.token_uri)
         self.assertEqual(result.user_agent, self.credentials.user_agent)
 
-    def test_get(self):
+    @mock.patch('oauth2client.client.OAuth2Credentials.set_store')
+    def test_get(self, set_store):
         session = self.session()
         credentials_storage = oauth2client.contrib.sqlalchemy.Storage(
             session=session,
@@ -75,7 +77,21 @@ class TestSQLAlchemyStorage(unittest.TestCase):
             key_value=1,
             property_name='credentials',
         )
+        # No credentials stored
         self.assertIsNone(credentials_storage.get())
+
+        # Invalid credentials stored
+        session.add(DummyModel(
+            key=1,
+            credentials=oauth2client.client.Credentials(),
+        ))
+        session.commit()
+        bad_credentials = credentials_storage.get()
+        self.assertIsInstance(bad_credentials, oauth2client.client.Credentials)
+        set_store.assert_not_called()
+
+        # Valid credentials stored
+        session.query(DummyModel).filter_by(key=1).delete()
         session.add(DummyModel(
             key=1,
             credentials=self.credentials,
@@ -83,16 +99,20 @@ class TestSQLAlchemyStorage(unittest.TestCase):
         session.commit()
 
         self.compare_credentials(credentials_storage.get())
+        set_store.assert_called_with(credentials_storage)
 
     def test_put(self):
         session = self.session()
-        oauth2client.contrib.sqlalchemy.Storage(
+        storage = oauth2client.contrib.sqlalchemy.Storage(
             session=session,
             model_class=DummyModel,
             key_name='key',
             key_value=1,
             property_name='credentials',
-        ).put(self.credentials)
+        )
+        # Store invalid credentials first to verify overwriting
+        storage.put(oauth2client.client.Credentials())
+        storage.put(self.credentials)
         session.commit()
 
         entity = session.query(DummyModel).filter_by(key=1).first()
