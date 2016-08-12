@@ -152,8 +152,8 @@ class Oauth2CallbackTest(tests_django_util.TestWithDjangoEnvironment):
         self.user = django_models.User.objects.create_user(
             username='bill', email='bill@example.com', password='hunter2')
 
-    @mock.patch('oauth2client.contrib.django_util.views.pickle')
-    def test_callback_works(self, pickle):
+    @mock.patch('oauth2client.contrib.django_util.views.jsonpickle')
+    def test_callback_works(self, jsonpickle_mock):
         request = self.factory.get('oauth2/oauth2callback', data={
             'state': json.dumps(self.fake_state),
             'code': 123
@@ -169,9 +169,10 @@ class Oauth2CallbackTest(tests_django_util.TestWithDjangoEnvironment):
             redirect_uri=request.build_absolute_uri("oauth2/oauth2callback"))
 
         name = 'google_oauth2_flow_{0}'.format(self.CSRF_TOKEN)
-        self.session[name] = pickle.dumps(flow)
+        pickled_flow = object()
+        self.session[name] = pickled_flow
         flow.step2_exchange = mock.Mock()
-        pickle.loads.return_value = flow
+        jsonpickle_mock.decode.return_value = flow
 
         request.session = self.session
         request.user = self.user
@@ -180,9 +181,10 @@ class Oauth2CallbackTest(tests_django_util.TestWithDjangoEnvironment):
         self.assertEqual(
             response.status_code, django.http.HttpResponseRedirect.status_code)
         self.assertEqual(response['Location'], self.RETURN_URL)
+        jsonpickle_mock.decode.assert_called_once_with(pickled_flow)
 
-    @mock.patch('oauth2client.contrib.django_util.views.pickle')
-    def test_callback_handles_bad_flow_exchange(self, pickle):
+    @mock.patch('oauth2client.contrib.django_util.views.jsonpickle')
+    def test_callback_handles_bad_flow_exchange(self, jsonpickle_mock):
         request = self.factory.get('oauth2/oauth2callback', data={
             "state": json.dumps(self.fake_state),
             "code": 123
@@ -198,17 +200,19 @@ class Oauth2CallbackTest(tests_django_util.TestWithDjangoEnvironment):
             redirect_uri=request.build_absolute_uri('oauth2/oauth2callback'))
 
         session_key = 'google_oauth2_flow_{0}'.format(self.CSRF_TOKEN)
-        self.session[session_key] = pickle.dumps(flow)
+        pickled_flow = object()
+        self.session[session_key] = pickled_flow
 
         def local_throws(code):
             raise client.FlowExchangeError('test')
 
         flow.step2_exchange = local_throws
-        pickle.loads.return_value = flow
+        jsonpickle_mock.decode.return_value = flow
 
         request.session = self.session
         response = views.oauth2_callback(request)
         self.assertIsInstance(response, http.HttpResponseBadRequest)
+        jsonpickle_mock.decode.assert_called_once_with(pickled_flow)
 
     def test_error_returns_bad_request(self):
         request = self.factory.get('oauth2/oauth2callback', data={
