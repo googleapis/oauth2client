@@ -205,6 +205,11 @@ class Test__urlsafe_b64encode(unittest.TestCase):
 
     DEADBEEF_ENCODED = b'ZGVhZGJlZWY'
 
+    def test_valid_input_str(self):
+        test_string = 'deadbeef'
+        result = _helpers._urlsafe_b64encode(test_string)
+        self.assertEqual(result, self.DEADBEEF_ENCODED)
+
     def test_valid_input_bytes(self):
         test_string = b'deadbeef'
         result = _helpers._urlsafe_b64encode(test_string)
@@ -218,15 +223,22 @@ class Test__urlsafe_b64encode(unittest.TestCase):
 
 class Test__urlsafe_b64decode(unittest.TestCase):
 
+    DEADBEEF_DECODED = b'deadbeef'
+
+    def test_valid_input_str(self):
+        test_string = 'ZGVhZGJlZWY'
+        result = _helpers._urlsafe_b64decode(test_string)
+        self.assertEqual(result, self.DEADBEEF_DECODED)
+
     def test_valid_input_bytes(self):
         test_string = b'ZGVhZGJlZWY'
         result = _helpers._urlsafe_b64decode(test_string)
-        self.assertEqual(result, b'deadbeef')
+        self.assertEqual(result, self.DEADBEEF_DECODED)
 
     def test_valid_input_unicode(self):
-        test_string = b'ZGVhZGJlZWY'
+        test_string = u'ZGVhZGJlZWY'
         result = _helpers._urlsafe_b64decode(test_string)
-        self.assertEqual(result, b'deadbeef')
+        self.assertEqual(result, self.DEADBEEF_DECODED)
 
     def test_bad_input(self):
         import binascii
