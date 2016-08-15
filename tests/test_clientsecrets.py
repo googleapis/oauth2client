@@ -25,9 +25,6 @@ from oauth2client import _helpers
 from oauth2client import clientsecrets
 
 
-__author__ = 'jcgregorio@google.com (Joe Gregorio)'
-
-
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 VALID_FILE = os.path.join(DATA_DIR, 'client_secrets.json')
 INVALID_FILE = os.path.join(DATA_DIR, 'unfilled_client_secrets.json')

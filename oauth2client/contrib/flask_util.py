@@ -187,8 +187,6 @@ from oauth2client import transport
 from oauth2client.contrib import dictionary_storage
 
 
-__author__ = 'jonwayne@google.com (Jon Wayne Parrott)'
-
 _DEFAULT_SCOPES = ('email',)
 _CREDENTIALS_KEY = 'google_oauth2_credentials'
 _FLOW_KEY = 'google_oauth2_flow_{0}'

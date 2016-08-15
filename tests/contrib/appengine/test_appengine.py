@@ -40,7 +40,6 @@ from oauth2client import clientsecrets
 from oauth2client.contrib import appengine
 from tests import http_mock
 
-__author__ = 'jcgregorio@google.com (Joe Gregorio)'
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), '..', '..', 'data')
 DEFAULT_RESP = """\

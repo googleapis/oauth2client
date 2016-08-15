@@ -25,9 +25,6 @@ from oauth2client import _helpers
 from oauth2client import client
 
 
-__author__ = 'jcgregorio@google.com (Joe Gregorio)'
-
-
 class Storage(client.Storage):
     """Store and retrieve a single credential to and from a file."""
 

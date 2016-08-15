@@ -39,8 +39,6 @@ from oauth2client import clientsecrets
 from oauth2client import transport
 
 
-__author__ = 'jcgregorio@google.com (Joe Gregorio)'
-
 HAS_OPENSSL = False
 HAS_CRYPTO = False
 try:

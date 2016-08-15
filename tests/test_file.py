@@ -41,8 +41,6 @@ try:
 except:  # pragma: NO COVER
     pass
 
-__author__ = 'jcgregorio@google.com (Joe Gregorio)'
-
 _filehandle, FILENAME = tempfile.mkstemp('oauth2client_test.data')
 os.close(_filehandle)
 

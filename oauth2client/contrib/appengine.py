@@ -45,8 +45,6 @@ except ImportError:  # pragma: NO COVER
     _appengine_ndb = None
 
 
-__author__ = 'jcgregorio@google.com (Joe Gregorio)'
-
 logger = logging.getLogger(__name__)
 
 OAUTH2CLIENT_NAMESPACE = 'oauth2client#ns'

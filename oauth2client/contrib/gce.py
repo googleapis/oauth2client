@@ -26,8 +26,6 @@ from oauth2client import client
 from oauth2client.contrib import _metadata
 
 
-__author__ = 'jcgregorio@google.com (Joe Gregorio)'
-
 logger = logging.getLogger(__name__)
 
 _SCOPES_WARNING = """\

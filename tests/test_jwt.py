@@ -31,9 +31,6 @@ from oauth2client import transport
 from tests import http_mock
 
 
-__author__ = 'jcgregorio@google.com (Joe Gregorio)'
-
-
 _FORMATS_TO_CONSTRUCTOR_ARGS = {
     'p12': 'private_key_pkcs12',
     'pem': 'private_key_pkcs8_pem',

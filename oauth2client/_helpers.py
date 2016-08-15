@@ -26,11 +26,6 @@ import six
 from six.moves import urllib
 
 
-__author__ = (
-    'rafek@google.com (Rafe Kaplan)',
-    'guido@google.com (Guido van Rossum)',
-)
-
 logger = logging.getLogger(__name__)
 
 POSITIONAL_WARNING = 'WARNING'
