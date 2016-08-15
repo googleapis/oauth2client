@@ -21,6 +21,8 @@ matrix:
     env: TOX_ENV=system-tests
   - python: 3.4
     env: TOX_ENV=system-tests3
+  - python: 2.7
+    env: TOX_ENV=cover
 env:
   global:
   - GAE_PYTHONPATH=${HOME}/.cache/google_appengine
@@ -33,7 +35,7 @@ install:
 script:
 - ./scripts/run.sh
 after_success:
-- if [[ "${TOX_ENV}" == "gae" ]]; then tox -e coveralls; fi
+- if [[ "${TOX_ENV}" == "cover" ]]; then coveralls; fi
 notifications:
   email: false
 
