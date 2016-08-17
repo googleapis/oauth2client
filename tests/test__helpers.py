@@ -19,6 +19,7 @@ import unittest
 import mock
 
 from oauth2client import _helpers
+from tests import test_client
 
 
 class PositionalTests(unittest.TestCase):
@@ -242,3 +243,42 @@ class Test__urlsafe_b64decode(unittest.TestCase):
         bad_string = b'+'
         with self.assertRaises((TypeError, binascii.Error)):
             _helpers._urlsafe_b64decode(bad_string)
+
+
+class Test_update_query_params(unittest.TestCase):
+
+    def test_update_query_params_no_params(self):
+        uri = 'http://www.google.com'
+        updated = _helpers.update_query_params(uri, {'a': 'b'})
+        self.assertEqual(updated, uri + '?a=b')
+
+    def test_update_query_params_existing_params(self):
+        uri = 'http://www.google.com?x=y'
+        updated = _helpers.update_query_params(uri, {'a': 'b', 'c': 'd&'})
+        hardcoded_update = uri + '&a=b&c=d%26'
+        test_client.assertUrisEqual(self, updated, hardcoded_update)
+
+    def test_update_query_params_replace_param(self):
+        base_uri = 'http://www.google.com'
+        uri = base_uri + '?x=a'
+        updated = _helpers.update_query_params(uri, {'x': 'b', 'y': 'c'})
+        hardcoded_update = base_uri + '?x=b&y=c'
+        test_client.assertUrisEqual(self, updated, hardcoded_update)
+
+    def test_update_query_params_repeated_params(self):
+        uri = 'http://www.google.com?x=a&x=b'
+        with self.assertRaises(ValueError):
+            _helpers.update_query_params(uri, {'a': 'c'})
+
+
+class Test_parse_unique_urlencoded(unittest.TestCase):
+
+    def test_without_repeats(self):
+        content = 'a=b&c=d'
+        result = _helpers.parse_unique_urlencoded(content)
+        self.assertEqual(result, {'a': 'b', 'c': 'd'})
+
+    def test_with_repeats(self):
+        content = 'a=b&a=d'
+        with self.assertRaises(ValueError):
+            _helpers.parse_unique_urlencoded(content)

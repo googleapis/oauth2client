@@ -179,6 +179,54 @@ def string_to_scopes(scopes):
         return scopes
 
 
+def parse_unique_urlencoded(content):
+    """Parses unique key-value parameters from urlencoded content.
+
+    Args:
+        content: string, URL-encoded key-value pairs.
+
+    Returns:
+        dict, The key-value pairs from ``content``.
+
+    Raises:
+        ValueError: if one of the keys is repeated.
+    """
+    urlencoded_params = urllib.parse.parse_qs(content)
+    params = {}
+    for key, value in six.iteritems(urlencoded_params):
+        if len(value) != 1:
+            msg = ('URL-encoded content contains a repeated value:'
+                   '%s -> %s' % (key, ', '.join(value)))
+            raise ValueError(msg)
+        params[key] = value[0]
+    return params
+
+
+def update_query_params(uri, params):
+    """Updates a URI with new query parameters.
+
+    If a given key from ``params`` is repeated in the ``uri``, then
+    the URI will be considered invalid and an error will occur.
+
+    If the URI is valid, then each value from ``params`` will
+    replace the corresponding value in the query parameters (if
+    it exists).
+
+    Args:
+        uri: string, A valid URI, with potential existing query parameters.
+        params: dict, A dictionary of query parameters.
+
+    Returns:
+        The same URI but with the new query parameters added.
+    """
+    parts = urllib.parse.urlparse(uri)
+    query_params = parse_unique_urlencoded(parts.query)
+    query_params.update(params)
+    new_query = urllib.parse.urlencode(query_params)
+    new_parts = parts._replace(query=new_query)
+    return urllib.parse.urlunparse(new_parts)
+
+
 def _add_query_parameter(url, name, value):
     """Adds a query parameter to a url.
 
@@ -195,11 +243,7 @@ def _add_query_parameter(url, name, value):
     if value is None:
         return url
     else:
-        parsed = list(urllib.parse.urlparse(url))
-        query = dict(urllib.parse.parse_qsl(parsed[4]))
-        query[name] = value
-        parsed[4] = urllib.parse.urlencode(query)
-        return urllib.parse.urlunparse(parsed)
+        return update_query_params(url, {name: value})
 
 
 def validate_file(filename):
