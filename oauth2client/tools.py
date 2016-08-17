@@ -122,16 +122,16 @@ class ClientRedirectHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         if an error occurred.
         """
         self.send_response(http_client.OK)
-        self.send_header("Content-type", "text/html")
+        self.send_header('Content-type', 'text/html')
         self.end_headers()
-        query = self.path.split('?', 1)[-1]
-        query = dict(urllib.parse.parse_qsl(query))
+        parts = urllib.parse.urlparse(self.path)
+        query = _helpers.parse_unique_urlencoded(parts.query)
         self.server.query_params = query
         self.wfile.write(
-            b"<html><head><title>Authentication Status</title></head>")
+            b'<html><head><title>Authentication Status</title></head>')
         self.wfile.write(
-            b"<body><p>The authentication flow has completed.</p>")
-        self.wfile.write(b"</body></html>")
+            b'<body><p>The authentication flow has completed.</p>')
+        self.wfile.write(b'</body></html>')
 
     def log_message(self, format, *args):
         """Do not log messages to stdout while running as cmd. line program."""

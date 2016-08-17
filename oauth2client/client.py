@@ -438,23 +438,6 @@ class Storage(object):
             self.release_lock()
 
 
-def _update_query_params(uri, params):
-    """Updates a URI with new query parameters.
-
-    Args:
-        uri: string, A valid URI, with potential existing query parameters.
-        params: dict, A dictionary of query parameters.
-
-    Returns:
-        The same URI but with the new query parameters added.
-    """
-    parts = urllib.parse.urlparse(uri)
-    query_params = dict(urllib.parse.parse_qsl(parts.query))
-    query_params.update(params)
-    new_parts = parts._replace(query=urllib.parse.urlencode(query_params))
-    return urllib.parse.urlunparse(new_parts)
-
-
 class OAuth2Credentials(Credentials):
     """Credentials object for OAuth 2.0.
 
@@ -850,7 +833,8 @@ class OAuth2Credentials(Credentials):
         """
         logger.info('Revoking token')
         query_params = {'token': token}
-        token_revoke_uri = _update_query_params(self.revoke_uri, query_params)
+        token_revoke_uri = _helpers.update_query_params(
+            self.revoke_uri, query_params)
         resp, content = transport.request(http, token_revoke_uri)
         if resp.status == http_client.OK:
             self.invalid = True
@@ -889,8 +873,8 @@ class OAuth2Credentials(Credentials):
         """
         logger.info('Refreshing scopes')
         query_params = {'access_token': token, 'fields': 'scope'}
-        token_info_uri = _update_query_params(self.token_info_uri,
-                                              query_params)
+        token_info_uri = _helpers.update_query_params(
+            self.token_info_uri, query_params)
         resp, content = transport.request(http, token_info_uri)
         content = _helpers._from_bytes(content)
         if resp.status == http_client.OK:
@@ -1610,7 +1594,7 @@ def _parse_exchange_token_response(content):
     except Exception:
         # different JSON libs raise different exceptions,
         # so we just do a catch-all here
-        resp = dict(urllib.parse.parse_qsl(content))
+        resp = _helpers.parse_unique_urlencoded(content)
 
     # some providers respond with 'expires', others with 'expires_in'
     if resp and 'expires' in resp:
@@ -1943,7 +1927,7 @@ class OAuth2WebServerFlow(Flow):
             query_params['code_challenge_method'] = 'S256'
 
         query_params.update(self.params)
-        return _update_query_params(self.auth_uri, query_params)
+        return _helpers.update_query_params(self.auth_uri, query_params)
 
     @_helpers.positional(1)
     def step1_get_device_and_user_codes(self, http=None):

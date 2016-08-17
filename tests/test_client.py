@@ -1364,7 +1364,7 @@ class BasicCredentialsTests(unittest.TestCase):
             self.assertEqual(credentials.scopes, set())
             self.assertEqual(exc_manager.exception.args, (error_msg,))
 
-        token_uri = client._update_query_params(
+        token_uri = _helpers.update_query_params(
             oauth2client.GOOGLE_TOKEN_INFO_URI,
             {'fields': 'scope', 'access_token': token})
 
@@ -1558,19 +1558,6 @@ class TestAssertionCredentials(unittest.TestCase):
             credentials.sign_blob(b'blob')
 
 
-class UpdateQueryParamsTest(unittest.TestCase):
-    def test_update_query_params_no_params(self):
-        uri = 'http://www.google.com'
-        updated = client._update_query_params(uri, {'a': 'b'})
-        self.assertEqual(updated, uri + '?a=b')
-
-    def test_update_query_params_existing_params(self):
-        uri = 'http://www.google.com?x=y'
-        updated = client._update_query_params(uri, {'a': 'b', 'c': 'd&'})
-        hardcoded_update = uri + '&a=b&c=d%26'
-        assertUrisEqual(self, updated, hardcoded_update)
-
-
 class ExtractIdTokenTest(unittest.TestCase):
     """Tests client._extract_id_token()."""
 
@@ -1670,7 +1657,7 @@ class OAuth2WebServerFlowTest(unittest.TestCase):
             'access_type': 'offline',
             'response_type': 'code',
         }
-        expected = client._update_query_params(flow.auth_uri, query_params)
+        expected = _helpers.update_query_params(flow.auth_uri, query_params)
         assertUrisEqual(self, expected, result)
         # Check stubs.
         self.assertEqual(logger.warning.call_count, 1)
@@ -1735,7 +1722,7 @@ class OAuth2WebServerFlowTest(unittest.TestCase):
             'access_type': 'offline',
             'response_type': 'code',
         }
-        expected = client._update_query_params(flow.auth_uri, query_params)
+        expected = _helpers.update_query_params(flow.auth_uri, query_params)
         assertUrisEqual(self, expected, result)
 
     def test_step1_get_device_and_user_codes_wo_device_uri(self):
