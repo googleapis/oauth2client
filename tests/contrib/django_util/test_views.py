@@ -26,8 +26,8 @@ from six.moves import reload_module
 
 from oauth2client import client
 import oauth2client.contrib.django_util
-from oauth2client.contrib.django_util import views
 from oauth2client.contrib.django_util import models
+from oauth2client.contrib.django_util import views
 from tests.contrib import django_util as tests_django_util
 from tests.contrib.django_util import models as tests_models
 
