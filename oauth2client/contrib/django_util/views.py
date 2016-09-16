@@ -170,7 +170,10 @@ def oauth2_authorize(request):
          A redirect to Google OAuth2 Authorization.
     """
     return_url = request.GET.get('return_url', None)
+    if not return_url:
+        return_url = request.META.get('HTTP_REFERER', '/')
 
+    scopes = request.GET.getlist('scopes', django_util.oauth2_settings.scopes)
     # Model storage (but not session storage) requires a logged in user
     if django_util.oauth2_settings.storage_model:
         if not request.user.is_authenticated():
@@ -178,13 +181,11 @@ def oauth2_authorize(request):
                 settings.LOGIN_URL, parse.quote(request.get_full_path())))
         # This checks for the case where we ended up here because of a logged
         # out user but we had credentials for it in the first place
-        elif get_storage(request).get() is not None:
-            return redirect(return_url)
+        else:
+            user_oauth = django_util.UserOAuth2(request, scopes, return_url)
+            if user_oauth.has_credentials():
+                return redirect(return_url)
 
-    scopes = request.GET.getlist('scopes', django_util.oauth2_settings.scopes)
-
-    if not return_url:
-        return_url = request.META.get('HTTP_REFERER', '/')
     flow = _make_flow(request=request, scopes=scopes, return_url=return_url)
     auth_url = flow.step1_get_authorize_url()
     return shortcuts.redirect(auth_url)

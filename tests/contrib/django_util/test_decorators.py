@@ -92,7 +92,7 @@ class OAuth2EnabledDecoratorTest(tests_django_util.TestWithDjangoEnvironment):
 
         credentials_mock = mock.Mock(
             scopes=set(django.conf.settings.GOOGLE_OAUTH2_SCOPES))
-        credentials_mock.has_scopes = True
+        credentials_mock.has_scopes = mock.Mock(return_value=True)
         credentials_mock.is_valid = True
         dictionary_storage_mock.get.return_value = credentials_mock
 
@@ -183,7 +183,7 @@ class OAuth2RequiredDecoratorTest(tests_django_util.TestWithDjangoEnvironment):
 
         credentials_mock = mock.Mock(
             scopes=set(django.conf.settings.GOOGLE_OAUTH2_SCOPES))
-        credentials_mock.has_scopes = False
+        credentials_mock.has_scopes = mock.Mock(return_value=False)
         OAuth2Credentials.from_json.return_value = credentials_mock
 
         @decorators.oauth_required(scopes=['additional-scope'])

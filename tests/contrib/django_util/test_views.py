@@ -26,7 +26,6 @@ from six.moves import reload_module
 
 from oauth2client import client
 import oauth2client.contrib.django_util
-from oauth2client.contrib.django_util import models
 from oauth2client.contrib.django_util import views
 from tests.contrib import django_util as tests_django_util
 from tests.contrib.django_util import models as tests_models
@@ -117,15 +116,31 @@ class Oauth2AuthorizeStorageModelTest(
         response = views.oauth2_authorize(request)
         self.assertIsInstance(response, http.HttpResponseRedirect)
 
-    def test_authorized_user_not_logged_in_redirects(self):
+    def test_authorized_user_no_credentials_redirects(self):
         request = self.factory.get('oauth2/oauth2authorize',
                                    data={'return_url': '/return_endpoint'})
         request.session = self.session
 
         authorized_user = django_models.User.objects.create_user(
             username='bill2', email='bill@example.com', password='hunter2')
-        credentials = models.CredentialsField()
 
+        tests_models.CredentialsModel.objects.create(
+            user_id=authorized_user,
+            credentials=None)
+
+        request.user = authorized_user
+        response = views.oauth2_authorize(request)
+        self.assertIsInstance(response, http.HttpResponseRedirect)
+
+    def test_already_authorized(self):
+        request = self.factory.get('oauth2/oauth2authorize',
+                                   data={'return_url': '/return_endpoint'})
+        request.session = self.session
+
+        authorized_user = django_models.User.objects.create_user(
+            username='bill2', email='bill@example.com', password='hunter2')
+
+        credentials = _Credentials()
         tests_models.CredentialsModel.objects.create(
             user_id=authorized_user,
             credentials=credentials)
@@ -133,6 +148,18 @@ class Oauth2AuthorizeStorageModelTest(
         request.user = authorized_user
         response = views.oauth2_authorize(request)
         self.assertIsInstance(response, http.HttpResponseRedirect)
+        self.assertEqual(response.url, '/return_endpoint')
+
+
+class _Credentials(object):
+    # Can't use mock when testing Django models
+    # https://code.djangoproject.com/ticket/25493
+    def __init__(self):
+        self.invalid = False
+        self.scopes = set()
+
+    def has_scopes(self, _):
+        return True
 
 
 class Oauth2CallbackTest(tests_django_util.TestWithDjangoEnvironment):
