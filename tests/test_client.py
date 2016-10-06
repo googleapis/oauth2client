@@ -819,8 +819,8 @@ class DummyDeleteStorage(client.Storage):
         self.delete_called = True
 
 
-def _token_revoke_test_helper(testcase, status, revoke_raise,
-                              valid_bool_value, token_attr):
+def _token_revoke_test_helper(testcase, revoke_raise, valid_bool_value,
+                              token_attr, http_mock):
     current_store = getattr(testcase.credentials, 'store', None)
 
     dummy_store = DummyDeleteStorage()
@@ -834,12 +834,11 @@ def _token_revoke_test_helper(testcase, status, revoke_raise,
         return actual_do_revoke(http, token)
     testcase.credentials._do_revoke = do_revoke_stub
 
-    http = http_mock.HttpMock(headers={'status': status})
     if revoke_raise:
         testcase.assertRaises(client.TokenRevokeError,
-                              testcase.credentials.revoke, http)
+                              testcase.credentials.revoke, http_mock)
     else:
-        testcase.credentials.revoke(http)
+        testcase.credentials.revoke(http_mock)
 
     testcase.assertEqual(getattr(testcase.credentials, token_attr),
                          testcase.token_from_revoke)
@@ -922,21 +921,38 @@ class BasicCredentialsTests(unittest.TestCase):
             self.assertEqual(None, self.credentials.token_response)
 
     def test_token_revoke_success(self):
+        http = http_mock.HttpMock(headers={'status': http_client.OK})
         _token_revoke_test_helper(
-            self, '200', revoke_raise=False,
-            valid_bool_value=True, token_attr='refresh_token')
+            self, revoke_raise=False, valid_bool_value=True,
+            token_attr='refresh_token', http_mock=http)
 
     def test_token_revoke_failure(self):
+        http = http_mock.HttpMock(headers={'status': http_client.BAD_REQUEST})
         _token_revoke_test_helper(
-            self, '400', revoke_raise=True,
-            valid_bool_value=False, token_attr='refresh_token')
+            self, revoke_raise=True, valid_bool_value=False,
+            token_attr='refresh_token', http_mock=http)
 
     def test_token_revoke_fallback(self):
         original_credentials = self.credentials.to_json()
         self.credentials.refresh_token = None
+
+        http = http_mock.HttpMock(headers={'status': http_client.OK})
         _token_revoke_test_helper(
-            self, '200', revoke_raise=False,
-            valid_bool_value=True, token_attr='access_token')
+            self, revoke_raise=False, valid_bool_value=True,
+            token_attr='access_token', http_mock=http)
+        self.credentials = self.credentials.from_json(original_credentials)
+
+    def test_token_revoke_405(self):
+        original_credentials = self.credentials.to_json()
+        self.credentials.refresh_token = None
+
+        http = http_mock.HttpMockSequence([
+            ({'status': http_client.METHOD_NOT_ALLOWED}, b''),
+            ({'status': http_client.OK}, b''),
+        ])
+        _token_revoke_test_helper(
+            self, revoke_raise=False, valid_bool_value=True,
+            token_attr='access_token', http_mock=http)
         self.credentials = self.credentials.from_json(original_credentials)
 
     def test_non_401_error_response(self):
@@ -1483,14 +1499,16 @@ class AccessTokenCredentialsTests(unittest.TestCase):
                 resp, content = transport.request(http, 'http://example.com')
 
     def test_token_revoke_success(self):
+        http = http_mock.HttpMock(headers={'status': http_client.OK})
         _token_revoke_test_helper(
-            self, '200', revoke_raise=False,
-            valid_bool_value=True, token_attr='access_token')
+            self, revoke_raise=False, valid_bool_value=True,
+            token_attr='access_token', http_mock=http)
 
     def test_token_revoke_failure(self):
+        http = http_mock.HttpMock(headers={'status': http_client.BAD_REQUEST})
         _token_revoke_test_helper(
-            self, '400', revoke_raise=True,
-            valid_bool_value=False, token_attr='access_token')
+            self, revoke_raise=True, valid_bool_value=False,
+            token_attr='access_token', http_mock=http)
 
     def test_non_401_error_response(self):
         http = http_mock.HttpMock(headers={'status': http_client.BAD_REQUEST})
@@ -1543,14 +1561,16 @@ class TestAssertionCredentials(unittest.TestCase):
         self.assertEqual(b'Bearer 1/3w', content[b'Authorization'])
 
     def test_token_revoke_success(self):
+        http = http_mock.HttpMock(headers={'status': http_client.OK})
         _token_revoke_test_helper(
-            self, '200', revoke_raise=False,
-            valid_bool_value=True, token_attr='access_token')
+            self, revoke_raise=False, valid_bool_value=True,
+            token_attr='access_token', http_mock=http)
 
     def test_token_revoke_failure(self):
+        http = http_mock.HttpMock(headers={'status': http_client.BAD_REQUEST})
         _token_revoke_test_helper(
-            self, '400', revoke_raise=True,
-            valid_bool_value=False, token_attr='access_token')
+            self, revoke_raise=True, valid_bool_value=False,
+            token_attr='access_token', http_mock=http)
 
     def test_sign_blob_abstract(self):
         credentials = client.AssertionCredentials(None)

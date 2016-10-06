@@ -836,6 +836,10 @@ class OAuth2Credentials(Credentials):
         token_revoke_uri = _helpers.update_query_params(
             self.revoke_uri, query_params)
         resp, content = transport.request(http, token_revoke_uri)
+        if resp.status == http_client.METHOD_NOT_ALLOWED:
+            body = urllib.parse.urlencode(query_params)
+            resp, content = transport.request(http, token_revoke_uri,
+                                              method='POST', body=body)
         if resp.status == http_client.OK:
             self.invalid = True
         else:
