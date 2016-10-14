@@ -1,5 +1,40 @@
 # CHANGELOG
 
+## v4.0.0
+
+New features:
+* New Django samples. (#636)
+* Add support for RFC7636 PKCE. (#588)
+* Release as a universal wheel. (#665)
+
+Bug fixes:
+* Fix django authorization redirect by correctly checking validity of credentials. (#651)
+* Correct query loss when using parse_qsl to dict. (#622)
+* Switch django models from pickle to jsonpickle. (#614)
+* Support new MIDDLEWARE Django 1.10 aetting. (#623)
+* Remove usage of os.environ.setdefault. (#621)
+* Handle missing storage files correctly. (#576)
+* Try to revoke token with POST when getting a 405. (#662)
+
+Internal changes:
+* Use transport module for GCE environment check. (#612)
+* Remove __author__ lines and add contributors.md. (#627)
+* Clean up imports. (#625)
+* Use transport.request in tests. (#607)
+* Drop unittest2 dependency (#610)
+* Remove backslash line continuations. (#608)
+* Use transport helpers in system tests. (#606)
+* Clean up usage of HTTP mocks in tests. (#605)
+* Remove all uses of MagicMock. (#598)
+* Migrate test runner to pytest. (#569)
+* Merge util.py and _helpers.py. (#579)
+* Remove httplib2 imports from non-transport modules. (#577)
+
+Breaking changes:
+* Drop Python 3.3 support. (#603)
+* Drop Python 2.6 support. (#590)
+* Remove multistore_file. (#589)
+
 ## v3.0.0
 
 * Populate `token_expiry` for GCE credentials. (#473)

@@ -42,6 +42,7 @@ notifications:
 deploy:
   provider: pypi
   user: gcloudpypi
+  distributions: sdist bdist_wheel
   password:
     secure: "C9ImNa5kbdnrQNfX9ww4PUtQIr3tN+nfxl7eDkP1B8Qr0QNYjrjov7x+DLImkKvmoJd3dxYtYIpLE9esObUHu0gKHYxqymNHtuAAyoBOUfPtmp0vIEse9brNKMtaey5Ngk7ZWz9EHKBBqRHxqgN+Giby+K9Ta3K3urJIq6urYhE="
   on:
