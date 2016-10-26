@@ -11,7 +11,7 @@ Bug fixes:
 * Fix django authorization redirect by correctly checking validity of credentials. (#651)
 * Correct query loss when using parse_qsl to dict. (#622)
 * Switch django models from pickle to jsonpickle. (#614)
-* Support new MIDDLEWARE Django 1.10 aetting. (#623)
+* Support new MIDDLEWARE Django 1.10 setting. (#623)
 * Remove usage of os.environ.setdefault. (#621)
 * Handle missing storage files correctly. (#576)
 * Try to revoke token with POST when getting a 405. (#662)
