@@ -21,6 +21,8 @@ import base64
 import pickle
 import unittest
 
+import jsonpickle
+
 from oauth2client import _helpers
 from oauth2client import client
 from oauth2client.contrib.django_util import models
@@ -36,6 +38,8 @@ class TestCredentialsField(unittest.TestCase):
         self.credentials = client.Credentials()
         self.pickle_str = _helpers._from_bytes(
             base64.b64encode(pickle.dumps(self.credentials)))
+        self.jsonpickle_str = _helpers._from_bytes(
+            base64.b64encode(jsonpickle.encode(self.credentials).encode()))
 
     def test_field_is_text(self):
         self.assertEqual(self.field.get_internal_type(), 'BinaryField')
@@ -43,6 +47,10 @@ class TestCredentialsField(unittest.TestCase):
     def test_field_unpickled(self):
         self.assertIsInstance(
             self.field.to_python(self.pickle_str), client.Credentials)
+
+    def test_field_jsonunpickled(self):
+        self.assertIsInstance(
+            self.field.to_python(self.jsonpickle_str), client.Credentials)
 
     def test_field_already_unpickled(self):
         self.assertIsInstance(
@@ -62,12 +70,12 @@ class TestCredentialsField(unittest.TestCase):
     def test_field_pickled(self):
         prep_value = self.field.get_db_prep_value(self.credentials,
                                                   connection=None)
-        self.assertEqual(prep_value, self.pickle_str)
+        self.assertEqual(prep_value, self.jsonpickle_str)
 
     def test_field_value_to_string(self):
         self.fake_model.credentials = self.credentials
         value_str = self.fake_model_field.value_to_string(self.fake_model)
-        self.assertEqual(value_str, self.pickle_str)
+        self.assertEqual(value_str, self.jsonpickle_str)
 
     def test_field_value_to_string_none(self):
         self.fake_model.credentials = None
