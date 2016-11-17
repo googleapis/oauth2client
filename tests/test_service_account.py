@@ -369,6 +369,7 @@ class ServiceAccountCredentialsTests(unittest.TestCase):
 
         self.assertEqual(credentials.access_token, token2)
 
+
 TOKEN_LIFE = service_account._JWTAccessCredentials._MAX_TOKEN_LIFETIME_SECS
 T1 = 42
 T1_DATE = datetime.datetime(1970, 1, 1, second=T1)

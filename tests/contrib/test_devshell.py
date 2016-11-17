@@ -160,8 +160,8 @@ class _AuthReferenceServer(threading.Thread):
                     s.recv(to_read, socket.MSG_WAITALL))
             if resp_buffer != devshell.CREDENTIAL_INFO_REQUEST_JSON:
                 self.bad_request = True
-            l = len(self.response)
-            s.sendall('{0}\n{1}'.format(l, self.response).encode())
+            response_len = len(self.response)
+            s.sendall('{0}\n{1}'.format(response_len, self.response).encode())
         finally:
             # Will fail if s is None, but these tests never encounter
             # that scenario.
