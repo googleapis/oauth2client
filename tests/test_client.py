@@ -1479,6 +1479,7 @@ class BasicCredentialsTests(unittest.TestCase):
             http = self.credentials.authorize(http)
             resp, content = transport.request(http, 'http://example.com')
             self.assertEqual(self.credentials.id_token, body)
+            self.assertEqual(self.credentials.id_token_jwt, jwt.decode())
 
 
 class AccessTokenCredentialsTests(unittest.TestCase):
@@ -2085,6 +2086,7 @@ class OAuth2WebServerFlowTest(unittest.TestCase):
         credentials = self.flow.step2_exchange(code='some random code',
                                                http=http)
         self.assertEqual(credentials.id_token, body)
+        self.assertEqual(credentials.id_token_jwt, jwt.decode())
 
 
 class FlowFromCachedClientsecrets(unittest.TestCase):
