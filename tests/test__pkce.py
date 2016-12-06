@@ -33,7 +33,7 @@ class PKCETests(unittest.TestCase):
         fake_urandom.return_value = canned_randomness
         expected = (
             b'mBBEN_O3qvzd003ioywGoLCptI_L0PWGTjJwjF0hV5rt'
-            b'NTSZnY12XKcvgfNKmMOQ7rCMt1pjIwVNME8I2gkfBw=='
+            b'NTSZnY12XKcvgfNKmMOQ7rCMt1pjIwVNME8I2gkfBw'
         )
         result = _pkce.code_verifier()
         self.assertEqual(result, expected)
@@ -50,5 +50,5 @@ class PKCETests(unittest.TestCase):
 
     def test_challenge(self):
         result = _pkce.code_challenge(b'SOME_VERIFIER')
-        expected = b'6xJCQsjTtS3zjUwd8_ZqH0SyviGHnp5PsHXWKOCqDuI='
+        expected = b'6xJCQsjTtS3zjUwd8_ZqH0SyviGHnp5PsHXWKOCqDuI'
         self.assertEqual(result, expected)
