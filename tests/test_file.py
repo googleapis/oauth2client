@@ -38,7 +38,7 @@ from tests import http_mock
 try:
     # Python2
     from future_builtins import oct
-except:  # pragma: NO COVER
+except ImportError:  # pragma: NO COVER
     pass
 
 _filehandle, FILENAME = tempfile.mkstemp('oauth2client_test.data')
