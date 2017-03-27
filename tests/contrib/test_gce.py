@@ -16,10 +16,12 @@
 
 import datetime
 import json
+import os
 import unittest
 
 import mock
 from six.moves import http_client
+from six.moves import reload_module
 
 from oauth2client import client
 from oauth2client.contrib import _metadata
@@ -155,3 +157,19 @@ class AppAssertionCredentialsTests(unittest.TestCase):
                 client.save_to_well_known_file(credentials)
         finally:
             os.path.isdir = ORIGINAL_ISDIR
+
+    def test_custom_metadata_root_from_env(self):
+        headers = {'content-type': 'application/json'}
+        http = http_mock.HttpMock(headers=headers, data='{}')
+        fake_metadata_root = 'another.metadata.service'
+        os.environ['GCE_METADATA_ROOT'] = fake_metadata_root
+        reload_module(_metadata)
+        try:
+            _metadata.get(http, '')
+        finally:
+            del os.environ['GCE_METADATA_ROOT']
+            reload_module(_metadata)
+        # Verify mock.
+        self.assertEqual(http.requests, 1)
+        expected_uri = 'http://{}/computeMetadata/v1/'.format(fake_metadata_root)
+        self.assertEqual(http.uri, expected_uri)
