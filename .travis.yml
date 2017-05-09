@@ -15,8 +15,6 @@ matrix:
     env: TOX_ENV=py34
   - python: 3.5
     env: TOX_ENV=py35
-  - python: pypy
-    env: TOX_ENV=pypy
   - python: 2.7
     env: TOX_ENV=system-tests
   - python: 3.4

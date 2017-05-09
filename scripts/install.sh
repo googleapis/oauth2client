@@ -20,8 +20,8 @@ pip install --upgrade pip setuptools tox coveralls
 
 # App Engine tests require the App Engine SDK.
 if [[ "${TOX_ENV}" == "gae" || "${TOX_ENV}" == "cover" ]]; then
-    pip install git+https://github.com/GoogleCloudPlatform/python-repo-tools.git
-    gcprepotools download-appengine-sdk `dirname ${GAE_PYTHONPATH}`
+    pip install gcp-devrel-py-tools
+    gcp-devrel-py-tools download-appengine-sdk `dirname ${GAE_PYTHONPATH}`
 fi
 
 # Travis ships with an old version of PyPy, so install at least version 2.6.

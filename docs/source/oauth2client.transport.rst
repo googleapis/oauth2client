@@ -1,5 +1,5 @@
-oauth2client.transport module
-=============================
+oauth2client\.transport module
+==============================
 
 .. automodule:: oauth2client.transport
     :members:

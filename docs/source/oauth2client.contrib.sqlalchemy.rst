@@ -1,5 +1,5 @@
-oauth2client.contrib.sqlalchemy module
-======================================
+oauth2client\.contrib\.sqlalchemy module
+========================================
 
 .. automodule:: oauth2client.contrib.sqlalchemy
     :members:

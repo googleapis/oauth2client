@@ -1,5 +1,5 @@
-oauth2client.contrib package
-============================
+oauth2client\.contrib package
+=============================
 
 Subpackages
 -----------
