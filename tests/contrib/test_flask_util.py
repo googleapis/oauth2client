@@ -258,6 +258,18 @@ class FlaskOAuth2Tests(unittest.TestCase):
             self.assertEqual(response.status_code, httplib.BAD_REQUEST)
             self.assertIn('something', response.data.decode('utf-8'))
 
+        # Error supplied to callback with html
+        with self.app.test_client() as client:
+            with client.session_transaction() as session:
+                session['google_oauth2_csrf_token'] = 'tokenz'
+
+            response = client.get(
+                '/oauth2callback?state={}&error=<script>something<script>')
+            self.assertEqual(response.status_code, httplib.BAD_REQUEST)
+            self.assertIn(
+                '&lt;script&gt;something&lt;script&gt;',
+                response.data.decode('utf-8'))
+
         # CSRF mismatch
         with self.app.test_client() as client:
             with client.session_transaction() as session:
