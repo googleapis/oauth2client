@@ -1,5 +1,23 @@
 # CHANGELOG
 
+## v4.1.0
+
+**Note**: oauth2client is now deprecated. No more features will be added to the
+libraries and the core team is turning down support. We recommend you use
+[google-auth](https://google-auth.readthedocs.io) and [oauthlib](http://oauthlib.readthedocs.io/).
+
+New features:
+* Allow customizing the GCE metadata service address via an env var. (#704)
+* Store original encoded and signed identity JWT in OAuth2Credentials. (#680)
+* Use jsonpickle in django contrib, if available. (#676)
+
+Bug fixes:
+* Typo fixes. (#668, #697)
+* Remove b64 padding from PKCE values, per RFC7636. (#683)
+* Include LICENSE in Manifest.in. (#694)
+* Fix tests and CI. (#705, #712, #713)
+* Escape callback error code in flask_util. (#710)
+
 ## v4.0.0
 
 New features:

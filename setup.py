@@ -41,7 +41,14 @@ install_requires = [
     'six>=1.6.1',
 ]
 
-long_desc = 'oauth2client is a client library for OAuth 2.0.'
+long_desc = """
+oauth2client is a client library for OAuth 2.0.
+
+Note: oauth2client is now deprecated. No more features will be added to the
+    libraries and the core team is turning down support. We recommend you use
+    `google-auth <https://google-auth.readthedocs.io>`__ and
+    `oauthlib <http://oauthlib.readthedocs.io/>`__.
+"""
 
 version = oauth2client.__version__
 
@@ -51,6 +58,7 @@ setup(
     description='OAuth 2.0 client library',
     long_description=long_desc,
     author='Google Inc.',
+    author_email='jonwayne+oauth2client@google.com',
     url='http://github.com/google/oauth2client/',
     install_requires=install_requires,
     packages=find_packages(),
@@ -62,7 +70,7 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
-        'Development Status :: 5 - Production/Stable',
+        'Development Status :: 7 - Inactive',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: POSIX',
