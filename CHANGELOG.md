@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v4.1.1
+
+**Note**: oauth2client is deprecated. No more features will be added to the
+libraries and the core team is turning down support. We recommend you use
+[google-auth](https://google-auth.readthedocs.io) and [oauthlib](http://oauthlib.readthedocs.io/).
+
+New features:
+* Allow passing prompt='consent' via the flow_from_clientsecrets. (#717)
+
 ## v4.1.0
 
 **Note**: oauth2client is now deprecated. No more features will be added to the
