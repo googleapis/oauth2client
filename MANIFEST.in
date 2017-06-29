@@ -1,3 +1,2 @@
-include README.md
-include LICENSE
-recursive-exclude tests *
+include README.md LICENSE CHANGELOG.md
+recursive-include tests *
